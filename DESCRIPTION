@@ -1,0 +1,16 @@
+Package: jambio
+Type: Package
+Title: Jam Bioinformatics Analysis Methods
+Version: 0.0.0.900
+Authors@R: person(given="James M.", family="Ward",
+    email="jmw86069@gmail.com", role=c("aut", "cre"))
+Maintainer: James M. Ward <jmw86069@gmail.com>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+Depends: R (>= 3.4.3)
+Imports: jamba
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+URL: http://github.com/jmw86069/jambio
+BugReports: http://github.com/jmw86069/jambio/issues
