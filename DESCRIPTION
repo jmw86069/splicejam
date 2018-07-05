@@ -5,8 +5,10 @@ Version: 0.0.0.900
 Authors@R: person(given="James M.", family="Ward",
     email="jmw86069@gmail.com", role=c("aut", "cre"))
 Maintainer: James M. Ward <jmw86069@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Jam Bioinformatics methods for RNA-seq and other genomics
+    analysis methods. Sashimi coverage plots for RNA-seq, transcript isoform
+    analysis methods to define detected isoforms from RNA-seq data, supporting
+    methods for manipulating gene expression data.
 Depends: R (>= 3.4.3)
 Imports: jamba
 License: GPL-2
