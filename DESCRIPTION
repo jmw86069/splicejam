@@ -10,9 +10,13 @@ Description: Jam Bioinformatics methods for RNA-seq and other genomics
     analysis methods to define detected isoforms from RNA-seq data, supporting
     methods for manipulating gene expression data.
 Depends: R (>= 3.4.3)
-Imports: jamba
+Imports: jamba,
+    data.table,
+    GenomicRanges,
+    GenomicFeatures
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
 URL: http://github.com/jmw86069/jambio
 BugReports: http://github.com/jmw86069/jambio/issues
+RoxygenNote: 6.0.1
