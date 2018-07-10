@@ -10,6 +10,7 @@ Description: Jam Bioinformatics methods for RNA-seq and other genomics
     analysis methods to define detected isoforms from RNA-seq data, supporting
     methods for manipulating gene expression data.
 Depends: R (>= 3.4.3)
+biocViews:
 Imports: jamba,
     data.table,
     GenomicRanges,
