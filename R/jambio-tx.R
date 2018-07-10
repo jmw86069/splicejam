@@ -258,7 +258,7 @@ makeTx2geneFromGtf <- function
 #'    are included, all single-ALE genes are excluded.
 #'
 #' @export
-gencode2ale <- function
+tx2ale <- function
 (gtf=NULL,
  txdb=NULL,
  threeUtrGRL=NULL,
