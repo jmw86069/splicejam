@@ -556,4 +556,380 @@ tx2ale <- function
    return(retVals);
 }
 
+#' Define detected transcripts
+#'
+#' Define detected transcripts
+#'
+#' This function aims to combine evidence from RNA-seq sequence
+#' read counts (or pseudocounts from a kmer tool such as Salmon or
+#' Kallisto), along with alternative TPM quantitation, to determine
+#' the observed "detected" transcript space for a given experiment.
+#'
+#' The criteria must be met in at least one sample group, but all
+#' criteria must be met in the same sample group for an isoform to
+#' be considered "detected".
+#'
+#' In our experience the use of TPM values appears more robust and
+#' is conceptually the best approach for comparing the relative
+#' quantity of one transcript isoform to another. Our reasoning is
+#' that TPM is intended to be roughly a molar quantity of transcript
+#' molecules, independent of the transcript length, and the potential
+#' for overlapping regions between isoforms. We also recommend the use
+#' of a kmer quantitation method, such as Salmon or Kallisto, which
+#' estimates isoform abundances not by specific read counts, but by
+#' quantifying kmers unique to particular isoforms for a given gene.
+#'
+#' In all cases, the thresholds for detection can be modified, however
+#' from our experiences thus far the default values perform reasonably
+#' well at identifying expressed isoforms, while filtering out isoforms
+#' that we considered to be spuriously expressed.
+#'
+#' There are three default requirements for a transcript to be considered
+#' "detected".
+#'
+#' 1. An isoform must be expressed at least 10% of the max isoform for
+#' a given gene, using TPM values.
+#' 2. An isoform must have at least log2(32) pseudocounts to be considered
+#' detected, based upon our view of Salmon pseudocount data using MA-plots.
+#' 3. An isoform must have at least log2(2) TPM units to be considered
+#' detected, based upon our view of Salmon TPM values using MA-plots.
+#'
+#' Each experiment is likely to be different in terms of total
+#' sequenced reads, quality of read alignment or quantitation to the
+#' transcriptome, etc. We suggest observing MA-plots for the counts and
+#' TPM values, for the point at which the signal substantially increases
+#' from baseline zero. We also plotted the TPM versus count per sample,
+#' noted the point at which the two signals began to correlate. These
+#' observations along with careful review of numerous gene model
+#' transcript isoforms supported our selection of these criteria.
+#'
+#' Lastly, the requirement for 10 percent of max isoform expression
+#' was motivated by observing highly expressed genes, which sometimes had
+#' alternative isoforms with extremely low abundance compared to the
+#' most abundant isoform, but which was notably higher than the minimum
+#' for detection. For example Gapdh expression above 100,000 pseudocounts,
+#' may have an isoform with 120 pseudocounts. When we reviewed the sequence
+#' coverage, we could find no compelling evidence to support the minor
+#' isoform, and theorized that the pseudocounts arose from the stochastic
+#' nature of rebalancing relative expression among isoforms.
+#'
+#' @return
+#' List with the following elements:
+#' \describe{
+#'    \item{txExprGrpTx}{Numeric matrix representing the expression
+#'       counts per transcript, grouped by `"gene_name"`.}
+#'    \item{txPctMaxGrpAll}{Numeric matrix representing the
+#'       percent expression of each transcript isoform per gene, as
+#'       compared to the highest expression of isoforms for that gene.}
+#'    \item{txExprGrpAll}{Numeric matrix of sample group counts,
+#'       exponentiated and rounded to integer values.}
+#'    \item{txTPMExprGrpAll}{Numeric matrix of sample group TPM values,
+#'       exponentiated and rounded to integer values.}
+#'    \item{txFilterM}{Numeric matrix indicating whether each isoform met
+#'       the criteria to be considered detected. The criteria must be
+#'       met in the same group for an isoform to be considered detected.}
+#'    \item{detectedTx}{Character vector of transcripts, as defined by
+#'       the `rownames(iMatrixTx)`.}
+#' }
+#'
+#' @param iMatrixTx numeric matrix of read counts (or pseudocounts) with
+#'    transcript rows and sample columns.
+#' @param iMatrixTxGrp numeric matrix of read counts averaged by sample
+#'    group. If this matrix is not provided, it will be calculated
+#'    from `iMatrixTx`
+#'    using `jamba::rowGroupMeans()` and the `groups` parameter.
+#' @param iMatrixTxTPM numeric matrix of TPM values, with sample columns
+#'    and transcript rows. Note that if this parameter is not supplied,
+#'    the counts in `iMatrixTx` will be used to determine the percent
+#'    max isoform expression.
+#' @param iMatrixTxTPMGrp numeric matrix of TPM values averaged by sample
+#'    group. If this matrix is not provided, it will be calculated
+#'    from `iMatrixTxTPM`
+#'    using `jamba::rowGroupMeans()` and the `groups` parameter.
+#' @param groups vector of group labels, either as character vector
+#'    or factor. It should be named by `colnames(iMatrixTx)`.
+#' @params tx2geneDF data.frame with colnames including
+#'    `c("transcript_id","gene_name")`, where the values in the
+#'    `"transcript_id"` column must match the `rownames(iMatrixTx)`.
+#' @param cutoffTxPctMax numeric value scaled from 0 to 100
+#'    indicating the percentage of
+#'    the maximum isoform expression per gene, for an alternate isoform
+#'    to be considered for detection.
+#' @param cutoffTxExpr numeric value indicating the minimum group mean
+#'    counts in `iMatrixTxGrp` for a transcript to be considered for
+#'    detection.
+#' @param cutoffTxTPMExpr numeric value indicating the minimum group mean
+#'    TPM in `iMatrixTxTPMGrp` for a transcript to be considered for
+#'    detection.
+#' @param useMedian logical indicating whether to use group median
+#'    values instead of group mean values.
+#' @param verbose logical indicating whether to print verbose output.
+#'
+#' @export
+defineDetectedTx <- function
+(iMatrixTx=NULL,
+ iMatrixTxGrp=NULL,
+ iMatrixTxTPM=NULL,
+ iMatrixTxTPMGrp=NULL,
+ groups=NULL,
+ tx2geneDF=NULL,
+ cutoffTxPctMax=10,
+ cutoffTxExpr=5,
+ cutoffTxTPMExpr=2,
+ useMedian=FALSE,
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose is to define detected transcripts given some thresholds
+   ## for minimum observed counts, and fraction relative expression
+   ## of each isoform per gene.
+   ##
+   ## cutoffTxExpr is a threshold of counts, after exponentiating iMatrixTx
+   ## via (2^iMatrixTx - 1).
+   ##
+   ## iMatrixTxTPM is a data matrix containing TPM values. When supplied,
+   ## it is used during the step to filter isoforms by percent max expression.
+   ## We noticed that when isoforms were substantially shorter length than
+   ## the isoform with max counts, it had much lower TPM value proportionally,
+   ## as expected. As a result, the suggested method involved using counts
+   ## to filter for minimum counts above noise, and TPM for percent
+   ## max isoform expression.
+   ##
+   ## TODO:
+   ## - Detect whether data needs log2 transformation, and apply it as
+   ##   necessary.
 
+   retVals <- list();
+
+   ## group mean values for counts
+   if (length(iMatrixTxGrp) == 0) {
+      if (length(iMatrixTx) == 0) {
+         stop("defineDetectedTx() requires either iMatrixTx or iMatrixTxGrp.");
+      }
+      if (length(groups) == 0) {
+         stop("defineDetectedTx() requires groups, named by colnames(iMatrixTx).");
+      }
+      if (verbose) {
+         printDebug("defineDetectedTx(): ",
+            "Calculating iMatrixTxGrp.");
+      }
+      iMatrixTxGrp <- rowGroupMeans(iMatrixTx,
+         useMedian=useMedian,
+         groups=groups);
+   }
+
+   ## group mean values for TPM
+   if (length(iMatrixTxTPMGrp) == 0) {
+      if (length(iMatrixTxTPM) > 0) {
+         if (length(groups) == 0) {
+            stop("defineDetectedTx() requires groups, named by colnames(iMatrixTxTPM).");
+         }
+         if (verbose) {
+            printDebug("defineDetectedTx(): ",
+               "Calculating iMatrixTxTPMGrp.");
+         }
+         iMatrixTxTPMGrp <- rowGroupMeans(iMatrixTxTPM,
+            useMedian=useMedian,
+            groups=groups);
+      }
+   }
+
+   ######################################################################
+   ## matrix associating gene to transcript_id, mainly useful since it
+   ## returns transcripts in the same order as each matrix below, which
+   ## otherwise has rownames based upon gene and not transcript.
+   iRows <- match(rownames(iMatrixTxGrp), tx2geneDF$transcript_id);
+   txExprGrpTx <- shrinkMatrix(rownames(iMatrixTxGrp),
+      groupBy=tx2geneDF[iRows,"gene_name"],
+      shrinkFunc=c, returnClass="matrix");
+   retVals$txExprGrpTx <- txExprGrpTx;
+
+
+   ######################################################################
+   ## Percent max isoform expression per isoform per gene
+   if (length(iMatrixTxTPMGrp) > 0) {
+      if (verbose) {
+         printDebug("defineDetectedTx(): ",
+            "Calculating percent max isoform expression by TPM.");
+      }
+      txPctMaxGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
+         groupBy=tx2geneDF[iRows,"gene_name"],
+         shrinkFunc=function(i){
+            round(i/max(c(1, max(i)))*100)
+         },
+         returnClass="matrix");
+      attr(txPctMaxGrpAll, "TxMeasurement") <- "TPM";
+      rownames(txPctMaxGrpAll) <- txExprGrpTx[,1];
+      #retVals$iMatrixTxTPMGrp <- iMatrixTxTPMGrp;
+   } else {
+      if (verbose) {
+         printDebug("defineDetectedTx(): ",
+            "Calculating percent max isoform expression by counts.");
+      }
+      txPctMaxGrpAll <- shrinkMatrix((2^iMatrixTxGrp-1),
+         groupBy=tx2geneDF[iRows,"gene_name"],
+         shrinkFunc=function(i){
+            round(i/max(c(1, max(i, na.rm=TRUE)), na.rm=TRUE)*100);
+         },
+         returnClass="matrix");
+      attr(txPctMaxGrpAll, "TxMeasurement") <- "counts";
+      rownames(txPctMaxGrpAll) <- txExprGrpTx[,1];
+      #retVals$iMatrixTxGrp <- iMatrixTxGrp;
+   }
+   retVals$txPctMaxGrpAll <- txPctMaxGrpAll;
+
+
+   ######################################################################
+   ## Exponentiated expression counts per isoform per gene
+   if (verbose) {
+      printDebug("defineDetectedTx(): ",
+         "Creating exponentiated expression counts, rounded to integers.");
+   }
+   txExprGrpAll <- shrinkMatrix(2^iMatrixTxGrp-1,
+      groupBy=tx2geneDF[iRows,"gene_name"],
+      shrinkFunc=function(i){
+         round(i)
+      },
+      returnClass="matrix");
+   rownames(txExprGrpAll) <- txExprGrpTx[,1];
+   retVals$txExprGrpAll <- txExprGrpAll;
+
+
+   ######################################################################
+   ## Exponentiated expression TPM per isoform per gene
+   if (length(iMatrixTxTPMGrp) > 0) {
+      if (verbose) {
+         printDebug("defineDetectedTx(): ",
+            "Creating exponentiated expression TPM.");
+      }
+      txTPMExprGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
+         groupBy=tx2geneDF[iRows,"gene_name"],
+         shrinkFunc=function(i){
+            round(i)
+         },
+         returnClass="matrix");
+      rownames(txTPMExprGrpAll) <- txExprGrpTx[,1];
+      retVals$txTPMExprGrpAll <- txTPMExprGrpAll;
+   }
+
+
+   ######################################################################
+   ## Apply the filters for detected, expressed Tx
+   ## Tx must be at least 10% of the max TX abundance
+   ## Tx must have expression at least 2^5 (32 counts)
+   ## These conditions must occur in the same sample group,
+   ## but if it occurs in any sample group the Tx is "detected"
+   if (length(iMatrixTxTPMGrp) > 0) {
+      if (verbose) {
+         printDebug("defineDetectedTx(): ",
+            "Applying filters for percentMaxIsoformTPM, Expr counts, Expr TPM.");
+      }
+      txFilterM <- (
+         txPctMaxGrpAll >= cutoffTxPctMax &
+            txExprGrpAll >= cutoffTxExpr &
+            txTPMExprGrpAll >= cutoffTxTPMExpr
+      )*1;
+   } else {
+      if (verbose) {
+         printDebug("defineDetectedTx(): ",
+            "Applying filters for percentMaxIsoform, Expr counts.");
+      }
+      txFilterM <- (
+         txPctMaxGrpAll >= cutoffTxPctMax &
+            txExprGrpAll >= cutoffTxExpr
+      )*1;
+   }
+   retVals$txFilterM <- txFilterM;
+   whichTx <- which(rowMaxs(txFilterM, na.rm=TRUE) > 0);
+   detectedTx <- txExprGrpTx[whichTx,1];
+   retVals$detectedTx <- detectedTx;
+   return(retVals);
+}
+
+#' Shrink numeric matrix by groups of rows
+#'
+#' Shrink numeric matrix by groups of rows
+#'
+#' This function is mainly a wrapper around the very efficient
+#' functions in the `data.table` package, with the ability to
+#' provide a custom function to shrink row values.
+#'
+#' @param x numeric matrix
+#' @param groupBy vector of group labels, whose length equals `nrow(x)`.
+#'    These values will become rownames in the output data.
+#' @param returnClass character string indicating the return data type,
+#'    `"data.frame"` returns a `data.frame` whose first column contains
+#'    entries from `groups`; `"matrix"` returns a numeric matrix whose
+#'    rownames are entries from `groups`.
+#' @param verbose logical indicating whether to print verbose output.
+#'
+#' @export
+shrinkMatrix <- function
+(x,
+ groupBy,
+ shrinkFunc=function(x){.Internal(mean(x))},
+ returnClass=c("data.frame", "matrix"),
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose is to wrapper the data.table() fast function to apply numerical
+   ## operations to grouped rows of a matrix; using matrix because this method
+   ## is written to use only numeric/integer matrices and not text values.
+   ##
+   ## However, in principle this method will work fine as long as all columns
+   ## are to be treated the same way, thus class can be anything valid for the
+   ## function.
+   ##
+   ## Note: using .Internal(mean(x)) is 5x faster than using mean(x)
+   ##
+   ## Timings which show data.table and sqldf are fastest at apply() functions
+   ## on groups:
+   ## http://zvfak.blogspot.com/2011/03/applying-functions-on-groups-sqldf-plyr.html
+   ##
+   ## Another alternative is package sqldf, example syntax:
+   ## n <- 100000;
+   ## grp1 <- sample(1:750, n, replace=TRUE);
+   ## grp2 <- sample(1:750, n, replace=TRUE);
+   ## d <- data.frame(x=rnorm(n), y=rnorm(n), grp1=grp1, grp2=grp2, n, replace=TRUE);
+   ## rsqldf <- system.time(sqldf("select grp1, grp2, avg(x), avg(y) from dgroup by grp1, grp2"));
+   ##
+   ## DT <- data.table(d);
+   ## rdataT <- system.time(DT[,list(.Internal(mean(x)), .Internal(mean(y))), by=list(grp1,grp2)]);
+   if (!suppressPackageStartupMessages(require(data.table))) {
+      stop("This method requires the data.table package.");
+   }
+   returnClass <- match.arg(returnClass);
+
+   ## Create DT object
+   if (verbose) {
+      t1 <- Sys.time();
+   }
+   DT <- data.table(data.frame(check.names=FALSE, stringsAsFactors=FALSE,
+      x, "groupBy"=groupBy),
+      key="groupBy");
+   if (verbose) {
+      t2 <- Sys.time();
+   }
+
+   ## Operate on the DT object
+   byDT <- DT[,lapply(.SD, shrinkFunc), by=groupBy];
+   if (verbose) {
+      t3 <- Sys.time();
+   }
+
+   if (verbose) {
+      printDebug("shrinkMatrix(): ",
+         "Duration for data.table DT creation: ",
+         format(t2-t1));
+      printDebug("shrinkMatrix(): ",
+         "Duration for data.table shrinkMatrix: ",
+         format(t3-t2));
+   }
+   retData <- as(byDT, "data.frame");
+   if (returnClass %in% "matrix") {
+      retData <- matrix(ncol=ncol(retData)-1,
+         data=(as.matrix(retData[,-1,drop=FALSE])),
+         dimnames=list(retData[,"groupBy"], colnames(retData)[-1]));
+   }
+   return(retData);
+}
