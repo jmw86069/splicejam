@@ -648,7 +648,7 @@ tx2ale <- function
 #'    using `jamba::rowGroupMeans()` and the `groups` parameter.
 #' @param groups vector of group labels, either as character vector
 #'    or factor. It should be named by `colnames(iMatrixTx)`.
-#' @params tx2geneDF data.frame with colnames including
+#' @param tx2geneDF data.frame with colnames including
 #'    `c("transcript_id","gene_name")`, where the values in the
 #'    `"transcript_id"` column must match the `rownames(iMatrixTx)`.
 #' @param cutoffTxPctMax numeric value scaled from 0 to 100

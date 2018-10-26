@@ -31,6 +31,10 @@ using `jamba::rowGroupMeans()` and the `groups` parameter.}
 \item{groups}{vector of group labels, either as character vector
 or factor. It should be named by `colnames(iMatrixTx)`.}
 
+\item{tx2geneDF}{data.frame with colnames including
+`c("transcript_id","gene_name")`, where the values in the
+`"transcript_id"` column must match the `rownames(iMatrixTx)`.}
+
 \item{cutoffTxPctMax}{numeric value scaled from 0 to 100
 indicating the percentage of
 the maximum isoform expression per gene, for an alternate isoform
