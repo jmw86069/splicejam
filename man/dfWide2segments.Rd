@@ -9,7 +9,7 @@ dfWide2segments(x, axes1, axes2, ...)
 \arguments{
 \item{x}{numeric matrix of coordinates, where x,y,z coordinates are
 present twice per row, and whose colnames are defined by
-`axes1` and `axes2`.}
+\code{axes1} and \code{axes2}.}
 
 \item{axes1}{vector of colnames(x) corresponding to the x,y,z coordinates
 of the first point in a line segment. It can be of any length, but
@@ -17,7 +17,7 @@ is intended for length 2 or 3.}
 
 \item{axes2}{vector of colnames(x) corresponding to the x,y,z coordinates
 of the second point in a line segment. It must be the same length as
-`axes1`.}
+\code{axes1}.}
 
 \item{...}{additional parameters are ignored.}
 }
@@ -31,4 +31,7 @@ where blank coordinates are used to separate each line segment.
 The main benefit in using this function is that it enables vectorized
 line segment drawing when used with a plotting function that recognizes
 line breaks via empty rows, for example plotly.
+}
+\seealso{
+Other jam spatial functions: \code{\link{spline3d}}
 }

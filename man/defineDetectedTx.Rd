@@ -15,25 +15,25 @@ transcript rows and sample columns.}
 
 \item{iMatrixTxGrp}{numeric matrix of read counts averaged by sample
 group. If this matrix is not provided, it will be calculated
-from `iMatrixTx`
-using `jamba::rowGroupMeans()` and the `groups` parameter.}
+from \code{iMatrixTx}
+using \code{jamba::rowGroupMeans()} and the \code{groups} parameter.}
 
 \item{iMatrixTxTPM}{numeric matrix of TPM values, with sample columns
 and transcript rows. Note that if this parameter is not supplied,
-the counts in `iMatrixTx` will be used to determine the percent
+the counts in \code{iMatrixTx} will be used to determine the percent
 max isoform expression.}
 
 \item{iMatrixTxTPMGrp}{numeric matrix of TPM values averaged by sample
 group. If this matrix is not provided, it will be calculated
-from `iMatrixTxTPM`
-using `jamba::rowGroupMeans()` and the `groups` parameter.}
+from \code{iMatrixTxTPM}
+using \code{jamba::rowGroupMeans()} and the \code{groups} parameter.}
 
 \item{groups}{vector of group labels, either as character vector
-or factor. It should be named by `colnames(iMatrixTx)`.}
+or factor. It should be named by \code{colnames(iMatrixTx)}.}
 
 \item{tx2geneDF}{data.frame with colnames including
-`c("transcript_id","gene_name")`, where the values in the
-`"transcript_id"` column must match the `rownames(iMatrixTx)`.}
+\code{c("transcript_id","gene_name")}, where the values in the
+\code{"transcript_id"} column must match the \code{rownames(iMatrixTx)}.}
 
 \item{cutoffTxPctMax}{numeric value scaled from 0 to 100
 indicating the percentage of
@@ -41,11 +41,11 @@ the maximum isoform expression per gene, for an alternate isoform
 to be considered for detection.}
 
 \item{cutoffTxExpr}{numeric value indicating the minimum group mean
-counts in `iMatrixTxGrp` for a transcript to be considered for
+counts in \code{iMatrixTxGrp} for a transcript to be considered for
 detection.}
 
 \item{cutoffTxTPMExpr}{numeric value indicating the minimum group mean
-TPM in `iMatrixTxTPMGrp` for a transcript to be considered for
+TPM in \code{iMatrixTxTPMGrp} for a transcript to be considered for
 detection.}
 
 \item{useMedian}{logical indicating whether to use group median
@@ -56,20 +56,20 @@ values instead of group mean values.}
 \value{
 List with the following elements:
 \describe{
-   \item{txExprGrpTx}{Numeric matrix representing the expression
-      counts per transcript, grouped by `"gene_name"`.}
-   \item{txPctMaxGrpAll}{Numeric matrix representing the
-      percent expression of each transcript isoform per gene, as
-      compared to the highest expression of isoforms for that gene.}
-   \item{txExprGrpAll}{Numeric matrix of sample group counts,
-      exponentiated and rounded to integer values.}
-   \item{txTPMExprGrpAll}{Numeric matrix of sample group TPM values,
-      exponentiated and rounded to integer values.}
-   \item{txFilterM}{Numeric matrix indicating whether each isoform met
-      the criteria to be considered detected. The criteria must be
-      met in the same group for an isoform to be considered detected.}
-   \item{detectedTx}{Character vector of transcripts, as defined by
-      the `rownames(iMatrixTx)`.}
+\item{txExprGrpTx}{Numeric matrix representing the expression
+counts per transcript, grouped by \code{"gene_name"}.}
+\item{txPctMaxGrpAll}{Numeric matrix representing the
+percent expression of each transcript isoform per gene, as
+compared to the highest expression of isoforms for that gene.}
+\item{txExprGrpAll}{Numeric matrix of sample group counts,
+exponentiated and rounded to integer values.}
+\item{txTPMExprGrpAll}{Numeric matrix of sample group TPM values,
+exponentiated and rounded to integer values.}
+\item{txFilterM}{Numeric matrix indicating whether each isoform met
+the criteria to be considered detected. The criteria must be
+met in the same group for an isoform to be considered detected.}
+\item{detectedTx}{Character vector of transcripts, as defined by
+the \code{rownames(iMatrixTx)}.}
 }
 }
 \description{
@@ -102,13 +102,14 @@ that we considered to be spuriously expressed.
 
 There are three default requirements for a transcript to be considered
 "detected".
-
-1. An isoform must be expressed at least 10% of the max isoform for
+\enumerate{
+\item An isoform must be expressed at least 10% of the max isoform for
 a given gene, using TPM values.
-2. An isoform must have at least log2(32) pseudocounts to be considered
+\item An isoform must have at least log2(32) pseudocounts to be considered
 detected, based upon our view of Salmon pseudocount data using MA-plots.
-3. An isoform must have at least log2(2) TPM units to be considered
+\item An isoform must have at least log2(2) TPM units to be considered
 detected, based upon our view of Salmon TPM values using MA-plots.
+}
 
 Each experiment is likely to be different in terms of total
 sequenced reads, quality of read alignment or quantitation to the
@@ -128,4 +129,7 @@ may have an isoform with 120 pseudocounts. When we reviewed the sequence
 coverage, we could find no compelling evidence to support the minor
 isoform, and theorized that the pseudocounts arose from the stochastic
 nature of rebalancing relative expression among isoforms.
+}
+\seealso{
+Other jam RNA-seq functions: \code{\link{makeTx2geneFromGtf}}
 }

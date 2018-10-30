@@ -10,13 +10,13 @@ shrinkMatrix(x, groupBy, shrinkFunc = function(x) {     .Internal(mean(x)) },
 \arguments{
 \item{x}{numeric matrix}
 
-\item{groupBy}{vector of group labels, whose length equals `nrow(x)`.
+\item{groupBy}{vector of group labels, whose length equals \code{nrow(x)}.
 These values will become rownames in the output data.}
 
 \item{returnClass}{character string indicating the return data type,
-`"data.frame"` returns a `data.frame` whose first column contains
-entries from `groups`; `"matrix"` returns a numeric matrix whose
-rownames are entries from `groups`.}
+\code{"data.frame"} returns a \code{data.frame} whose first column contains
+entries from \code{groups}; \code{"matrix"} returns a numeric matrix whose
+rownames are entries from \code{groups}.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 }
@@ -25,6 +25,6 @@ Shrink numeric matrix by groups of rows
 }
 \details{
 This function is mainly a wrapper around the very efficient
-functions in the `data.table` package, with the ability to
+functions in the \code{data.table} package, with the ability to
 provide a custom function to shrink row values.
 }

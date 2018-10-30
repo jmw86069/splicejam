@@ -10,11 +10,11 @@ df2colorSub(x, colorSub = NULL, verbose = FALSE, ...)
 \item{x}{data.frame}
 
 \item{colorSub}{vector of colors, whose names are intended to match
-values in the input data.frame `x`.}
+values in the input data.frame \code{x}.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 
-\item{...}{additional parameters are passed to `colorjam::group2color()`.}
+\item{...}{additional parameters are passed to \code{colorjam::group2color()}.}
 }
 \description{
 Convert data.frame to categorical colors
@@ -22,12 +22,12 @@ Convert data.frame to categorical colors
 \details{
 This function is a temporary placeholder function which simply
 provides categorical colors for values in each column of the input
-`data.frame`. If colors are provided using the named color vector
-`colorSub`, they are used to substitute values in each column,
-otherwise `colorjam::group2colors()` is used to create categorical
-colors, which itself uses `colorjam::rainbowJam()`.
+\code{data.frame}. If colors are provided using the named color vector
+\code{colorSub}, they are used to substitute values in each column,
+otherwise \code{colorjam::group2colors()} is used to create categorical
+colors, which itself uses \code{colorjam::rainbowJam()}.
 
-Note that providing `colorSub` helps keep colors consistent, otherwise
+Note that providing \code{colorSub} helps keep colors consistent, otherwise
 each column is independently colorized.
 }
 \examples{

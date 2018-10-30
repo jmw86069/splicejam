@@ -73,6 +73,8 @@
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional parameters are ignored
 #'
+#' @family jam plot functions
+#'
 #' @export
 bgaPlotly3d <- function
 (bgaInfo,
@@ -598,6 +600,8 @@ bgaPlotly3d <- function
 #'    `axes1`.
 #' @param ... additional parameters are ignored.
 #'
+#' @family jam spatial functions
+#'
 #' @export
 dfWide2segments <- function
 (x,
@@ -639,6 +643,8 @@ dfWide2segments <- function
 #' together.
 #'
 #' @param ... parameters are expected as multiple vectors.
+#'
+#' @family jam list functions
 #'
 #' @export
 intercalate <- function
@@ -700,6 +706,8 @@ intercalate <- function
 #' @return
 #' numeric matrix with `colnames(x)=c("x","y","z")`.
 #'
+#' @family jam spatial functions
+#'
 #' @export
 spline3d <- function
 (x,
@@ -751,6 +759,8 @@ spline3d <- function
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional parameters are passed to `colorjam::group2color()`.
 #'
+#' @family jam color functions
+#'
 #' @examples
 #' colorSub1 <- group2colors(LETTERS[1:6]);
 #' df <- data.frame(one=LETTERS[1:6],
@@ -765,9 +775,9 @@ spline3d <- function
 #' @export
 df2colorSub <- function
 (x,
-   colorSub=NULL,
-   verbose=FALSE,
-   ...)
+ colorSub=NULL,
+ verbose=FALSE,
+ ...)
 {
    ## Purpose is a simple intermediate replacement for df2groupColors()
    ## for the special case where all values per data.frame column are

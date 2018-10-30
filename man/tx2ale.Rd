@@ -49,19 +49,19 @@ ALE regions.}
 }
 \value{
 aleGRL GRangesList object containing the ALE ranges after
-   processing. Compare to transcript models to see if 3'UTR regions have
-   been properly handled.
+processing. Compare to transcript models to see if 3'UTR regions have
+been properly handled.
 
 multiALEgenes vector of gene_name values which contain multiple
-   ALEs after processing.
+ALEs after processing.
 
 tx2ale vector containing ALE_name values, named by transcript_id,
-   used to aggregate per-transcript data into per-ALE data.
+used to aggregate per-transcript data into per-ALE data.
 
 iMatrixByALE optional data matrix created only if iMatrix was
-   supplied as input. The data matrix rows are ALE_name values after
-   aggregating transcripts into ALEs. Note that only multi-ALE genes
-   are included, all single-ALE genes are excluded.
+supplied as input. The data matrix rows are ALE_name values after
+aggregating transcripts into ALEs. Note that only multi-ALE genes
+are included, all single-ALE genes are excluded.
 }
 \description{
 detect alternative last exons (ALE) from transcript data
@@ -108,13 +108,15 @@ increasingly annotated to cover every possible scenario, this issue is
 likely to become more impactful over time.
 
 Input data can be in one of three forms:
-   * \code{gtf} a GTF file such as those GTF files provided by Gencode
-   * \code{txdb} a TxDb R object as produced by the Bioconductor
-   package \code{GenomicFeatures}, suitable for use in calling
-   \code{GenomicFeatures::threeUTRsByTranscript()}
-   * \code{threeUtrGRL} a \code{GenomicRanges::GRangesList} object
-   which is a list of 3'UTR exons by transcript. This input also requires
-   \code{tx2geneDF} which is used to relate transcripts to genes.
+\itemize{
+\item \code{gtf} a GTF file such as those GTF files provided by Gencode
+\item \code{txdb} a TxDb R object as produced by the Bioconductor
+package \code{GenomicFeatures}, suitable for use in calling
+\code{GenomicFeatures::threeUTRsByTranscript()}
+\item \code{threeUtrGRL} a \code{GenomicRanges::GRangesList} object
+which is a list of 3'UTR exons by transcript. This input also requires
+\code{tx2geneDF} which is used to relate transcripts to genes.
+}
 
 Two important outputs are \code{tx2ale} which converts transcripts to
 ALE names, and if a matrix of transcript expression is supplied with

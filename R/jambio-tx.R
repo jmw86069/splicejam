@@ -21,16 +21,19 @@
 #' environment.
 #'
 #' For example, the GTF file could be used:
-#'    * to run STAR sequence alignment
-#'    then \code{Rsubread::featureCounts()} to generate a matrix of read
-#'    counts per gene, transcript, or exon; or
-#'    * to generate a transcript
-#'    FASTA sequence file then run a kmer quantitation tool such as
-#'    Salmon or Kallisto, then using \code{tximport::tximport()} to import
-#'    results into R for downstream processing.
 #'
-#' @param GTF character file name sent to \code{data.table::fread()}. When the
-#'    file ends with ".gz" then gzcat is used to gunzip the file during the
+#' \itemize{
+#'    \item{to run STAR sequence alignment
+#'    then `Rsubread::featureCounts()` to generate a matrix of read
+#'    counts per gene, transcript, or exon; or}
+#'    \item{to generate a transcript
+#'    FASTA sequence file then run a kmer quantitation tool such as
+#'    Salmon or Kallisto, then using `tximport::tximport()` to import
+#'    results into R for downstream processing.}
+#' }
+#'
+#' @param GTF character file name sent to `data.table::fread()`. When the
+#'    file ends with ".gz", gzcat is used to gunzip the file during the
 #'    import step. (TODO: verify that handling of gz files is portable across
 #'    architectures, or gracefully exit as needed.)
 #' @param geneAttrNames character vector of recognized attribute names
@@ -47,8 +50,11 @@
 #'    results of a large GTF file using only a subset portion of the file.
 #' @param verbose logical whether to print verbose output during processing.
 #'
-#' @return data.frame with colnames indicated by the values in
-#' \code{geneAttrNames} and \code{txAttrNames}.
+#' @return
+#' `data.frame` with colnames indicated by the values in
+#' `geneAttrNames` and `txAttrNames`.
+#'
+#' @family jam RNA-seq functions
 #'
 #' @export
 makeTx2geneFromGtf <- function
@@ -664,6 +670,8 @@ tx2ale <- function
 #' @param useMedian logical indicating whether to use group median
 #'    values instead of group mean values.
 #' @param verbose logical indicating whether to print verbose output.
+#'
+#' @family jam RNA-seq functions
 #'
 #' @export
 defineDetectedTx <- function

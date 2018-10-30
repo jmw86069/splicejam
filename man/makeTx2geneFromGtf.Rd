@@ -11,7 +11,7 @@ makeTx2geneFromGtf(GTF, geneAttrNames = c("gene_id", "gene_name",
 }
 \arguments{
 \item{GTF}{character file name sent to \code{data.table::fread()}. When the
-file ends with ".gz" then gzcat is used to gunzip the file during the
+file ends with ".gz", gzcat is used to gunzip the file during the
 import step. (TODO: verify that handling of gz files is portable across
 architectures, or gracefully exit as needed.)}
 
@@ -35,7 +35,7 @@ results of a large GTF file using only a subset portion of the file.}
 \item{verbose}{logical whether to print verbose output during processing.}
 }
 \value{
-data.frame with colnames indicated by the values in
+\code{data.frame} with colnames indicated by the values in
 \code{geneAttrNames} and \code{txAttrNames}.
 }
 \description{
@@ -60,11 +60,17 @@ those tools be based in R or more likely, outside R in a terminal
 environment.
 
 For example, the GTF file could be used:
-   * to run STAR sequence alignment
-   then \code{Rsubread::featureCounts()} to generate a matrix of read
-   counts per gene, transcript, or exon; or
-   * to generate a transcript
-   FASTA sequence file then run a kmer quantitation tool such as
-   Salmon or Kallisto, then using \code{tximport::tximport()} to import
-   results into R for downstream processing.
+
+\itemize{
+\item{to run STAR sequence alignment
+then \code{Rsubread::featureCounts()} to generate a matrix of read
+counts per gene, transcript, or exon; or}
+\item{to generate a transcript
+FASTA sequence file then run a kmer quantitation tool such as
+Salmon or Kallisto, then using \code{tximport::tximport()} to import
+results into R for downstream processing.}
+}
+}
+\seealso{
+Other jam RNA-seq functions: \code{\link{defineDetectedTx}}
 }

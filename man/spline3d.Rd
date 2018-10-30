@@ -7,8 +7,8 @@
 spline3d(x, y = NULL, z = NULL, lengthFactor = 4, verbose = FALSE, ...)
 }
 \arguments{
-\item{x}{numeric vector or numeric `matrix` or `data.frame` with `colnames(x)`
-containing `c("x","y","z")`.}
+\item{x}{numeric vector or numeric \code{matrix} or \code{data.frame} with \code{colnames(x)}
+containing \code{c("x","y","z")}.}
 
 \item{y, z}{optional numeric vectors, used only when x is also a numeric
 vector.}
@@ -19,7 +19,7 @@ of intermediate points during smoothing between each provided point.}
 \item{verbose}{logical indicating whether to print verbose output.}
 }
 \value{
-numeric matrix with `colnames(x)=c("x","y","z")`.
+numeric matrix with \code{colnames(x)=c("x","y","z")}.
 }
 \description{
 Calculate a spline curve fit in 3-D
@@ -27,6 +27,9 @@ Calculate a spline curve fit in 3-D
 \details{
 This function takes 3-dimensional points as input, and fits
 a 3-D spline curve to connect the points. It essentially calls
-`stats::spline()` on one dimension at a time, relative to the
+\code{stats::spline()} on one dimension at a time, relative to the
 row rank.
+}
+\seealso{
+Other jam spatial functions: \code{\link{dfWide2segments}}
 }

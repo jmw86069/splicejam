@@ -19,3 +19,6 @@ combined vector. It is analogous to shuffling a deck of cards,
 except that there could be more than two stacks of cards shuffled
 together.
 }
+\seealso{
+Other jam list functions: \code{\link{list2im}}
+}

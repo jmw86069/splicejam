@@ -14,26 +14,26 @@ bgaPlotly3d(bgaInfo, axes = c(1, 2, 3), superGroups = NULL,
   sceneZ = 1.25, main = "", verbose = TRUE, ...)
 }
 \arguments{
-\item{bgaInfo}{object of class `"bga"` as created by `made4::bga()`.}
+\item{bgaInfo}{object of class \code{"bga"} as created by \code{made4::bga()}.}
 
 \item{axes}{integer vector length 3 indicating the BGA axes to use
 for the 3-D visualization. It is sometimes helpful to use
-`axes=c(2,3,4)` especially when the first component suggests
+\code{axes=c(2,3,4)} especially when the first component suggests
 a large experimental batch effect, for example when
 combining data from multiple GEO studies, often the first
 BGA component is indicative of the different experimental
 platforms.}
 
 \item{superGroups}{character or factor vector with length
-`length(bgaInfo$fac)`, in the same order. A super group consists
-of multiple sample groups, as defined by values in `bgaInfo$fac`.}
+\code{length(bgaInfo$fac)}, in the same order. A super group consists
+of multiple sample groups, as defined by values in \code{bgaInfo$fac}.}
 
 \item{superGroupAlpha}{numeric value between 0 and 1 indicating the
 alpha transparency to use for the vector that connects groups
 within each super group.}
 
 \item{superGroupLwd}{the line width when connecting sample group
-centroids by `superGroups`.}
+centroids by \code{superGroups}.}
 
 \item{arrowSmoothFactor}{numeric value typically ranging from 1 to 5,
 affecting the amount of curve smoothing when generating a
@@ -44,13 +44,13 @@ more groups, a 3-D spline is used, in order to help visualize
 trends by means of a curve.}
 
 \item{colorSub}{named color vector, whose names contain values in
-`bgaInfo$fac`. These colors are used for the samples, sample
+\code{bgaInfo$fac}. These colors are used for the samples, sample
 centroids, and are shaded via a gradient when connecting multiple
-centroids using `superGroups`.}
+centroids using \code{superGroups}.}
 
 \item{drawVectors}{character vector of one or more types of vectors,
-where `"centroids"` draws a vector from the origin to each group
-centroid; and `"genes"` draws a vector from the origin to each
+where \code{"centroids"} draws a vector from the origin to each group
+centroid; and \code{"genes"} draws a vector from the origin to each
 gene.}
 
 \item{drawSampleLabels}{logical indicating whether to label each
@@ -92,8 +92,8 @@ visualization.}
 \item{...}{additional parameters are ignored}
 
 \item{elipseType}{character value indicating how to draw sample
-centroid ellipses, where `"none"` draws no ellipse; `"alphahull"`
-draws a wireframe; and `"ellipsoid"` draws
+centroid ellipses, where \code{"none"} draws no ellipse; \code{"alphahull"}
+draws a wireframe; and \code{"ellipsoid"} draws
 a partially transparent shell. Note that plotly does not handle
 transparency well in 3-D space, sometimes fully obscuring
 background components.}
@@ -102,7 +102,7 @@ background components.}
 Create an interactive 3-D BGA plotly visualization
 }
 \details{
-This function takes the output from `made4::bga()` (class `"bga"`)
+This function takes the output from \code{made4::bga()} (class \code{"bga"})
 and creates a 3D plotly visualization which shows the samples,
 sample centroids, and optionally a subset of genes in the same
 BGA component space.
