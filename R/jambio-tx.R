@@ -751,11 +751,11 @@ defineDetectedTx <- function
       printDebug("defineDetectedTx(): ",
          "shrinkMatrix Tx names.");
    }
-   txExprGrpTx <- splicejam::shrinkMatrix(rownames(iMatrixTxGrp),
+   txExprGrpTx <- shrinkMatrix(rownames(iMatrixTxGrp),
       groupBy=tx2geneDF[iRows,"gene_name"],
       shrinkFunc=c,
       returnClass="matrix",
-      verbose=TRUE);
+      verbose=verbose);
    retVals$txExprGrpTx <- txExprGrpTx;
 
 
@@ -919,31 +919,18 @@ shrinkMatrix <- function
    ## Create DT object
    if (verbose) {
       t1 <- Sys.time();
-      printDebug("shrinkMatrix(): ",
-         "Create DT");
    }
-   DF <- data.frame(check.names=FALSE,
-      stringsAsFactors=FALSE,
-      x=x,
-      groupBy=groupBy);
-   DT <- data.table(DF,
+   DT <- data.table(
+      data.frame(check.names=FALSE,
+         stringsAsFactors=FALSE,
+         x=x,
+         groupBy=groupBy),
       key="groupBy");
    if (verbose) {
       t2 <- Sys.time();
    }
 
    ## Operate on the DT object
-   if (verbose) {
-      t1 <- Sys.time();
-      printDebug("shrinkMatrix(): ",
-         "head(DT)");
-      print(head(DT));
-      printDebug("shrinkMatrix(): ",
-         "class(shrinkFunc):",
-         class(shrinkFunc));
-      printDebug("shrinkMatrix(): ",
-         "Create byDT");
-   }
    byDT <- DT[,lapply(.SD, shrinkFunc), by="groupBy"];
    if (verbose) {
       t3 <- Sys.time();
@@ -956,11 +943,6 @@ shrinkMatrix <- function
       printDebug("shrinkMatrix(): ",
          "Duration for data.table shrinkMatrix: ",
          format(t3-t2));
-   }
-   if (verbose) {
-      t1 <- Sys.time();
-      printDebug("shrinkMatrix(): ",
-         "Create retData data.frame");
    }
    retData <- as(byDT, "data.frame");
    if (returnClass %in% "matrix") {
