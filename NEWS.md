@@ -4,6 +4,10 @@
 
 * Updated the DESCRIPTION file to include proper "Remotes" entries
 and depencies for jamba, colorjam, and jamma packages.
+* Fixed issue where the `data.table` package required a specific
+`#' @import data.table` entry in the roxygen2 entry for the
+`shrinkMatrix` function. This issue prevented `defineDetectedTx()`
+from working within an R package.
 
 ## new RNA-seq functions
 
