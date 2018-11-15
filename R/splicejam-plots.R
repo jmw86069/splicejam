@@ -78,29 +78,32 @@
 #' @export
 bgaPlotly3d <- function
 (bgaInfo,
-   axes=c(1,2,3),
-   superGroups=NULL,
-   superGroupAlpha=0.3,
-   superGroupLwd=25,
-   arrowSmoothFactor=8,
-   colorSub=NULL,
-   drawVectors=c("none","centroids","genes"),
-   drawSampleLabels=TRUE,
-   ellipseType=c("ellipsoid","alphahull","none"),
-   useScaledCoords=FALSE,
-   geneColor="#555555",
-   geneScaleFactor=1,
-   geneLwd=2,
-   geneAlpha=0.7,
-   maxGenes=50,
-   centroidLwd=15,
-   centroidAlpha=0.3,
-   sceneX=-1.25,
-   sceneY=1.25,
-   sceneZ=1.25,
-   main="",
-   verbose=TRUE,
-   ...)
+ axes=c(1,2,3),
+ superGroups=NULL,
+ superGroupAlpha=0.3,
+ superGroupLwd=25,
+ arrowSmoothFactor=8,
+ colorSub=NULL,
+ drawVectors=c("none","centroids","genes"),
+ drawSampleLabels=TRUE,
+ ellipseType=c("ellipsoid","alphahull","none"),
+ useScaledCoords=FALSE,
+ geneColor="#555555",
+ geneScaleFactor=1,
+ geneLwd=2,
+ geneAlpha=0.7,
+ maxGenes=50,
+ centroidLwd=15,
+ centroidAlpha=0.3,
+ sceneX=-1.25,
+ sceneY=1.25,
+ sceneZ=1.25,
+ main="",
+ plot_bgcolor="#eeeeee",
+ paper_bgcolor="#dddddd",
+ debug=FALSE,
+ verbose=TRUE,
+ ...)
 {
    ## Purpose is to take BGA data and create a 3D plotly visualization
    ##
@@ -238,9 +241,9 @@ bgaPlotly3d <- function
    i2 <- igrep("^circle-open$", dfSampleLinesDF$Symbol);
    i3 <- igrep("^x$", dfSampleLinesDF$Symbol);
    dfSampleLinesDF[,"Label"] <- "";
-   if (drawSampleLabels) {
+   #if (drawSampleLabels) {
       dfSampleLinesDF[i1,"Label"] <- dfSampleLinesDF$Name[i1];
-   }
+   #}
    dfSampleLinesDF[i2,"Label"] <- as.character(dfSampleLinesDF$groupName)[i2];
 
    i2keep <- match(unique(sampleGroups), dfSampleLinesDF[i2,"Label"]);
@@ -353,13 +356,17 @@ bgaPlotly3d <- function
       printDebug("bgaPlotly3d(): ",
          "Creating plotly object with samples and sample centroids.");
    }
+   if (debug) {
+      return(dfSampleLinesDF);
+   }
    p9 <- plot_ly(data=dfSampleLinesDF,
       type="scatter3d",
       x=as.formula(paste0("~", Xs)),
       y=as.formula(paste0("~", Ys)),
       z=as.formula(paste0("~", Zs)),
-      mode="markers+lines+text",
-      text=~dfSampleLinesDF$Label,
+      mode="markers+lines",
+      text=dfSampleLinesDF$Label,
+      hoverinfo="text",
       line=list(width=5,
          color=dfSampleLinesDF$color),
       hoverlabel=list(
@@ -422,7 +429,7 @@ bgaPlotly3d <- function
          x=dfVgLDF[[Xg]],
          y=dfVgLDF[[Yg]],
          z=dfVgLDF[[Zg]],
-         mode="markers+lines+text",
+         mode="markers+lines", #"markers+lines+text"
          text=~dfVgLDF$Label,
          line=list(width=geneLwd,
             color=dfVgLDF$color),
@@ -444,8 +451,8 @@ bgaPlotly3d <- function
 
    ####################################################
    ## Create ellipses as 3d surfaces
-   sampleGroupsL <- split(names(sampleGroups), sampleGroups);
    if (!ellipseType %in% "none") {
+      sampleGroupsL <- split(names(sampleGroups), sampleGroups);
       if (verbose) {
          printDebug("bgaPlotly3d(): ",
             "Creating sample centroid ellipsoids.");
@@ -565,15 +572,24 @@ bgaPlotly3d <- function
    }
 
    ## Optionally adjust the 3D orientation
-   scene <- list(camera=list(
-      eye=list(
-         x=sceneX,
-         y=sceneY,
-         z=sceneZ))
+   scene <- list(
+      camera=list(
+         up=list(
+            x=0,
+            y=1,
+            z=0),
+         eye=list(
+            x=sceneX,
+            y=sceneY,
+            z=sceneZ)),
+      aspectmode="data"
    );
    p10 <- p10 %>% layout(title=main,
       dragmode="orbit",
-      scene=scene);
+      scene=scene,
+      paper_bgcolor=paper_bgcolor,
+      plot_bgcolor=plot_bgcolor
+      );
 
    return(p10);
 }
