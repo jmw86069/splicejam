@@ -35,3 +35,4 @@ line breaks via empty rows, for example plotly.
 \seealso{
 Other jam spatial functions: \code{\link{spline3d}}
 }
+\concept{jam spatial functions}

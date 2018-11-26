@@ -22,3 +22,4 @@ together.
 \seealso{
 Other jam list functions: \code{\link{list2im}}
 }
+\concept{jam list functions}

@@ -101,13 +101,13 @@ makeTx2geneFromGtf <- function
       gtfDF <- fread(paste0("gzcat ", GTF),
          sep="\t",
          autostart=20,
-         col.names,
+         #col.names,
          nrows=nrows);
    } else {
       gtfDF <- fread(GTF,
          sep="\t",
          autostart=20,
-         col.names,
+         #col.names,
          nrows=nrows);
    }
    ## Subset to clear some memory

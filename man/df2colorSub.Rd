@@ -42,3 +42,4 @@ imageByColors(dfColors, cellnote=df);
 imageByColors(df2colorSub(df), cellnote=df);
 
 }
+\concept{jam color functions}

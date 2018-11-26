@@ -1,3 +1,11 @@
+# splicejam version 0.0.5.900
+
+## bug fixes
+
+* Minor fix to `makeTx2geneFromGtf()` to remove requirement for
+`col.names` during import.
+* Several minor documentation updates.
+
 # splicejam version 0.0.4.900
 
 ## bug fixes

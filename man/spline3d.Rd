@@ -4,7 +4,8 @@
 \alias{spline3d}
 \title{Calculate a spline curve fit in 3-D}
 \usage{
-spline3d(x, y = NULL, z = NULL, lengthFactor = 4, verbose = FALSE, ...)
+spline3d(x, y = NULL, z = NULL, lengthFactor = 4, verbose = FALSE,
+  ...)
 }
 \arguments{
 \item{x}{numeric vector or numeric \code{matrix} or \code{data.frame} with \code{colnames(x)}
@@ -33,3 +34,4 @@ row rank.
 \seealso{
 Other jam spatial functions: \code{\link{dfWide2segments}}
 }
+\concept{jam spatial functions}

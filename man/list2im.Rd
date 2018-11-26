@@ -38,3 +38,4 @@ specifically in handling very large lists.
 \seealso{
 Other jam list functions: \code{\link{intercalate}}
 }
+\concept{jam list functions}

@@ -74,3 +74,4 @@ results into R for downstream processing.}
 \seealso{
 Other jam RNA-seq functions: \code{\link{defineDetectedTx}}
 }
+\concept{jam RNA-seq functions}

@@ -4,9 +4,9 @@
 \alias{tx2ale}
 \title{tx2ale: detect alternative last exons (ALE) from transcript data}
 \usage{
-tx2ale(gtf = NULL, txdb = NULL, threeUtrGRL = NULL, detectedTx = NULL,
-  tx2geneDF = NULL, iMatrix = NULL, aleMethod = c("first", "range"),
-  verbose = TRUE, ...)
+tx2ale(gtf = NULL, txdb = NULL, threeUtrGRL = NULL,
+  detectedTx = NULL, tx2geneDF = NULL, iMatrix = NULL,
+  aleMethod = c("first", "range"), verbose = TRUE, ...)
 }
 \arguments{
 \item{gtf}{character path to a GTF file, used to import gene models

@@ -10,8 +10,10 @@ bgaPlotly3d(bgaInfo, axes = c(1, 2, 3), superGroups = NULL,
   drawSampleLabels = TRUE, ellipseType = c("ellipsoid", "alphahull",
   "none"), useScaledCoords = FALSE, geneColor = "#555555",
   geneScaleFactor = 1, geneLwd = 2, geneAlpha = 0.7, maxGenes = 50,
-  centroidLwd = 15, centroidAlpha = 0.3, sceneX = -1.25, sceneY = 1.25,
-  sceneZ = 1.25, main = "", verbose = TRUE, ...)
+  centroidLwd = 15, centroidAlpha = 0.3, sceneX = -1.25,
+  sceneY = 1.25, sceneZ = 1.25, main = "",
+  plot_bgcolor = "#eeeeee", paper_bgcolor = "#dddddd", debug = FALSE,
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{bgaInfo}{object of class \code{"bga"} as created by \code{made4::bga()}.}
@@ -107,3 +109,4 @@ and creates a 3D plotly visualization which shows the samples,
 sample centroids, and optionally a subset of genes in the same
 BGA component space.
 }
+\concept{jam plot functions}

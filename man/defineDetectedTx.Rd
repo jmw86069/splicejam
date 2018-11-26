@@ -133,3 +133,4 @@ nature of rebalancing relative expression among isoforms.
 \seealso{
 Other jam RNA-seq functions: \code{\link{makeTx2geneFromGtf}}
 }
+\concept{jam RNA-seq functions}

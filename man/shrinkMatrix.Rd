@@ -4,8 +4,9 @@
 \alias{shrinkMatrix}
 \title{Shrink numeric matrix by groups of rows}
 \usage{
-shrinkMatrix(x, groupBy, shrinkFunc = function(x) {     .Internal(mean(x)) },
-  returnClass = c("data.frame", "matrix"), verbose = FALSE, ...)
+shrinkMatrix(x, groupBy, shrinkFunc = function(x) {    
+  .Internal(mean(x)) }, returnClass = c("data.frame", "matrix"),
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{x}{numeric matrix}
