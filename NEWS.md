@@ -1,3 +1,22 @@
+# splicejam version 0.0.6.900
+
+## enhancements
+
+* Added reference file "Mouse_codon_usage.txt" to the "extdata"
+folder, as example input both for farrisSeq.Rmd, and for other
+species. Access the file path with this command:
+`system.file("extdata", "Mouse_codon_usage.txt", package="farrisdata")`
+
+## new functions
+
+* `codonUsage2df()` imports a text codon usage file, and returns a
+data.frame. Support function `dna2codon()` simply takes a character
+vector and returns vector whose elements all have three characters,
+e.g. all(nchar(x) == 3).
+* Two geometric mean functions: `jamGeomean()` is preferred by
+the Jam packages, but `geomean()` is provided for direct comparison
+to the classical approach.
+
 # splicejam version 0.0.5.900
 
 ## bug fixes

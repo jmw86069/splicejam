@@ -11,7 +11,8 @@ in which case it runs the command and imports the data stream.
 
 * Define a small subset of transcript gene models to use in examples
 for each function for improved documentation.
-
+* Add "mouse_codon_usage.txt" raw text file as example
+input for codon usage analysis.
 
 ### Testing
 

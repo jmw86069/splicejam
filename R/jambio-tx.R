@@ -952,3 +952,277 @@ shrinkMatrix <- function
    }
    return(retData);
 }
+
+#' Make codon usage data.frame
+#'
+#' Make codon usage data.frame
+#'
+#' This function imports a text file containing codon usage, and
+#' creates a data.frame with columns containing the `codon`,
+#' `fraction`, and `count`. The colname `fraction` represents
+#' the fraction observed counts per codon
+#' compared to the codon with the highest counts, for each
+#' amino acid. For example, an amino acid with only one codon
+#' would be `c(1.0)`. An amino acid with two codons, with observed
+#' counts `c(100, 200)`, would have fraction values `c(0.5, 1.0)`.
+#'
+#' The format is derived from published files, one example is
+#' included in the package `extdata/Mouse_codon_usage.txt`,
+#' which can be accessed using the command:
+#'
+#' `system.file("extdata", "Mouse_codon_usage.txt", package="farrisdata")`
+#'
+#' @param file path to the codon usage file
+#'
+#' @return data.frame containing codon usage data, with colnames
+#' `codon`, `frequency`, and `count`.
+#'
+#' @examples
+#' codonFile <- system.file("extdata", "Mouse_codon_usage.txt", package="farrisdata");
+#' codonDF <- codonUsage2df(codonFile);
+#'
+#' @export
+codonUsage2df <- function
+(file,
+   ...)
+{
+   ## Purpose is to import a text codon usage file and return
+   ## a data.frame.
+   codonTxt <- read.table(file,
+      comment.char="#",
+      header=FALSE,
+      sep="\t",
+      stringsAsFactors=FALSE)[,1];
+
+   ## Split into vector per codon
+   codonTxt <- gsub("[ \t]+([ACGTUN]{3})[ \t]+",
+      "!\\1 ",
+      codonTxt);
+   codonV <- unlist(strsplit(codonTxt, "[!]+"));
+   codonDF <- data.frame(stringsAsFactors=FALSE,
+      rbindList(strsplit(codonV, "[() ]+")));
+   ncolDF <- seq_len(min(c(ncol(codonDF), 3)));
+   colnames(codonDF)[ncolDF] <- c("codon", "frequency", "count")[ncolDF];
+
+   ## Repair numeric columns, ensure it doesn't convert everything to NA
+   for (i in tail(colnames(codonDF), -1)) {
+      if (!all(is.na(as.numeric(codonDF[,i])))) {
+         codonDF[,i] <- as.numeric(codonDF[,i]);
+      }
+   }
+   ## Create rownames substituting 't' for 'u'
+   rownames(codonDF) <- gsub("u", "t", tolower(codonDF[,1]));
+   codonDF;
+}
+
+#' Convert DNA to 3-base codons
+#'
+#' Convert DNA to 3-base codons
+#'
+#' This function takes character string input, either as one large
+#' string or vector of strings such as those read from a FASTA file,
+#' and returns a vector of 3-base codons. The final codon must contain
+#' all three character values otherwise it is removed.
+#'
+#' @return character vector where each element contains three characters,
+#' e.g. `all(nchar(dna2codon(x)) == 3)`.
+#'
+#' @param x character vector assumed to contain DNA or RNA nucleotides
+#' @param ... additional arguments are ignored.
+#'
+#' @examples
+#' dna <- c("atgggattatag");
+#' dna2codon(dna);
+#'
+#' # example adding one extra base, which does not make a full codon
+#' dnaext1 <- c("atgggattataga");
+#' dna2codon(dnaext1);
+#'
+#' @export
+dna2codon <- function
+(x,
+ ...)
+{
+   ## Purpose is to convert a text string containing DNA sequence
+   ## into 3-base codons.
+   ##
+   ## Split into a vector
+   y <- unlist(strsplit(x, ""));
+   h <- floor(length(y) / 3);
+   ## The purpose of head() is to make sure we do not use the last
+   ## codon unless it contains all three nucleotides. Otherwise
+   ## matrix() will recycle text to fill the last row, creating a
+   ## false codon.
+   head(
+      pasteByRow(
+         matrix(ncol=3,
+            byrow=TRUE,
+            unlist(strsplit(x, ""))),
+            #seqinr::s2c(x)),
+      sep=""),
+      h);
+}
+
+#' Calculate Codon Adaptation Index
+#'
+#' Calculate Codon Adaptation Index
+#'
+#' This function is equivalent to `seqinr::cai()` except that it
+#' runs in vectorized form and is markedly more efficient.
+#'
+#' @param x character vector containing DNA or RNA sequence, intended
+#'    to include amino acid codons in frame beginning with the first
+#'    character. It is sent to `dna2codon()` which creates a character
+#'    vector whose elements all contain three characters. The input
+#'    `x` represents sequence data for one protein-coding transcript
+#'    sequence.
+#' @param codonDF data.frame containing amino acid codons per row,
+#'    with colname `"codon"` containing three-character codon sequences,
+#'    and colname `"multifreq"` containing the relative frequency
+#'    versus max of codon use per amino acid, as produced by
+#'    `codonUsage2df()`.
+#' @param ... additional arguments are ignored.
+#'
+#' @return numeric vector with length `length(x)`, named with
+#'    `names(x)` containing codon adaptation index (cai) values
+#'    equivalent to those produced by `seqinr::cai()`.
+#'
+#' @export
+jamCai <- function
+(x,
+ codonDF,
+ ...)
+{
+   ## Purpose is to run the equivalent of cai() to test speed
+   ##
+   ## Todo:
+   ## * validation checks on codonDF data.frame columns,
+   ## potentially allow setting the colname to use.
+   ##
+   sapply(x, function(i){
+      jamGeomean(rmNA(codonDF[dna2codon(i),"multiFreq"]));
+   });
+}
+
+#' Modified geometric mean for positive and negative values
+#'
+#' Modified geometric mean for positive and negative values
+#'
+#' This function calculates a geometric mean using a formula which
+#' tolerates positive and negative values. It also tolerates zeros
+#' without resulting in zero. The intent is to provide
+#' a mean summary value which closely models the classical
+#' geometric mean, while retaining information present in
+#' vectors that contain either zeros or negative values.
+#'
+#' The classical geometric mean is defined as
+#' the exponentiated mean of log-transformed values. Said another
+#' way, it is the `n`th root of the product of `n` numeric values.
+#' This formula is analogous to geometric distance. The formula
+#' does not allow negative values, however, and if any value is
+#' zero the result is also zero.
+#'
+#' There are several proposed alternatives to address negative numbers,
+#' or zeros. This function makes the following adjustments:
+#'
+#' * Add `1` to absolute value of the input, so the numeric sign
+#' is not flipped during log transformation: `i <- log2(1+ abs(x))`
+#' * Multiply that vector by the `sign(x)` to retain the original
+#' positive and negative directionality: `j <- i * sign(x)`
+#' * Take the mean: `k <- mean(j)`
+#' * Exponentiate the absolute value: `m <- 2^(abs(k))`
+#' * Multiply by the sign:
+#' `n <- m * sign(k)`
+#' * Subtract `1`: `o <- n - 1;`
+#'
+#' The properties of the calculation:
+#'
+#' * Symmetry around zero, for example `jamGeomean(x) = -jamGeomean(-x)`
+#' * Results are slightly different than classical geometric mean values,
+#' as a result of adding `1` prior to log transformation. The difference
+#' is larger with increasing `range(x)` and is most noticeable when one
+#' input value in `x` is zero.
+#'
+#' @return numeric value representing the modified geometric mean
+#' of input values.
+#'
+#' @param x numeric vector which may contain positive and negative values.
+#' @param na.rm logical indicating whether to ignore `NA` values.
+#' @param ... additional parameters are ignored.
+#'
+#' @examples
+#' x <- c(1, 10, 40);
+#' jamGeomean(x);
+#' # compare to classical geometric mean
+#' geomean(x);
+#'
+#' # Positive and negative values should offset
+#' x <- c(-20, 20);
+#' jamGeomean(x);
+#'
+#' x <- c(-20,10,40);
+#' jamGeomean(x);
+#'
+#' @export
+jamGeomean <- function
+(x,
+ na.rm=TRUE,
+ ...)
+{
+   ## Purpose is to calculate geometric mean while allowing for
+   ## positive and negative values
+   x2 <- mean(log2(1+abs(x))*sign(x));
+   sign(x2)*(2^abs(x2)-1);
+}
+
+#' Classical geometric mean
+#'
+#' Classical geometric mean
+#'
+#' This function calculates the classical geometric mean.
+#'
+#' The classical geometric mean is defined as
+#' the exponentiated mean of log-transformed values. Said another
+#' way, it is the `n`th root of the product of `n` numeric values.
+#' This formula is analogous to geometric distance. The formula
+#' does not allow negative values, however, and if any value is
+#' zero the result is also zero.
+#'
+#' @return numeric value representing the geometric mean of input values
+#'
+#' @param x numeric vector containing only positive values
+#' @param na.rm logical indicating whether to ignore `NA` values. Note that
+#'    `NA` values are removed prior to log-transformation, to avoid negative
+#'    numbers being dropped completely. To drop negative numbers, do so
+#'    prior to calling `geomean()`.
+#' @param offset numeric value added to input `x` prior to log
+#'    transformation, intended only when values between 0 and 1 should be
+#'    retained. Note that the offset makes the result slightly different
+#'    than classical geometric mean.
+#' @param ... additional parameters are ignored.
+#'
+#' @examples
+#' x <- c(2, 4);
+#' geomean(x);
+#'
+#' x <- c(-2, 2, 4);
+#' geomean(x);
+#'
+#' x <- c(0, 4000, 200000);
+#' geomean(x);
+#'
+#' @export
+geomean <- function
+(x,
+ na.rm=TRUE,
+ naValue=NA,
+ offset=0,
+ ...)
+{
+   ## Purpose is to calculate the classical geometric mean
+   if (na.rm && any(is.na(x))) {
+      x <- rmNA(x,
+         naValue=naValue);
+   }
+   2^mean(log2(x + offset)) - offset;
+}
