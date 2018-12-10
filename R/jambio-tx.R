@@ -1226,3 +1226,63 @@ geomean <- function
    }
    2^mean(log2(x + offset)) - offset;
 }
+
+#' Summarize detected transcript results
+#'
+#' Summarize detected transcript results
+#'
+#' This function provides a simple summary of the results of
+#' `defineDetectedTx()`, typically for a given gene of interest.
+#'
+#' @return list of `data.frame` objects, each containing one
+#'    summary table of data used to support whether each transcript
+#'    were called "detected."
+#'
+#' @param detectedTxL list output from `defineDetectedTx()`
+#' @param Gene optional character vector of one or more genes
+#'    of interest, used to find transcript_id entries in the
+#'    `detectedTxL` input data. If not supplied, `Tx` is expected.
+#' @param Tx optional character vector used to subset summary data,
+#'    usually intended to keep rows in a specific order for a
+#'    given set of transcripts.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+detectedTxInfo <- function
+(detectedTxL,
+ Gene=NULL,
+ Tx=NULL,
+ ...)
+{
+   ## Purpose is to summarize detectedTx supporting data for a gene
+   ## where detectedTxL is the output of defineDetectedTx()
+   ##
+   ## detectedTxInfoByGene(detectedTxTPML, "Actb")
+   ## detectedTxInfo(detectedTxTPML, Tx=i1)
+   if (length(Gene) == 0 && length(Tx) == 0) {
+      stop("detectedTxInfoByGene() requires Gene or TX to be supplied.");
+   }
+
+   if (length(Gene) == 0) {
+      iTx <- detectedTxL$txExprGrpTx[detectedTxL$txExprGrpTx[,1] %in% Tx,1];
+      iGene <- rownames(detectedTxL$txExprGrpTx)[detectedTxL$txExprGrpTx[,1] %in% Tx];
+   } else {
+      iTx <- detectedTxL$txExprGrpTx[rownames(detectedTxL$txExprGrpTx) %in% Gene,1];
+      iGene <- rownames(detectedTxL$txExprGrpTx)[rownames(detectedTxL$txExprGrpTx) %in% Gene];
+   }
+
+   txDatNames <- setdiff(vigrep("^tx", names(detectedTxL)), "txExprGrpTx");
+   lapply(nameVector(txDatNames), function(i){
+      i1 <- match(iTx, rownames(detectedTxL[[i]]));
+      iM <- detectedTxL[[i]][i1,,drop=FALSE];
+      colnames(iM) <- gsub("^x[.]", "", colnames(iM));
+      iMetric <- gsub("^tx|GrpAll$|M$", "", i);
+      iDF <- data.frame(check.names=FALSE,
+         stringsAsFactors=FALSE,
+         transcript_id=iTx,
+         gene_name=iGene,
+         metric=i,
+         iM);
+      iDF;
+   });
+}

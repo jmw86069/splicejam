@@ -16,6 +16,8 @@ e.g. all(nchar(x) == 3).
 * Two geometric mean functions: `jamGeomean()` is preferred by
 the Jam packages, but `geomean()` is provided for direct comparison
 to the classical approach.
+* `detectedTxInfo()` summarizes the data used to define detected
+transcripts for a given gene, or for a given set of transcripts.
 
 # splicejam version 0.0.5.900
 

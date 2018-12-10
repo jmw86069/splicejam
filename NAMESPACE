@@ -3,6 +3,7 @@
 export(bgaPlotly3d)
 export(codonUsage2df)
 export(defineDetectedTx)
+export(detectedTxInfo)
 export(df2colorSub)
 export(dfWide2segments)
 export(dna2codon)
