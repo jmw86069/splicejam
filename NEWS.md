@@ -1,3 +1,12 @@
+# splicejam version 0.0.7.900
+
+## new functions
+
+* `factor2label()` will convert a factor to a factor label, with the
+same order of levels as the input factor, but including summary stats
+like the number of items for each factor level. Useful for ggplot2
+visualizations, to include counts in the color legend for example.
+
 # splicejam version 0.0.6.900
 
 ## enhancements

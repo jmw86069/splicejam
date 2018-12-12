@@ -122,7 +122,10 @@ makeTx2geneFromGtf <- function
    ## gene attributes
    geneM <- do.call(cbind, lapply(nameVector(geneAttrNames),
       function(attrName){
-         printDebug("makeTx2geneFromGtf() gene attributes:", attrName);
+         if (verbose) {
+            printDebug("makeTx2geneFromGtf() :",
+               "gene attributes:", attrName);
+         }
          attrGrep <- paste0('^.*', attrName, ' ["]([^"]+)["].*$');
          if (igrepHas(attrGrep, gtfDF[geneRows,][[9]])) {
             attrValues <- gsub(attrGrep,
@@ -137,7 +140,10 @@ makeTx2geneFromGtf <- function
    ## transcript attributes
    txM <- do.call(cbind, lapply(nameVector(c(txAttrNames,geneAttrNames)),
       function(attrName){
-         printDebug("makeTx2geneFromGtf() tx attributes:", attrName);
+         if (verbose) {
+            printDebug("makeTx2geneFromGtf(): ",
+               "tx attributes:", attrName);
+         }
          attrGrep <- paste0('^.*', attrName, ' ["]([^"]+)["].*$');
          if (igrepHas(attrGrep, gtfDF[txRows,][[9]])) {
             attrValues <- gsub(attrGrep,
@@ -1285,4 +1291,94 @@ detectedTxInfo <- function
          iM);
       iDF;
    });
+}
+
+#' Convert factor to a factor label
+#'
+#' Convert factor to a factor label
+#'
+#' This function is intended to take a vector of factor levels
+#' and convert to labels using summary statistics. For example
+#' by default it will add the number of items for each factor
+#' level.
+#'
+#' This function is intended to help create useful ordered
+#' factor labels that can be used in a ggplot2 visualization.
+#'
+#' @return factor vector with the same length as input `x` but
+#'    where the levels also include summary information, such
+#'    as the count of each factor level.
+#'
+#' @param x factor vector
+#' @param valuesL optional list of numeric values, where each vector
+#'    has the same length as `x`. If it is not a factor, it is
+#'    converted to factor, using `jamba::mixedSort()` to order
+#'    the factor levels.
+#' @param types character value indicating the summary to use for
+#'    the input factor `x`.
+#' @param aggFun summary function used for each vector of numeric values
+#'    in `valuesL` when supplied.
+#' @param digits,big.mark arguments passed to `base::format()` to
+#'    create a suitable text label.
+#' @param itemName character vector indicating the name to associate to
+#'    counts.
+#' @param ... additional arguments are ignored.
+#'
+#' @examples
+#' x <- factor(rep(letters[1:5], c(2,4,3,2,1)));
+#' levels(factor2label(x));
+#' factor2label(x);
+#'
+#' @export
+factor2label <- function
+(x,
+ valuesL=NULL,
+ types=c("count","none"),
+ aggFun=mean,
+ digits=3,
+ big.mark=",",
+ itemName="items",
+ ...)
+{
+   ## Purpose is to convert a factor vector into a factor using labels
+   ## to summarize the factor. For example to count the number of
+   ## entries for each factor level.
+   ## x is a factor vector
+   ##
+   ## valuesL is either a named list or data.frame
+   types <- match.arg(types);
+   if (!igrepHas("factor", class(x))) {
+      x <- factor(x,
+         levels=mixedSort(unique(x)));
+   }
+   xNames <- levels(x);
+   if (igrepHas("count", types)) {
+      xVals1 <- paste(format(table(x),
+         digits=digits,
+         big.mark=big.mark,
+         trim=TRUE),
+         itemName);
+   } else {
+      xVals1 <- NULL;
+   }
+   if (length(valuesL) > 0) {
+      xValsL <- lapply(nameVectorN(valuesL), function(i){
+         iL <- split(valuesL[[i]], x);
+         sapply(iL, function(j){
+            paste(format(aggFun(rmNA(j)),
+               digits=digits,
+               big.mark=big.mark,
+               trim=TRUE),
+               i);
+         });
+      });
+   } else {
+      xValsL <- NULL;
+   }
+   x1L <- rmNULL(c(list(xVals1), xValsL));
+   x1 <- do.call(paste, c(x1L, sep="; "));
+   x2 <- paste0(xNames, " (", x1, ")");
+   names(x2) <- xNames;
+   x2f <- factor(x2, levels=x2);
+   x2f[x];
 }
