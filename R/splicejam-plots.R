@@ -85,6 +85,7 @@ bgaPlotly3d <- function
  arrowSmoothFactor=8,
  colorSub=NULL,
  drawVectors=c("none","centroids","genes"),
+ highlightGenes=NULL,
  drawSampleLabels=TRUE,
  ellipseType=c("ellipsoid","alphahull","none"),
  useScaledCoords=FALSE,
@@ -126,7 +127,6 @@ bgaPlotly3d <- function
    }
 
    ellipseType <- match.arg(ellipseType);
-
    ## bgaInfo$fac    sample group factor
    ##
    ## bgaInfo$bet$li sample centroid coordinates
@@ -321,20 +321,26 @@ bgaPlotly3d <- function
             bgaInfo$bet$co[iGenes,names(axesVg)]);
       }
       ## Determine distance from origin
-      geneDist <- geomean(dfVgDF[,names(axesVg)],
-         matrixBy="row");
-      iGenes <- head(iGenes[order(-geneDist)], maxGenes);
+      if (length(highlightGenes) > 0) {
+         printDebug("Using ", length(highlightGenes), " highlightGenes");
+         iGenes <- rownames(dfVgDF)[tolower(rownames(dfVgDF)) %in% tolower(highlightGenes)];
+         maxGenes <- length(iGenes);
+      } else {
+         geneDist <- apply(abs(dfVgDF[,names(axesVg)]), 1, function(i){
+            splicejam:::geomean(i, offset=1);
+         });
+         iGenes <- head(iGenes[order(-geneDist)], maxGenes);
+         printDebug("Using ", length(iGenes), " based upon distance from origin.");
+      }
       dfVgDF <- dfVgDF[rownames(dfVgDF) %in% iGenes,,drop=FALSE];
-      printDebug("nrow(dfVgDF):",
-         nrow(dfVgDF));
 
       #dfCV <- rownames(dfCVDF);
       dfVgLDF <- dfWide2segments(dfVgDF,
          axes1=names(axesVg), axes2=axesVgO);
-      dfVgLDF$Name <- rep(iGenes, each=3);
-      dfVgLDF$groupName <- rep(iGenes, each=3);
-      dfVgLDF$Symbol <- rep(c("circle","circle-open","x"), length(iGenes));
-      dfVgLDF$size <- rep(c(2,0,0), length(iGenes));
+      dfVgLDF$Name <- rep(dfVgDF$Label, each=3);
+      dfVgLDF$groupName <- rep(dfVgDF$Label, each=3);
+      dfVgLDF$Symbol <- rep(c("circle","circle-open","x"), nrow(dfVgDF));
+      dfVgLDF$size <- rep(c(2,0,0), nrow(dfVgDF));
       dfVgLDF$color <- geneColor;
       i1 <- igrep("^circle$", dfVgLDF$Symbol);
       i2 <- igrep("^circle-open$", dfVgLDF$Symbol);
@@ -348,6 +354,14 @@ bgaPlotly3d <- function
       dfVgLDF[,"textposition"] <- "top center";
       dfVgLDF[i1,"textposition"] <- "top center";
       dfVgLDF[i2[i2keep],"textposition"] <- "middle right";
+      if (verbose) {
+         printDebug("bgaPlotly3d(): ",
+            "head(dfVgLDF, 10):");
+         print(head(dfVgLDF, 10));
+         printDebug("bgaPlotly3d(): ",
+            "head(dfVgDF, 10):");
+         print(head(dfVgDF, 10));
+      }
    }
 
    ############################################################
