@@ -16,6 +16,10 @@ values in the input data.frame \code{x}.}
 
 \item{...}{additional parameters are passed to \code{colorjam::group2color()}.}
 }
+\value{
+data.frame of the same dimensions as the input \code{x} data.frame,
+where values have been substituted with R colors.
+}
 \description{
 Convert data.frame to categorical colors
 }

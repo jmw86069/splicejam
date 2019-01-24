@@ -21,6 +21,11 @@ of the second point in a line segment. It must be the same length as
 
 \item{...}{additional parameters are ignored.}
 }
+\value{
+data.frame where every two rows represents a line segment
+to be drawn by plotly, followed by a blank line indicating the line
+ends.
+}
 \description{
 Convert data.frame to plotly line segment format
 }
@@ -33,6 +38,7 @@ line segment drawing when used with a plotting function that recognizes
 line breaks via empty rows, for example plotly.
 }
 \seealso{
-Other jam spatial functions: \code{\link{spline3d}}
+Other jam spatial functions: \code{\link{bgaPlotly3d}},
+  \code{\link{spline3d}}
 }
 \concept{jam spatial functions}

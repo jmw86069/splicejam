@@ -8,6 +8,9 @@
 #' sample centroids, and optionally a subset of genes in the same
 #' BGA component space.
 #'
+#' @return plotly object sufficient to render an HTML page containing
+#' a 3-D BGA plot.
+#'
 #' @param bgaInfo object of class `"bga"` as created by `made4::bga()`.
 #' @param axes integer vector length 3 indicating the BGA axes to use
 #'    for the 3-D visualization. It is sometimes helpful to use
@@ -74,6 +77,7 @@
 #' @param ... additional parameters are ignored
 #'
 #' @family jam plot functions
+#' @family jam spatial functions
 #'
 #' @export
 bgaPlotly3d <- function
@@ -619,6 +623,10 @@ bgaPlotly3d <- function
 #' line segment drawing when used with a plotting function that recognizes
 #' line breaks via empty rows, for example plotly.
 #'
+#' @return data.frame where every two rows represents a line segment
+#' to be drawn by plotly, followed by a blank line indicating the line
+#' ends.
+#'
 #' @param x numeric matrix of coordinates, where x,y,z coordinates are
 #'    present twice per row, and whose colnames are defined by
 #'    `axes1` and `axes2`.
@@ -635,9 +643,9 @@ bgaPlotly3d <- function
 #' @export
 dfWide2segments <- function
 (x,
-   axes1,
-   axes2,
-   ...)
+ axes1,
+ axes2,
+ ...)
 {
    ## Purpose is to take a data.frame containing (x,y) or (x,y,z) coordinates
    ## for two points defined on one row, and create a data.frame with 3 rows
@@ -672,9 +680,18 @@ dfWide2segments <- function
 #' except that there could be more than two stacks of cards shuffled
 #' together.
 #'
+#' @return vector of values derived from each input list `...`, with
+#' one element per list in order. In the event any list is shorter than
+#' the others, its values are recycled so each list is equal length.
+#'
 #' @param ... parameters are expected as multiple vectors.
 #'
 #' @family jam list functions
+#'
+#' @examples
+#' A <- LETTERS[1:10];
+#' B <- letters[1:10];
+#' intercalate(A, B)
 #'
 #' @export
 intercalate <- function
@@ -741,11 +758,11 @@ intercalate <- function
 #' @export
 spline3d <- function
 (x,
-   y=NULL,
-   z=NULL,
-   lengthFactor=4,
-   verbose=FALSE,
-   ...)
+ y=NULL,
+ z=NULL,
+ lengthFactor=4,
+ verbose=FALSE,
+ ...)
 {
    ## Purpose is to provide 3D spline()
    if (igrepHas("matrix|data.frame", class(x))) {
@@ -782,6 +799,9 @@ spline3d <- function
 #'
 #' Note that providing `colorSub` helps keep colors consistent, otherwise
 #' each column is independently colorized.
+#'
+#' @return data.frame of the same dimensions as the input `x` data.frame,
+#' where values have been substituted with R colors.
 #'
 #' @param x data.frame
 #' @param colorSub vector of colors, whose names are intended to match

@@ -1,3 +1,12 @@
+# splicejam version 0.0.8.900
+
+## enhancements
+
+* The "arules" package was moved to "Imports" since it is required
+for the `list2im()` function. A slower workaround could be written,
+but ultimately the arules package is preferred.
+* Configured the package to use pkgdown for function references.
+
 # splicejam version 0.0.7.900
 
 ## new functions

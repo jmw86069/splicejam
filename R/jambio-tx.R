@@ -269,6 +269,8 @@ makeTx2geneFromGtf <- function
 #'    aggregating transcripts into ALEs. Note that only multi-ALE genes
 #'    are included, all single-ALE genes are excluded.
 #'
+#' @family jam RNA-seq functions
+#'
 #' @export
 tx2ale <- function
 (gtf=NULL,
@@ -885,6 +887,8 @@ defineDetectedTx <- function
 #'
 #' @import data.table
 #'
+#' @family jam table functions
+#'
 #' @export
 shrinkMatrix <- function
 (x,
@@ -987,10 +991,12 @@ shrinkMatrix <- function
 #' codonFile <- system.file("extdata", "Mouse_codon_usage.txt", package="farrisdata");
 #' codonDF <- codonUsage2df(codonFile);
 #'
+#' @family jam RNA-seq functions
+#'
 #' @export
 codonUsage2df <- function
 (file,
-   ...)
+ ...)
 {
    ## Purpose is to import a text codon usage file and return
    ## a data.frame.
@@ -1044,6 +1050,8 @@ codonUsage2df <- function
 #' dnaext1 <- c("atgggattataga");
 #' dna2codon(dnaext1);
 #'
+#' @family jam RNA-seq functions
+#'
 #' @export
 dna2codon <- function
 (x,
@@ -1092,6 +1100,8 @@ dna2codon <- function
 #' @return numeric vector with length `length(x)`, named with
 #'    `names(x)` containing codon adaptation index (cai) values
 #'    equivalent to those produced by `seqinr::cai()`.
+#'
+#' @family jam RNA-seq functions
 #'
 #' @export
 jamCai <- function
@@ -1169,6 +1179,8 @@ jamCai <- function
 #' x <- c(-20,10,40);
 #' jamGeomean(x);
 #'
+#' @family jam numeric functions
+#'
 #' @export
 jamGeomean <- function
 (x,
@@ -1217,6 +1229,8 @@ jamGeomean <- function
 #' x <- c(0, 4000, 200000);
 #' geomean(x);
 #'
+#' @family jam numeric functions
+#'
 #' @export
 geomean <- function
 (x,
@@ -1252,6 +1266,8 @@ geomean <- function
 #'    usually intended to keep rows in a specific order for a
 #'    given set of transcripts.
 #' @param ... additional arguments are ignored.
+#'
+#' @family jam RNA-seq functions
 #'
 #' @export
 detectedTxInfo <- function
@@ -1328,6 +1344,8 @@ detectedTxInfo <- function
 #' x <- factor(rep(letters[1:5], c(2,4,3,2,1)));
 #' levels(factor2label(x));
 #' factor2label(x);
+#'
+#' @family jam plot functions
 #'
 #' @export
 factor2label <- function

@@ -37,3 +37,10 @@ codonFile <- system.file("extdata", "Mouse_codon_usage.txt", package="farrisdata
 codonDF <- codonUsage2df(codonFile);
 
 }
+\seealso{
+Other jam RNA-seq functions: \code{\link{defineDetectedTx}},
+  \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
+  \code{\link{jamCai}}, \code{\link{makeTx2geneFromGtf}},
+  \code{\link{tx2ale}}
+}
+\concept{jam RNA-seq functions}

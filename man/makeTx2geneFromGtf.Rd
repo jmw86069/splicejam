@@ -72,6 +72,9 @@ results into R for downstream processing.}
 }
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{defineDetectedTx}}
+Other jam RNA-seq functions: \code{\link{codonUsage2df}},
+  \code{\link{defineDetectedTx}},
+  \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
+  \code{\link{jamCai}}, \code{\link{tx2ale}}
 }
 \concept{jam RNA-seq functions}

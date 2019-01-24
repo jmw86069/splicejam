@@ -72,3 +72,7 @@ x <- c(-20,10,40);
 jamGeomean(x);
 
 }
+\seealso{
+Other jam numeric functions: \code{\link{geomean}}
+}
+\concept{jam numeric functions}

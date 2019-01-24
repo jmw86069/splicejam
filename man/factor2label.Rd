@@ -53,3 +53,7 @@ levels(factor2label(x));
 factor2label(x);
 
 }
+\seealso{
+Other jam plot functions: \code{\link{bgaPlotly3d}}
+}
+\concept{jam plot functions}

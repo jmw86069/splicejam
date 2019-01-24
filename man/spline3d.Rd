@@ -32,6 +32,7 @@ a 3-D spline curve to connect the points. It essentially calls
 row rank.
 }
 \seealso{
-Other jam spatial functions: \code{\link{dfWide2segments}}
+Other jam spatial functions: \code{\link{bgaPlotly3d}},
+  \code{\link{dfWide2segments}}
 }
 \concept{jam spatial functions}

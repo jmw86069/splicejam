@@ -101,6 +101,10 @@ a partially transparent shell. Note that plotly does not handle
 transparency well in 3-D space, sometimes fully obscuring
 background components.}
 }
+\value{
+plotly object sufficient to render an HTML page containing
+a 3-D BGA plot.
+}
 \description{
 Create an interactive 3-D BGA plotly visualization
 }
@@ -110,4 +114,11 @@ and creates a 3D plotly visualization which shows the samples,
 sample centroids, and optionally a subset of genes in the same
 BGA component space.
 }
+\seealso{
+Other jam plot functions: \code{\link{factor2label}}
+
+Other jam spatial functions: \code{\link{dfWide2segments}},
+  \code{\link{spline3d}}
+}
 \concept{jam plot functions}
+\concept{jam spatial functions}

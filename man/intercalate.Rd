@@ -9,6 +9,11 @@ intercalate(...)
 \arguments{
 \item{...}{parameters are expected as multiple vectors.}
 }
+\value{
+vector of values derived from each input list \code{...}, with
+one element per list in order. In the event any list is shorter than
+the others, its values are recycled so each list is equal length.
+}
 \description{
 Intercalate list values into a vector
 }
@@ -18,6 +23,12 @@ by inserting alternating values from each vector to make one
 combined vector. It is analogous to shuffling a deck of cards,
 except that there could be more than two stacks of cards shuffled
 together.
+}
+\examples{
+A <- LETTERS[1:10];
+B <- letters[1:10];
+intercalate(A, B)
+
 }
 \seealso{
 Other jam list functions: \code{\link{list2im}}

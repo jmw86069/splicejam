@@ -127,3 +127,10 @@ aggregated at the ALE level, suitable for differential testing in
 This function depends upon custom functions: \code{annotateGRLfromGRL()},
 \code{annotateGRfromGRnew()}, and \code{assignGRLexonNames()}.
 }
+\seealso{
+Other jam RNA-seq functions: \code{\link{codonUsage2df}},
+  \code{\link{defineDetectedTx}},
+  \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
+  \code{\link{jamCai}}, \code{\link{makeTx2geneFromGtf}}
+}
+\concept{jam RNA-seq functions}

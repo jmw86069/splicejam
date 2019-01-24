@@ -48,3 +48,7 @@ x <- c(0, 4000, 200000);
 geomean(x);
 
 }
+\seealso{
+Other jam numeric functions: \code{\link{jamGeomean}}
+}
+\concept{jam numeric functions}

@@ -1,0 +1,32 @@
+template:
+  params:
+    bootswatch: cosmo
+reference:
+- title: RNA-seq functions
+  desc: Functions aimed at RNA-seq analysis
+  contents:
+  - has_concept("jam RNA-seq functions")
+- title: Plot functions
+  desc: Functions that assist with R plotting
+  contents:
+  - has_concept("jam plot functions")
+- title: List functions
+  desc: Functions that assist with list manipulation
+  contents:
+  - has_concept("jam list functions")
+- title: Spatial functions
+  desc: Functions that assist with spatial data, particularly 3-D coordinates
+  contents:
+  - has_concept("jam spatial functions")
+- title: Color functions
+  desc: Functions that assist with color manipulation
+  contents:
+  - has_concept("jam color functions")
+- title: Table (data.frame or matrix) functions
+  desc: Functions aimed at manipulation of tabular data
+  contents:
+  - has_concept("jam table functions")
+- title: Numeric functions
+  desc: Functions aimed at manipulation of numeric data
+  contents:
+  - has_concept("jam numeric functions")

@@ -34,3 +34,10 @@ Calculate Codon Adaptation Index
 This function is equivalent to \code{seqinr::cai()} except that it
 runs in vectorized form and is markedly more efficient.
 }
+\seealso{
+Other jam RNA-seq functions: \code{\link{codonUsage2df}},
+  \code{\link{defineDetectedTx}},
+  \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
+  \code{\link{makeTx2geneFromGtf}}, \code{\link{tx2ale}}
+}
+\concept{jam RNA-seq functions}

@@ -33,3 +33,10 @@ dnaext1 <- c("atgggattataga");
 dna2codon(dnaext1);
 
 }
+\seealso{
+Other jam RNA-seq functions: \code{\link{codonUsage2df}},
+  \code{\link{defineDetectedTx}},
+  \code{\link{detectedTxInfo}}, \code{\link{jamCai}},
+  \code{\link{makeTx2geneFromGtf}}, \code{\link{tx2ale}}
+}
+\concept{jam RNA-seq functions}
