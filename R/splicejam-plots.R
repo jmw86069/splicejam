@@ -709,7 +709,7 @@ intercalate <- function
    ## A B A B A B A
    ##
    ## Note: rmNULL() will remove empty lists
-   aList <- rmNULL(list(...));
+   aList <- jamba::rmNULL(list(...));
    if (length(aList) == 1 && class(aList[[1]]) %in% "list") {
       aList <- aList[[1]];
    }

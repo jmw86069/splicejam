@@ -1,3 +1,5 @@
+#' @import jamba
+NULL
 
 #' Make tx2gene data.frame from a GTF file
 #'
@@ -123,16 +125,16 @@ makeTx2geneFromGtf <- function
    geneM <- do.call(cbind, lapply(nameVector(geneAttrNames),
       function(attrName){
          if (verbose) {
-            printDebug("makeTx2geneFromGtf() :",
+            jamba::printDebug("makeTx2geneFromGtf() :",
                "gene attributes:", attrName);
          }
          attrGrep <- paste0('^.*', attrName, ' ["]([^"]+)["].*$');
-         if (igrepHas(attrGrep, gtfDF[geneRows,][[9]])) {
+         if (jamba::igrepHas(attrGrep, gtfDF[geneRows,][[9]])) {
             attrValues <- gsub(attrGrep,
                "\\1",
                gtfDF[geneRows,,drop=FALSE][[9]]);
          } else {
-            printDebug("Note: No gene attributes found for:", attrName);
+            jamba::printDebug("Note: No gene attributes found for:", attrName);
             attrValues <- NULL;
          }
       }));
@@ -141,21 +143,21 @@ makeTx2geneFromGtf <- function
    txM <- do.call(cbind, lapply(nameVector(c(txAttrNames,geneAttrNames)),
       function(attrName){
          if (verbose) {
-            printDebug("makeTx2geneFromGtf(): ",
+            jamba::printDebug("makeTx2geneFromGtf(): ",
                "tx attributes:", attrName);
          }
          attrGrep <- paste0('^.*', attrName, ' ["]([^"]+)["].*$');
-         if (igrepHas(attrGrep, gtfDF[txRows,][[9]])) {
+         if (jamba::igrepHas(attrGrep, gtfDF[txRows,][[9]])) {
             attrValues <- gsub(attrGrep,
                "\\1",
                gtfDF[txRows,,drop=FALSE][[9]]);
          } else {
-            printDebug("Note: No tx attributes found for:", attrName);
+            jamba::printDebug("Note: No tx attributes found for:", attrName);
             attrValues <- NULL;
          }
       }));
    if (verbose) {
-      printDebug("makeTx2geneFromGtf() :",
+      jamba::printDebug("makeTx2geneFromGtf() :",
          "Merging gene and transcript annotations.");
    }
    return(merge(geneM,
@@ -1400,3 +1402,5 @@ factor2label <- function
    x2f <- factor(x2, levels=x2);
    x2f[x];
 }
+
+

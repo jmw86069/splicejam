@@ -6,6 +6,7 @@
 for the `list2im()` function. A slower workaround could be written,
 but ultimately the arules package is preferred.
 * Configured the package to use pkgdown for function references.
+* Added "#' @imports jamba" to import all jamba R functions.
 
 # splicejam version 0.0.7.900
 

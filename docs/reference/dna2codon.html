@@ -150,10 +150,12 @@ all three character values otherwise it is removed.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>dna</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"atgggattatag"</span>);
-<span class='fu'>dna2codon</span>(<span class='no'>dna</span>);</div><div class='output co'>#&gt; <span class='error'>Error in pasteByRow(matrix(ncol = 3, byrow = TRUE, unlist(strsplit(x,     ""))), sep = ""): could not find function "pasteByRow"</span></div><div class='input'>
+<span class='fu'>dna2codon</span>(<span class='no'>dna</span>);</div><div class='output co'>#&gt;     1     2     3     4 
+#&gt; "atg" "gga" "tta" "tag" </div><div class='input'>
 <span class='co'># example adding one extra base, which does not make a full codon</span>
 <span class='no'>dnaext1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"atgggattataga"</span>);
-<span class='fu'>dna2codon</span>(<span class='no'>dnaext1</span>);</div><div class='output co'>#&gt; <span class='error'>Error in pasteByRow(matrix(ncol = 3, byrow = TRUE, unlist(strsplit(x,     ""))), sep = ""): could not find function "pasteByRow"</span></div><div class='input'>
+<span class='fu'>dna2codon</span>(<span class='no'>dnaext1</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: data length [13] is not a sub-multiple or multiple of the number of rows [5]</span></div><div class='output co'>#&gt;     1     2     3     4 
+#&gt; "atg" "gga" "tta" "tag" </div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

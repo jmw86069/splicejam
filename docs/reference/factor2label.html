@@ -179,7 +179,11 @@ factor labels that can be used in a ggplot2 visualization.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/factor'>factor</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>letters</span>[<span class='fl'>1</span>:<span class='fl'>5</span>], <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>3</span>,<span class='fl'>2</span>,<span class='fl'>1</span>)));
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/levels'>levels</a></span>(<span class='fu'>factor2label</span>(<span class='no'>x</span>));</div><div class='output co'>#&gt; <span class='error'>Error in igrepHas("factor", class(x)): could not find function "igrepHas"</span></div><div class='input'><span class='fu'>factor2label</span>(<span class='no'>x</span>);</div><div class='output co'>#&gt; <span class='error'>Error in igrepHas("factor", class(x)): could not find function "igrepHas"</span></div><div class='input'>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/levels'>levels</a></span>(<span class='fu'>factor2label</span>(<span class='no'>x</span>));</div><div class='output co'>#&gt; [1] "a (2 items)" "b (4 items)" "c (3 items)" "d (2 items)" "e (1 items)"</div><div class='input'><span class='fu'>factor2label</span>(<span class='no'>x</span>);</div><div class='output co'>#&gt;           a           a           b           b           b           b 
+#&gt; a (2 items) a (2 items) b (4 items) b (4 items) b (4 items) b (4 items) 
+#&gt;           c           c           c           d           d           e 
+#&gt; c (3 items) c (3 items) c (3 items) d (2 items) d (2 items) e (1 items) 
+#&gt; Levels: a (2 items) b (4 items) c (3 items) d (2 items) e (1 items)</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
