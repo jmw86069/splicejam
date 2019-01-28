@@ -458,12 +458,13 @@ tx2ale <- function
             " to determine ALEs.");
       }
       threeUtrGRLdetRange <- getFirstStrandedFromGRL(threeUtrGRLdet,
-         method="flank");
+         method="flank",
+         verbose=verbose);
    }
    ## add transcript_id annotation
    values(threeUtrGRLdetRange@unlistData)[,"transcript_id"] <- rep(
       names(threeUtrGRLdetRange),
-      lengths(threeUtrGRLdetRange));
+      S4Vectors::lengths(threeUtrGRLdetRange));
    ## add gene_name annotation
    values(threeUtrGRLdetRange@unlistData)[,"gene_name"] <- tx2geneDF[
       match(values(threeUtrGRLdetRange@unlistData)[,"transcript_id"],
@@ -475,15 +476,15 @@ tx2ale <- function
       printDebug("gencode2ale(): ",
          "Splitting ranges by gene.");
    }
-   threeUtrGRLdetGeneGRL <- split(
+   threeUtrGRLdetGeneGRL <- GenomicRanges::split(
       threeUtrGRLdetRange@unlistData,
-      values(threeUtrGRLdetRange@unlistData)[,"gene_name"]);
+      f=values(threeUtrGRLdetRange@unlistData)[,"gene_name"]);
    ## Reduce (melt) 3'UTR ranges, combining overlapping ranges per gene
    if (verbose) {
       printDebug("gencode2ale(): ",
          "Reducing ranges.");
    }
-   threeUtrGRLdetGeneGRLred <- reduce(threeUtrGRLdetGeneGRL);
+   threeUtrGRLdetGeneGRLred <- GenomicRanges::reduce(threeUtrGRLdetGeneGRL);
 
    ####################################################
    ## Annotate transcripts to the reduced 3'UTR ranges
@@ -493,17 +494,27 @@ tx2ale <- function
    }
    threeUtrGRLdetGeneGRLred2 <- annotateGRLfromGRL(
       threeUtrGRLdetGeneGRLred,
-      threeUtrGRLdetGeneGRL);
+      threeUtrGRLdetGeneGRL,
+      verbose=verbose);
 
    ####################################################
    ## Assign ALE numbers in stranded order for each gene
    if (verbose) {
       printDebug("gencode2ale(): ",
          "Assigning stranded numbers to the ranges.");
+      printDebug("head(threeUtrGRLdetGeneGRLred2):");
+      print(head(threeUtrGRLdetGeneGRLred2));
    }
    threeUtrGRLdetGeneGRLred2 <- assignGRLexonNames(
       exonNameColname="ALE_name",
-      threeUtrGRLdetGeneGRLred2, suffix="_ale");
+      geneSymbolColname="gene_name",
+      threeUtrGRLdetGeneGRLred2,
+      suffix="_ale",
+      verbose=verbose);
+   if (verbose) {
+      printDebug("gencode2ale(): ",
+         "Assigned stranded numbers to the ranges.");
+   }
    names(threeUtrGRLdetGeneGRLred2@unlistData) <-
       values(threeUtrGRLdetGeneGRLred2@unlistData)[,"ALE_name"];
    values(threeUtrGRLdetGeneGRLred2@unlistData)[,"score"] <- 0.5;
@@ -512,7 +523,7 @@ tx2ale <- function
    ####################################################
    ## Subset ALE containing 2 or more ALEs per gene
    GencodeALEmin2 <- threeUtrGRLdetGeneGRLred2[
-      lengths(threeUtrGRLdetGeneGRLred2) > 1];
+      S4Vectors::lengths(threeUtrGRLdetGeneGRLred2) > 1];
    if (verbose) {
       printDebug("gencode2ale(): ",
          "Filtered ",
@@ -535,7 +546,7 @@ tx2ale <- function
       values(subset(threeUtrGRLdetGeneGRLred2@unlistData,
          gene_name %in% GencodeALEmin2genes))[,c("transcript_id","ALE_name")]),
       ",");
-   tx2ale <- nameVector(list2df(ale2txL));
+   tx2ale <- nameVector(list2df(ale2txL)[,c("item","value")]);
    retVals$tx2ale <- tx2ale;
 
    ####################################################
@@ -1403,4 +1414,1107 @@ factor2label <- function
    x2f[x];
 }
 
+#' Get first stranded GRanges feature per GRangesList
+#'
+#' Get first stranded GRanges feature per GRangesList
+#'
+#' This function returns the first feature per GRangesList,
+#' relative to the strand of the GRangesList. It assumes each
+#' GRangesList element has only one strand, as is true for exons
+#' in one transcript.
+#'
+#' @return GRangesList containing only the first GRanges feature
+#'    in stranded order.
+#'
+#' @family jam GRanges functions
+#'
+#' @param grl GRangesList
+#' @param method character value in `c("endoapply", "flank")`
+#'    representing which method to use to define the first feature.
+#'    The `"endoapply"` method uses `S4Vectors::endoapply()` to
+#'    iterate each GRangesList element. The `"flank"` method is
+#'    intended to be equivalent but uses the `GenomicRanges::flank()`
+#'    function, which is vectorized.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+getFirstStrandedFromGRL <- function
+(grl,
+ method=c("endoapply","flank"),
+ verbose=TRUE,
+ ...)
+{
+   ## Purpose is to take a GRangesList and return the first element
+   ## in stranded order.
+   ## It assumes each GRangesList element contains only one strand, such
+   ## as with exons of a transcript.
+   method <- match.arg(method);
+   if (suppressPackageStartupMessages(!require(GenomicRanges))) {
+      stop("getFirstStrandedFromGRL() requires the GenomicRanges Bioconductor package.");
+   }
+   ## First, ensure the GRangesList is sorted by strand, since we use that
+   ## assumption in downstream steps
+   if (verbose) {
+      printDebug("getFirstStrandedFromGRL(): ",
+         "sorting grl");
+   }
+   grl <- sortGRL(grl,
+      verbose=verbose);
 
+   if (method %in% "endoapply") {
+      if (verbose) {
+         printDebug("getFirstStrandedFromGRL(): ",
+            "performing endoapply() logic");
+      }
+      grl2 <- endoapply(grl, function(iGR){
+         if ("-" %in% strand(iGR)[1]) {
+            tail(iGR, 1);
+         } else {
+            head(iGR, 1);
+         }
+      });
+      return(grl2);
+   } else {
+      if (verbose) {
+         printDebug("getFirstStrandedFromGRL(): ",
+            "performing flank() logic");
+      }
+      #grlWidths <- width(grl);
+      grlHeads1 <- heads(grl, 1);
+      grlWidths1 <- width(grlHeads1);
+      grlWidths2 <- width(tails(grl, 1));
+      if (verbose) {
+         printDebug("getFirstStrandedFromGRL(): ",
+            "applying range() function, class(grl):",
+            class(grl));
+      }
+      grlRanges <- range(grl);
+      if (verbose) {
+         printDebug("getFirstStrandedFromGRL(): ",
+            "Validating one strand per range(grl).");
+      }
+      if (length(grlRanges) != length(grlRanges@unlistData)) {
+         stop("getFirstStrandedFromGRL() requires each GRanges element to have only one strand.");
+      }
+      if (verbose) {
+         printDebug("getFirstStrandedFromGRL(): ",
+            "applying ifelse() logic");
+      }
+      grlFlankWidth <- ifelse(as.vector(unlist(strand(grlHeads1))) %in% "+",
+         unlist(grlWidths1),
+         unlist(grlWidths2));
+      if (verbose) {
+         printDebug("getFirstStrandedFromGRL(): ",
+            "applying flank() function");
+      }
+      grl3 <- flank(grlRanges,
+         start=TRUE,
+         width=-grlFlankWidth);
+      if (verbose) {
+         printDebug("getFirstStrandedFromGRL(): ",
+            "flank() function complete.");
+      }
+      return(grl3);
+   }
+}
+
+#' Sort GRangesList elements by chromosome and position
+#'
+#' Sort GRangesList elements by chromosome and position
+#'
+#' This function sorts GRangesList elements by chromosome and
+#' position, using the default sort routine for GRanges objects.
+#' It accomplishes the task by sorting the GRanges elements, then
+#' splitting that GRanges into a GRangesList based upon the
+#' original `names(GrangesList)`.
+#'
+#' @return GRangesList sorted by chromosome and position.
+#'
+#' @family jam GRanges functions
+#'
+#' @param GRL GRangesList to be sorted.
+#' @param splitColname intermediate colname used to split values
+#'    from GRanges to GRangesList. It only needs to be defined
+#'    if for some reason the default "splitColname" is already
+#'    in `colnames(values(GRL))`.
+#' @param removeSplitColname logical indicating whether to remove
+#'    the `splitColname` from the output GRangesList.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+sortGRL <- function
+(GRL,
+ splitColname="splitColname",
+ removeSplitColname=TRUE,
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose is to sort GRangesList by chromosome, using default sort(...)
+   ## on the GRanges entries, then split back into GRangesList in consistent
+   ## order
+   if (!suppressPackageStartupMessages(require(GenomicRanges))) {
+      stop("The GenomicRanges package is required for sortGRL()");
+   }
+   ## Ensure input GRL contains names
+   if (is.null(names(GRL))) {
+      names(GRL) <- makeNames(rep("GRL", length(GRL)));
+   }
+
+   values(GRL@unlistData)[,splitColname] <- factor(rep(names(GRL), elementNROWS(GRL)),
+      levels=names(GRL));
+   GR1 <- sort(GRL@unlistData);
+   #values(GR1)[,splitColname] <- factor(values(GR1)[,splitColname], unique(values(GR1)[,splitColname]));
+   if (verbose) {
+      printDebug("sortGRL(): ",
+         "splitting GRanges into list");
+   }
+   GRL <- GenomicRanges::split(GR1,
+      f=values(GR1)[,splitColname]);
+
+   ## Optionally remove splitColname from the result
+   if (removeSplitColname) {
+      keepNames <- setdiff(names(values(GRL@unlistData)),
+         splitColname);
+      #GRL@unlistData <- GRL@unlistData[,keepNames];
+      values(GRL@unlistData) <- values(GRL@unlistData)[,keepNames,drop=FALSE];
+   }
+   return(GRL);
+}
+
+#' Annotate GRanges using another GRanges object
+#'
+#' Annotate GRanges using another GRanges object
+#'
+#' This function adds annotations to features in the given GRanges
+#' object, from overlapping features in a second GRanges object.
+#' It is especially useful after performing a manipulation that
+#' results in a GRanges object without any `values` annotation,
+#' for example `GenomicRanges::reduce()` or `GenomicRanges::intersect()`.
+#'
+#' In theory this function is relatively simple, it applies annotations
+#' to overlapping entries. In practice, it gets complicated when multiple
+#' annotations overlap the same GRange entry. In that case, numerical
+#' values by default return the `base::mean()` while string values call
+#' `jamba::cPasteUnique()` by default, and return the unique, sorted,
+#' comma-delimited set of string values. For example, overlapping several
+#' exons from the same gene, the resulting annotation might include
+#' just one gene symbol.
+#'
+#' The numeric values can be aggregated using another function, controlled
+#' by `numShrinkFunction` named using the colname. For example:
+#' `numShrinkFunction="min"` would return the `base::min()` value for all
+#' numeric columns. But `numShrinkFunction=list(default=mean, score=max)`
+#' would return the `base::mean()` for all numeric columns except the
+#' `"score"` column which would report the `base::max()`.
+#'
+#' Numeric values currently use the `data.table` package workflow, which
+#' provides extremely efficient calculations for numeric values. However,
+#' vectorized functions have the potential to be notably faster, as is
+#' true with `jamba::cPasteUnique()` especially when applying
+#' `jamba::mixedSort()` to sort alphanumeric values. In future, the
+#' implementation may change to accomodate vectorized numeric functions,
+#' instead of using `data.table`.
+#'
+#' TODO: This function is a specific case where another function
+#' `shrinkDataFrame()` may be a more general purpose use. That function
+#' is yet to be ported to the Jam package suite.
+#'
+#' @return GRanges object with colnames added to `values`, with length
+#' and order equal to the input `GR1` GRanges object.
+#'
+#' @family jam GRanges functions
+#'
+#' @param GR1 GRanges object, the reference object to which annotations
+#'    are added.
+#' @param GR2 GRanges object used for annotations
+#' @param grOL overlaps object, optionally used when the
+#'    `GenomicRanges::findOverlaps()` function has already been run, mostly
+#'    intended to save re-processing the overlaps for large objects.
+#' @param numAsStrings logical indicating whether numerical values should
+#'    be treated as strings for the purpose of added annotations. When
+#'    `TRUE`, numerical values will be converted to character strings and
+#'    retained as if they were labels. This argument treats all numeric
+#'    columns as string, to treat only a subset use the `addStringCols`
+#'    argument.
+#' @param stringShrinkFunc function used to shrink string annotations
+#'    by overlapping feature. This function should take a list as input,
+#'    and `sep` as an argument indicating the delimiter if applicable,
+#'    and return a character vector of the same length as the list. By
+#'    default, `jamba::cPasteUnique()` is used. Control over the sort
+#'    and uniqueness should be applied with this function.
+#'    Note: `stringShrinkFunc` can be a single function, or can be a
+#'    named list of function calls, whose names match the colnames
+#'    of `values`. If a named list is provided, the first entry is used
+#'    for any any names in `values` which are not in `names(stringShrinkFunc)`.
+#' @param numShrinkFunc function used to shrink numerical values
+#'    by overlapping feature. For numeric values, the `data.table` package
+#'    is used to apply the function, which enables custom functions not
+#'    otherwise available via the `GenomicRanges` methods. Therefore, the
+#'    function does not take a list as input, instead takes a numeric
+#'    vector as input.
+#'    Note: `numShrinkFunc` can be a single function, or can be a
+#'    named list of function calls, whose names match the colnames
+#'    of `values`. If a named list is provided, the first entry is used
+#'    for any any names in `values` which are not in `names(numShrinkFunc)`.
+#' @param addStringCols character vector, optional, of numeric colnames that
+#'    should be treated as string values. This option is a subset of the
+#'    `numAsStrings`.
+#' @param type,ignore.strand,select arguments sent to
+#'    `GenomicRanges::findOverlaps()`. Note these options are only used
+#'    when `grOL` is not supplied.
+#' @param sep character value indicating the delimiter to use between
+#'    string values.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param DEBUG logical indicating whether to print debugging output.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+annotateGRfromGR <- function
+(GR1,
+ GR2,
+ grOL=NULL,
+ numAsStrings=FALSE,
+ stringShrinkFunc=function(...){cPasteUnique(..., doSort=TRUE)},
+ numShrinkFunc=sum,
+ addStringCols=NULL,
+ type=c("any", "start", "end", "within", "equal"),
+ ignore.strand=FALSE,
+ select="all",
+ sep=",",
+ verbose=FALSE,
+ DEBUG=FALSE,
+ ...)
+{
+   ## Purpose is to try a new faster method of annotating GR1 with values(GR2)
+   ## than annotateGRfromGR()
+   ##
+   ## Note: this function assumes data is stored as character vectors
+   ## TODO: handle different types, e.g. numeric, CharacterList (tricky)
+   ##
+   ## TODO: for entries overlapping only one other feature, skip the shrinkMatrix()
+   ## step and perform a straight paste(), which should be notably faster.
+   ##
+   ## useMixedSort=TRUE will use mixedSort() and mixedOrder() to sort
+   ## string values, so the end result will be, for example:
+   ## chr1, chr2, chr3, chr10, chr11
+   ## and not:
+   ## chr1, chr10, chr11, chr2, chr3
+   ##
+   ## grOL is an optional findOverlaps object, intended to allow
+   ## external logic to be applied
+
+   ## First make sure the GRanges objects both have names
+   if (is.null(names(GR1)) || any(table(names(GR1)) > 1)) {
+      names(GR1) <- paste0("GR1_", padInteger(seq_along(GR1)));
+   }
+   if (is.null(names(GR2)) || any(names(GR2) %in% c(NA, "")) || any(table(names(GR2)) > 1)) {
+      names(GR2) <- paste0("GR2_", padInteger(seq_along(GR2)));
+   }
+
+   ## Added type argument, to allow specific types of overlaps
+   type <- match.arg(type);
+
+   ## Run findOverlaps()
+   if (verbose) {
+      printDebug("annotateGRfromGR(): ",
+         "Running findOverlaps(GR1, GR2)");
+   }
+   if (is.null(grOL)) {
+      grOL <- GenomicRanges::findOverlaps(query=GR1,
+         subject=GR2,
+         type=type,
+         select=select,
+         ignore.strand=ignore.strand);
+   }
+   if (verbose) {
+      printDebug("annotateGRfromGR(): ",
+         "Completed findOverlaps(GR1, GR2)");
+      printDebug("annotateGRfromGR(): ",
+         "length(grOL):",
+         length(grOL));
+   }
+   if (length(grOL) == 0) {
+      return(GR1);
+   }
+
+   grOLm <- as.matrix(grOL);
+
+   ## Test for query entries with only one overlap in the subject
+   grOLtable <- table(from(grOL));
+   grOLm1 <- grOLm[grOLm[,1] %in% which(grOLtable == 1),,drop=FALSE];
+   grOLq1 <- grOLm1[,"queryHits"];
+   grOLs1 <- grOLm1[,"subjectHits"];
+
+   grOLmUse <- grOLm[!grOLm[,1] %in% which(grOLtable == 1),,drop=FALSE];
+   grOLq <- grOLmUse[,"queryHits"];
+   grOLs <- grOLmUse[,"subjectHits"];
+   if (verbose) {
+      printDebug("annotateGRfromGR(): ",
+         "   grOLq1:", head(grOLq1, 10));
+      printDebug("annotateGRfromGR(): ",
+         "   grOLs1:", head(grOLs1, 10));
+      printDebug("annotateGRfromGR(): ",
+         "   grOLq:", head(grOLq, 10));
+      printDebug("annotateGRfromGR(): ",
+         "   grOLs:", head(grOLs, 10));
+   }
+
+   ## Shrink the values
+   if (verbose) {
+      printDebug("annotateGRfromGR(): ",
+         "Running shrinkMatrix on ",
+         formatInt(sum(grOLtable > 1)),
+         " entries out of ",
+         formatInt(length(grOLtable)));
+   }
+
+   ## Define the column types by inspecting data, and
+   ## applying function arguments
+   colClasses <- sapply(colnames(values(GR2)), function(iCol){
+      class(values(GR2)[,iCol])
+   });
+   if (numAsStrings) {
+      stringCols <- names(colClasses)[sapply(colClasses, function(iClass){
+         igrepHas("integer|numeric|character|factor|ordered", iClass);
+      })];
+      numCols <- character(0);
+      if (!is.list(stringShrinkFunc)) {
+         stringShrinkFunc <- nameVector(
+            rep(list(stringShrinkFunc),
+               length(stringCols)),
+            stringCols);
+      } else if (!all(stringCols %in% names(stringShrinkFunc))) {
+         iNewCols <- setdiff(stringCols,
+            names(stringShrinkFunc));
+         stringShrinkFunc <- c(stringShrinkFunc,
+            nameVector(
+               rep(stringShrinkFunc,
+                  length.out=length(iNewCols)),
+               iNewCols));
+      }
+   } else {
+      numCols <- names(colClasses)[sapply(colClasses, function(iClass){
+         igrepHas("integer|numeric|float", iClass);
+      })];
+      stringCols <- names(colClasses)[sapply(colClasses, function(iClass){
+         igrepHas("character|factor|ordered", iClass);
+      })];
+      if (length(addStringCols) > 0 && any(addStringCols %in% numCols)) {
+         moveNumCols <- intersect(addStringCols, numCols);
+         numCols <- setdiff(numCols, moveNumCols);
+         stringCols <- c(stringCols, moveNumCols);
+         if (verbose) {
+            printDebug("annotateGRfromGR(): ",
+               "Moving ",
+               cPaste(moveNumCols),
+               " from numCols to stringCols.");
+         }
+      }
+      if (length(numCols) > 0 && !is.list(numShrinkFunc)) {
+         numShrinkFunc <- nameVector(
+            rep(list(numShrinkFunc),
+               length(numCols)),
+            numCols);
+      } else if (length(numCols) > 0 && !all(numCols %in% names(numShrinkFunc))) {
+         iNewCols <- setdiff(numCols,
+            names(numShrinkFunc));
+         numShrinkFunc <- c(numShrinkFunc,
+            nameVector(
+               rep(numShrinkFunc,
+                  length.out=length(iNewCols)),
+               iNewCols));
+      }
+      if (length(stringCols) > 0 && !is.list(stringShrinkFunc)) {
+         stringShrinkFunc <- nameVector(
+            rep(list(stringShrinkFunc),
+               length(stringCols)),
+            stringCols);
+      } else if (length(stringCols) > 0 && !all(stringCols %in% names(stringShrinkFunc))) {
+         iNewCols <- setdiff(stringCols,
+            names(stringShrinkFunc));
+         stringShrinkFunc <- c(stringShrinkFunc,
+            nameVector(
+               rep(stringShrinkFunc,
+                  length.out=length(iNewCols)),
+               iNewCols));
+      }
+   }
+   if (verbose) {
+      printDebug("annotateGRfromGR(): ",
+         "numCols:   ",
+         numCols);
+      printDebug("annotateGRfromGR(): ",
+         "stringCols:",
+         stringCols);
+   }
+
+   #####################################
+   ## Shrink numeric columns
+   if (length(numCols) > 0) {
+      if (verbose) {
+         printDebug("annotateGRfromGR(): ",
+            "Shrinking num columns.");
+      }
+      if (nrow(grOLm1) > 0) {
+         if (verbose) {
+            printDebug("annotateGRfromGR(): ",
+               "   grOLm1>0");
+         }
+         numShrunk1 <- lapply(nameVector(numCols), function(iCol){
+            if (verbose) {
+               printDebug("annotateGRfromGR(): ",
+                  "   ",
+                  iCol);
+            }
+            values(GR2[grOLs1])[,iCol];
+         });
+      }
+      numShrunk <- lapply(nameVector(numCols), function(iCol){
+         if (verbose) {
+            printDebug("annotateGRfromGR(): ",
+               "   ",
+               iCol);
+            printDebug("annotateGRfromGR(): ",
+               "   groupBy:",
+               head(names(GR1)[grOLq]));
+            printDebug("annotateGRfromGR(): ",
+               "   grOLq:",
+               head(grOLq));
+         }
+         grOLi <- shrinkMatrix(as.data.frame(values(GR2)[grOLs,iCol,drop=FALSE]),
+            groupBy=seq_along(GR1)[grOLq],
+            shrinkFunc=numShrinkFunc[[iCol]],
+            returnClass="matrix");
+      });
+   }
+
+   #####################################
+   ## Shrink string columns
+   if (length(stringCols) > 0) {
+      if (verbose) {
+         printDebug("annotateGRfromGR(): ",
+            "Shrinking string columns:",
+            stringCols);
+         printDebug("annotateGRfromGR(): ",
+            "nrow(grOLm1):",
+            nrow(grOLm1));
+         printDebug("annotateGRfromGR(): ",
+            "nrow(grOLmUse):",
+            nrow(grOLmUse));
+      }
+      if (nrow(grOLm1) > 0) {
+         ## Note: Decided to convert to character vector to avoid
+         ## factors being converted to numeric values, then to string,
+         ## and generally to be consistent with the type produced by
+         ## the string shrink function below
+         stringShrunk1 <- lapply(nameVector(stringCols), function(iCol){
+            if (verbose) {
+               printDebug("annotateGRfromGR(): ",
+                  "   ",
+                  iCol);
+            }
+            as.data.frame(values(GR2)[grOLs1,iCol,drop=FALSE]);
+         });
+      }
+      if (nrow(grOLmUse) > 0) {
+         stringShrunk <- lapply(nameVector(stringCols), function(iCol){
+            if (verbose) {
+               printDebug("annotateGRfromGR(): ",
+                  "   ",
+                  iCol);
+            }
+            if (igrepHas("list", class(values(GR2)[grOLs,iCol]))) {
+               ## list column
+               iVals <- values(GR2)[grOLs,iCol];
+               names(iVals) <- names(GR2)[grOLs];
+               iValsX <- unlist(iVals);
+               iValsXnames1 <- rep(grOLq,
+                  S4Vectors::lengths(iVals));
+               if (1 == 2) {
+                  iValsDF <- data.frame(stringsAsFactors=FALSE,
+                     check.names=FALSE,
+                     iValsX=iValsX,
+                     iValsXnames1=iValsXnames1);
+                  if (useMixedSort) {
+                     if (verbose) {
+                        printDebug("annotateGRfromGR(): ",
+                           "Using mixedSortDF() on iCol:",
+                           iCol);
+                        printDebug("annotateGRfromGR(): ",
+                           "      iValsDF:");
+                        print(head(iValsDF));
+                     }
+                     if (DEBUG) {
+                        return(iValsDF);
+                     }
+                     #iValsDF <- mmixedOrderDF(iValsDF);
+                     iValsDF <- mixedSortDF(iValsDF);
+                  }
+                  iValsDFnonNA <- which(!is.na(iValsDF$iValsX));
+                  iX <- nameVector(rep(NA, length(GR1)), names(GR1));
+                  iValsSplit <- split(iValsDF[,"iValsX"][iValsDFnonNA],
+                     iValsDF[,"iValsXnames1"][iValsDFnonNA]);
+               } else {
+                  iValsSplit <- split(iValsX, iValsXnames1);
+               }
+               iXnonNA <- stringShrinkFunc[[iCol]](iValsSplit,
+                  sep=sep);
+               iX[names(iXnonNA)] <- iXnonNA;
+               iX;
+            } else {
+               ## Non-list column
+               iValsX <- values(GR2)[grOLs,iCol];
+               iValsXnames1 <- grOLq;
+
+               if (1 == 2) {
+                  if (useMixedSort) {
+                     if (verbose) {
+                        printDebug("      useMixedSort started");
+                     }
+                     iValsXo <- mixedOrder(iValsX);
+                     iValsX <- iValsX[iValsXo];
+                     iValsXnames1 <- iValsXnames1[iValsXo];
+                     if (verbose) {
+                        printDebug("      useMixedSort completed");
+                     }
+                  }
+               }
+
+               ## Split the values
+               nonNA <- which(!is.na(iValsX));
+               stringLnonNA <- split(iValsX[nonNA], names(GR1)[iValsXnames1[nonNA]]);
+               #stringLnonNA <- split(iValsX[nonNA], iValsXnames1[nonNA]);
+               iXnonNA <- stringShrinkFunc[[iCol]](stringLnonNA,
+                  sep=sep);
+               iX <- nameVector(rep(NA, length(unique(grOLq))), names(GR1)[unique(grOLq)]);
+               iX[names(iXnonNA)] <- iXnonNA;
+               iX;
+            }
+         });
+      }
+      if (DEBUG) {
+         return(stringShrunk);
+      }
+   }
+   ## Note: we keep track of grOLqAll to represent the single- and multi-entry rows
+   ## from the original GRanges object
+   grOLqAll <- c(unique(grOLq), grOLq1);
+   grOLsAll <- c(grOLs, grOLs1);
+
+
+   #####################################
+   ## Put it all back together
+   stringShrunkDF <- NULL;
+   numShrunkDF <- NULL;
+   if (length(numCols) > 0) {
+      if (verbose) {
+         printDebug("annotateGRfromGR(): ",
+            "length(numShrunk):",
+            length(numShrunk));
+         if (length(numShrunk) > 0) {
+            printDebug("annotateGRfromGR(): ",
+               "class(numShrunk):",
+               class(numShrunk));
+            print(head(numShrunk, 3));
+         }
+      }
+      if (nrow(grOLmUse) > 0) {
+         numShrunkDF <- data.frame(check.names=FALSE,
+            stringsAsFactors=FALSE,
+            do.call(cbind, numShrunk));
+         printDebug("annotateGRfromGR(): ",
+            "   nrow(numShrunkDF):",
+            formatInt(nrow(numShrunkDF)),
+            " (before)");
+      }
+      if (nrow(grOLm1) > 0) {
+         ## Create data.frame using the original entries
+         numShrunkDF1 <- data.frame(check.names=FALSE,
+            stringsAsFactors=FALSE,
+            do.call(cbind, numShrunk1));
+         ## Append the shrunken multi-entry and the single-entry data.frames
+         if (nrow(grOLmUse) > 0 && !is.null(numShrunkDF)) {
+            numShrunkDF <- rbind(numShrunkDF, numShrunkDF1);
+         } else {
+            numShrunkDF <- numShrunkDF1;
+         }
+      }
+   }
+   if (length(stringCols) > 0) {
+      if (nrow(grOLmUse) > 0 && !is.null(stringShrunk)) {
+         stringShrunkDF <- data.frame(check.names=FALSE,
+            stringsAsFactors=FALSE,
+            do.call(cbind, stringShrunk));
+      }
+      if (nrow(grOLm1) > 0) {
+         if (verbose) {
+            printDebug("annotateGRfromGR(): ",
+               "Appending multi- and single-entry ",
+               "string",
+               " data.frames");
+         }
+         ## Create data.frame using the original entries
+         stringShrunkDF1 <- data.frame(check.names=FALSE,
+            stringsAsFactors=FALSE,
+            do.call(cbind, stringShrunk1));
+         ## Append the shrunken multi-entry and the single-entry data.frames
+         if (nrow(grOLmUse) > 0 && !is.null(stringShrunkDF)) {
+            stringShrunkDF <- rbind(stringShrunkDF,
+               stringShrunkDF1);
+         } else {
+            stringShrunkDF <- stringShrunkDF1;
+         }
+      }
+      if (length(numCols) > 0 && !is.null(stringShrunkDF)) {
+         grOL1 <- data.frame(check.names=FALSE,
+            stringsAsFactors=FALSE,
+            stringShrunkDF,
+            numShrunkDF);
+      } else {
+         grOL1 <- data.frame(check.names=FALSE,
+            stringsAsFactors=FALSE,
+            stringShrunkDF);
+      }
+   } else if (length(numCols) > 0) {
+      grOL1 <- data.frame(check.names=FALSE,
+         stringsAsFactors=FALSE,
+         numShrunkDF);
+   } else {
+      grOL1 <- data.frame(row.names=unique(names(GR1)[grOLqAll]),
+         olNames=unique(names(GR1)[grOLqAll]))[,-1,drop=FALSE];
+   }
+
+   ## Make duplicate colnames uniquely named
+   ## TODO: review make.unique() for making column renaming robust,
+   ## currently does not handle renaming duplicated versioned names.
+   if (ncol(values(GR1)) > 0 && any(colnames(grOL1) %in% colnames(values(GR1)))) {
+      newColnames <- make.unique(c(colnames(values(GR1)), colnames(grOL1)),
+         sep="_v");
+      newColnames2 <- tail(newColnames, ncol(grOL1));
+      colnames(grOL1) <- newColnames2;
+   }
+
+   ## Now append each column, meanwhile fix some issues with ,-delimiters
+   for (iCol in colnames(grOL1)) {
+      if (igrepHas("integer|numeric", class(grOL1[,iCol]))) {
+         values(GR1)[,iCol] <- numeric(0);
+      } else {
+         grOL1[,iCol] <- gsub(", ", ",", grOL1[,iCol]);
+         values(GR1)[,iCol] <- "";
+      }
+      if (verbose) {
+         printDebug("annotateGRfromGR(): ",
+            "head(grOL1):");
+         print(head(grOL1, 5));
+      }
+      values(GR1)[grOLqAll,iCol] <- grOL1[,iCol];
+      blankRows <- seq_along(GR1)[-grOLqAll];
+      if (length(blankRows) > 0) {
+         values(GR1[blankRows])[,iCol] <- NA;
+      }
+   }
+   GR1;
+}
+
+#' Annotate GRangesList from GRangesList objects
+#'
+#' Annotate GRangesList from GRangesList objects
+#'
+#' This function extends `annotateGRfromGR()` for the special case
+#' of GRangesList objects. It requires both GRangesList objects have
+#' identical length, and assumes both are in equivalent order.
+#' It then restricts all overlapping annotations to those where the
+#' query and subject are the same original GRangesList index.
+#'
+#' This function is particularly useful following an operation on
+#' a GRangesList object that otherwise removes all annotations in
+#' `values(GRL1)`, for example `GenomicRanges::reduce()` or
+#' `GenomicRanges::flank()`. This function can be used to re-annotate
+#' the resulting features using the original GRangesList object.
+#'
+#' Note that annotations are added at the level of individual GRanges
+#' entries, equivalent to `values(GRL1@unlistData)`. This function does
+#' not currently apply annotations at the GRangesList level, thus
+#' it does not use `values(GRL2)` if they exist.
+#'
+#' @return GRangesList object with the same length and lengths as
+#'    the input `GRL1`, with annotation columns added from `GRL2`.
+#'
+#' @family jam GRanges functions
+#'
+#' @param GRL1 GRangesList query
+#' @param GRL2 GRangesList subject, used to add annotations to `GRL1`
+#' @param annoName1 character value indicating either the colname of
+#'    `values(GRL1)` to use as the name, or if `"name"` then it uses
+#'    `names(GRL1)`.
+#' @param annoName2 character value indicating either the colname of
+#'    `values(GRL2)` to use as the name, or if `"name"` then it uses
+#'    `names(GRL2)`.
+#' @param grlOL overlap result (optional) from `GenomicRanges::findOverlaps()`
+#'    for these same GRangesList objects, used to save time by not re-running
+#'    `GenomicRanges::findOverlaps()` again.
+#' @param addGRLnames logical indicating whether to add the names of each
+#'    GRangesList object to the output object, useful for tracking the
+#'    annotations to the source data.
+#' @param returnType character value indicating whether to return
+#'    GRangesList "GRL" or GRange "GR" object.
+#' @param splitColname character value used internally to indicate how
+#'    to split the resulting GRanges annotated data back to GRangesList.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are passed to `annotateGRfromGR()`.
+#'    To customize the aggregation functions, supply `numShrinkFunc` or
+#'    `stringShrinkFunc` as described in `annotateGRfromGR()`.
+#'
+#' @export
+annotateGRLfromGRL <- function
+(GRL1,
+ GRL2,
+ annoName1="name",
+ annoName2="name",
+ grlOL=NULL,
+ addGRLnames=TRUE,
+ returnType=c("GRL", "GR"),
+ splitColname=annoName1,
+ verbose=verbose,
+ ...)
+{
+   ## Purpose is to run annotateGRfromGR() except allow for GRangesList
+   ## objects as input.  It accomplishes the task by running
+   ## findOverlapsGRL() which ensures GRangesList overlaps are only
+   ## allowed for the same annotated entries, defined in annoName1,
+   ## and annoName2.
+   returnType <- match.arg(returnType);
+   if (is.null(grlOL)) {
+      grlOL <- findOverlapsGRL(GRL1,
+         GRL2,
+         annoName1=annoName1,
+         annoName2=annoName2);
+   }
+   if (addGRLnames) {
+      if (annoName1 %in% "name") {
+         values(GRL1@unlistData)[,"GRL1name"] <- rep(names(GRL1),
+            S4Vectors::lengths(GRL1));
+         annoName1 <- "GRL1name";
+      }
+      if (annoName2 %in% "name") {
+         values(GRL2@unlistData)[,"GRL2name"] <- rep(names(GRL2),
+            S4Vectors::lengths(GRL2));
+         annoName2 <- "GRL2name";
+      }
+   }
+   annoNames2 <- setdiff(colnames(values(GRL2@unlistData)), annoName2);
+   GR12 <- annotateGRfromGR(GRL1@unlistData,
+      GRL2@unlistData[,annoNames2],
+      grOL=grlOL,
+      verbose=verbose,
+      ...);
+   if (returnType %in% "GR") {
+      return(GR12);
+   } else {
+      return(GenomicRanges::split(GR12,
+         values(GR12)[,splitColname]));
+   }
+}
+
+#' Find overlaps between two GRangesList objects
+#'
+#' Find overlaps between two GRangesList objects
+#'
+#' This function implements `GenomicRanges::findOverlaps()` for the special
+#' case of two GRangesList objects, restricting results to those including
+#' the same GRangesList index in the subject and query.
+#'
+#' @return Hits object, or the natural output from
+#'    `GenomicRanges::findOverlaps()` dependent upon the `...` arguments.
+#'
+#' @family jam GRanges functions
+#'
+#' @param GRL1 GRangesList query
+#' @param GRL2 GRangesList subject
+#' @param annoName1 character value indicating either the colname of
+#'    `values(GRL1)` to use as the name, or if `"name"` then it uses
+#'    `names(GRL1)`.
+#' @param annoName2 character value indicating either the colname of
+#'    `values(GRL2)` to use as the name, or if `"name"` then it uses
+#'    `names(GRL2)`.
+#' @param ... additional arguments are passed to
+#'    `GenomicRanges::findOverlaps()`, useful for customizing the overlap
+#'    criteria.
+#'
+#' @export
+findOverlapsGRL <- function
+(GRL1,
+ GRL2,
+ annoName1="name",
+ annoName2="name",
+ ...)
+{
+   ## Purpose is to run findOverlaps() on GRangesList objects,
+   ## where overlaps are required to share the same annotation,
+   ## in the annoName column.
+   ##
+   ## Specifically, it helps run findOverlaps() on GRangesList objects
+   ## separated by gene, then only returning entries which match the same
+   ## gene.
+   grOL <- findOverlaps(GRL1@unlistData,
+      GRL2@unlistData,
+      ...);
+   if (annoName1 %in% "name") {
+      GRLnames1 <- rep(names(GRL1), elementNROWS(GRL1));
+   } else {
+      GRLnames1 <- values(GRL1@unlistData)[,annoName1];
+   }
+   if (annoName2 %in% "name") {
+      GRLnames2 <- rep(names(GRL2), elementNROWS(GRL2));
+   } else {
+      GRLnames2 <- values(GRL2@unlistData)[,annoName2];
+   }
+   if (!any(GRLnames1 %in% GRLnames2)) {
+      stop("No names are shared between GRL1 and GRL2. Please try again.");
+   }
+   grOLdf <- data.frame(as.data.frame(grOL));
+   grOLdf[,"queryName"] <- GRLnames1[grOLdf[,"queryHits"]];
+   grOLdf[,"subjectName"] <- GRLnames2[grOLdf[,"subjectHits"]];
+   grOLdfUse <- which(grOLdf[,"queryName"] == grOLdf[,"subjectName"]);
+   return(grOL[grOLdfUse]);
+}
+
+#' Assign exon names to GRangesList
+#'
+#' Assign exon names to GRangesList
+#'
+#' This function takes a GRangesList object with an annotated gene symbol
+#' column, and defines exon numbers for each distinct (non-adjacent)
+#' range per gene. When multiple ranges overlap, one exon number is
+#' applied to them all, and disjoint ranges are denoted using a letter
+#' suffix.
+#'
+#' For example the exon labels below:
+#'
+#' |======|......|======|=======|======|......|======|=======|
+#' .exon1.........exon2a.exon2b..exon2c........exon3a..exon3b.
+#'
+#' The full name for each feature will become:
+#' * Gene_exon1
+#' * Gene_exon2a
+#' * Gene_exon2b
+#' * Gene_exon2c
+#' * Gene_exon3a
+#' * Gene_exon3b
+#'
+#' The reasoning, is to preserve the gene symbol for readability, but
+#' to number exons to indicate the numbered contiguous exon, with suffix
+#' to indicate the sub-section of each exon.
+#'
+#' @return GRangesList object with additional columns indicating the
+#' exon name.
+#'
+#' @family jam GRanges functions
+#'
+#' @param GRL GRangesList input object. Ideally, the input GRanges are
+#'    disjoint, meaning no two exons overlap, but instead are represented
+#'    by non-overlapping regions that are sometimes adjacent.
+#' @param geneSymbolColname character string indicating with colname
+#'    of `values(GRL)` contains the unique gene symbol. If this value
+#'    does not already exist, it is created and populated using
+#'    `names(GRL)`.
+#' @param exonNameColname character string to be used for the resulting
+#'    exon name. By default `"Exon"` is appended to the end of the
+#'    `geneSymbolColname`.
+#' @param suffix character value indicating the suffix to add to the
+#'    `geneSymbolColname` to indicate individual exon numbers.
+#' @param renameOnes logical indicating whether to name exon sub-sections
+#'    when the exon is not subdivided. For example, when `renameOnes=FALSE`,
+#'    an exon with one section would be named, `"exon1"`, otherwise
+#'    when `renameOnes=TRUE` an exon with one section would be named,
+#'    `"exon1a"`. This distinction can be helpful to recognize exons that
+#'    contain no subsections.
+#' @param filterTwoStrand logical indicating whether to filter out genes
+#'    occurring on two different strands.
+#' @param checkDisjoin character value indicating how to handle non-disjoint
+#'    input GRL ranges. When `checkDisjoin="stop"` then any non-disjoint
+#'    GRanges in an element of `GRL` will cause the function to fail.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+assignGRLexonNames <- function
+(GRL,
+ geneSymbolColname="geneSymbol",
+ exonNameColname=paste0(geneSymbolColname, "Exon"),
+ suffix="_exon",
+ renameOnes=FALSE,
+ filterTwoStrand=TRUE,
+ checkDisjoin=c("warn","none","stop"),
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose is to assign exon names using numbers
+   ## to represent contiguous segments, and lowercase
+   ## letters to represent subsections of each exon.
+   ##
+   ## filterTwoStrand=TRUE will remove entries which have two strands
+   ## for the same GRL entry
+   ##
+   ## This function is a light wrapper for renumberGRanges()
+   ##
+   ## checkDisjoin="stop" will check to make sure exons in each set
+   ## of GRanges are disjoint, otherwise the numbering can be
+   ## problematic.
+   ## The most common symptom is negative strand embedded exons receive
+   ## sub-numbers in opposite order.
+   ##
+   checkDisjoin <- match.arg(checkDisjoin);
+
+   ## First verify that incoming data is valid per assumptions
+   ## that exons for a transcript would all appear only on one strand
+   if (verbose) {
+      printDebug("assignGRLexonNames(): ",
+         "class(GRL):",
+         class(GRL));
+   }
+   GRLstrandL <- unique(GenomicRanges::strand(GRL));
+   if (filterTwoStrand && any(S4Vectors::lengths(GRLstrandL) > 1)) {
+      if (verbose) {
+         printDebug("assignGRLexonNames(): ",
+            "removing some multi-stranded exon entries.");
+      }
+      iRemove <- which(S4Vectors::lengths(GRLstrandL) > 1);
+      GRL <- GRL[-iRemove];
+   }
+
+   ## check disjoint GRanges
+   if (checkDisjoin %in% c("warn","stop")) {
+      GRLdis <- disjoin(GRL);
+      if (!all(S4Vectors::lengths(GRLdis) == S4Vectors::lengths(GRL))) {
+         if (checkDisjoin %in% "stop") {
+            stop("assignGRLexonNames() detected overlapping GRanges, stopping.");
+         } else {
+            printDebug("assignGRLexonNames(): ",
+               "detected overlapping GRanges, continuing.",
+               fgText=c("red","orange"));
+         }
+      }
+   }
+
+   ## Reduce entries
+   GRLred <- reduce(GRL);
+
+   ## Add geneSymbolColname if it does not already exist
+   if (!geneSymbolColname %in% colnames(values(GRLred@unlistData))) {
+      values(GRLred@unlistData)[,geneSymbolColname] <- rep(names(GRLred),
+         lengths(GRLred));
+   }
+   if (verbose) {
+      printDebug("assignGRLexonNames(): ",
+         "head(GRLred):");
+      print(head(GRLred));
+   }
+   if (verbose) {
+      printDebug("assignGRLexonNames(): ",
+         "geneSymbolColname:",
+         geneSymbolColname);
+   }
+   if (verbose) {
+      printDebug("assignGRLexonNames(): ",
+         "geneSymbolColname values:",
+         head(values(GRLred@unlistData)[,geneSymbolColname], 10));
+   }
+   GRLredStrand <- unlist(unique(strand(GRLred)));
+   GRLredStrandP <- which(GRLredStrand %in% "+");
+   GRLredStrandN <- which(GRLredStrand %in% "-");
+
+   ## Stranded exon numbering
+   values(GRLred@unlistData)[,exonNameColname] <- "";
+   if (verbose) {
+      printDebug("assignGRLexonNames(): ",
+         "head(GRLred):");
+      print(head(GRLred));
+      printDebug("assignGRLexonNames(): ",
+         "head(GRLredStrandP):");
+      print(head(GRLredStrandP));
+      printDebug("assignGRLexonNames(): ",
+         "head(GRLredStrandN):");
+      print(head(GRLredStrandN));
+   }
+   if (length(GRLredStrandP) > 0) {
+      values(GRLred[GRLredStrandP]@unlistData)[,exonNameColname] <- makeNames(
+         values(GRLred[GRLredStrandP]@unlistData)[,geneSymbolColname],
+         suffix=suffix,
+         renameOnes=TRUE);
+   }
+   if (length(GRLredStrandN) > 0) {
+      values(GRLred[GRLredStrandN]@unlistData)[,exonNameColname] <- rev(makeNames(
+         values(GRLred[rev(GRLredStrandN)]@unlistData)[,geneSymbolColname],
+         suffix=suffix,
+         renameOnes=TRUE));
+   }
+   if (verbose) {
+      printDebug("assignGRLexonNames(): ",
+         "exonNameColname values:",
+         head(values(GRLred@unlistData)[,exonNameColname], 10));
+   }
+
+   ## Add lowercase letter suffix
+   GRLcolnames <- unvigrep(paste0(exonNameColname, "(_v[0-9]|)$"), colnames(values(GRL@unlistData)));
+   if (verbose) {
+      printDebug("assignGRLexonNames(): ",
+         "head(GRL[,GRLcolnames]):");
+      print(head(GRL[,GRLcolnames]));
+      printDebug("assignGRLexonNames(): ",
+         "head(GRLred[,exonNameColname]):");
+      print(head(GRLred[,exonNameColname]));
+   }
+   GRLnew <- annotateGRLfromGRL(GRL1=GRL[,GRLcolnames],
+      GRL2=GRLred[,exonNameColname],
+      verbose=verbose);
+   if (verbose) {
+      printDebug("assignGRLexonNames(): ",
+         "Completed annotateGRLfromGRL().");
+   }
+   GRLnewStrand <- unlist(unique(strand(GRLnew)));
+   GRLnewStrandP <- which(GRLnewStrand %in% "+");
+   GRLnewStrandN <- which(GRLnewStrand %in% "-");
+   GRLnewStrandNn <- names(GRLnew[GRLnewStrandN]@unlistData);
+   subFeatureNumberStyle <- "letters";
+   subFeatureSuffix <- "";
+   exonNameColname1 <- paste0(exonNameColname, "1");
+   if (1 == 2) {
+      values(GRLnew@unlistData)[,exonNameColname1] <- values(GRLnew@unlistData)[,exonNameColname];
+      values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname1] <- (
+         makeNames(values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname],
+            numberStyle=subFeatureNumberStyle,
+            suffix=subFeatureSuffix,
+            renameOnes=renameOnes));
+      values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname1] <- (
+         makeNames(values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname],
+            numberStyle=subFeatureNumberStyle,
+            suffix=subFeatureSuffix,
+            renameOnes=renameOnes));
+   } else {
+      values(GRLnew@unlistData)[,exonNameColname] <- values(GRLnew@unlistData)[,exonNameColname];
+      values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname] <- (
+         makeNames(values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname],
+            numberStyle=subFeatureNumberStyle,
+            suffix=subFeatureSuffix,
+            renameOnes=renameOnes));
+      values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname] <- (
+         makeNames(values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname],
+            numberStyle=subFeatureNumberStyle,
+            suffix=subFeatureSuffix,
+            renameOnes=renameOnes));
+   }
+
+   return(GRLnew);
+
+   ## subsection exon numbering using lowercase letters
+   GRnew <- renumberGRanges(GR1=GRL@unlistData,
+      groupColname=geneSymbolColname);
+   GRLnew <- split(GRnew[,c(colnames(values(GRL@unlistData)),"exon_id")],
+      values(GRnew)[,geneSymbolColname]);
+   values(GRLnew@unlistData) <- renameColumn(values(GRLnew@unlistData),
+      from="exon_id", to=exonNameColname)
+
+   return(GRLnew);
+}

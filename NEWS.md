@@ -1,3 +1,32 @@
+# splicejam version 0.0.9.900
+
+## new functions
+
+* `sortGRL()` sorts GRangesList objects by chromosome and position.
+* `getFirstStrandedFromGRL()` return the first GRanges feature per
+GRangesList, ordered properly by strand.
+* `annotateGRfromGR()` which annotates one GRanges object based upon
+overlaps with another GRanges object.
+* `annotateGRLfromGRL()` which annotates one GRangesList object based upon
+overlaps only with the same index entries in a second GRangesList object.
+* `findOverlapsGRL()` runs `GenomicRanges::findOverlaps()` for the case of
+two GRangesList objects, matching at the GRanges level but restricting
+overlaps to those matching the same GRangesList index.
+* `assignGRLexonNames()` assigns exon names and numbers to a disjoint
+set of exons per gene model.
+
+## updates
+
+* Added "S4Vectors" to package imports, since some functions like
+`lengths()` have been moved there. Another reason using a package prefix
+is clunky at best. If methods have dispatch, and if they did not
+conflict between S3 and S4 methods, that would be the better strategy.
+It is not a solution to hardcode package names into function bodies,
+since every package maintainer has to stay updated on the source package
+of all other dependent functions. Those details should be irrelevant to
+other package maintainers.
+
+
 # splicejam version 0.0.8.900
 
 ## enhancements

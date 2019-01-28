@@ -6,6 +6,10 @@ reference:
   desc: Functions aimed at RNA-seq analysis
   contents:
   - has_concept("jam RNA-seq functions")
+- title: GRanges functions
+  desc: Functions to manipulate Genomic Ranges and related objects
+  contents:
+  - has_concept("jam GRanges functions")
 - title: Plot functions
   desc: Functions that assist with R plotting
   contents:
