@@ -602,7 +602,7 @@ bgaPlotly3d <- function
             z=sceneZ)),
       aspectmode="data"
    );
-   p10 <- p10 %>% layout(title=main,
+   p10 <- p10 %>% plotly::layout(title=main,
       dragmode="orbit",
       scene=scene,
       paper_bgcolor=paper_bgcolor,

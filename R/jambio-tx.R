@@ -559,10 +559,12 @@ tx2ale <- function
             "Aggregating transcript abundances by ranges.");
       }
       if (all(names(tx2ale) %in% rownames(iMatrix))) {
-         iMatrixAle <- log2(1+shrinkMatrix(2^(iMatrix[names(tx2ale),,drop=FALSE])-1,
-            groupBy=tx2ale,
-            shrinkFunc=sum,
-            returnClass="matrix"));
+         iMatrixAle <- log2(1+
+               shrinkMatrix(
+                  2^(iMatrix[names(tx2ale),,drop=FALSE])-1,
+                  groupBy=tx2ale,
+                  shrinkFunc=function(x){sum(x, na.rm=TRUE)},
+                  returnClass="matrix"));
       } else {
          printDebug("gencode2ale(): ",
             "Warning: ",
@@ -946,7 +948,7 @@ shrinkMatrix <- function
    DT <- data.table(
       data.frame(check.names=FALSE,
          stringsAsFactors=FALSE,
-         x=x,
+         x,
          groupBy=groupBy),
       key="groupBy");
    if (verbose) {

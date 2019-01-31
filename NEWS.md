@@ -1,3 +1,11 @@
+# splicejam version 0.0.10.900
+
+## enhancements
+
+* `shrinkMatrix()` minor fix to remove the shadow `x` in the resulting
+colnames.
+* `tx2ale()` modified to be tolerant of NA values in the expression matrix.
+
 # splicejam version 0.0.9.900
 
 ## new functions
