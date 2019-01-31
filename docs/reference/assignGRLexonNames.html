@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make tx2gene data.frame from a GTF file — makeTx2geneFromGtf • splicejam</title>
+<title>Assign exon names to GRangesList — assignGRLexonNames • splicejam</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Make tx2gene data.frame from a GTF file — makeTx2geneFromGtf" />
+<meta property="og:title" content="Assign exon names to GRangesList — assignGRLexonNames" />
 
-<meta property="og:description" content="Make tx2gene data.frame from a GTF file" />
+<meta property="og:description" content="Assign exon names to GRangesList" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -102,103 +102,113 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make tx2gene data.frame from a GTF file</h1>
+    <h1>Assign exon names to GRangesList</h1>
     <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
-    <div class="hidden name"><code>makeTx2geneFromGtf.Rd</code></div>
+    <div class="hidden name"><code>assignGRLexonNames.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Make tx2gene data.frame from a GTF file</p>
+    <p>Assign exon names to GRangesList</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>makeTx2geneFromGtf</span>(<span class='no'>GTF</span>, <span class='kw'>geneAttrNames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"gene_id"</span>, <span class='st'>"gene_name"</span>,
-  <span class='st'>"gene_type"</span>), <span class='kw'>txAttrNames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"transcript_id"</span>, <span class='st'>"transcript_type"</span>),
-  <span class='kw'>geneFeatureType</span> <span class='kw'>=</span> <span class='st'>"gene"</span>, <span class='kw'>txFeatureType</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"transcript"</span>, <span class='st'>"mRNA"</span>),
-  <span class='kw'>nrows</span> <span class='kw'>=</span> -<span class='fl'>1L</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>assignGRLexonNames</span>(<span class='no'>GRL</span>, <span class='kw'>geneSymbolColname</span> <span class='kw'>=</span> <span class='st'>"geneSymbol"</span>,
+  <span class='kw'>exonNameColname</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='no'>geneSymbolColname</span>, <span class='st'>"Exon"</span>),
+  <span class='kw'>suffix</span> <span class='kw'>=</span> <span class='st'>"_exon"</span>, <span class='kw'>renameOnes</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>filterTwoStrand</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>checkDisjoin</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"warn"</span>, <span class='st'>"none"</span>, <span class='st'>"stop"</span>), <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>GTF</th>
-      <td><p>character file name sent to <code><a href='https://www.rdocumentation.org/packages/data.table/topics/fread'>data.table::fread()</a></code>. When the
-file ends with ".gz", gzcat is used to gunzip the file during the
-import step. (TODO: verify that handling of gz files is portable across
-architectures, or gracefully exit as needed.)</p></td>
+      <th>GRL</th>
+      <td><p>GRangesList input object. Ideally, the input GRanges are
+disjoint, meaning no two exons overlap, but instead are represented
+by non-overlapping regions that are sometimes adjacent.</p></td>
     </tr>
     <tr>
-      <th>geneAttrNames</th>
-      <td><p>character vector of recognized attribute names
-as they appear in column 9 of the GTF file, for gene rows.</p></td>
+      <th>geneSymbolColname</th>
+      <td><p>character string indicating with colname
+of <code>values(GRL)</code> contains the unique gene symbol. If this value
+does not already exist, it is created and populated using
+<code><a href='https://www.rdocumentation.org/packages/base/topics/names'>names(GRL)</a></code>.</p></td>
     </tr>
     <tr>
-      <th>txAttrNames</th>
-      <td><p>character vector of recognized attribute names
-as they appear in column 9 of the GTF file, for transcript rows.</p></td>
+      <th>exonNameColname</th>
+      <td><p>character string to be used for the resulting
+exon name. By default <code>"Exon"</code> is appended to the end of the
+<code>geneSymbolColname</code>.</p></td>
     </tr>
     <tr>
-      <th>geneFeatureType</th>
-      <td><p>character value to match column 3 of the GTF
-file, used to define gene rows, by default "gene".</p></td>
+      <th>suffix</th>
+      <td><p>character value indicating the suffix to add to the
+<code>geneSymbolColname</code> to indicate individual exon numbers.</p></td>
     </tr>
     <tr>
-      <th>txFeatureType</th>
-      <td><p>character value to match column 3 of the GTF
-file, used to define gene rows, by default "transcript". In some
-GTF files, "mRNA" is used, so either is accepted by default.</p></td>
+      <th>renameOnes</th>
+      <td><p>logical indicating whether to name exon sub-sections
+when the exon is not subdivided. For example, when <code>renameOnes=FALSE</code>,
+an exon with one section would be named, <code>"exon1"</code>, otherwise
+when <code>renameOnes=TRUE</code> an exon with one section would be named,
+<code>"exon1a"</code>. This distinction can be helpful to recognize exons that
+contain no subsections.</p></td>
     </tr>
     <tr>
-      <th>nrows</th>
-      <td><p>integer number of rows to read from the GTF file, by default
--1 means all rows are imported. This parameter is useful to check the
-results of a large GTF file using only a subset portion of the file.</p></td>
+      <th>filterTwoStrand</th>
+      <td><p>logical indicating whether to filter out genes
+occurring on two different strands.</p></td>
+    </tr>
+    <tr>
+      <th>checkDisjoin</th>
+      <td><p>character value indicating how to handle non-disjoint
+input GRL ranges. When <code>checkDisjoin="stop"</code> then any non-disjoint
+GRanges in an element of <code>GRL</code> will cause the function to fail.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
-      <td><p>logical whether to print verbose output during processing.</p></td>
+      <td><p>logical indicating whether to print verbose output.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional arguments are ignored.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>data.frame</code> with colnames indicated by the values in
-<code>geneAttrNames</code> and <code>txAttrNames</code>.</p>
+    <p>GRangesList object with additional columns indicating the
+exon name.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Create a transcript-to-gene data.frame from a GTF file, which is required
-by a number of transcriptome analysis methods such as those in
-the DEXseq package, and the limma package functions such as
-<code>diffSplice()</code>.</p>
-<p>This function also only uses <code><a href='https://www.rdocumentation.org/packages/data.table/topics/fread'>data.table::fread()</a></code> and does not
-import the full GTF file using something like Bioconductor
-<code>GenomicFeatures</code>, simply because the data.table method is markedly
-faster when importing only the transcript-to-gene relationship. Also, this
-method allows the import of more annotations than are supported by the
-typical Bioconductor <code><a href='https://www.rdocumentation.org/packages/rtracklayer/topics/export'>rtracklayer::import()</a></code> for GTF data.</p>
-<p>This function is intended to help keep all transcript data consistent by
-using the same GTF file that is also used by other analysis tools, whether
-those tools be based in R or more likely, outside R in a terminal
-environment.</p>
-<p>For example, the GTF file could be used:</p>
-<ul>
-<li><p>to run STAR sequence alignment
-then <code>Rsubread::featureCounts()</code> to generate a matrix of read
-counts per gene, transcript, or exon; or</p></li>
-<li><p>to generate a transcript
-FASTA sequence file then run a kmer quantitation tool such as
-Salmon or Kallisto, then using <code><a href='https://www.rdocumentation.org/packages/tximport/topics/tximport'>tximport::tximport()</a></code> to import
-results into R for downstream processing.</p></li>
+    <p>This function takes a GRangesList object with an annotated gene symbol
+column, and defines exon numbers for each distinct (non-adjacent)
+range per gene. When multiple ranges overlap, one exon number is
+applied to them all, and disjoint ranges are denoted using a letter
+suffix.</p>
+<p>For example the exon labels below:</p>
+<p>|======|......|======|=======|======|......|======|=======|
+.exon1.........exon2a.exon2b..exon2c........exon3a..exon3b.</p>
+<p>The full name for each feature will become:</p><ul>
+<li><p>Gene_exon1</p></li>
+<li><p>Gene_exon2a</p></li>
+<li><p>Gene_exon2b</p></li>
+<li><p>Gene_exon2c</p></li>
+<li><p>Gene_exon3a</p></li>
+<li><p>Gene_exon3b</p></li>
 </ul>
+    <p>The reasoning, is to preserve the gene symbol for readability, but
+to number exons to indicate the numbered contiguous exon, with suffix
+to indicate the sub-section of each exon.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam RNA-seq functions: <code><a href='codonUsage2df.html'>codonUsage2df</a></code>,
-  <code><a href='defineDetectedTx.html'>defineDetectedTx</a></code>,
-  <code><a href='detectedTxInfo.html'>detectedTxInfo</a></code>, <code><a href='dna2codon.html'>dna2codon</a></code>,
-  <code><a href='jamCai.html'>jamCai</a></code>, <code><a href='tx2ale.html'>tx2ale</a></code></p></div>
+    <div class='dont-index'><p>Other jam GRanges functions: <code><a href='annotateGRLfromGRL.html'>annotateGRLfromGRL</a></code>,
+  <code><a href='annotateGRfromGR.html'>annotateGRfromGR</a></code>,
+  <code><a href='findOverlapsGRL.html'>findOverlapsGRL</a></code>,
+  <code><a href='getFirstStrandedFromGRL.html'>getFirstStrandedFromGRL</a></code>,
+  <code><a href='sortGRL.html'>sortGRL</a></code></p></div>
     
 
   </div>

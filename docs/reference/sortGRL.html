@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Modified geometric mean for positive and negative values — jamGeomean • splicejam</title>
+<title>Sort GRangesList elements by chromosome and position — sortGRL • splicejam</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Modified geometric mean for positive and negative values — jamGeomean" />
+<meta property="og:title" content="Sort GRangesList elements by chromosome and position — sortGRL" />
 
-<meta property="og:description" content="Modified geometric mean for positive and negative values" />
+<meta property="og:description" content="Sort GRangesList elements by chromosome and position" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -102,90 +102,66 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Modified geometric mean for positive and negative values</h1>
+    <h1>Sort GRangesList elements by chromosome and position</h1>
     <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
-    <div class="hidden name"><code>jamGeomean.Rd</code></div>
+    <div class="hidden name"><code>sortGRL.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Modified geometric mean for positive and negative values</p>
+    <p>Sort GRangesList elements by chromosome and position</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>jamGeomean</span>(<span class='no'>x</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>sortGRL</span>(<span class='no'>GRL</span>, <span class='kw'>splitColname</span> <span class='kw'>=</span> <span class='st'>"splitColname"</span>, <span class='kw'>removeSplitColname</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>numeric vector which may contain positive and negative values.</p></td>
+      <th>GRL</th>
+      <td><p>GRangesList to be sorted.</p></td>
     </tr>
     <tr>
-      <th>na.rm</th>
-      <td><p>logical indicating whether to ignore <code>NA</code> values.</p></td>
+      <th>splitColname</th>
+      <td><p>intermediate colname used to split values
+from GRanges to GRangesList. It only needs to be defined
+if for some reason the default "splitColname" is already
+in <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(values(GRL))</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>removeSplitColname</th>
+      <td><p>logical indicating whether to remove
+the <code>splitColname</code> from the output GRangesList.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>additional parameters are ignored.</p></td>
+      <td><p>additional arguments are ignored.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>numeric value representing the modified geometric mean
-of input values.</p>
+    <p>GRangesList sorted by chromosome and position.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function calculates a geometric mean using a formula which
-tolerates positive and negative values. It also tolerates zeros
-without resulting in zero. The intent is to provide
-a mean summary value which closely models the classical
-geometric mean, while retaining information present in
-vectors that contain either zeros or negative values.</p>
-<p>The classical geometric mean is defined as
-the exponentiated mean of log-transformed values. Said another
-way, it is the <code>n</code>th root of the product of <code>n</code> numeric values.
-This formula is analogous to geometric distance. The formula
-does not allow negative values, however, and if any value is
-zero the result is also zero.</p>
-<p>There are several proposed alternatives to address negative numbers,
-or zeros. This function makes the following adjustments:</p><ul>
-<li><p>Add <code>1</code> to absolute value of the input, so the numeric sign
-is not flipped during log transformation: <code>i &lt;- log2(1+ abs(x))</code></p></li>
-<li><p>Multiply that vector by the <code><a href='https://www.rdocumentation.org/packages/base/topics/sign'>sign(x)</a></code> to retain the original
-positive and negative directionality: <code>j &lt;- i * sign(x)</code></p></li>
-<li><p>Take the mean: <code>k &lt;- mean(j)</code></p></li>
-<li><p>Exponentiate the absolute value: <code>m &lt;- 2^(abs(k))</code></p></li>
-<li><p>Multiply by the sign:
-<code>n &lt;- m * sign(k)</code></p></li>
-<li><p>Subtract <code>1</code>: <code>o &lt;- n - 1;</code></p></li>
-</ul>
-    <p>The properties of the calculation:</p><ul>
-<li><p>Symmetry around zero, for example <code>jamGeomean(x) = -jamGeomean(-x)</code></p></li>
-<li><p>Results are slightly different than classical geometric mean values,
-as a result of adding <code>1</code> prior to log transformation. The difference
-is larger with increasing <code><a href='https://www.rdocumentation.org/packages/base/topics/range'>range(x)</a></code> and is most noticeable when one
-input value in <code>x</code> is zero.</p></li>
-</ul>
+    <p>This function sorts GRangesList elements by chromosome and
+position, using the default sort routine for GRanges objects.
+It accomplishes the task by sorting the GRanges elements, then
+splitting that GRanges into a GRangesList based upon the
+original <code><a href='https://www.rdocumentation.org/packages/base/topics/names'>names(GrangesList)</a></code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam numeric functions: <code><a href='geomean.html'>geomean</a></code></p></div>
+    <div class='dont-index'><p>Other jam GRanges functions: <code><a href='annotateGRLfromGRL.html'>annotateGRLfromGRL</a></code>,
+  <code><a href='annotateGRfromGR.html'>annotateGRfromGR</a></code>,
+  <code><a href='assignGRLexonNames.html'>assignGRLexonNames</a></code>,
+  <code><a href='findOverlapsGRL.html'>findOverlapsGRL</a></code>,
+  <code><a href='getFirstStrandedFromGRL.html'>getFirstStrandedFromGRL</a></code></p></div>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>10</span>, <span class='fl'>40</span>);
-<span class='fu'>jamGeomean</span>(<span class='no'>x</span>);</div><div class='output co'>#&gt; [1] 8.66204</div><div class='input'><span class='co'># compare to classical geometric mean</span>
-<span class='fu'><a href='geomean.html'>geomean</a></span>(<span class='no'>x</span>);</div><div class='output co'>#&gt; [1] 7.368063</div><div class='input'>
-<span class='co'># Positive and negative values should offset</span>
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>20</span>, <span class='fl'>20</span>);
-<span class='fu'>jamGeomean</span>(<span class='no'>x</span>);</div><div class='output co'>#&gt; [1] 0</div><div class='input'>
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>20</span>,<span class='fl'>10</span>,<span class='fl'>40</span>);
-<span class='fu'>jamGeomean</span>(<span class='no'>x</span>);</div><div class='output co'>#&gt; [1] 1.779622</div><div class='input'>
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -197,9 +173,7 @@ input value in <code>x</code> is zero.</p></li>
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>

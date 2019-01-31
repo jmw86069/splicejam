@@ -1,3 +1,12 @@
+# splicejam version 0.0.11.900
+
+## new functions
+
+* `ale2violin()` takes output from `tx2ale()` with some arguments, and
+produces a ggplot2 violin plot object, as well as the underlying data.
+It allows a custom filtering function, which allows filtering gene lists
+for relevant regions of expression.
+
 # splicejam version 0.0.10.900
 
 ## enhancements

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Convert factor to a factor label — factor2label • splicejam</title>
+<title>Prepare ALE data for violin plots — ale2violin • splicejam</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Convert factor to a factor label — factor2label" />
+<meta property="og:title" content="Prepare ALE data for violin plots — ale2violin" />
 
-<meta property="og:description" content="Convert factor to a factor label" />
+<meta property="og:description" content="Prepare ALE data for violin plots" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -102,103 +102,121 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Convert factor to a factor label</h1>
+    <h1>Prepare ALE data for violin plots</h1>
     <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
-    <div class="hidden name"><code>factor2label.Rd</code></div>
+    <div class="hidden name"><code>ale2violin.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Convert factor to a factor label</p>
+    <p>Prepare ALE data for violin plots</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>factor2label</span>(<span class='no'>x</span>, <span class='kw'>valuesL</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>types</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"count"</span>, <span class='st'>"none"</span>),
-  <span class='kw'>aggFun</span> <span class='kw'>=</span> <span class='no'>mean</span>, <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>big.mark</span> <span class='kw'>=</span> <span class='st'>","</span>, <span class='kw'>itemName</span> <span class='kw'>=</span> <span class='st'>"items"</span>,
-  <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>ale2violin</span>(<span class='kw'>iMatrixAle</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>iMatrixAleGrp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>groups</span>,
+  <span class='kw'>facet_groups</span> <span class='kw'>=</span> <span class='no'>groups</span>, <span class='kw'>facet_name</span> <span class='kw'>=</span> <span class='st'>"Group"</span>, <span class='kw'>maxGroupMeanALE</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>removeAboveAleNum</span> <span class='kw'>=</span> <span class='st'>"ale3"</span>, <span class='kw'>maxGroupMeanFloor</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>returnAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>geneLists</span>, <span class='kw'>lineAlpha</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>subsetFunc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>make_ggplots</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>factor vector</p></td>
+      <th>groups</th>
+      <td><p>vector of group labels, named by <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(iMatrixALE)</a></code>.</p></td>
     </tr>
     <tr>
-      <th>valuesL</th>
-      <td><p>optional list of numeric values, where each vector
-has the same length as <code>x</code>. If it is not a factor, it is
-converted to factor, using <code><a href='https://www.rdocumentation.org/packages/jamba/topics/mixedSort'>jamba::mixedSort()</a></code> to order
-the factor levels.</p></td>
+      <th>facet_groups</th>
+      <td><p>vector of group labels, named by <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(iMatrixALE)</a></code>,
+as a possible alternative to using the <code>groups</code>, for example
+for higher level grouping.</p></td>
     </tr>
     <tr>
-      <th>types</th>
-      <td><p>character value indicating the summary to use for
-the input factor <code>x</code>.</p></td>
+      <th>facet_name</th>
+      <td><p>character string used to label the <code>facet_groups</code>.</p></td>
     </tr>
     <tr>
-      <th>aggFun</th>
-      <td><p>summary function used for each vector of numeric values
-in <code>valuesL</code> when supplied.</p></td>
+      <th>maxGroupMeanALE</th>
+      <td><p>numeric value indicating the threshold for
+including an ALE in the output data, where the max group mean
+(the highest group mean) is at least this value.</p></td>
     </tr>
     <tr>
-      <th>digits, big.mark</th>
-      <td><p>arguments passed to <code><a href='https://www.rdocumentation.org/packages/base/topics/format'>base::format()</a></code> to
-create a suitable text label.</p></td>
+      <th>removeAboveAleNum</th>
+      <td><p>character string of the ALE colname to remove,
+restricting data to include only ALE values below this number. For
+example "ale3" would remove "ale3" and all higher ALE numbers,
+thereby restricting data to "ale1" and "ale2".</p></td>
     </tr>
     <tr>
-      <th>itemName</th>
-      <td><p>character vector indicating the name to associate to
-counts.</p></td>
+      <th>maxGroupMeanFloor</th>
+      <td><p>numeric threshold used as a noise floor.</p></td>
+    </tr>
+    <tr>
+      <th>returnAll</th>
+      <td><p>logical indicating whether to return intermediate
+data formats in the output results list.</p></td>
+    </tr>
+    <tr>
+      <th>geneLists</th>
+      <td><p>list containing vectors of genes, or a data.frame
+with two columns "gene_name" and "geneList", used
+to assign genes to one or more lists in the resulting violin plot.</p></td>
+    </tr>
+    <tr>
+      <th>lineAlpha</th>
+      <td><p>numeric value of alpha transparency, scaled between
+0 and 1, used to draw lines from "_ale1" to "_ale2" on the
+violin plot.</p></td>
+    </tr>
+    <tr>
+      <th>subsetFunc</th>
+      <td><p>optional function that takes the tall format data used in the
+primary violin plot, and returns data in the same format after
+applying logic specific for filtering this data. Intended to
+restrict display of genes to <code>groups</code> or <code>facet_groups</code> that are
+relevant to each <code>geneLists</code> entry.</p></td>
+    </tr>
+    <tr>
+      <th>make_ggplots</th>
+      <td><p>logical indicating whether to create plot objects
+using ggplot2.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>logical indicating whether to print verbose output</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional arguments are ignored.</p></td>
     </tr>
+    <tr>
+      <th>iMatrixALE</th>
+      <td><p>numeric matrix of expression data containing
+ALE rows, as output from <code><a href='tx2ale.html'>tx2ale()</a></code>. Each rowname is expected
+to have a suffix "_ale1" where the number represents the stranded
+order of ALE elements in a given gene. Therefore "_ale1" is the
+shortest form, closest to the 5-prime end of the transcript, and
+"_ale2" is the next ALE element downstream, and so on.</p></td>
+    </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>factor vector with the same length as input <code>x</code> but
-where the levels also include summary information, such
-as the count of each factor level.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function is intended to take a vector of factor levels
-and convert to labels using summary statistics. For example
-by default it will add the number of items for each factor
-level.</p>
-<p>This function is intended to help create useful ordered
-factor labels that can be used in a ggplot2 visualization.</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other jam plot functions: <code><a href='bgaPlotly3d.html'>bgaPlotly3d</a></code></p></div>
+    <p>This function takes output from <code><a href='tx2ale.html'>tx2ale()</a></code>, applies some filtering
+to the output data, then returns a tall data.frame sufficient
+for viewing as a violin plot using <code><a href='https://ggplot2.tidyverse.org/reference/geom_violin.html'>ggplot2::geom_violin()</a></code>.</p>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/factor'>factor</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>letters</span>[<span class='fl'>1</span>:<span class='fl'>5</span>], <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>3</span>,<span class='fl'>2</span>,<span class='fl'>1</span>)));
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/levels'>levels</a></span>(<span class='fu'>factor2label</span>(<span class='no'>x</span>));</div><div class='output co'>#&gt; [1] "a (2 items)" "b (4 items)" "c (3 items)" "d (2 items)" "e (1 items)"</div><div class='input'><span class='fu'>factor2label</span>(<span class='no'>x</span>);</div><div class='output co'>#&gt;           a           a           b           b           b           b 
-#&gt; a (2 items) a (2 items) b (4 items) b (4 items) b (4 items) b (4 items) 
-#&gt;           c           c           c           d           d           e 
-#&gt; c (3 items) c (3 items) c (3 items) d (2 items) d (2 items) e (1 items) 
-#&gt; Levels: a (2 items) b (4 items) c (3 items) d (2 items) e (1 items)</div><div class='input'>
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-
-      <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>

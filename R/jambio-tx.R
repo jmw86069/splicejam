@@ -2520,3 +2520,298 @@ assignGRLexonNames <- function
 
    return(GRLnew);
 }
+
+#' Prepare ALE data for violin plots
+#'
+#' Prepare ALE data for violin plots
+#'
+#' This function takes output from `tx2ale()`, applies some filtering
+#' to the output data, then returns a tall data.frame sufficient
+#' for viewing as a violin plot using `ggplot2::geom_violin()`.
+#'
+#' @param iMatrixALE numeric matrix of expression data containing
+#'    ALE rows, as output from `tx2ale()`. Each rowname is expected
+#'    to have a suffix "_ale1" where the number represents the stranded
+#'    order of ALE elements in a given gene. Therefore "_ale1" is the
+#'    shortest form, closest to the 5-prime end of the transcript, and
+#'    "_ale2" is the next ALE element downstream, and so on.
+#' @param groups vector of group labels, named by `colnames(iMatrixALE)`.
+#' @param facet_groups vector of group labels, named by `colnames(iMatrixALE)`,
+#'    as a possible alternative to using the `groups`, for example
+#'    for higher level grouping.
+#' @param facet_name character string used to label the `facet_groups`.
+#' @param maxGroupMeanALE numeric value indicating the threshold for
+#'    including an ALE in the output data, where the max group mean
+#'    (the highest group mean) is at least this value.
+#' @param removeAboveAleNum character string of the ALE colname to remove,
+#'    restricting data to include only ALE values below this number. For
+#'    example "ale3" would remove "ale3" and all higher ALE numbers,
+#'    thereby restricting data to "ale1" and "ale2".
+#' @param maxGroupMeanFloor numeric threshold used as a noise floor.
+#' @param returnAll logical indicating whether to return intermediate
+#'    data formats in the output results list.
+#' @param geneLists list containing vectors of genes, or a data.frame
+#'    with two columns "gene_name" and "geneList", used
+#'    to assign genes to one or more lists in the resulting violin plot.
+#' @param lineAlpha numeric value of alpha transparency, scaled between
+#'    0 and 1, used to draw lines from "_ale1" to "_ale2" on the
+#'    violin plot.
+#' @param subsetFunc optional function that takes the tall format data used in the
+#'    primary violin plot, and returns data in the same format after
+#'    applying logic specific for filtering this data. Intended to
+#'    restrict display of genes to `groups` or `facet_groups` that are
+#'    relevant to each `geneLists` entry.
+#' @param make_ggplots logical indicating whether to create plot objects
+#'    using ggplot2.
+#' @param verbose logical indicating whether to print verbose output
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+ale2violin <- function
+(iMatrixAle=NULL,
+ iMatrixAleGrp=NULL,
+ groups,
+ facet_groups=groups,
+ facet_name="Group",
+ maxGroupMeanALE=2,
+ removeAboveAleNum="ale3",
+ maxGroupMeanFloor=0,
+ returnAll=FALSE,
+ geneLists,
+ lineAlpha=0.1,
+ subsetFunc=NULL,
+ make_ggplots=TRUE,
+ verbose=TRUE,
+ ...)
+{
+   ## Purpose is to take an ALE expression matrix, and create
+   ## a tall version suitable for plotting in ggplot2 to create
+   ## a violin plot, connected by gene_Region
+   if (suppressPackageStartupMessages(!require(ggplot2))) {
+      stop("ale2violin() requires the ggplot2 package.");
+   }
+   retVals <- list();
+
+   if (length(iMatrixAleGrp) == 0) {
+      if (!all(names(groups) %in% colnames(iMatrixAle))) {
+         stop("ale2violin() requires all(names(groups) %in% colnames(iMatrixAle))");
+      }
+      iMatrixAle <- iMatrixAle[,names(groups),drop=FALSE];
+      ## Calculate group mean expression values
+      iDiffAle <- data.frame(check.names=FALSE,
+         rowGroupMeans(iMatrixAle,
+            useMedian=FALSE,
+            groups=groups));
+   } else {
+      if (!all(names(groups) %in% colnames(iMatrixAleGrp))) {
+         stop("ale2violin() requires all(names(groups) %in% colnames(iMatrixAleGrp))");
+      }
+      iDiffAle <- iMatrixAleGrp[,names(groups),drop=FALSE];
+   }
+
+   ## Get groupMeans for each ALE for each sample group
+   iDiffAle[,"aleNum"] <- gsub("^.+_(ale[0-9]+)$", "\\1",
+      rownames(iDiffAle));
+   iDiffAle[,"gene_name"] <- gsub("_ale.+", "",
+      rownames(iDiffAle));
+
+   ## Create tall version of the data
+   iDiffAleTall <- data.table::melt(iDiffAle,
+         variable.name="Group",
+         id.vars=c("aleNum", "gene_name"),
+         value.name="intensity");
+   ## Convert back to wide format, using ale number per column
+   iDiffAleWide <- data.table::dcast(iDiffAleTall,
+      formula=gene_name + Group ~ aleNum,
+      value.var="intensity")
+   aleCols <- vigrep("^ale[0-9]+$", colnames(iDiffAleWide));
+   iDiffAleWideM <- as.matrix(iDiffAleWide[,aleCols,drop=FALSE]);
+   rownames(iDiffAleWideM) <- pasteByRow(iDiffAleWide[,c("gene_name","Group")]);
+
+   if (returnAll) {
+      retVals$iDiffAle <- iDiffAle;
+      retVals$iDiffAleTall <- iDiffAleTall;
+      retVals$iDiffAleWide <- iDiffAleWide;
+   }
+
+   ## Filter rows where:
+   ## - the max ale value is below threshold
+   ## - two UTRs only, removing genes with only 1 or with 3+
+   if (verbose) {
+      printDebug("ale2violin(): ",
+         "filtering ALE maxGroupMean>=", maxGroupMeanALE,
+         " and removeAboveAleNum:", removeAboveAleNum);
+   }
+
+   ## Filter for:
+   ## - rowMax at or above threshold
+   ## - non-empty ale2
+   ## - empty ale3
+   iDiffAleWideMGMkeep <- (
+      rowMaxs(iDiffAleWideM, na.rm=TRUE) > maxGroupMeanALE &
+      !is.na(iDiffAleWideM[,"ale2"]) &
+      (!removeAboveAleNum %in% colnames(iDiffAleWideM) |
+         length(removeAboveAleNum) == 0 |
+         is.na(iDiffAleWideM[,"ale3"]))
+      );
+
+   iDiffAleWideUse <- iDiffAleWide[iDiffAleWideMGMkeep,,drop=FALSE];
+   iDiffAleWideUse[,aleCols] <- noiseFloor(iDiffAleWideUse[,aleCols,drop=FALSE],
+      minimum=maxGroupMeanFloor);
+   #minimum=maxGroupMeanALE);
+
+   if (verbose) {
+      printDebug("ale2violin(): ",
+         "keeping ", formatInt(sum(iDiffAleWideMGMkeep)),
+         " out of ", formatInt(length(iDiffAleWideMGMkeep)),
+         " rows.");
+   }
+   if (returnAll) {
+      retVals$iDiffAleWideUse <- iDiffAleWideUse;
+   }
+
+   ## Create a data.frame from the geneLists
+   if (jamba::igrepHas("data.frame", class(geneLists))) {
+      if (!all(c("gene_name", "geneList") %in% colnames(geneLists))) {
+         stop("ale2violin() requires geneList to have colnames gene_name and geneList.");
+      }
+      geneListsDF <- geneLists[,c("gene_name","geneList"),drop=FALSE];
+   } else {
+      geneListsDF <- renameColumn(list2df(geneLists),
+         from=c("item","value"),
+         to=c("geneList","gene_name"));
+      geneListsDF$geneList <- factor(geneListsDF$geneList,
+         levels=names(geneLists));
+   }
+
+   ## Merge the geneList name for each gene, making one geneList label per row
+   ## Also subset iDiffAleWideUse to include genes in geneList
+   iDiffAleWide2 <- merge(all.x=TRUE,
+      all.y=TRUE,
+      x=subset(iDiffAleWideUse, gene_name %in% geneListsDF$gene_name),
+      subset(geneListsDF, gene_name %in% iDiffAleWideUse$gene_name));
+   if (returnAll) {
+      retVals$iDiffAleWide2 <- iDiffAleWide2;
+   }
+
+   ## Also filter to make sure gene is present in both "CB" and "DE"
+   ## for each geneList
+   if (1 == 2) {
+      iDiffAleWide2$Region <- gsub("_.+", "", iDiffAleWide2$sampleGroup);
+      iDiffAleWide2$CellType <- gsub("^.+_", "", iDiffAleWide2$sampleGroup);
+      iGeneListRegionL <- lapply(split(iDiffAleWide2[,c("gene_name","CellType")],
+         pasteByRow(iDiffAleWide2[,c("geneList","Region")])), function(i){
+            names(tcount(i$gene_name, minCount=2))
+         });
+      iGeneListRegionDF <- list2df(iGeneListRegionL);
+      iGeneListRegionDF$geneList <- gsub("_.+", "", iGeneListRegionDF$item);
+      iGeneListRegionDFuniq <- unique(iGeneListRegionDF[,c("name","geneList")]);
+      iGeneListRegionDFuniqL <- split(iGeneListRegionDFuniq$name, iGeneListRegionDFuniq$geneList);
+   }
+
+   ## Get ale1 groupMean value to use in centering
+   #centerAle1Group <- sapply(split(iDiffAleWide2, iDiffAleWide2$gene_name), function(iDF){
+   #   mean(unlist(iDF[,"ale1"]), na.rm=TRUE);
+   #});
+
+
+   ## Make a version which centers by ale1
+   iDiffAleWide2ctr <- iDiffAleWide2;
+   iDiffAleWide2ctr[,aleCols] <- (iDiffAleWide2[,aleCols] - iDiffAleWide2[,"ale1"]);
+   ## Remove rows with NA values
+
+   ## Convert wide to tall
+   if (returnAll) {
+      retVals$iDiffAleWide2ctr <- iDiffAleWide2ctr;
+   }
+   iDiffAleTall2ctr <- data.table::melt(
+      iDiffAleWide2ctr[,c("gene_name","Group",aleCols,"geneList")],
+      variable.name="ALE",
+      id.vars=c("gene_name", "Group", "geneList"),
+      value.name="intensity"
+   );
+   ## Remove NA rows
+   iDiffAleTall2ctr <- subset(iDiffAleTall2ctr, !is.na(intensity));
+
+   ## Labels to include the number of rows and average value
+   #iDFsub <- subset(iDiffAleTall2ctr, variable %in% c("ale1","ale2"));
+   if (1 == 2) {
+      iDFsub <- subset(iDiffAleTall2ctr,
+         !ALE %in% "ale1");
+      listGroups <- c("Region","geneList","ALE");
+      listSizes <- sdim(split(iDFsub,
+         pasteByRowOrdered(iDFsub[,listGroups,drop=FALSE],
+         #pasteByRow(iDFsub[,c("Group","geneList","ALE")],
+            sep="!")));
+      listSizesDF <- data.frame(check.names=FALSE,
+         listSizes[,c("rows"),drop=FALSE],
+         rbindList(strsplit(rownames(listSizes), "!"),
+            newColnames=listGroups));
+      listSizesDF$geneList <- factor(listSizesDF$geneList,
+         levels=levels(iDiffAleTall2ctr$geneList));
+   }
+
+   ## Add column indicating the facet_group
+   facet_groupsV <- cPasteUnique(split(facet_groups[names(groups)], groups));
+   iDiffAleTall2ctr[[facet_name]] <- facet_groupsV[iDiffAleTall2ctr$Group];
+
+   ## Optionally subset data at this step, to ensure geneLists entries
+   ## are only represented in relevant groups or facet_groups.
+   if (length(subsetFunc) > 0 && is.function(subsetFunc)) {
+      iDiffAleTall2ctr <- subsetFunc(iDiffAleTall2ctr);
+   }
+
+   ## Violin plot where each gene line is drawn for each sample group
+   iDiffAleTall2ctr$Line <- pasteByRowOrdered(iDiffAleTall2ctr[,c("gene_name","Group")]);
+   retVals$iDiffAleTall2ctr <- iDiffAleTall2ctr;
+   if (make_ggplots) {
+      if (verbose) {
+         printDebug("ale2violin(): ",
+            "Preparing violin including all groups.");
+      }
+      ggAle1 <- ggplot(iDiffAleTall2ctr,
+            aes(y=intensity, x=ALE, fill=geneList)) +
+         geom_violin(draw_quantiles=c(0.5), scale="width") +
+         #geom_violin(draw_quantiles=c(0.5), scale="count") +
+         geom_line(aes(group=Line), alpha=lineAlpha) +
+         facet_grid(as.formula(paste0(facet_name, "~geneList"))) +
+         ylab("log2 difference from ale1") +
+         #ylim(c(-10,10)) +
+         theme_jam() + scale_fill_manual(values=colorSubGeneLists);
+      retVals$ggAle1 <- ggAle1;
+   }
+
+   ## Take the average value per facet_group
+   iDiffAleTall2ctrFacet1 <- splicejam::shrinkMatrix(iDiffAleTall2ctr[,"intensity"],
+      groupBy=pasteByRow(iDiffAleTall2ctr[,c("gene_name",facet_name,"ALE","geneList")],
+         sep="!"),
+      shrinkFunc=mean);
+   iDF2 <- data.frame(check.names=FALSE,
+      stringsAsFactors=FALSE,
+      rbindList(strsplit(iDiffAleTall2ctrFacet1$groupBy, "!"),
+      newColnames=c("gene_name",facet_name,"ALE","geneList")));
+   iDF2$geneList <- factor(iDF2$geneList,
+      levels=levels(iDiffAleTall2ctr$geneList));
+   iDiffAleTall2ctrFacet <- data.frame(iDF2,
+      intensity=iDiffAleTall2ctrFacet1$x);
+   retVals$iDiffAleTall2ctrFacet <- iDiffAleTall2ctrFacet;
+
+   ## Violin plot where each gene line is drawn using mean per CB and DE
+   if (make_ggplots) {
+      if (verbose) {
+         printDebug("ale2violin(): ",
+            "Preparing violin using mean region values.");
+      }
+      ggAle2 <- ggplot(iDiffAleTall2ctrFacet,
+         aes(y=intensity, x=ALE, fill=geneList)) +
+         geom_violin(draw_quantiles=c(0.5), scale="width") +
+         geom_line(aes(group=gene_name), alpha=lineAlpha) +
+         facet_grid(as.formula(paste0(facet_name, "~geneList"))) +
+         ylab("log2 mean difference from ale1") +
+         xlab("Alternative last 3'UTR") +
+         theme_jam() + scale_fill_manual(values=colorSubGeneLists);
+      retVals$ggAle2 <- ggAle2;
+   }
+   return(retVals);
+}
+
