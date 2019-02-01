@@ -1,3 +1,28 @@
+# splicejam version 0.0.12.900
+
+## new functions
+
+* `runDiffSplice()` is a wrapped around `limma::diffSplice()` intended to
+capture several steps of pre- and post-processing, optionally applying
+`limma::voom()`.
+* `groups2contrasts()` takes a vector or data.frame of sample groups,
+and determines the relevant pairwise and two-way contrasts, returning
+a design matrix and contrast matrix.
+* `sortSamples()` sorts biological samples so that known patterns of control
+group terms are returned before non-control groups, in order to help
+provide useful defaults when setting up sample group contrasts.
+* `strsplitOrdered()` provides `base::strsplit()` but returns factor output
+whose factor levels are influenced either by factor input, or by other
+arguments.
+
+## changes
+
+* `limma` package was added to Imports.
+* `runDiffSplice()` has an argument `spliceTest` which defines `test`
+when calling `limma::topSplice()`. Only the "t" (t-test) returns fold change,
+therefore hits are not filtered by fold change for "F" or "simes".
+
+
 # splicejam version 0.0.11.900
 
 ## new functions

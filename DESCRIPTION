@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.11.900
+Version: 0.0.12.900
 Authors@R: person(given="James M.", family="Ward",
     email="jmw86069@gmail.com", role=c("aut", "cre"))
 Maintainer: James M. Ward <jmw86069@gmail.com>
@@ -18,6 +18,7 @@ Imports: jamba (>= 0.0.26.900),
     GenomicRanges,
     GenomicFeatures,
     SummarizedExperiment,
+    limma,
     S4Vectors,
     arules
 Suggests: made4,

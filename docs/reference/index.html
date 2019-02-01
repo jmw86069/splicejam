@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.11.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.12.900</span>
       </span>
     </div>
 
@@ -120,6 +120,12 @@
       <tr>
         
         <td>
+          <p><code><a href="ale2violin.html">ale2violin()</a></code> </p>
+        </td>
+        <td><p>Prepare ALE data for violin plots</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="codonUsage2df.html">codonUsage2df()</a></code> </p>
         </td>
         <td><p>Make codon usage data.frame</p></td>
@@ -144,6 +150,12 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="groups2contrasts.html">groups2contrasts()</a></code> </p>
+        </td>
+        <td><p>Define experimental contrasts from sample groups</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="jamCai.html">jamCai()</a></code> </p>
         </td>
         <td><p>Calculate Codon Adaptation Index</p></td>
@@ -156,9 +168,35 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="runDiffSplice.html">runDiffSplice()</a></code> </p>
+        </td>
+        <td><p>Perform differential isoform analysis using diffSplice</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="sortSamples.html">sortSamples()</a></code> </p>
+        </td>
+        <td><p>Sort biological sample labels for experimental design</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="tx2ale.html">tx2ale()</a></code> </p>
         </td>
         <td><p>tx2ale: detect alternative last exons (ALE) from transcript data</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-design-functions" class="hasAnchor"><a href="#section-design-functions" class="anchor"></a>Design functions</h2>
+          <p class="section-desc"><p>Functions aimed at manipulation of experimental design</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="groups2contrasts.html">groups2contrasts()</a></code> </p>
+        </td>
+        <td><p>Define experimental contrasts from sample groups</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -247,6 +285,26 @@
     </tbody><tbody>
       <tr>
         <th colspan="2">
+          <h2 id="section-string-functions" class="hasAnchor"><a href="#section-string-functions" class="anchor"></a>String functions</h2>
+          <p class="section-desc"><p>Functions aimed at manipulation of character strings</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="sortSamples.html">sortSamples()</a></code> </p>
+        </td>
+        <td><p>Sort biological sample labels for experimental design</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="strsplitOrdered.html">strsplitOrdered()</a></code> </p>
+        </td>
+        <td><p>Split the elements of an ordered factor vector</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
           <h2 id="section-spatial-functions" class="hasAnchor"><a href="#section-spatial-functions" class="anchor"></a>Spatial functions</h2>
           <p class="section-desc"><p>Functions that assist with spatial data, particularly 3-D coordinates</p></p>
         </th>
@@ -326,9 +384,11 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-rna-seq-functions">RNA-seq functions</a></li>
+      <li><a href="#section-design-functions">Design functions</a></li>
       <li><a href="#section-granges-functions">GRanges functions</a></li>
       <li><a href="#section-plot-functions">Plot functions</a></li>
       <li><a href="#section-list-functions">List functions</a></li>
+      <li><a href="#section-string-functions">String functions</a></li>
       <li><a href="#section-spatial-functions">Spatial functions</a></li>
       <li><a href="#section-color-functions">Color functions</a></li>
       <li><a href="#section-table-data-frame-or-matrix-functions">Table (data.frame or matrix) functions</a></li>

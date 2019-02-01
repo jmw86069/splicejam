@@ -131,9 +131,12 @@ isoform, and theorized that the pseudocounts arose from the stochastic
 nature of rebalancing relative expression among isoforms.
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{codonUsage2df}},
+Other jam RNA-seq functions: \code{\link{ale2violin}},
+  \code{\link{codonUsage2df}},
   \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
-  \code{\link{jamCai}}, \code{\link{makeTx2geneFromGtf}},
+  \code{\link{groups2contrasts}}, \code{\link{jamCai}},
+  \code{\link{makeTx2geneFromGtf}},
+  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
   \code{\link{tx2ale}}
 }
 \concept{jam RNA-seq functions}
