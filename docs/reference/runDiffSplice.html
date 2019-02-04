@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.12.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.13.900</span>
       </span>
     </div>
 
@@ -77,6 +77,18 @@
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/basic-rnaseq-workflow.html">Splicejam basic RNAseq workflow</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../news/index.html">Changelog</a>
@@ -114,9 +126,10 @@
     </div>
 
     <pre class="usage"><span class='fu'>runDiffSplice</span>(<span class='no'>iMatrixTx</span>, <span class='kw'>detectedTx</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames</a></span>(<span class='no'>iMatrixTx</span>), <span class='no'>tx2geneDF</span>,
-  <span class='no'>iDesign</span>, <span class='no'>iContrasts</span>, <span class='kw'>cutoffFDR</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>cutoffFold</span> <span class='kw'>=</span> <span class='fl'>1.5</span>,
+  <span class='kw'>txColname</span> <span class='kw'>=</span> <span class='st'>"transcript_id"</span>, <span class='kw'>geneColname</span> <span class='kw'>=</span> <span class='st'>"gene_name"</span>, <span class='no'>iDesign</span>,
+  <span class='no'>iContrasts</span>, <span class='kw'>cutoffFDR</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>cutoffFold</span> <span class='kw'>=</span> <span class='fl'>1.5</span>,
   <span class='kw'>collapseByGene</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>spliceTest</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"t"</span>, <span class='st'>"simes"</span>, <span class='st'>"F"</span>),
-  <span class='kw'>sep</span> <span class='kw'>=</span> <span class='st'>" "</span>, <span class='kw'>useVoom</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>sep</span> <span class='kw'>=</span> <span class='st'>" "</span>, <span class='kw'>useVoom</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -125,7 +138,8 @@
       <th>iMatrixTx</th>
       <td><p>numeric matrix of expression, with transcripts as
 rows and samples as columns. The data is assumed to be log2-transformed
-using the format <code><a href='https://www.rdocumentation.org/packages/base/topics/Log'>log2(1 + x)</a></code>.</p></td>
+using the format <code><a href='https://www.rdocumentation.org/packages/base/topics/Log'>log2(1 + x)</a></code>. This data should be normalized using
+appropriate methods, outside the scope of this function.</p></td>
     </tr>
     <tr>
       <th>detectedTx</th>
@@ -134,9 +148,17 @@ using the format <code><a href='https://www.rdocumentation.org/packages/base/top
     </tr>
     <tr>
       <th>tx2geneDF</th>
-      <td><p>data.frame with <code>gene_name</code> and <code>transcript_id</code>,
+      <td><p>data.frame with colnames <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c(txColname, geneColname)</a></code>,
 where all entries of <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames(iMatrix)</a></code> are represented
-in <code>transcript_id</code>.</p></td>
+in <code>tx2geneDF[,txColname]</code>.</p></td>
+    </tr>
+    <tr>
+      <th>txColname, geneColname</th>
+      <td><p>the <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(tx2geneDF)</a></code> representing
+the <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames(iMatrixTx)</a></code> matched by <code>tx2geneDF[,txColname]</code>,
+and the associated genes given by <code>tx2geneDF[,geneColname]</code>.
+Note that <code>detectedTx</code> must also contain values in <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames(iMatrixTx)</a></code>
+and <code>tx2geneDF[,txColname]</code>.</p></td>
     </tr>
     <tr>
       <th>iDesign</th>
@@ -218,14 +240,48 @@ to call <code><a href='https://www.rdocumentation.org/packages/limma/topics/diff
 <code><a href='https://www.rdocumentation.org/packages/limma/topics/topSplice'>limma::topSplice()</a></code> in helpful formats for downstream
 use.</p>
 <p>For example, it can be helpful to call this function with and without
-the "voom" component, dependent upon the specific input data
-being analyzed. Similarly, results can optionally be summarized at
-the gene level, after applying statistical hit thresholds of
-the adjusted P-value and fold change.</p>
-<p>Lastly, this function enables testing the subset of detected
-transcripts, for example based upon the output of <code><a href='defineDetectedTx.html'>defineDetectedTx()</a></code>,
-to restrict tests to this transcripts that are considered relevant
-to the experiment and/or relevant to follow-up validation.</p>
+the "voom" component, dependent upon whether the input data
+contains count data, or TPM abundance. The input data is assumed
+to be normalized, and is not adjusted.</p>
+<p>Statistical results can be summarized at the gene level, after
+applying thresholds for statistical hits in the form of
+required adjusted P-value and/or fold change. It may be helpful
+to review results per gene, alongside the specific transcript
+isoforms which are called statistical hits.</p>
+<p>This function may also test the subset of "detected transcripts",
+for example based upon the output of <code><a href='defineDetectedTx.html'>defineDetectedTx()</a></code>.
+In practice, this strategy removes a number of potential hits
+which are otherwise not considered to be "detected". The intent is to
+filter out potential hits based upon a noise threshold, which
+may be below the practical limit of follow-up validation techniques.
+Another goal is the removal of a large number of undetected
+transcripts which are effectively not tested, prior to
+multiple testing correction.</p>
+<p>The input data <code>iMatrixTx</code> should contain rows of data where the
+<code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames(iMatrixTx)</a></code> are represented in <code>tx2geneDF[,txColname]</code>
+in order to link rows to genes, using <code>tx2geneDF[,geneColname]</code>.
+The rows  of <code>iMatrixTx</code> are expected to contain expression values
+per transcript isoform, but may contain alternative measurements
+such as: junction expression per gene; exon expression per gene.</p>
+<p>Details:</p>
+<p>This function provides a wrapper of a basic workflow for differential
+isoform analysis, including these basic steps in order:</p>
+<dl class='dl-horizontal'>
+<dt><code>limma:voom()</code></dt><dd><p>(Optional.) This step is enabled with
+the argument <code>useVoom=TRUE</code> and should only be used when <code>iMatrixTx</code>
+contains count or pseudocount data. When using TPM or FPKM values,
+set <code>useVoom=FALSE</code>.</p></dd>
+<dt><code><a href='https://www.rdocumentation.org/packages/limma/topics/lmFit'>limma::lmFit()</a></code></dt><dd><p></p></dd>
+<dt><code><a href='https://www.rdocumentation.org/packages/limma/topics/contrasts.fit'>limma::contrasts.fit()</a></code></dt><dd><p></p></dd>
+<dt><code><a href='https://www.rdocumentation.org/packages/limma/topics/diffSplice'>limma::diffSplice()</a></code></dt><dd><p></p></dd>
+<dt><code><a href='https://www.rdocumentation.org/packages/limma/topics/topSplice'>limma::topSplice()</a></code></dt><dd><p>This function is called on each contrast
+in order to return a list of data.frames.</p></dd>
+</dl>
+    <p>Note that <code>iMatrixTx</code> is exponentiated prior to running <code><a href='https://www.rdocumentation.org/packages/limma/topics/voom'>limma::voom()</a></code>
+when <code>useVoom=TRUE</code>, for the purpose of calculating a weights matrix.
+The original <code>iMatrixTx</code> data is used in <code>limma::lmFits()</code> as-is,
+alongside the voom weights. The voom-normalized data is not
+used. Therefore, the input data is assumed to be normalized.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -256,8 +312,10 @@ to the experiment and/or relevant to follow-up validation.</p>
 
 <span class='co'># given a vector of groups, make iDesign</span>
 <span class='no'>iDesign</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>stats</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/model.matrix'>model.matrix</a></span>(~<span class='fl'>0</span>+<span class='no'>iGroups</span>);
-<span class='co'># good practice to rename colnames(iDesign) and rownames(iDesign)</span>
-<span class='co'># to help reinforce consistency in downstream tests</span>
+
+<span class='co'># It is good practice to rename colnames(iDesign) and rownames(iDesign),</span>
+<span class='co'># that is, for the love of all that is good, use colnames and rownames</span>
+<span class='co'># that help confirm that these matrices are consistent.</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames</a></span>(<span class='no'>iDesign</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/levels'>levels</a></span>(<span class='no'>iGroups</span>);
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames</a></span>(<span class='no'>iDesign</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>iGroups</span>);
 <span class='no'>iDesign</span>;</div><div class='output co'>#&gt;               WT_Control WT_Treated KO_Control KO_Treated
@@ -298,10 +356,10 @@ to the experiment and/or relevant to follow-up validation.</p>
 #&gt;   WT_Treated                                              -1
 #&gt;   KO_Control                                              -1
 #&gt;   KO_Treated                                               1</div><div class='input'>
-<span class='co'># for validation, you want:</span>
-<span class='co'># - rownames(iDesign) to match iSamples</span>
-<span class='co'># - colnames(iDesign) to match the actual group names</span>
-<span class='co'># - colnames(iDesign) to match rownames(iContrasts)</span>
+<span class='co'># for validation, verify these constraints:</span>
+<span class='co'># - all(rownames(iDesign) == iSamples)</span>
+<span class='co'># - colnames(iDesign) == the actual group names</span>
+<span class='co'># - all(colnames(iDesign) == rownames(iContrasts))</span>
 <span class='co'># you can see which samples are included in each test with crossproduct:</span>
 <span class='no'>iDesign</span> <span class='kw'>%*%</span> <span class='no'>iContrasts</span>;</div><div class='output co'>#&gt;                Contrasts
 #&gt;                 WT_Treated-WT_Control KO_Treated-KO_Control
@@ -331,7 +389,10 @@ to the experiment and/or relevant to follow-up validation.</p>
 #&gt;   KO_Treated_v1                                               1
 #&gt;   KO_Treated_v2                                               1
 #&gt;   KO_Treated_v3                                               1</div><div class='input'>
-</div></pre>
+<span class='co'>## Another efficient way to define iDesign and iContrasts:</span>
+<span class='no'>iDC</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>splicejam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/splicejam/topics/groups2contrasts'>groups2contrasts</a></span>(<span class='no'>iGroups</span>, <span class='kw'>returnDesign</span><span class='kw'>=</span><span class='fl'>TRUE</span>);
+<span class='no'>iDesign</span> <span class='kw'>&lt;-</span> <span class='no'>iDC</span>$<span class='no'>iDesign</span>;
+<span class='no'>iContrasts</span> <span class='kw'>&lt;-</span> <span class='no'>iDC</span>$<span class='no'>iContrasts</span>;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

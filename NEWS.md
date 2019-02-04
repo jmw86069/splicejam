@@ -1,3 +1,22 @@
+# splicejam version 0.0.13.900
+
+## changes
+
+* Added "openxlsx" to Suggests, for exporting Rmarkdown stats tables
+to Excel format.
+* `runDiffSplice()` includes examples using `groups2contrasts()`, also
+allows `txColname,geneColname` to be defined and therefore custom.
+* Changed all `verbose=TRUE` to `verbose=FALSE` by default.
+* Changed `makeTx2geneFromGtf()` to use `data.table::fread()` ability
+to uncompress .gz files, hopefully making it cross-platform.
+* `groups2contrasts()` was updated to handle single-factor experiments,
+and be more robust to two-factor experiments with missing groups
+in the full design table.
+
+## additions
+
+* Added basic RNA-seq workflow to vignettes.
+
 # splicejam version 0.0.12.900
 
 ## new functions

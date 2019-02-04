@@ -220,6 +220,12 @@ groups2contrasts <- function
          colnames(iFactors) <- jamba::makeNames(rep(groupColumns,
             length.out=ncol(iFactors)),
             renameFirst=FALSE);
+      } else {
+         colnames(iFactors) <- makeNames(
+            rep("groupFactor",
+               length.out=ncol(iFactors)),
+            renameOnes=TRUE,
+            suffix="_");
       }
       if (length(rownames(iFactors)) == 0) {
          rownames(iFactors) <- jamba::makeNames(
@@ -320,10 +326,14 @@ groups2contrasts <- function
          colnames(iFactors) <- jamba::makeNames(rep(groupColumns, length.out=ncol(iFactors)),
             renameFirst=FALSE);
       } else {
-         colnames(iFactors) <- jamba::makeNames(rep("groupFactor", length.out=ncol(iFactors)),
+         colnames(iFactors) <- jamba::makeNames(
+            rep("groupFactor",
+               length.out=ncol(iFactors)),
+            renameOnes=TRUE,
             suffix="_");
       }
-      rownames(iFactors) <- jamba::pasteByRow(iFactors, sep=factorSep);
+      rownames(iFactors) <- unname(jamba::pasteByRow(iFactors, sep=factorSep));
+      printDebug("iFactors:");print(iFactors);
    }
    if (verbose >= 2) {
       jamba::printDebug("groups2contrasts(): ",
@@ -460,9 +470,11 @@ groups2contrasts <- function
          jamba::printDebug("groups2contrasts(): ",
             "makeUnique=",
             "TRUE");
-         jamba::printDebug("iDFcomponents:\n",
+         jamba::printDebug("groups2contrasts(): ",
+            "iDFcomponents:\n",
             iDFcomponents, sep="\n");
-         jamba::printDebug("unique(iDFcomponents):\n",
+         jamba::printDebug("groups2contrasts(): ",
+            "unique(iDFcomponents):\n",
             unique(iDFcomponents), sep="\n");
       }
       iDFrowKeep <- match(unique(iDFcomponents), iDFcomponents);
@@ -525,10 +537,19 @@ groups2contrasts <- function
          preControlTerms=preControlTerms,
          verbose=verbose,
          ...);
-      if (igrepHas("[(]", rownames(iContrastNamesInt[[1]]))) {
+      if (verbose) {
+         jamba::printDebug("groups2contrasts(): ",
+            "length(iContrastNamesInt):",
+            length(iContrastNamesInt));
+      }
+      ## If length==0 then there are no valid interaction contrasts
+      if (length(iContrastNamesInt) > 0 &&
+         igrepHas("[(]", rownames(iContrastNamesInt[[1]]))) {
          return(iContrastNamesInt);
       }
-      if (ncol(iContrastNamesInt) > 1 && any(is.na(iContrastNamesInt[,1]))) {
+      if (length(iContrastNamesInt) > 0 &&
+         ncol(iContrastNamesInt) > 1 &&
+         any(is.na(iContrastNamesInt[,1]))) {
          iContrastNamesInt <- iContrastNamesInt[!is.na(iContrastNamesInt[,1]),,drop=FALSE];
       }
       if (length(iContrastNamesInt) == 0 || ncol(iContrastNamesInt) > 1) {
@@ -547,6 +568,8 @@ groups2contrasts <- function
             "   Skipping interactions");
          jamba::printDebug("      ncol(iContrastNames):",
             ncol(iContrastNames));
+         jamba::printDebug("      head(iContrastNames):");
+         print(head(iContrastNames));
       }
    }
    if ("contrastName" %in% colnames(iContrastNames)) {

@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.12.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.13.900</span>
       </span>
     </div>
 
@@ -77,6 +77,18 @@
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/basic-rnaseq-workflow.html">Splicejam basic RNAseq workflow</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../news/index.html">Changelog</a>
@@ -124,14 +136,19 @@
     <tr>
       <th>iMatrixTx</th>
       <td><p>numeric matrix of read counts (or pseudocounts) with
-transcript rows and sample columns.</p></td>
+transcript rows and sample columns. This data is assumed to be
+log2-transformed, and if any value is higher than 50, it will
+be log2-transformed with <code><a href='https://www.rdocumentation.org/packages/base/topics/Log'>log2(x+1)</a></code>.</p></td>
     </tr>
     <tr>
       <th>iMatrixTxGrp</th>
       <td><p>numeric matrix of read counts averaged by sample
 group. If this matrix is not provided, it will be calculated
 from <code>iMatrixTx</code>
-using <code><a href='https://www.rdocumentation.org/packages/jamba/topics/rowGroupMeans'>jamba::rowGroupMeans()</a></code> and the <code>groups</code> parameter.</p></td>
+using <code><a href='https://www.rdocumentation.org/packages/jamba/topics/rowGroupMeans'>jamba::rowGroupMeans()</a></code> and the <code>groups</code> parameter.
+This data is assumed to be
+log2-transformed, and if any value is higher than 50, it will
+be log2-transformed with <code><a href='https://www.rdocumentation.org/packages/base/topics/Log'>log2(x+1)</a></code>.</p></td>
     </tr>
     <tr>
       <th>iMatrixTxTPM</th>
@@ -214,6 +231,9 @@ the <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'
 read counts (or pseudocounts from a kmer tool such as Salmon or
 Kallisto), along with alternative TPM quantitation, to determine
 the observed "detected" transcript space for a given experiment.</p>
+<p>Each input data matrix is assumed to be appropriately log-transformed,
+typically using <code><a href='https://www.rdocumentation.org/packages/base/topics/Log'>log2(1+x)</a></code>. If any value is <code>&gt;= 50</code> then the data
+matrix will be log2-transformed using <code><a href='https://www.rdocumentation.org/packages/base/topics/Log'>log2(1+x)</a></code>.</p>
 <p>The criteria must be met in at least one sample group, but all
 criteria must be met in the same sample group for an isoform to
 be considered "detected".</p>

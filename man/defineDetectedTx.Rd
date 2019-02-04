@@ -11,12 +11,17 @@ defineDetectedTx(iMatrixTx = NULL, iMatrixTxGrp = NULL,
 }
 \arguments{
 \item{iMatrixTx}{numeric matrix of read counts (or pseudocounts) with
-transcript rows and sample columns.}
+transcript rows and sample columns. This data is assumed to be
+log2-transformed, and if any value is higher than 50, it will
+be log2-transformed with \code{log2(x+1)}.}
 
 \item{iMatrixTxGrp}{numeric matrix of read counts averaged by sample
 group. If this matrix is not provided, it will be calculated
 from \code{iMatrixTx}
-using \code{jamba::rowGroupMeans()} and the \code{groups} parameter.}
+using \code{jamba::rowGroupMeans()} and the \code{groups} parameter.
+This data is assumed to be
+log2-transformed, and if any value is higher than 50, it will
+be log2-transformed with \code{log2(x+1)}.}
 
 \item{iMatrixTxTPM}{numeric matrix of TPM values, with sample columns
 and transcript rows. Note that if this parameter is not supplied,
@@ -80,6 +85,10 @@ This function aims to combine evidence from RNA-seq sequence
 read counts (or pseudocounts from a kmer tool such as Salmon or
 Kallisto), along with alternative TPM quantitation, to determine
 the observed "detected" transcript space for a given experiment.
+
+Each input data matrix is assumed to be appropriately log-transformed,
+typically using \code{log2(1+x)}. If any value is \code{>= 50} then the data
+matrix will be log2-transformed using \code{log2(1+x)}.
 
 The criteria must be met in at least one sample group, but all
 criteria must be met in the same sample group for an isoform to

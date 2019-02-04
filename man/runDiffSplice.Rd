@@ -5,21 +5,29 @@
 \title{Perform differential isoform analysis using diffSplice}
 \usage{
 runDiffSplice(iMatrixTx, detectedTx = rownames(iMatrixTx), tx2geneDF,
-  iDesign, iContrasts, cutoffFDR = 0.05, cutoffFold = 1.5,
+  txColname = "transcript_id", geneColname = "gene_name", iDesign,
+  iContrasts, cutoffFDR = 0.05, cutoffFold = 1.5,
   collapseByGene = TRUE, spliceTest = c("t", "simes", "F"),
-  sep = " ", useVoom = TRUE, verbose = TRUE, ...)
+  sep = " ", useVoom = TRUE, verbose = FALSE, ...)
 }
 \arguments{
 \item{iMatrixTx}{numeric matrix of expression, with transcripts as
 rows and samples as columns. The data is assumed to be log2-transformed
-using the format \code{log2(1 + x)}.}
+using the format \code{log2(1 + x)}. This data should be normalized using
+appropriate methods, outside the scope of this function.}
 
 \item{detectedTx}{character vector containing all or a subset of
 \code{rownames(iMatrix)} used for statistical testing.}
 
-\item{tx2geneDF}{data.frame with \code{gene_name} and \code{transcript_id},
+\item{tx2geneDF}{data.frame with colnames \code{c(txColname, geneColname)},
 where all entries of \code{rownames(iMatrix)} are represented
-in \code{transcript_id}.}
+in \code{tx2geneDF[,txColname]}.}
+
+\item{txColname, geneColname}{the \code{colnames(tx2geneDF)} representing
+the \code{rownames(iMatrixTx)} matched by \code{tx2geneDF[,txColname]},
+and the associated genes given by \code{tx2geneDF[,geneColname]}.
+Note that \code{detectedTx} must also contain values in \code{rownames(iMatrixTx)}
+and \code{tx2geneDF[,txColname]}.}
 
 \item{iDesign}{numeric matrix representing the design matrix for
 the experiment design. For example, \code{limma::model.matrix(~0+group)}
@@ -81,15 +89,55 @@ to call \code{limma::diffSplice()} and return the output of
 use.
 
 For example, it can be helpful to call this function with and without
-the "voom" component, dependent upon the specific input data
-being analyzed. Similarly, results can optionally be summarized at
-the gene level, after applying statistical hit thresholds of
-the adjusted P-value and fold change.
+the "voom" component, dependent upon whether the input data
+contains count data, or TPM abundance. The input data is assumed
+to be normalized, and is not adjusted.
 
-Lastly, this function enables testing the subset of detected
-transcripts, for example based upon the output of \code{defineDetectedTx()},
-to restrict tests to this transcripts that are considered relevant
-to the experiment and/or relevant to follow-up validation.
+Statistical results can be summarized at the gene level, after
+applying thresholds for statistical hits in the form of
+required adjusted P-value and/or fold change. It may be helpful
+to review results per gene, alongside the specific transcript
+isoforms which are called statistical hits.
+
+This function may also test the subset of "detected transcripts",
+for example based upon the output of \code{defineDetectedTx()}.
+In practice, this strategy removes a number of potential hits
+which are otherwise not considered to be "detected". The intent is to
+filter out potential hits based upon a noise threshold, which
+may be below the practical limit of follow-up validation techniques.
+Another goal is the removal of a large number of undetected
+transcripts which are effectively not tested, prior to
+multiple testing correction.
+
+The input data \code{iMatrixTx} should contain rows of data where the
+\code{rownames(iMatrixTx)} are represented in \code{tx2geneDF[,txColname]}
+in order to link rows to genes, using \code{tx2geneDF[,geneColname]}.
+The rows  of \code{iMatrixTx} are expected to contain expression values
+per transcript isoform, but may contain alternative measurements
+such as: junction expression per gene; exon expression per gene.
+
+Details:
+
+This function provides a wrapper of a basic workflow for differential
+isoform analysis, including these basic steps in order:
+
+\describe{
+\item{\code{limma:voom()}}{(Optional.) This step is enabled with
+the argument \code{useVoom=TRUE} and should only be used when \code{iMatrixTx}
+contains count or pseudocount data. When using TPM or FPKM values,
+set \code{useVoom=FALSE}.}
+\item{\code{limma::lmFit()}}{}
+\item{\code{limma::contrasts.fit()}}{}
+\item{\code{limma::diffSplice()}}{}
+\item{\code{limma::topSplice()}}{This function is called on each contrast
+in order to return a list of data.frames.}
+}
+
+Note that \code{iMatrixTx} is exponentiated prior to running \code{limma::voom()}
+when \code{useVoom=TRUE}, for the purpose of calculating a weights matrix.
+The original \code{iMatrixTx} data is used in \code{limma::lmFits()} as-is,
+alongside the voom weights. The voom-normalized data is not
+used. Therefore, the input data is assumed to be normalized.
 }
 \examples{
 # example for defining iDesign
@@ -104,8 +152,10 @@ iSamples <- names(iGroups);
 
 # given a vector of groups, make iDesign
 iDesign <- stats::model.matrix(~0+iGroups);
-# good practice to rename colnames(iDesign) and rownames(iDesign)
-# to help reinforce consistency in downstream tests
+
+# It is good practice to rename colnames(iDesign) and rownames(iDesign),
+# that is, for the love of all that is good, use colnames and rownames
+# that help confirm that these matrices are consistent.
 colnames(iDesign) <- levels(iGroups);
 rownames(iDesign) <- names(iGroups);
 iDesign;
@@ -119,12 +169,17 @@ iContrasts <- limma::makeContrasts(contrasts=c(
    levels=iDesign);
 iContrasts;
 
-# for validation, you want:
-# - rownames(iDesign) to match iSamples
-# - colnames(iDesign) to match the actual group names
-# - colnames(iDesign) to match rownames(iContrasts)
+# for validation, verify these constraints:
+# - all(rownames(iDesign) == iSamples)
+# - colnames(iDesign) == the actual group names
+# - all(colnames(iDesign) == rownames(iContrasts))
 # you can see which samples are included in each test with crossproduct:
 iDesign \%*\% iContrasts;
+
+## Another efficient way to define iDesign and iContrasts:
+iDC <- splicejam::groups2contrasts(iGroups, returnDesign=TRUE);
+iDesign <- iDC$iDesign;
+iContrasts <- iDC$iContrasts;
 
 }
 \seealso{

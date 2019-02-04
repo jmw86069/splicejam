@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.12.900
+Version: 0.0.13.900
 Authors@R: person(given="James M.", family="Ward",
     email="jmw86069@gmail.com", role=c("aut", "cre"))
 Maintainer: James M. Ward <jmw86069@gmail.com>
@@ -21,8 +21,13 @@ Imports: jamba (>= 0.0.26.900),
     limma,
     S4Vectors,
     arules
-Suggests: made4,
-    plotly
+Suggests: 
+    made4,
+    plotly,
+    openxlsx,
+    knitr,
+    rmarkdown,
+    tximport
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -33,3 +38,4 @@ URL: http://github.com/jmw86069/splicejam
 BugReports: http://github.com/jmw86069/splicejam/issues
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
+VignetteBuilder: knitr

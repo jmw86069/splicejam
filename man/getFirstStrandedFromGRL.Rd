@@ -5,7 +5,7 @@
 \title{Get first stranded GRanges feature per GRangesList}
 \usage{
 getFirstStrandedFromGRL(grl, method = c("endoapply", "flank"),
-  verbose = TRUE, ...)
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{grl}{GRangesList}

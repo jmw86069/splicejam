@@ -66,7 +66,7 @@ makeTx2geneFromGtf <- function
  geneFeatureType="gene",
  txFeatureType=c("transcript","mRNA"),
  nrows=-1L,
- verbose=TRUE,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to use a GTF file to create a transcript to gene
@@ -99,22 +99,33 @@ makeTx2geneFromGtf <- function
          "reading GTF file:",
          GTF);
    }
-   if (igrepHas("[.]gz$", GTF)) {
-      gtfDF <- fread(paste0("gzcat ", GTF),
+   if (igrepHas("[.]gz$", GTF) &&
+      !suppressPackageStartupMessages(require(R.utils))) {
+      if (verbose) {
+         jamba::printDebug("makeTx2geneFromGtf() :",
+            "using commandline call to gzcat to decompress gtf.gz. ",
+            "Install the 'R.utils' package to avoid this step.");
+      }
+      gtfDF <- data.table::fread(cmd=paste0("gzcat ", GTF),
          sep="\t",
          autostart=20,
-         #col.names,
-         nrows=nrows);
+         nrows=nrows,
+         data.table=FALSE);
    } else {
-      gtfDF <- fread(GTF,
+      if (verbose) {
+         jamba::printDebug("makeTx2geneFromGtf() :",
+            "using native data.table::fread().");
+      }
+      gtfDF <- data.table::fread(GTF,
          sep="\t",
          autostart=20,
-         #col.names,
-         nrows=nrows);
+         nrows=nrows,
+         data.table=FALSE);
    }
    ## Subset to clear some memory
-   gtfDF <- subset(gtfDF, gtfDF[[3]] %in% c(geneFeatureType,
-      txFeatureType));
+   gtfDF <- subset(gtfDF,
+      gtfDF[[3]] %in% c(geneFeatureType,
+         txFeatureType));
 
    ## Determine which rows are gene and transcript
    geneRows <- (gtfDF[[3]] %in% geneFeatureType);
@@ -126,7 +137,8 @@ makeTx2geneFromGtf <- function
       function(attrName){
          if (verbose) {
             jamba::printDebug("makeTx2geneFromGtf() :",
-               "gene attributes:", attrName);
+               "gene attributes:",
+               attrName);
          }
          attrGrep <- paste0('^.*', attrName, ' ["]([^"]+)["].*$');
          if (jamba::igrepHas(attrGrep, gtfDF[geneRows,][[9]])) {
@@ -134,7 +146,11 @@ makeTx2geneFromGtf <- function
                "\\1",
                gtfDF[geneRows,,drop=FALSE][[9]]);
          } else {
-            jamba::printDebug("Note: No gene attributes found for:", attrName);
+            if (verbose) {
+               jamba::printDebug("makeTx2geneFromGtf(): ",
+                  "Note: No gene attributes found for:",
+                  attrName);
+            }
             attrValues <- NULL;
          }
       }));
@@ -144,7 +160,8 @@ makeTx2geneFromGtf <- function
       function(attrName){
          if (verbose) {
             jamba::printDebug("makeTx2geneFromGtf(): ",
-               "tx attributes:", attrName);
+               "tx attributes:",
+               attrName);
          }
          attrGrep <- paste0('^.*', attrName, ' ["]([^"]+)["].*$');
          if (jamba::igrepHas(attrGrep, gtfDF[txRows,][[9]])) {
@@ -152,7 +169,11 @@ makeTx2geneFromGtf <- function
                "\\1",
                gtfDF[txRows,,drop=FALSE][[9]]);
          } else {
-            jamba::printDebug("Note: No tx attributes found for:", attrName);
+            if (verbose) {
+               jamba::printDebug("makeTx2geneFromGtf(): ",
+                  "Note: No tx attributes found for:",
+                  attrName);
+            }
             attrValues <- NULL;
          }
       }));
@@ -282,7 +303,7 @@ tx2ale <- function
  tx2geneDF=NULL,
  iMatrix=NULL,
  aleMethod=c("first", "range"),
- verbose=TRUE,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to encapsulate the logic of using Gencode GTF gene transcript
@@ -594,6 +615,10 @@ tx2ale <- function
 #' Kallisto), along with alternative TPM quantitation, to determine
 #' the observed "detected" transcript space for a given experiment.
 #'
+#' Each input data matrix is assumed to be appropriately log-transformed,
+#' typically using `log2(1+x)`. If any value is `>= 50` then the data
+#' matrix will be log2-transformed using `log2(1+x)`.
+#'
 #' The criteria must be met in at least one sample group, but all
 #' criteria must be met in the same sample group for an isoform to
 #' be considered "detected".
@@ -662,11 +687,16 @@ tx2ale <- function
 #' }
 #'
 #' @param iMatrixTx numeric matrix of read counts (or pseudocounts) with
-#'    transcript rows and sample columns.
+#'    transcript rows and sample columns. This data is assumed to be
+#'    log2-transformed, and if any value is higher than 50, it will
+#'    be log2-transformed with `log2(x+1)`.
 #' @param iMatrixTxGrp numeric matrix of read counts averaged by sample
 #'    group. If this matrix is not provided, it will be calculated
 #'    from `iMatrixTx`
 #'    using `jamba::rowGroupMeans()` and the `groups` parameter.
+#'    This data is assumed to be
+#'    log2-transformed, and if any value is higher than 50, it will
+#'    be log2-transformed with `log2(x+1)`.
 #' @param iMatrixTxTPM numeric matrix of TPM values, with sample columns
 #'    and transcript rows. Note that if this parameter is not supplied,
 #'    the counts in `iMatrixTx` will be used to determine the percent
@@ -740,6 +770,16 @@ defineDetectedTx <- function
       if (length(groups) == 0) {
          stop("defineDetectedTx() requires groups, named by colnames(iMatrixTx).");
       }
+      if (max(iMatrixTx, na.rm=TRUE) >= 50) {
+         if (verbose) {
+            printDebug("defineDetectedTx(): ",
+               "Applying log2(1+x) transform to:",
+               "iMatrixTx");
+         }
+         iMatrixTx <- jamba::noiseFloor(log2(1+iMatrixTx),
+            minimum=0,
+            adjustNA=TRUE);
+      }
       if (verbose) {
          printDebug("defineDetectedTx(): ",
             "Calculating iMatrixTxGrp.");
@@ -748,12 +788,33 @@ defineDetectedTx <- function
          useMedian=useMedian,
          groups=groups);
    }
+   ## Check group values
+   if (max(iMatrixTxGrp, na.rm=TRUE) >= 50) {
+      if (verbose) {
+         printDebug("defineDetectedTx(): ",
+            "Applying log2(1+x) transform to:",
+            "iMatrixTxGrp");
+      }
+      iMatrixTxGrp <- jamba::noiseFloor(log2(1+iMatrixTxGrp),
+         minimum=0,
+         adjustNA=TRUE);
+   }
 
    ## group mean values for TPM
    if (length(iMatrixTxTPMGrp) == 0) {
       if (length(iMatrixTxTPM) > 0) {
          if (length(groups) == 0) {
             stop("defineDetectedTx() requires groups, named by colnames(iMatrixTxTPM).");
+         }
+         if (max(iMatrixTxTPM, na.rm=TRUE) >= 50) {
+            if (verbose) {
+               printDebug("defineDetectedTx(): ",
+                  "Applying log2(1+x) transform to:",
+                  "iMatrixTxTPM");
+            }
+            iMatrixTxTPM <- jamba::noiseFloor(log2(1+iMatrixTxTPM),
+               minimum=0,
+               adjustNA=TRUE);
          }
          if (verbose) {
             printDebug("defineDetectedTx(): ",
@@ -763,6 +824,17 @@ defineDetectedTx <- function
             useMedian=useMedian,
             groups=groups);
       }
+   }
+   ## Check group values
+   if (max(iMatrixTxTPMGrp, na.rm=TRUE) >= 50) {
+      if (verbose) {
+         printDebug("defineDetectedTx(): ",
+            "Applying log2(1+x) transform to:",
+            "iMatrixTxTPMGrp");
+      }
+      iMatrixTxTPMGrp <- jamba::noiseFloor(log2(1+iMatrixTxTPMGrp),
+         minimum=0,
+         adjustNA=TRUE);
    }
 
    ######################################################################
@@ -1444,7 +1516,7 @@ factor2label <- function
 getFirstStrandedFromGRL <- function
 (grl,
  method=c("endoapply","flank"),
- verbose=TRUE,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to take a GRangesList and return the first element
@@ -2583,7 +2655,7 @@ ale2violin <- function
  lineAlpha=0.1,
  subsetFunc=NULL,
  make_ggplots=TRUE,
- verbose=TRUE,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to take an ALE expression matrix, and create
@@ -2827,15 +2899,55 @@ ale2violin <- function
 #' use.
 #'
 #' For example, it can be helpful to call this function with and without
-#' the "voom" component, dependent upon the specific input data
-#' being analyzed. Similarly, results can optionally be summarized at
-#' the gene level, after applying statistical hit thresholds of
-#' the adjusted P-value and fold change.
+#' the "voom" component, dependent upon whether the input data
+#' contains count data, or TPM abundance. The input data is assumed
+#' to be normalized, and is not adjusted.
 #'
-#' Lastly, this function enables testing the subset of detected
-#' transcripts, for example based upon the output of `defineDetectedTx()`,
-#' to restrict tests to this transcripts that are considered relevant
-#' to the experiment and/or relevant to follow-up validation.
+#' Statistical results can be summarized at the gene level, after
+#' applying thresholds for statistical hits in the form of
+#' required adjusted P-value and/or fold change. It may be helpful
+#' to review results per gene, alongside the specific transcript
+#' isoforms which are called statistical hits.
+#'
+#' This function may also test the subset of "detected transcripts",
+#' for example based upon the output of `defineDetectedTx()`.
+#' In practice, this strategy removes a number of potential hits
+#' which are otherwise not considered to be "detected". The intent is to
+#' filter out potential hits based upon a noise threshold, which
+#' may be below the practical limit of follow-up validation techniques.
+#' Another goal is the removal of a large number of undetected
+#' transcripts which are effectively not tested, prior to
+#' multiple testing correction.
+#'
+#' The input data `iMatrixTx` should contain rows of data where the
+#' `rownames(iMatrixTx)` are represented in `tx2geneDF[,txColname]`
+#' in order to link rows to genes, using `tx2geneDF[,geneColname]`.
+#' The rows  of `iMatrixTx` are expected to contain expression values
+#' per transcript isoform, but may contain alternative measurements
+#' such as: junction expression per gene; exon expression per gene.
+#'
+#' Details:
+#'
+#' This function provides a wrapper of a basic workflow for differential
+#' isoform analysis, including these basic steps in order:
+#'
+#' \describe{
+#'    \item{`limma:voom()`}{(Optional.) This step is enabled with
+#'    the argument `useVoom=TRUE` and should only be used when `iMatrixTx`
+#'    contains count or pseudocount data. When using TPM or FPKM values,
+#'    set `useVoom=FALSE`.}
+#'    \item{`limma::lmFit()`}{}
+#'    \item{`limma::contrasts.fit()`}{}
+#'    \item{`limma::diffSplice()`}{}
+#'    \item{`limma::topSplice()`}{This function is called on each contrast
+#'       in order to return a list of data.frames.}
+#' }
+#'
+#' Note that `iMatrixTx` is exponentiated prior to running `limma::voom()`
+#' when `useVoom=TRUE`, for the purpose of calculating a weights matrix.
+#' The original `iMatrixTx` data is used in `limma::lmFits()` as-is,
+#' alongside the voom weights. The voom-normalized data is not
+#' used. Therefore, the input data is assumed to be normalized.
 #'
 #' @return list containing `detectedTx`, `detectedTxUse` the detectedTx
 #' values representing genes with multiple transcripts; `fit` the initial
@@ -2847,12 +2959,18 @@ ale2violin <- function
 #'
 #' @param iMatrixTx numeric matrix of expression, with transcripts as
 #'    rows and samples as columns. The data is assumed to be log2-transformed
-#'    using the format `log2(1 + x)`.
+#'    using the format `log2(1 + x)`. This data should be normalized using
+#'    appropriate methods, outside the scope of this function.
 #' @param detectedTx character vector containing all or a subset of
 #'    `rownames(iMatrix)` used for statistical testing.
-#' @param tx2geneDF data.frame with `gene_name` and `transcript_id`,
+#' @param tx2geneDF data.frame with colnames `c(txColname, geneColname)`,
 #'    where all entries of `rownames(iMatrix)` are represented
-#'    in `transcript_id`.
+#'    in `tx2geneDF[,txColname]`.
+#' @param txColname,geneColname the `colnames(tx2geneDF)` representing
+#'    the `rownames(iMatrixTx)` matched by `tx2geneDF[,txColname]`,
+#'    and the associated genes given by `tx2geneDF[,geneColname]`.
+#'    Note that `detectedTx` must also contain values in `rownames(iMatrixTx)`
+#'    and `tx2geneDF[,txColname]`.
 #' @param iDesign numeric matrix representing the design matrix for
 #'    the experiment design. For example, `limma::model.matrix(~0+group)`
 #'    will represent each group. Typically, `rownames(iDesign)` should
@@ -2900,8 +3018,10 @@ ale2violin <- function
 #'
 #' # given a vector of groups, make iDesign
 #' iDesign <- stats::model.matrix(~0+iGroups);
-#' # good practice to rename colnames(iDesign) and rownames(iDesign)
-#' # to help reinforce consistency in downstream tests
+#'
+#' # It is good practice to rename colnames(iDesign) and rownames(iDesign),
+#' # that is, for the love of all that is good, use colnames and rownames
+#' # that help confirm that these matrices are consistent.
 #' colnames(iDesign) <- levels(iGroups);
 #' rownames(iDesign) <- names(iGroups);
 #' iDesign;
@@ -2915,18 +3035,25 @@ ale2violin <- function
 #'    levels=iDesign);
 #' iContrasts;
 #'
-#' # for validation, you want:
-#' # - rownames(iDesign) to match iSamples
-#' # - colnames(iDesign) to match the actual group names
-#' # - colnames(iDesign) to match rownames(iContrasts)
+#' # for validation, verify these constraints:
+#' # - all(rownames(iDesign) == iSamples)
+#' # - colnames(iDesign) == the actual group names
+#' # - all(colnames(iDesign) == rownames(iContrasts))
 #' # you can see which samples are included in each test with crossproduct:
 #' iDesign %*% iContrasts;
+#'
+#' ## Another efficient way to define iDesign and iContrasts:
+#' iDC <- splicejam::groups2contrasts(iGroups, returnDesign=TRUE);
+#' iDesign <- iDC$iDesign;
+#' iContrasts <- iDC$iContrasts;
 #'
 #' @export
 runDiffSplice <- function
 (iMatrixTx,
  detectedTx=rownames(iMatrixTx),
  tx2geneDF,
+ txColname="transcript_id",
+ geneColname="gene_name",
  iDesign,
  iContrasts,
  cutoffFDR=0.05,
@@ -2935,7 +3062,7 @@ runDiffSplice <- function
  spliceTest=c("t", "simes", "F"),
  sep=" ",
  useVoom=TRUE,
- verbose=TRUE,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to provide a wrapper around the steps required to run
@@ -2955,22 +3082,27 @@ runDiffSplice <- function
    ## starting with detected transcripts
    ## determine which genes have multiple transcripts
    if (length(detectedTx) == 0) {
+      if (verbose) {
+         printDebug("runDiffSplice(): ",
+            "Using all rownames(iMatrixTx) as ",
+            "detectedTx");
+      }
       detectedTx <- rownames(iMatrixTx);
    }
    ## Match detectedTx to the tx2geneDF data.frame,
    ## then drop NA unmatched values
    iTxMatch <- jamba::rmNA(match(detectedTx,
-      tx2geneDF[["transcript_id"]]));
+      tx2geneDF[,txColname]));
    ## Count the total unique genes represented
-   iTxGeneCt <- length(unique(tx2geneDF[iTxMatch,"gene_name"]));
+   iTxGeneCt <- length(unique(tx2geneDF[iTxMatch,geneColname]));
    ## Look for genes represented more than once
-   iGeneCt2 <- names(jamba::tcount(tx2geneDF[iTxMatch,"gene_name"],
+   iGeneCt2 <- names(jamba::tcount(tx2geneDF[iTxMatch,geneColname],
       minCount=2));
 
    detectedTxUse <- subset(tx2geneDF[iTxMatch,,drop=FALSE],
-      gene_name %in% iGeneCt2)[["transcript_id"]];
+      tx2geneDF[iTxMatch,geneColname] %in% iGeneCt2)[[txColname]];
    iTxMatchUse <- match(detectedTxUse,
-      tx2geneDF[["transcript_id"]]);
+      tx2geneDF[[txColname]]);
    retVals$detectedTx <- detectedTx;
    retVals$detectedTxUse <- detectedTxUse;
 
@@ -2978,15 +3110,15 @@ runDiffSplice <- function
       printDebug("runDiffSplice(): ",
          "Started with ",
          formatInt(length(detectedTx)),
-         " transcripts representing ",
+         " entries representing ",
          formatInt(iTxGeneCt),
          " genes.");
       printDebug("runDiffSplice(): ",
          "  Ended with ",
          formatInt(length(detectedTxUse)),
-         " transcripts representing ",
+         " entries representing ",
          formatInt(length(iGeneCt2)),
-         " multi-transcript genes.");
+         " multi-entry genes.");
    }
 
 
@@ -2995,8 +3127,11 @@ runDiffSplice <- function
    iMatrixTxES <- ExpressionSet(
       assayData=2^iMatrixTx[detectedTxUse,,drop=FALSE]-1,
       featureData=new("AnnotatedDataFrame",
-         data=data.frame(probes=detectedTxUse,
-            gene_name=tx2geneDF[iTxMatchUse,"gene_name"],
+         data=data.frame(
+            check.names=FALSE,
+            stringsAsFactors=FALSE,
+            probes=detectedTxUse,
+            tx2geneDF[iTxMatchUse,geneColname,drop=FALSE],
             row.names=detectedTxUse)));
 
    ########################################################
@@ -3036,7 +3171,7 @@ runDiffSplice <- function
          design=iDesign);
    }
    ## Add transcript back to the output data
-   fit$genes[,"transcript_id"] <- fit$genes[,"probes"];
+   fit$genes[,txColname] <- fit$genes[,"probes"];
    retVals$fit <- fit;
 
    ########################################################
@@ -3056,8 +3191,8 @@ runDiffSplice <- function
          "Running diffSplice().");
    }
    splice <- diffSplice(fit2,
-      geneid="gene_name",
-      exonid="transcript_id");
+      geneid=geneColname,
+      exonid=txColname);
    retVals$splice <- splice;
 
    ## Clean up each contrast into a data.frame
@@ -3069,13 +3204,15 @@ runDiffSplice <- function
    statsDFs <- lapply(nameVector(iCoefs), function(iCoef){
       iCoefGroups <- unlist(strsplit(gsub("^[(]|[)]$", "", iCoef), "[-()]+"));
       iGroupMeans <- coefficients(fit)[,iCoefGroups,drop=FALSE];
-      iGroupMeansDF <- data.frame("transcript_id"=rownames(iGroupMeans),
+      iGroupMeansDF <- data.frame(
+         setNames(data.frame(rownames(iGroupMeans)), txColname),
          renameColumn(iGroupMeans,
             from=colnames(iGroupMeans),
             to=paste("groupMean",
                colnames(iGroupMeans),
                sep=sep)),
-         check.names=FALSE);
+         check.names=FALSE,
+         stringsAsFactors=FALSE);
       spliceDF <- limma::topSplice(splice,
          coef=iCoef,
          test=spliceTest,
@@ -3088,24 +3225,24 @@ runDiffSplice <- function
       }
       if (collapseByGene) {
          bestPbyGene <- shrinkMatrix(spliceDF[,"P.Value"],
-            groupBy=spliceDF[,"gene_name"],
+            groupBy=spliceDF[,geneColname],
             shrinkFunc=min,
             returnClass="matrix");
          countTxByGeneM <- shrinkMatrix(data.frame(numTx=spliceDF[,"probes"]),
-            groupBy=spliceDF[,"gene_name"],
+            groupBy=spliceDF[,geneColname],
             shrinkFunc=length,
             returnClass="matrix");
 
-         spliceDF[,"best P.Value"] <- bestPbyGene[spliceDF[,"gene_name"],1];
+         spliceDF[,"best P.Value"] <- bestPbyGene[spliceDF[,geneColname],1];
          spliceDFsub <- subset(spliceDF,
             `P.Value` == `best P.Value`);
-         iMatchUniqGene <- match(unique(spliceDFsub[,"gene_name"]),
-            spliceDFsub[,"gene_name"]);
+         iMatchUniqGene <- match(unique(spliceDFsub[,geneColname]),
+            spliceDFsub[,geneColname]);
          keepCols <- setdiff(colnames(spliceDFsub), "probes");
          spliceDFuse <- spliceDFsub[iMatchUniqGene,keepCols,drop=FALSE];
-         spliceDFuse$numTx <- countTxByGeneM[match(spliceDFuse$transcript_id,
+         spliceDFuse$numTx <- countTxByGeneM[match(spliceDFuse[,txColname],
             rownames(countTxByGeneM)),"numTx"];
-         iMatch2 <- match(spliceDFuse$transcript_id,
+         iMatch2 <- match(spliceDFuse[,txColname],
             rownames(iGroupMeansDF));
          spliceDFuse[,colnames(iGroupMeansDF)] <- iGroupMeansDF[iMatch2,,drop=FALSE];
       } else {
@@ -3118,8 +3255,8 @@ runDiffSplice <- function
          )*1;
 
       ## Rename columns to include the contrast
-      renameCols <- c("logFC","t","P.Value","FDR",
-         "best P.Value", "transcript_id","hit");
+      renameCols <- c("logFC", "t", "P.Value", "FDR",
+         "best P.Value", txColname, "hit");
       spliceDFuse <- jamba::renameColumn(spliceDFuse,
          from=renameCols,
          to=paste(renameCols, iCoef));

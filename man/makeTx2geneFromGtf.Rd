@@ -7,7 +7,7 @@
 makeTx2geneFromGtf(GTF, geneAttrNames = c("gene_id", "gene_name",
   "gene_type"), txAttrNames = c("transcript_id", "transcript_type"),
   geneFeatureType = "gene", txFeatureType = c("transcript", "mRNA"),
-  nrows = -1L, verbose = TRUE, ...)
+  nrows = -1L, verbose = FALSE, ...)
 }
 \arguments{
 \item{GTF}{character file name sent to \code{data.table::fread()}. When the

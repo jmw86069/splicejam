@@ -6,7 +6,7 @@
 \usage{
 tx2ale(gtf = NULL, txdb = NULL, threeUtrGRL = NULL,
   detectedTx = NULL, tx2geneDF = NULL, iMatrix = NULL,
-  aleMethod = c("first", "range"), verbose = TRUE, ...)
+  aleMethod = c("first", "range"), verbose = FALSE, ...)
 }
 \arguments{
 \item{gtf}{character path to a GTF file, used to import gene models
