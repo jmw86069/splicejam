@@ -2955,6 +2955,13 @@ ale2violin <- function
 #' `limma::diffSplice()`; `statsDFs` list of data.frame output from
 #' `limma::topSplice()` either at the transcript level or the gene level.
 #'
+#' Note that when `collapseByGene=TRUE` the results will return the first
+#' transcript entry per gene that has the best P-value. Often one gene
+#' will have two transcripts with identical P-value, and the order
+#' that the transcripts appear is inconsistent. Therefore, the direction
+#' of fold change is not meaningful by itself, except with respect to
+#' the specific isoform returned.
+#'
 #' @family jam RNA-seq functions
 #'
 #' @param iMatrixTx numeric matrix of expression, with transcripts as
@@ -3224,7 +3231,8 @@ runDiffSplice <- function
          print(head(spliceDF));
       }
       if (collapseByGene) {
-         bestPbyGene <- shrinkMatrix(spliceDF[,"P.Value"],
+         pvColname <- head(vigrep("^P.Value", colnames(spliceDF)), 1);
+         bestPbyGene <- shrinkMatrix(spliceDF[,pvColname],
             groupBy=spliceDF[,geneColname],
             shrinkFunc=min,
             returnClass="matrix");
@@ -3240,7 +3248,7 @@ runDiffSplice <- function
             spliceDFsub[,geneColname]);
          keepCols <- setdiff(colnames(spliceDFsub), "probes");
          spliceDFuse <- spliceDFsub[iMatchUniqGene,keepCols,drop=FALSE];
-         spliceDFuse$numTx <- countTxByGeneM[match(spliceDFuse[,txColname],
+         spliceDFuse$numTx <- countTxByGeneM[match(spliceDFuse[,geneColname],
             rownames(countTxByGeneM)),"numTx"];
          iMatch2 <- match(spliceDFuse[,txColname],
             rownames(iGroupMeansDF));

@@ -1,3 +1,10 @@
+# splicejam version 0.0.14.900
+
+## bug fixes
+
+* Fixed issue where `numTxs` was not getting populated in `runDiffSplice()`,
+otherwise the stats summary is not changed.
+
 # splicejam version 0.0.13.900
 
 ## changes

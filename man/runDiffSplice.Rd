@@ -78,6 +78,13 @@ values representing genes with multiple transcripts; \code{fit} the initial
 model fit; \code{fit2} the contrast model fit; \code{splice} the output from
 \code{limma::diffSplice()}; \code{statsDFs} list of data.frame output from
 \code{limma::topSplice()} either at the transcript level or the gene level.
+
+Note that when \code{collapseByGene=TRUE} the results will return the first
+transcript entry per gene that has the best P-value. Often one gene
+will have two transcripts with identical P-value, and the order
+that the transcripts appear is inconsistent. Therefore, the direction
+of fold change is not meaningful by itself, except with respect to
+the specific isoform returned.
 }
 \description{
 Perform differential isoform analysis using diffSplice

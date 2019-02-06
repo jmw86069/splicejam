@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.13.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.14.900</span>
       </span>
     </div>
 
@@ -232,6 +232,12 @@ values representing genes with multiple transcripts; <code>fit</code> the initia
 model fit; <code>fit2</code> the contrast model fit; <code>splice</code> the output from
 <code><a href='https://www.rdocumentation.org/packages/limma/topics/diffSplice'>limma::diffSplice()</a></code>; <code>statsDFs</code> list of data.frame output from
 <code><a href='https://www.rdocumentation.org/packages/limma/topics/topSplice'>limma::topSplice()</a></code> either at the transcript level or the gene level.</p>
+<p>Note that when <code>collapseByGene=TRUE</code> the results will return the first
+transcript entry per gene that has the best P-value. Often one gene
+will have two transcripts with identical P-value, and the order
+that the transcripts appear is inconsistent. Therefore, the direction
+of fold change is not meaningful by itself, except with respect to
+the specific isoform returned.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
