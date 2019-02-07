@@ -444,3 +444,87 @@ diffSpliceHitsL <- lapply(diffSpliceL$statsDFs, function(iDF){
 printDebug("Differential isoform hits per contrast:");
 print(sdim(diffSpliceHitsL));
 ```
+
+#### Export DiffSplice results to Excel
+
+Each contrast is summarized into two data.frame objects, representing
+each transcript isoform result per row, and aggregated into a per-gene
+summary value. For the purpose of this workflow, the per-gene
+summary will be saved, however the same basic steps can be applied
+to the per-isoform data.
+
+
+## PCA/BGA Clustering
+
+Either transcript- or gene-level data may be clustered using
+an ordination technique such as principal components analysis (PCA)
+or correspondence analysis (CCA or CA).
+For this workflow, between groups analysis (BGA) will be employed,
+as provided by the made4 Bioconductor package (Culhane et al.)
+In short, BGA enhances a basic ordination method by re-ordering
+components based upon maximal sample group separation, as opposed to
+maximal sample separation done by PCA. As a result, BGA is particularly
+effective at identifying and visualizing effects relevant to grouped
+experimental design, and is relatively tolerant of sources
+of technical noise.
+
+### Run BGA
+
+The BGA technique is based upon results from an underlying
+clustering method such as PCA or COA, and therefore inherits
+potential weaknesses of such tools. In short, it is sometimes
+helpful to filter genes or transcripts by minimum expression,
+roughly above the level of statistical noise.
+
+For the example below, the gene summary TPM values are used
+as input, and correspondence analysis (COA) is chosen as the
+underlying clustering algorithm.
+
+In the absence of sample groups, BGA can be run with each
+biological sample in its own group. The results will be equivalent
+to running normal COA (or PCA).
+
+```{r run_bga}
+bgaExprThreshold <- 5;
+bgaExprs <- assays(GeneSE)$counts;
+## Apply a noise floor so all (data < threshold) is set to threshold
+bgaExprs[bgaExprs < bgaExprThreshold] <- bgaExprThreshold;
+## Then require rows to have some difference between the
+## minimum and maximum value.
+bgaExprsUse <- bgaExprs[rowMins(bgaExprs) < rowMaxs(bgaExprs),,drop=FALSE];
+#nrow(bgaExprsUse);
+
+geneBga <- bga(dataset=bgaExprsUse,
+   classvec=nameVector(colData(GeneSE)$Group,
+      colnames(GeneSE)),
+   type="coa");
+```
+
+#### BGA plotly visualization
+
+A convenient tool to view the output in 3-D employs
+the plotly R package (ref). A helper function is available
+from jampack called `bgaPlotly3d()`.
+
+At this point it is also helpful to define sample group
+colors which can help represent the experimental design.
+The function `colorjam::group2colors()` is used, but the
+main requirement is a vector of colors, where the vector
+names match the sample group names. If no `colorSub`
+is supplied, default colors will be defined.
+
+```{r bga_plotly, dependson=c("bga_plot","color_sub"), fig.height=8, fig.width=8}
+colorSubBga <- colorjam::group2colors(colData(GeneSE)$Group);
+
+geneBgaly <- bgaPlotly3d(geneBga,
+   axes=c(1,2,3),
+   colorSub=colorSubBga,
+   useScaledCoords=FALSE,
+   drawVectors="none",
+   drawSampleLabels=FALSE,
+   superGroups=gsub("_.+", "", salmonBga1$fac),
+   ellipseType="none",
+   sceneX=0, sceneY=1, sceneZ=1,
+   verbose=FALSE);
+salmonBga1ly;
+```
