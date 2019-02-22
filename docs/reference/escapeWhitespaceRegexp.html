@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Find overlaps between two GRangesList objects — findOverlapsGRL • splicejam</title>
+<title>Escape whitespace in regular expression patterns — escapeWhitespaceRegexp • splicejam</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Find overlaps between two GRangesList objects — findOverlapsGRL" />
+<meta property="og:title" content="Escape whitespace in regular expression patterns — escapeWhitespaceRegexp" />
 
-<meta property="og:description" content="Find overlaps between two GRangesList objects" />
+<meta property="og:description" content="Escape whitespace in regular expression patterns" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -114,83 +114,81 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Find overlaps between two GRangesList objects</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
-    <div class="hidden name"><code>findOverlapsGRL.Rd</code></div>
+    <h1>Escape whitespace in regular expression patterns</h1>
+    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-design.R'><code>R/jambio-design.R</code></a></small>
+    <div class="hidden name"><code>escapeWhitespaceRegexp.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Find overlaps between two GRangesList objects</p>
+    <p>Escape whitespace in regular expression patterns</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>findOverlapsGRL</span>(<span class='no'>GRL1</span>, <span class='no'>GRL2</span>, <span class='kw'>annoName1</span> <span class='kw'>=</span> <span class='st'>"name"</span>, <span class='kw'>annoName2</span> <span class='kw'>=</span> <span class='st'>"name"</span>,
-  <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>escapeWhitespaceRegexp</span>(<span class='no'>x</span>, <span class='kw'>whitespace</span> <span class='kw'>=</span> <span class='st'>"_ "</span>, <span class='kw'>maxN</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>GRL1</th>
-      <td><p>GRangesList query</p></td>
+      <th>x</th>
+      <td><p>character vector containing a regular expression pattern,
+or a character value that should be converted to a regular expression
+pattern.</p></td>
     </tr>
     <tr>
-      <th>GRL2</th>
-      <td><p>GRangesList subject</p></td>
+      <th>whitespace</th>
+      <td><p>character vector <code>length=1</code> containing whitespace
+characters, for example <code>" _"</code> will define space <code>" "</code> and
+underscore <code>"_"</code> both as whitespace characters.</p></td>
     </tr>
     <tr>
-      <th>annoName1</th>
-      <td><p>character value indicating either the colname of
-<code>values(GRL1)</code> to use as the name, or if <code>"name"</code> then it uses
-<code><a href='https://www.rdocumentation.org/packages/base/topics/names'>names(GRL1)</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>annoName2</th>
-      <td><p>character value indicating either the colname of
-<code>values(GRL2)</code> to use as the name, or if <code>"name"</code> then it uses
-<code><a href='https://www.rdocumentation.org/packages/base/topics/names'>names(GRL2)</a></code>.</p></td>
+      <th>maxN</th>
+      <td><p>integer value for maximum iterations of the substitution,
+unfortunately the regular expression logic only matches once per
+iteration per string.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>additional arguments are passed to
-<code><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/findOverlaps-methods'>GenomicRanges::findOverlaps()</a></code>, useful for customizing the overlap
-criteria.</p></td>
+      <td><p>additional arguments are ignored.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>Hits object, or the natural output from
-<code><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/findOverlaps-methods'>GenomicRanges::findOverlaps()</a></code> dependent upon the <code>...</code> arguments.</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function implements <code><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/findOverlaps-methods'>GenomicRanges::findOverlaps()</a></code> for the special
-case of two GRangesList objects, restricting results to those including
-the same GRangesList index in the subject and query.</p>
+    <p>This function is intended to test for unescaped whitespace characters
+in a regular expression pattern match string, and replace them with
+escaped whitespace characters, possibly expanding the allowed
+whitespace characters in the process.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam GRanges functions: <code><a href='annotateGRLfromGRL.html'>annotateGRLfromGRL</a></code>,
-  <code><a href='annotateGRfromGR.html'>annotateGRfromGR</a></code>,
-  <code><a href='assignGRLexonNames.html'>assignGRLexonNames</a></code>,
-  <code><a href='getFirstStrandedFromGRL.html'>getFirstStrandedFromGRL</a></code>,
-  <code><a href='sortGRL.html'>sortGRL</a></code></p></div>
+    <div class='dont-index'><p>Other jam string functions: <code><a href='sortSamples.html'>sortSamples</a></code>,
+  <code><a href='strsplitOrdered.html'>strsplitOrdered</a></code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"one two three"</span>, <span class='st'>"one[ ]two three"</span>, <span class='st'>"one[ 12] two three"</span>);
+<span class='fu'>escapeWhitespaceRegexp</span>(<span class='no'>x</span>);</div><div class='output co'>#&gt; [1] "one[_ ]+two[_ ]+three"      "one[ ]two[_ ]+three"       
+#&gt; [3] "one[ 12][_ ]+two[_ ]+three"</div><div class='input'><span class='co'># side-by-side summary of input and output</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>input</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='st'>'"'</span>, <span class='no'>x</span>, <span class='st'>'"'</span>),
+   <span class='kw'>output</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='st'>'"'</span>, <span class='fu'>escapeWhitespaceRegexp</span>(<span class='no'>x</span>), <span class='st'>'"'</span>))</div><div class='output co'>#&gt;                  input                       output
+#&gt; 1      "one two three"      "one[_ ]+two[_ ]+three"
+#&gt; 2    "one[ ]two three"        "one[ ]two[_ ]+three"
+#&gt; 3 "one[ 12] two three" "one[ 12][_ ]+two[_ ]+three"</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

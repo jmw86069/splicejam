@@ -65,7 +65,8 @@ sortSamples(c("Trt_12h", "Trt_9h", "Trt_1h", "Trt_9h", "Fixated", "Vehicle"),
 
 }
 \seealso{
-Other jam string functions: \code{\link{strsplitOrdered}}
+Other jam string functions: \code{\link{escapeWhitespaceRegexp}},
+  \code{\link{strsplitOrdered}}
 
 Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{codonUsage2df}},

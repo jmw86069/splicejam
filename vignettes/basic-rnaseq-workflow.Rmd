@@ -485,19 +485,21 @@ biological sample in its own group. The results will be equivalent
 to running normal COA (or PCA).
 
 ```{r run_bga}
-bgaExprThreshold <- 5;
-bgaExprs <- assays(GeneSE)$counts;
-## Apply a noise floor so all (data < threshold) is set to threshold
-bgaExprs[bgaExprs < bgaExprThreshold] <- bgaExprThreshold;
-## Then require rows to have some difference between the
-## minimum and maximum value.
-bgaExprsUse <- bgaExprs[rowMins(bgaExprs) < rowMaxs(bgaExprs),,drop=FALSE];
-#nrow(bgaExprsUse);
-
-geneBga <- bga(dataset=bgaExprsUse,
-   classvec=nameVector(colData(GeneSE)$Group,
-      colnames(GeneSE)),
-   type="coa");
+if (suppressPackageStartupMessages(require(made4))) {
+   bgaExprThreshold <- 5;
+   bgaExprs <- assays(GeneSE)$counts;
+   ## Apply a noise floor so all (data < threshold) is set to threshold
+   bgaExprs[bgaExprs < bgaExprThreshold] <- bgaExprThreshold;
+   ## Then require rows to have some difference between the
+   ## minimum and maximum value.
+   bgaExprsUse <- bgaExprs[rowMins(bgaExprs) < rowMaxs(bgaExprs),,drop=FALSE];
+   #nrow(bgaExprsUse);
+   
+   geneBga <- bga(dataset=bgaExprsUse,
+      classvec=nameVector(colData(GeneSE)$Group,
+         colnames(GeneSE)),
+      type="coa");
+}
 ```
 
 #### BGA plotly visualization
@@ -514,17 +516,19 @@ names match the sample group names. If no `colorSub`
 is supplied, default colors will be defined.
 
 ```{r bga_plotly, dependson=c("bga_plot","color_sub"), fig.height=8, fig.width=8}
-colorSubBga <- colorjam::group2colors(colData(GeneSE)$Group);
-
-geneBgaly <- bgaPlotly3d(geneBga,
-   axes=c(1,2,3),
-   colorSub=colorSubBga,
-   useScaledCoords=FALSE,
-   drawVectors="none",
-   drawSampleLabels=FALSE,
-   superGroups=gsub("_.+", "", salmonBga1$fac),
-   ellipseType="none",
-   sceneX=0, sceneY=1, sceneZ=1,
-   verbose=FALSE);
-salmonBga1ly;
+if (1 == 2 && suppressPackageStartupMessages(require(made4))) {
+   colorSubBga <- colorjam::group2colors(colData(GeneSE)$Group);
+   
+   geneBgaly <- bgaPlotly3d(geneBga,
+      axes=c(1,2,3),
+      colorSub=colorSubBga,
+      useScaledCoords=FALSE,
+      drawVectors="none",
+      drawSampleLabels=FALSE,
+      superGroups=gsub("_.+", "", geneBga$fac),
+      ellipseType="none",
+      sceneX=0, sceneY=1, sceneZ=1,
+      verbose=FALSE);
+   salmonBga1ly;
+}
 ```

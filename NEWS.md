@@ -1,3 +1,13 @@
+# splicejam version 0.0.15.900
+
+## new functions
+
+* `curateVtoDF()`, `curateDFtoDF()` are data curation functions
+to curate a vector, or a data.frame, into a data.frame with
+consistent, usable nomenclature for downstream analysis. They use
+a flexible yaml format that should help automate analysis pipelines
+that start with raw data file import.
+
 # splicejam version 0.0.14.900
 
 ## bug fixes

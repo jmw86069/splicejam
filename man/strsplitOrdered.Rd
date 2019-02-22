@@ -48,6 +48,7 @@ strsplitOrdered(iGroups, "_");
 
 }
 \seealso{
-Other jam string functions: \code{\link{sortSamples}}
+Other jam string functions: \code{\link{escapeWhitespaceRegexp}},
+  \code{\link{sortSamples}}
 }
 \concept{jam string functions}

@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.14.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.15.900</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@
       <h1>Splicejam basic RNAseq workflow</h1>
                         <h4 class="author">James M. Ward</h4>
             
-            <h4 class="date">2019-02-06</h4>
+            <h4 class="date">2019-02-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jmw86069/splicejam/blob/master/vignettes/basic-rnaseq-workflow.Rmd"><code>vignettes/basic-rnaseq-workflow.Rmd</code></a></small>
       <div class="hidden name"><code>basic-rnaseq-workflow.Rmd</code></div>
@@ -295,7 +295,7 @@ numDetectedGenes &lt;-<span class="st"> </span><span class="kw"><a href="https:/
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/format">format</a></span>(<span class="dt">big.mark=</span><span class="st">","</span>, numDetectedGenes),
    <span class="st">" genes."</span>);
 <span class="co">#&gt; Warning: package 'colorspace' was built under R version 3.5.2</span>
-<span class="co">#&gt; ##  (17:14:13) 06Feb2019:  Defined 39,111 detected Tx representing 15,168 genes.</span></code></pre></div>
+<span class="co">#&gt; ##  (17:16:35) 22Feb2019:  Defined 39,111 detected Tx representing 15,168 genes.</span></code></pre></div>
 <ul>
 <li>**{r format(numDetectedTx, scientific=FALSE, big.mark=“,”)} detected transcripts</li>
 <li>**{r format(numDetectedGenes, scientific=FALSE, big.mark=“,”)} detected genes</li>
@@ -321,16 +321,16 @@ iWhich &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdoc
 <span class="co">#&gt; subscript is an array, passing it thru as.vector() first</span>
 jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/minorLogTicksAxis">minorLogTicksAxis</a></span>(<span class="dv">1</span>,
    <span class="dt">logBase=</span><span class="dv">2</span>, <span class="dt">displayBase=</span><span class="dv">10</span>, <span class="dt">offset=</span><span class="dv">1</span>);
-<span class="co">#&gt; ##  (17:14:13) 06Feb2019:  adjusting logBase to displayBase.</span>
+<span class="co">#&gt; ##  (17:16:35) 22Feb2019:  adjusting logBase to displayBase.</span>
 <span class="co">#&gt; Warning in any(majorLabels): coercing argument of type 'double' to logical</span>
-<span class="co">#&gt; ##  (17:14:13) 06Feb2019:  majorTicks:-3.459432,-1.000000,0.000000,1.000000,3.459432,6.658211 </span>
-<span class="co">#&gt; ##  (17:14:13) 06Feb2019:  majorLabels:-10,-1,0,1,10,100</span>
+<span class="co">#&gt; ##  (17:16:35) 22Feb2019:  majorTicks:-3.459432,-1.000000,0.000000,1.000000,3.459432,6.658211 </span>
+<span class="co">#&gt; ##  (17:16:35) 22Feb2019:  majorLabels:-10,-1,0,1,10,100</span>
 jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/minorLogTicksAxis">minorLogTicksAxis</a></span>(<span class="dv">2</span>,
    <span class="dt">logBase=</span><span class="dv">2</span>, <span class="dt">displayBase=</span><span class="dv">10</span>, <span class="dt">offset=</span><span class="dv">1</span>);
-<span class="co">#&gt; ##  (17:14:13) 06Feb2019:  adjusting logBase to displayBase.</span>
+<span class="co">#&gt; ##  (17:16:36) 22Feb2019:  adjusting logBase to displayBase.</span>
 <span class="co">#&gt; Warning in any(majorLabels): coercing argument of type 'double' to logical</span>
-<span class="co">#&gt; ##  (17:14:14) 06Feb2019:  majorTicks:-3.459432,-1.000000,0.000000,1.000000,3.459432,6.658211 </span>
-<span class="co">#&gt; ##  (17:14:14) 06Feb2019:  majorLabels:-10,-1,0,1,10,100</span>
+<span class="co">#&gt; ##  (17:16:36) 22Feb2019:  majorTicks:-3.459432,-1.000000,0.000000,1.000000,3.459432,6.658211 </span>
+<span class="co">#&gt; ##  (17:16:36) 22Feb2019:  majorLabels:-10,-1,0,1,10,100</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/abline">abline</a></span>(<span class="dt">v=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxExpr),
    <span class="dt">h=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxTPMExpr),
    <span class="dt">lty=</span><span class="st">"dashed"</span>,
@@ -371,30 +371,6 @@ jamma<span class="op">::</span><span class="kw"><a href="https://www.rdocumentat
    <span class="dt">groupSuffix=</span><span class="st">""</span>,
    <span class="dt">titleCexFactor=</span><span class="fl">1.2</span>,
    <span class="dt">useMean=</span><span class="ot">TRUE</span>);
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/title">title</a></span>(<span class="dt">outer=</span><span class="ot">TRUE</span>,
    <span class="dt">main=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MA-plot using Salmon pseudocounts</span><span class="ch">\n</span><span class="st">"</span>,
       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Showing pseudocount cutoff value approximately "</span>,
@@ -420,30 +396,6 @@ jamma<span class="op">::</span><span class="kw"><a href="https://www.rdocumentat
    <span class="dt">displayMAD=</span><span class="ot">TRUE</span>,
    <span class="dt">titleCexFactor=</span><span class="fl">1.2</span>,
    <span class="dt">useMean=</span><span class="ot">TRUE</span>);
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
-<span class="co">#&gt; Warning in rep(x, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in rep(y, length.out = n): 'x' is NULL so the result will be NULL</span>
-<span class="co">#&gt; Warning in text.default(x = textX[whichLabels], y = textY[whichLabels], :</span>
-<span class="co">#&gt; "outer" is not a graphical parameter</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/title">title</a></span>(<span class="dt">outer=</span><span class="ot">TRUE</span>,
    <span class="dt">main=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MA-plot using Salmon TPM</span><span class="ch">\n</span><span class="st">"</span>,
       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Showing TPM cutoff value approximately "</span>,
@@ -478,7 +430,7 @@ iDesign &lt;-<span class="st"> </span>iDC<span class="op">$</span>iDesign;
 iContrasts &lt;-<span class="st"> </span>iDC<span class="op">$</span>iContrasts;
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"iDesign:"</span>);
-<span class="co">#&gt; ##  (17:14:20) 06Feb2019:  iDesign:</span>
+<span class="co">#&gt; ##  (17:16:42) 22Feb2019:  iDesign:</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(iDesign);
 <span class="co">#&gt;           A B</span>
 <span class="co">#&gt; ERR188297 1 0</span>
@@ -488,7 +440,7 @@ iContrasts &lt;-<span class="st"> </span>iDC<span class="op">$</span>iContrasts;
 <span class="co">#&gt; ERR188021 1 0</span>
 <span class="co">#&gt; ERR188356 0 1</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"iContrasts:"</span>);
-<span class="co">#&gt; ##  (17:14:20) 06Feb2019:  iContrasts:</span>
+<span class="co">#&gt; ##  (17:16:42) 22Feb2019:  iContrasts:</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(iContrasts);
 <span class="co">#&gt;       Contrasts</span>
 <span class="co">#&gt; Levels B-A</span>
@@ -557,10 +509,64 @@ diffSpliceHitsL &lt;-<span class="st"> </span><span class="kw"><a href="https://
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/subset">subset</a></span>(iDF, iDF[[hitColname]] <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>)[,geneColname]);
 });
 <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"Differential isoform hits per contrast:"</span>);
-<span class="co">#&gt; ##  (17:14:23) 06Feb2019:  Differential isoform hits per contrast:</span>
+<span class="co">#&gt; ##  (17:16:46) 22Feb2019:  Differential isoform hits per contrast:</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/sdim">sdim</a></span>(diffSpliceHitsL));
 <span class="co">#&gt;     rows     class</span>
 <span class="co">#&gt; B-A  661 character</span></code></pre></div>
+</div>
+<div id="export-diffsplice-results-to-excel" class="section level4">
+<h4 class="hasAnchor">
+<a href="#export-diffsplice-results-to-excel" class="anchor"></a>Export DiffSplice results to Excel</h4>
+<p>Each contrast is summarized into two data.frame objects, representing each transcript isoform result per row, and aggregated into a per-gene summary value. For the purpose of this workflow, the per-gene summary will be saved, however the same basic steps can be applied to the per-isoform data.</p>
+</div>
+</div>
+</div>
+<div id="pcabga-clustering" class="section level2">
+<h2 class="hasAnchor">
+<a href="#pcabga-clustering" class="anchor"></a>PCA/BGA Clustering</h2>
+<p>Either transcript- or gene-level data may be clustered using an ordination technique such as principal components analysis (PCA) or correspondence analysis (CCA or CA). For this workflow, between groups analysis (BGA) will be employed, as provided by the made4 Bioconductor package (Culhane et al.) In short, BGA enhances a basic ordination method by re-ordering components based upon maximal sample group separation, as opposed to maximal sample separation done by PCA. As a result, BGA is particularly effective at identifying and visualizing effects relevant to grouped experimental design, and is relatively tolerant of sources of technical noise.</p>
+<div id="run-bga" class="section level3">
+<h3 class="hasAnchor">
+<a href="#run-bga" class="anchor"></a>Run BGA</h3>
+<p>The BGA technique is based upon results from an underlying clustering method such as PCA or COA, and therefore inherits potential weaknesses of such tools. In short, it is sometimes helpful to filter genes or transcripts by minimum expression, roughly above the level of statistical noise.</p>
+<p>For the example below, the gene summary TPM values are used as input, and correspondence analysis (COA) is chosen as the underlying clustering algorithm.</p>
+<p>In the absence of sample groups, BGA can be run with each biological sample in its own group. The results will be equivalent to running normal COA (or PCA).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(made4))) {
+   bgaExprThreshold &lt;-<span class="st"> </span><span class="dv">5</span>;
+   bgaExprs &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(GeneSE)<span class="op">$</span>counts;
+   ## Apply a noise floor so all (data &lt; threshold) is set to threshold
+   bgaExprs[bgaExprs <span class="op">&lt;</span><span class="st"> </span>bgaExprThreshold] &lt;-<span class="st"> </span>bgaExprThreshold;
+   ## Then require rows to have some difference between the
+   ## minimum and maximum value.
+   bgaExprsUse &lt;-<span class="st"> </span>bgaExprs[<span class="kw">rowMins</span>(bgaExprs) <span class="op">&lt;</span><span class="st"> </span><span class="kw">rowMaxs</span>(bgaExprs),,drop=<span class="ot">FALSE</span>];
+   <span class="co">#nrow(bgaExprsUse);</span>
+   
+   geneBga &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/made4/topics/bga">bga</a></span>(<span class="dt">dataset=</span>bgaExprsUse,
+      <span class="dt">classvec=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/nameVector">nameVector</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(GeneSE)<span class="op">$</span>Group,
+         <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(GeneSE)),
+      <span class="dt">type=</span><span class="st">"coa"</span>);
+}
+<span class="co">#&gt; Warning: package 'gplots' was built under R version 3.5.2</span></code></pre></div>
+<div id="bga-plotly-visualization" class="section level4">
+<h4 class="hasAnchor">
+<a href="#bga-plotly-visualization" class="anchor"></a>BGA plotly visualization</h4>
+<p>A convenient tool to view the output in 3-D employs the plotly R package (ref). A helper function is available from jampack called <code><a href="../reference/bgaPlotly3d.html">bgaPlotly3d()</a></code>.</p>
+<p>At this point it is also helpful to define sample group colors which can help represent the experimental design. The function <code><a href="https://www.rdocumentation.org/packages/colorjam/topics/group2colors">colorjam::group2colors()</a></code> is used, but the main requirement is a vector of colors, where the vector names match the sample group names. If no <code>colorSub</code> is supplied, default colors will be defined.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="dv">1</span> <span class="op">==</span><span class="st"> </span><span class="dv">2</span> <span class="op">&amp;&amp;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(made4))) {
+   colorSubBga &lt;-<span class="st"> </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/group2colors">group2colors</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(GeneSE)<span class="op">$</span>Group);
+   
+   geneBgaly &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bgaPlotly3d.html">bgaPlotly3d</a></span>(geneBga,
+      <span class="dt">axes=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),
+      <span class="dt">colorSub=</span>colorSubBga,
+      <span class="dt">useScaledCoords=</span><span class="ot">FALSE</span>,
+      <span class="dt">drawVectors=</span><span class="st">"none"</span>,
+      <span class="dt">drawSampleLabels=</span><span class="ot">FALSE</span>,
+      <span class="dt">superGroups=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">gsub</a></span>(<span class="st">"_.+"</span>, <span class="st">""</span>, geneBga<span class="op">$</span>fac),
+      <span class="dt">ellipseType=</span><span class="st">"none"</span>,
+      <span class="dt">sceneX=</span><span class="dv">0</span>, <span class="dt">sceneY=</span><span class="dv">1</span>, <span class="dt">sceneZ=</span><span class="dv">1</span>,
+      <span class="dt">verbose=</span><span class="ot">FALSE</span>);
+   salmonBga1ly;
+}</code></pre></div>
 </div>
 </div>
 </div>
@@ -577,6 +583,7 @@ diffSpliceHitsL &lt;-<span class="st"> </span><span class="kw"><a href="https://
       <li><a href="#import-salmon-transcript-data">Import Salmon transcript data</a></li>
       <li><a href="#import-salmon-gene-data-using-tx2genedf">Import Salmon gene data using tx2geneDF</a></li>
       <li><a href="#transcript-level-analysis-steps">Transcript-level analysis steps</a></li>
+      <li><a href="#pcabga-clustering">PCA/BGA Clustering</a></li>
       </ul>
 </div>
       </div>

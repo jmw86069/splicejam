@@ -758,3 +758,613 @@ strsplitOrdered <- function
    });
    return(soLordered);
 }
+
+#' Curate vector into a data.frame
+#'
+#' Curate vector into a data.frame
+#'
+#' This function is intended to curate a vector into a data.frame
+#' with specifically assigned colnames. It is intended to be a more
+#' generic method of curation annotations than splitting a characteer
+#' string by some delimiter, for example where the order of annotations
+#' may differ entry to entry, but where there are known patterns
+#' that are sufficient to describe an annotation column.
+#'
+#' That said, if annotations can be reliably split using a delimiter,
+#' that method is often a better choice. In that case, this function
+#' may be useful to make input data fit the expected format.
+#'
+#' For example from `c("Sample1_WT_LPS_1hour", "Sample2_KO_LPS_2hours")`
+#' we can tell whether a sample is `KO` or `WT` by looking for that
+#' substring.
+#'
+#' The `curationL` is a list with the following properties:
+#'
+#' * `names(curationL)` represent colnames to create in the output
+#' data.frame.
+#' * each list element contains a list of two-element vectors
+#' * each two-element vector contains a substitution pattern and
+#' substitution replacement
+#'
+#' When `matchWholeString=TRUE` the substitution patterns are extended
+#' to match the whole string, using parentheses around the main pattern.
+#' For example if the pattern is "KO" and replacement is "KO", then the
+#' pattern is extended to "^.*KO.*$", so the entire string will be
+#' replaced with "KO".
+#'
+#' Typically, `curationL` is derived from YAML formatted files, and
+#' loaded into a list with this type of setup:
+#'
+#' `curationL <- yaml::yaml.load_file("curation.yaml")`.
+#'
+#' The generic YAML format is as follows:
+#'
+#' NewColname_1:
+#' - - patternA
+#'   - replacementA
+#' - - patternB
+#'   - replacementB
+#' NewColname_2:
+#' - - patternC
+#'   - replacementC
+#'
+#' A specific example:
+#'
+#' Treatment:
+#' - - LPS
+#'   - LPS
+#' - - Control|cntrl|ctrl
+#'   - Control
+#' Genotype:
+#' - - WT|wildtype
+#'   - WT
+#' - - KO|knockout|knock
+#'   - KO
+#'
+#' @param x character vector as input
+#' @param curationL list containing curation rules, as described above, or
+#'    a character vector of yaml files, which will be imported into
+#'    a list format using `yaml::yaml.load_file()`.
+#' @param matchWholeString logical indicating whether to match the whole
+#'    string for each entry in `x`. If `matchWholeString=TRUE` then
+#'    the substitution patterns are all extended where needed, in order
+#'    to expand the pattern to match the whole string.
+#' @param trimWhitespace logical indicating whether to trim leading and
+#'    trailing whitespace characters from `x`.
+#' @param whitespace character vector containing whitespace characters.
+#' @param expandWhitespace logical indicating whether substitution patterns
+#'    should be modified so any whitespace characters in the pattern will
+#'    match the defined `whitespace` characters. For example when
+#'    `expandWhitespace=TRUE`, the pattern `"_KO_"` will be modified to
+#'    `"[ _]+KO[ _]+"` so the pattern will match `" KO "` and `"_KO_"`.
+#' @param previous optional data.frame whose colnames may be present as
+#'    names in `curationL`, or single vector with `length(previous)=length(x)`.
+#'    If `previous` is supplied as a data.frame, and the curation colname
+#'    is present in `colnames(previous)`, then unmatched substutition
+#'    patterns will retain the data in the relevant column of `previous`.
+#'    This mechanism allows editing single values in an existing column,
+#'    based upon pattern matching in another column.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
+#' @family jam design functions
+#'
+#' @examples
+#' set.seed(123);
+#' x <- paste(
+#'    paste0("file",
+#'       sapply(1:5, function(i) {
+#'          paste(sample(LETTERS, 5), collapse="")
+#'       })),
+#'    rep(c("WT", "Mut"), each=3),
+#'    rep(c("Veh","EtOH"), 3),
+#'    sep="_");
+#' x;
+#'
+#' curationYaml <- c(
+#' "Genotype:
+#' - - WT|wildtype
+#'   - WT
+#' - - Mut|mutant
+#'   - Mut
+#' Treatment:
+#' - - Veh|EtOH
+#'   - \\1
+#' File:
+#' - - file([A-Z]+)
+#'   - \\1
+#' FileStem:
+#' - - file([A-Z]+)
+#'   - \\2");
+#' # print the curation.yaml to show its structure
+#' cat(curationYaml)
+#' curationL <- yaml::yaml.load(curationYaml);
+#' curateVtoDF(x, curationL);
+#'
+#' @export
+curateVtoDF <- function
+(x,
+ curationL=NULL,
+ matchWholeString=TRUE,
+ trimWhitespace=TRUE,
+ whitespace="_ ",
+ expandWhitespace=TRUE,
+ previous=NULL,
+ verbose=TRUE,
+ ...)
+{
+   ## Purpose is to take one vector x and apply a list of curation
+   ## rules to the values, thereby creating a data.frame whose columns
+   ## match the names of the curationL list.
+   ##
+   ## matchWholeString=TRUE will apply the regular expression pattern
+   ## match to the whole string, even for patterns that do not
+   ## specify leading or trailing match '^' and '$' respectively.
+   ##
+   ## trimWhitespace=TRUE will trim leading and trailing whitespace
+   ## characters, including underscore '_' and dash '-'.
+   ##
+   ## expandWhitespace=TRUE will expand pattern matching to include
+   ## any characters in whitespace, for example to match underscore '_'
+   ## and space ' ' in the curation, which is helpful when file names
+   ## or column headers may have been edited to replace spaces with
+   ## non-whitespace characters.
+   ##
+   ## previous is a data.frame (or named list) with nrow=length(x)
+   ## that contains values to be used when the grep patterns do not
+   ## match any entries in x. It is mainly intended to be used by
+   ## curateDFtoDF() for more complex column curation.
+   ##
+   ## Note that x is used to create rownames using makeNames(x) which
+   ## ensures that rownames are unique. In this case, the resulting
+   ## rownames will not match the input vector x.
+   ##
+
+   ## Make sure input whitespace does not already have square brackets
+   whitespace <- gsub("^[[]|[]][+]*$", "", whitespace);
+   ## Generate a pattern to remove leading and trailing whitespace
+   trimRegexp <- paste0("^[", whitespace, "]+|[",
+      whitespace, "]+$");
+
+   ## First check if input is a list, or data.frame, and convert as needed
+   if (igrepHas("data.frame", class(curationL))) {
+      curationL <- curationDFtoL(curationL,
+         whitespace=whitespace);
+   }
+   if (igrepHas("character", class(curationL)) &&
+         all(file.exists(curationL))) {
+      curationL <- do.call(c, lapply(curationL, yaml::yaml.load_file));
+   }
+   if (!igrepHas("list", class(curationL))) {
+      stop("curateVtoDF() requires curationL in list format.");
+   }
+
+   expandGrep <- function
+   (iGrep1)
+   {
+      ## Purpose is to expand grep pattern to include the whole string
+      ## Todo: adjust iGrep2 replacement to increment the numeric
+      ## references as needed.
+      if (igrepHas("[^[][\\^]|^\\^", iGrep1)) {
+         ## Do not add the leading ^
+         if (igrepHas("[$]", iGrep1)) {
+            ## Do not add trailing $
+         } else {
+            iGrep1 <- paste0("(", iGrep1, ").*$");
+         }
+      } else {
+         if (igrepHas("[$]", iGrep1)) {
+            ## Do not add trailing $
+            iGrep1 <- paste0("^.*(", iGrep1, ")");
+         } else {
+            iGrep1 <- paste0("^.*(", iGrep1, ").*$");
+         }
+      }
+      iGrep1;
+   }
+   ## Assignment here to force evaluation in this environment
+   previous <- previous;
+
+   curationValuesL <- lapply(nameVectorN(curationL), function(iName){
+      if (verbose) {
+         printDebug("curateVtoDF(): ",
+            "Creating column:",
+            iName);
+      }
+      iGrepL <- curationL[[iName]];
+      x1 <- x;
+      ## Todo: make it only replace matching entries, otherwise
+      ## substitute NA for non-matched patterns.
+      x1which <- integer(0);
+      ## Iterate each from,to substitution for this column
+      for (iGrepLx in iGrepL) {
+         iGrep1 <- iGrepLx[[1]];
+         if (expandWhitespace) {
+            iGrep1 <- escapeWhitespaceRegexp(iGrep1,
+               whitespace=whitespace);
+         }
+         iGrep2 <- iGrepLx[[2]];
+         if (matchWholeString) {
+            ## Todo: adjust iGrep2 so the numeric references are
+            ## also changed where needed
+            iGrep1 <- expandGrep(iGrep1);
+         }
+         ## Non-destructive replacement only using values
+         ## matching the pattern
+         x1which1 <- grep(iGrep1, x1);
+         x1which <- unique(c(x1which, x1which1));
+         if (length(x1which) > 0) {
+            x1[x1which] <- gsub(iGrep1,
+               iGrep2,
+               x1[x1which]);
+         }
+      }
+      if (trimWhitespace && igrepHas(trimRegexp, x1)) {
+         if (verbose) {
+            printDebug("curateVtoDF(): ",
+               "   Trimming leading/trailing whitespace.");
+         }
+         x1 <- gsub(trimRegexp, "", x1);
+      }
+      ## Check for previous data, only when the grep pattern
+      ## has not matched every entry in x
+      if (length(previous) > 0 && length(x1which) < length(x)) {
+         if (is.vector(previous)) {
+            previousV <- previous;
+            previousV[x1which] <- x1[x1which];
+            ## Update the previous data
+            ## Must check to see if the scope inside lapply() works as expected
+            previous <- previousV;
+            assign("previous", previous, pos=-1);
+         } else if (iName %in% colnames(previous)) {
+            previousV <- previous[[iName]];
+            previousV[x1which] <- x1[x1which];
+            ## Update the previous data.frame
+            ## Must check to see if the scope inside lapply() works as expected
+            previous[[iName]] <- previousV;
+            assign("previous", previous, pos=-1);
+         } else {
+            ## Cannot do the thing
+            previousV <- x1;
+         }
+         x1 <- previousV;
+         if (verbose) {
+            printDebug("curateVtoDF(): ",
+               "   Curated a subset of values, and used previous data otherwise.");
+         }
+      }
+      x1;
+   });
+   iDF <- data.frame(check.names=FALSE,
+      stringsAsFactors=FALSE,
+      do.call(cbind, curationValuesL));
+   rownames(iDF) <- makeNames(x);
+   iDF;
+}
+
+#' Curate data.frame into a data.frame
+#'
+#' Curate data.frame into a data.frame
+#'
+#' This function takes a data.frame as input, where one or more
+#' columns are expected to be used in data curation to create
+#' another data.frame. This situation is useful when the final
+#' desired data.frame depends upon values in more than one
+#' column of the input data.frame.
+#'
+#' Specifically, this function is a wrapper around `curateVtoDF()`.
+#'
+#' Typically, `curationL2` is derived from YAML formatted files, and
+#' loaded into a list with this type of setup:
+#'
+#' `curationL2 <- yaml::yaml.load_file("curation.yaml")`.
+#'
+#' The structure of curationL2:
+#'
+#' * `curationL2` is a list object, whose `names(curationL2)` are values
+#' in `colnames(x)` and represent column of data used as input.
+#' * each list element in `curationL2` is also a list, whose
+#' `names` represent colnames to create or update in the output
+#' `data.frame`.
+#' * these lists contain character vectors `length=2` containing
+#' a regular expression substitution pattern (see `base::gsub`),
+#' and a replacement pattern.
+#'
+#' The list is processed in order, and names can be repeated as
+#' necessary to apply the proper substitution patterns in the
+#' order required. New columns created during the curation may also
+#' be used in later curation steps.
+#'
+#' Example curation.yaml YAML format:
+#'
+#' From_ColnameA:
+#'   To_ColnameC:
+#'   - - patternA
+#'     - replacementA
+#'   - - patternB
+#'     - replacementB
+#'   To_ColnameD:
+#'   - - patternC
+#'     - replacementC
+#'   - - patternD
+#'     - replacementD
+#' From_ColnameB:
+#'   To_ColnameE:
+#'   - - patternE
+#'     - replacementE
+#'   - - patternF
+#'     - replacementF
+#'
+#' When the rule creates a colname already present in colnames(x),
+#' then only values specifically matched by the substitution patterns
+#' are modified. For example, this technique can be used to modify
+#' the group assignment of a Sample_ID:
+#'
+#' Sample_ID:
+#'   Group:
+#'   - - Sample1234
+#'     - WildType
+#'
+#' The rules above will match `"Sample1234"` in the `"Sample_ID"` column
+#' of x, and assign `"WildType"` to the `"Group"` column only for
+#' matching entries.
+#'
+#' In addition to values in `colnames(x)`, the "from" value may
+#' also be `"rownames"` which will cause the curation rules to
+#' act upon values in `rownames(x)` instead of values in a specific
+#' column of `x`.
+#'
+#' Note that if a "to" column does not already exist, then all values
+#' in the "from" column which do not match any substitution pattern
+#' will be used to fill the remainder of the "to" column.
+#' Once the "to" column exists, then only entries with a matching
+#' substitution pattern are replaced using the replacement pattern.
+#'
+#' For example, for NanoString data, the column `"CartridgeWell"` can be
+#' derived from `rownames(x)`, after which the new column `"CartridgeWell"`
+#' can be used in subsequent curation steps.
+#'
+#' Additional notes:
+#'
+#' * The substitution pattern is automatically expanded to include the
+#' whole input string, if not already present. For example supplying `"WT"`
+#' will match `"^.*(WT).*$"`. However if the substitution pattern is
+#' `"^.*(WT).*$"` then it will not be expanded.
+#' * When the substitution pattern is expanded, the string is also enclosed
+#' in parentheses `"()"` which means the replacement can use `"\\1"` to
+#' use the successfully matched pattern as the output string. For example
+#' if `"WT"` and `"Mutant"` are always valid genotypes, then it would
+#' be sufficient to define substitution pattern `"WT|Mutant"` and
+#' replacement pattern `"\\1"`.
+#' * When the substitution pattern is expanded, and the string is enclosed
+#' in parentheses, any parentheses in the substitution pattern are therefore
+#' one level deeper, for example `"file([A-Z]+)"` will be expanded to
+#' `"^.*(file([A-Z]+)).*$"`. See the example below, where the replacement
+#' pattern uses `"\\2"` to use only the internal parentheses.
+#'
+#'
+#' @param x data.frame
+#' @param curationL2 list with curation rules as described above, or
+#'    a character vector of yaml files, which will be imported into
+#'    a list format using `yaml::yaml.load_file()`.
+#' @param matchWholeString,trimWhitespace,whitespace,expandWhitespace
+#'    arguments passed to `curateVtoDF()`.
+#' @param keepAllColnames logical indicating whether to keep all colnames
+#'    from `x` in addition to those created during curation.
+#'    `keepAllColnames=FALSE` will only keep colnames specifically
+#'    described in the `curationL2` list, while `keepAllColnames=TRUE`
+#'    will keep all original colnames, and any colnames added during
+#'    the curation steps.
+#' @param verbose logical indicating whether to print verbose output
+#' @param ... additional arguments are passed to `curateVtoDF()`
+#'
+#' @family jam design functions
+#'
+#' @examples
+#' set.seed(123);
+#' df <- data.frame(filename=paste(
+#'    paste0("file",
+#'       sapply(1:5, function(i) {
+#'          paste(sample(LETTERS, 5), collapse="")
+#'       })),
+#'    rep(c("WT", "Mut"), each=3),
+#'    rep(c("Veh","EtOH"), 3),
+#'    sep="_"));
+#' df;
+#'
+#' # Note a couple ways of accomplishing similar results:
+#' # Genotype matches "WT|wildtype" and replaces with "WT",
+#' # then matches "Mut|mutant" and replaces with "Mut"
+#' #
+#' # Treatment matches "Veh|EtOH" and simply replaces with
+#' # whatever was matched
+#' curationYaml <- c(
+#' "filename:
+#'   Genotype:
+#'   - - WT|wildtype
+#'     - WT
+#'   - - Mut|mutant
+#'     - Mut
+#'   Treatment:
+#'   - - Veh|EtOH
+#'     - \\1
+#'   File:
+#'   - - file([A-Z]+)
+#'     - \\1
+#'   FileStem:
+#'   - - file([A-Z]+)
+#'     - \\2");
+#' # print the curation.yaml to show its structure
+#' cat(curationYaml)
+#' curationL <- yaml::yaml.load(curationYaml);
+#' curateDFtoDF(df, curationL);
+#'
+#' @export
+curateDFtoDF <- function
+(x,
+ curationL2=NULL,
+ matchWholeString=TRUE,
+ trimWhitespace=TRUE,
+ whitespace="_ ",
+ expandWhitespace=TRUE,
+ keepAllColnames=TRUE,
+ verbose=TRUE,
+ ...)
+{
+   ## Purpose is to provide a wrapper around curateVtoDF() when
+   ## the input data is a data.frame.
+   ##
+   ## In this case, curationL is a list of curationL lists, named
+   ## by the colname in x to use. Each column name is used in order,
+   ## to subsequent call to curateVtoDF()
+   ##
+   ## One special case, "rownames" is allowed as a list name, which
+   ## refers to the rownames(x) and not a formal column of x.
+   ##
+   if (!igrepHas("data.*frame|matrix|tibble|tbl", class(x))) {
+      stop("curateDFtoDF() requires x as a data.frame or compatible object.");
+   }
+   ## Allow for curationL2 to be a vector of yaml files
+   if (igrepHas("character", class(curationL2)) &&
+         all(file.exists(curationL2))) {
+      curationL2 <- do.call(c, lapply(curationL2, yaml::yaml.load_file));
+   }
+
+   for (i in names(curationL2)) {
+      if (verbose) {
+         jamba::printDebug("curateDFtoDF(): ",
+            "Applying curation to column:",
+            i);
+      }
+      if (i %in% "rownames") {
+         iV <- rownames(x);
+      } else if (i %in% colnames(x)) {
+         iV <- x[[i]];
+      } else {
+         if (verbose) {
+            jamba::printDebug("curateDFtoDF(): ",
+               "Skipping rules for:",
+               i);
+         }
+         next;
+      }
+      if (any(names(curationL2[[i]]) %in% colnames(x))) {
+         ## If colnames already exist, send it as previous data
+         ## to be kept until curated
+         keepNames <- intersect(names(curationL2[[i]]),
+            colnames(x));
+         previous <- x[,keepNames,drop=FALSE];
+      } else {
+         previous <- NULL;
+      }
+      iDF <- curateVtoDF(x=iV,
+         curationL=curationL2[[i]],
+         matchWholeString=matchWholeString,
+         trimWhitespace=trimWhitespace,
+         whitespace=whitespace,
+         expandWhitespace=expandWhitespace,
+         previous=previous,
+         verbose=verbose,
+         ...);
+      ## Add data.frame to the input data, which allows the new
+      ## data to be available for use by subsequent rounds of curation
+      x[,colnames(iDF)] <- iDF;
+   }
+   ## If not returning all colnames, return only those specifically curated
+   if (!keepAllColnames) {
+      curatedNames <- intersect(colnames(x),
+         unique(unlist(lapply(curationL2, names))));
+      x <- x[,curatedNames,drop=FALSE];
+   } else {
+      curatedNames2 <- unique(unlist(lapply(curationL2, names)));
+      curatedNames <- c(intersect(colnames(x), curatedNames2),
+         setdiff(colnames(x), curatedNames2));
+      x <- x[,curatedNames,drop=FALSE];
+   }
+   return(x);
+}
+
+#' Escape whitespace in regular expression patterns
+#'
+#' Escape whitespace in regular expression patterns
+#'
+#' This function is intended to test for unescaped whitespace characters
+#' in a regular expression pattern match string, and replace them with
+#' escaped whitespace characters, possibly expanding the allowed
+#' whitespace characters in the process.
+#'
+#' @param x character vector containing a regular expression pattern,
+#'    or a character value that should be converted to a regular expression
+#'    pattern.
+#' @param whitespace character vector `length=1` containing whitespace
+#'    characters, for example `" _"` will define space `" "` and
+#'    underscore `"_"` both as whitespace characters.
+#' @param maxN integer value for maximum iterations of the substitution,
+#'    unfortunately the regular expression logic only matches once per
+#'    iteration per string.
+#' @param ... additional arguments are ignored.
+#'
+#' @family jam string functions
+#'
+#' @examples
+#' x <- c("one two three", "one[ ]two three", "one[ 12] two three");
+#' escapeWhitespaceRegexp(x);
+#' # side-by-side summary of input and output
+#' data.frame(input=paste0('"', x, '"'),
+#'    output=paste0('"', escapeWhitespaceRegexp(x), '"'))
+#'
+#' @export
+escapeWhitespaceRegexp <- function
+(x,
+ whitespace="_ ",
+ maxN=20,
+ ...)
+{
+   ## Purpose is to test for unescaped whitespace in a regular expression
+   ## pattern, and replace any unescaped whitespace with a suitable
+   ## regular expression pattern.
+   ##
+   ## It checks for whitespace which does not follow an opening [ bracket,
+   ## and does not check for closing ] bracket since the absence of ]
+   ## closing bracket would already cause an error with gsub().
+   ##
+   ## maxN is the maximum iterations when matching patterns, since it
+   ## can only typically match one pattern per iteration as written.
+   ## Once an iteration does not result in a change to x then iterations
+   ## are stopped.
+   ##
+   ## Allowed conditions:
+   ## start-of-line or closing bracket ],
+   ## followed by no opening bracket [,
+   ## followed by whitespace
+   ##
+   ## Test with x <- c("one two three", "one[ ]two three", "one[ 12] two three");
+   ##
+   ## Make sure input whitespace does not already have square brackets
+   whitespace <- gsub("^[[]|[]][+]*$",
+      "",
+      whitespace);
+
+   ## Define the patterns allowed
+   whitespaceN3 <- paste0("((^|[]])[^[",
+      whitespace,
+      "]*)([",
+      whitespace,
+      "]+)");
+   ## Define the substitution
+   whitespaceT3 <- paste0("\\1[",
+      whitespace,
+      "]+");
+
+   ## Iterate multiple times as needed, in order to escape each
+   ## occurrence of whitespace
+   for (i in 1:maxN) {
+      iWhich <- igrep(whitespaceN3, x);
+      xNew <- gsub(whitespaceN3, whitespaceT3, x[iWhich]);
+      if (all(xNew == x[iWhich])) {
+         break;
+      }
+      x[iWhich] <- xNew;
+   }
+   x;
+}
