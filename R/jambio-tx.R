@@ -3276,3 +3276,59 @@ runDiffSplice <- function
 
    return(retVals);
 }
+
+#' Get gaps in GRanges
+#'
+#' Get gaps in GRanges
+#'
+#' @export
+getGRgaps <- function
+(GR,
+ strandSpecific=TRUE,
+ keepValues=FALSE,
+ trimEnds=TRUE,
+ method=c("new","old"),
+ ...)
+{
+   ## Purpose is to wrapper the gaps() function from GenomicRanges
+   ## except to return only the gaps between features on the same
+   ## chromosome and strand
+   ##
+   ## keepValues=TRUE will keep values(GR) colnames, but will fill with NA
+   ## so the resulting object can be appended to the original GR.
+   ##
+   #GRDF <- as.data.frame(GR);
+
+   if (method %in% "old") {
+      refStrands <- paste(seqnames(GR),
+         strand(GR), sep="");
+      gapsGR2 <- GRangesList(sapply(unique(refStrands), function(refStrand) {
+         #ref1 <- gsub("^(.+)([-+])$", "\\1", refStrand);
+         #strand1 <- gsub("^(.+)([-+])$", "\\2", refStrand);
+         gapsGR <- gaps(subset(GR, refStrands %in% refStrand));
+         #gapsGR1 <- gapsGR[seqnames(gapsGR) %in% ref1 & strand(gapsGR) %in% strand1 & start(gapsGR) > 1];
+      }))@unlistData;
+      ## Remove gaps outside the original region, e.g. ends of chromosomes
+      ## and '*' strand
+   } else {
+      #gapsGR2 <- gaps(GR, start=start(GR), end=end(GR));
+      gapsGR2 <- gaps(GR);
+      gapsGR2 <- subset(gapsGR2,
+         start(gapsGR2) > start(range(GR)) &
+            end(gapsGR2) < end(range(GR)))
+   }
+
+   ## By default, trim the ends and only return gaps between entries
+   if (method %in% "old" && trimEnds) {
+      gapsGR2 <- GenomicRanges::intersect(gapsGR2, range(GR));
+   }
+
+   ## Optionally re-annotated entries from original data
+   if (keepValues) {
+      values(gapsGR2) <- values(GR[1]);
+      for (vCol in colnames(values(gapsGR2))) {
+         values(gapsGR2)[,vCol] <- NA;
+      }
+   }
+   gapsGR2;
+}

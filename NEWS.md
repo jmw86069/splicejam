@@ -7,6 +7,18 @@ to curate a vector, or a data.frame, into a data.frame with
 consistent, usable nomenclature for downstream analysis. They use
 a flexible yaml format that should help automate analysis pipelines
 that start with raw data file import.
+* `exoncov2polygon()` and `compressPolygonM()` are basic functions
+for sashimi plots, efficiently converting exon/intron coverages to
+multi-polygons, then optionally compressing introns and reducing
+the information content to roughly similar resolution as uncompressed
+regions.
+* `spliceGR2junctionDF()` is the summary function to convert a set
+of splice junction read counts to gene-annotated junctions, grouped
+and summed where needed.
+* `closestExonToJunctions()` called by `spliceGR2junctionDF()` is used
+to annotate junction ends near compatible exon boundaries, with
+some buffer distance allowed to "snap" junctions to the edge.
+
 
 # splicejam version 0.0.14.900
 
