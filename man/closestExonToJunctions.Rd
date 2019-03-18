@@ -5,7 +5,8 @@
 \title{Find closest exon to splice junction ends}
 \usage{
 closestExonToJunctions(spliceGRgene, exonsGR, flipNegativeStrand = TRUE,
-  reportActualCoords = FALSE, verbose = TRUE, ...)
+  sampleColname = sampleColname, reportActualCoords = FALSE,
+  verbose = TRUE, ...)
 }
 \description{
 Find closest exon to splice junction ends

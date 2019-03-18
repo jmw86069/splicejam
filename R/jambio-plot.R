@@ -1,838 +1,11 @@
 
-#' Prepare Sashimi plot
-#'
-#' Prepare Sashimi plot
-#'
-#' @export
-sashimiPrep <- function
-(inputGenes,
-exonsGR,
-expandUpDown=c(0,0),
-WHICHEXONS=NULL,
-YMAX=NULL,
-compressGaps=TRUE,
-GAPWIDTH=100,
-readCountCex=1.5,
-readCountFont=1,
-readCountSrt=0,
-maxLwd=5,
-readColor="#BB000099",
-readCountPadding="         ",
-bigWigFiles=NULL,
-covL=NULL,
-spliceCountsDF=NULL,
-colorFunc2=function(n,...){head(rainbowJam(max(c(n, 5))), n)},
-cex.main=1.7,
-font.main=2,
-alternateSpliceUpDown=FALSE,
-srtSplice=0,
-arcScale=20,
-arcScaleFactor=100,
-useAspect=2,
-transformY=c("none", "sqrt", "log2"),
-unionCoverages=FALSE,
-unionLabel="unionCoverage",
-ylimFactor=1.5,
-spliceGRs=NULL,
-spliceBuffer=3,
-exactJunctionsOnly=TRUE,
-absValues=TRUE,
-countAsPercent=FALSE,
-geneSymbolColname=c("geneSymbol","geneSymbolChrom","gene_id","gene_name"),
-flipStrand=TRUE,
-ignoreSpliceStrand=TRUE,
-spliceOverlapType=c("within","any","start","end"),
-reverseStrandCoords=TRUE,
-showCoords=TRUE,
-labelExons=FALSE,
-labelExonName="exonLabel",
-doPar=TRUE,
-parLend="round",
-doTitle=TRUE,
-doMargins=TRUE,
-doPlot=TRUE,
-minReads=0,
-VERBOSE=TRUE,
-exonLabelColname="gene_nameExon",
-verbose=VERBOSE,
-...)
-{
-   ## Purpose is to mimic the sashimi plot from the MISO package,
-   ## using bigWig coverage data and GRanges exons as input.
-   ##
-   ## unionCoverages=TRUE will load coverages from each file, then create one
-   ## union coverage using their sum.
-   ##
-   ## transformY will transform the y-axis, either to normal scale, log2-scale,
-   ## or square root scaled
-   ##
-   ## expandUpDown is an integer vector extended to length=2, which
-   ## will expand the exon region upstream and downstream by the
-   ## specified widths, respectively.
-   ##
-   ## TODO: make the arcs have higher offset based upon the visible distance
-   ## on the plot.  I.e. if one exon is huge, and an arc skips that exon,
-   ## make that arc have higher offset so it doesn't appear to be flat.
-   ##
-   ## doPlot=TRUE will draw the sashimiPlot
-   ## doPlot=FALSE will not draw the sashimiPlot, but will still return
-   ## data necessary to create sashimiPlots outside this function, e.g.
-   ## to test vectorized drawing.
-   ##
-   ## ignoreSpliceStrand==TRUE will search for, and display, splice junctions
-   ## from either strand. This option was necessitated by STAR junction output
-   ## which sometimes incorrectly assigns to the wrong strand.
-   ##
-   ## spliceOverlapType is used as the type for subsetByOverlaps() when
-   ## choosing which splice junctions to display. "within" will ensure all
-   ## junctions are within the viewing range, but "any" may allow novel
-   ## junctions which span beyond the upstream or downstream annotated
-   ## exons.
-   ##
-   ## bigWigFiles is a vector of bigWig file paths, named by sample;
-   ## if supplied, then covL is not used.
-   ## covL is a list of "CoverageSignals" objects, analogous to a list
-   ## of NumericLists, named by sample.
-   ##
-   if (suppressPackageStartupMessages(!require(GenomicRanges))) {
-      stop("sashimiPlot() requires the GenomicRanges package.");
-   }
-   spliceOverlapType <- match.arg(spliceOverlapType);
-
-   transformY <- match.arg(transformY);
-   if (doPar) {
-      parMfrow <- par("mfrow");
-   }
-
-   ## WHICHEXONS is a list named by gene, with integer values of exons
-   ## to include.
-   if (!is.null(WHICHEXONS)) {
-      if (!class(WHICHEXONS) %in% c("list")) {
-         WHICHEXONS <- nameVector(rep(list(WHICHEXONS),
-            length.out=length(inputGenes)),
-            inputGenes);
-      } else {
-         if (is.null(names(WHICHEXONS))) {
-            names(WHICHEXONS) <- inputGenes;
-         }
-      }
-   }
-   geneSymbolColname <- head(intersect(geneSymbolColname, colnames(values(exonsGR))), 1);
-   if (verbose) {
-      printDebug("sashimiPlot() :",
-         "geneSymbolColname:",
-         geneSymbolColname);
-   }
-
-   ## Determine the most appropriate label column for inputExonsGR
-   exonLabelColname <- intersect(exonLabelColname, colnames(values(exonsGR)));
-   if (length(exonLabelColname) == 0) {
-      exonLabelColname <- head(provigrep(c("^gene.*exon$", "exon$", "^exon", "^name$"),
-         colnames(values(exonsGR))), 1);
-      if (length(exonLabelColname) == 0) {
-         stop("exonLabelColname is required to be in colnames(exonsGR) but was not.");
-      }
-   }
-
-   ## Subset exonsGR for efficiency of downstream operations
-   exonsGR <- exonsGR[values(exonsGR)[,geneSymbolColname] %in% inputGenes];
-   if (verbose) {
-      printDebug("length(exonsGR):", formatInt(length(exonsGR)));
-   }
-
-   ## Iterate each gene
-   inputGenesV <- nameVector(seq_along(inputGenes), inputGenes);
-   allGenePlots <- lapply(inputGenesV, function(inputGene1){
-      retVals <- list();
-      inputGene <- inputGenes[[inputGene1]];
-      if (verbose) {
-         printDebug("sashimiPrep(): ",
-            "inputGene:",
-            inputGene);
-      }
-
-      ## Subset exons for the gene of interest
-      whichExonRows <- which(tolower(values(exonsGR)[,iCol]) %in% inputGene);
-      inputExonsGR <- exonsGR[whichExonRows];
-      if (length(names(inputExonsGR)) == 0) {
-         names(inputExonsGR) <- makeNames(values(inputExonsGR)[,geneSymbolColname]);
-      }
-      if (verbose) {
-         printDebug("sashimiPrep(): ",
-            "inputExonsGR (length=",
-            length(inputExonsGR),
-            "):");
-         print(inputExonsGR);
-      }
-
-      ## Optionally expand the exon range upstream and downstream, in
-      ## case read coverage extends past the annotated exons
-      if (length(expandUpDown) > 0 && any(expandUpDown) > 0) {
-         if (verbose) {
-            printDebug("sashimiPrep(): ",
-               "Expanding exons with expandUpDown:",
-               expandUpDown);
-         }
-         inputExonsGR <- expandExonsGR(inputExonsGR,
-            expandUpDown=expandUpDown,
-            inputExonsGRlabel=inputExonsGRlabel);
-      }
-
-      ## Optionally try to read splice junctions directly from a GRanges object
-      if (!is.null(spliceGRs)) {
-         verbose1 <- verbose;
-         spliceCountsDF <- rbindList(lapply(names(spliceGRs), function(spliceGRname){
-            if (verbose) {
-               printDebug("sashimiPrep(): ",
-                  "Loading splice junctions for:",
-                  spliceGRname);
-            }
-            spliceGR <- spliceGRs[[spliceGRname]];
-
-            ## Pull out only the splice junctions within the span of exons
-            spliceGRgene <- subsetByOverlaps(spliceGR,
-               range(inputExonsGR),
-               ignore.strand=ignoreSpliceStrand,
-               type=spliceOverlapType);
-            iStrand <- as.character(strand(range(inputExonsGR)));
-            if (verbose) {
-               printDebug("sashimiPrept(): ",
-                  "length(spliceGRgene):",
-                  length(spliceGRgene));
-            }
-
-            if (length(spliceGRgene) > 0) {
-               names(spliceGRgene) <- paste0("splice", padInteger(1:length(spliceGRgene)));
-               spliceCountsDF1 <- spliceGR2junctionDF(spliceGRgene,
-                  inputExonsGR=inputExonsGR,
-                  spliceBuffer=spliceBuffer);
-
-               spliceCountsDF1[,"gene"] <- inputGene;
-               spliceCountsDF1[,"file"] <- spliceGRname;
-               spliceCountsDF1;
-            } else {
-               NULL;
-            }
-         }));
-         if (verbose) {
-            printDebug("sashimiPrep(): ",
-               "head(spliceCountsDF):");
-            print(head(spliceCountsDF));
-         }
-         if (length(spliceCountsDF) > 0 &&
-               nrow(spliceCountsDF) > 0) {
-            if (verbose) {
-               printDebug("sashimiPrep(): ",
-                  "spliceCountsDF:");
-               print(head(spliceCountsDF, 10));
-            }
-         }
-         ## 17aug2016 added minimum read count filtering with minReads
-         ## The code below removes any entries which are not "attached" to
-         ## an annotated exon, making them effectively invisible.
-         ## TODO: allow un-fixed junctions to draw an arc between exons,
-         ## or off the edge of the figure.
-         ##
-         ## 20oct2017: coordFrom, coordTo can be used to display splice junctions
-         ##
-         if (length(spliceCountsDF) > 0) {
-            if (exactJunctionsOnly) {
-               if (verbose) {
-                  printDebug("sashimiPrep(): ",
-                     "filtering for",
-                     " exact exon boundaries.");
-               }
-               spliceCountsDF <- subset(spliceCountsDF,
-                  !exonFrom %in% c(NA, "") &
-                  !exonTo %in% c(NA, "") &
-                  !exonFrom == exonTo);
-            }
-            if (length(minReads) > 0 && minReads > 0) {
-               if (verbose) {
-                  printDebug("sashimiPrep(): ",
-                     "filtering minReads:",
-                     minReads);
-               }
-               spliceCountsDF <- subset(spliceCountsDF,
-                  readCount >= minReads);
-            }
-         }
-         retVals$spliceCountsDF <- spliceCountsDF;
-      }
-      ## End splice count data.frame
-
-      ## TODO: consider removing WHICHEXONS and assume the input
-      ## to this function has already decided which exons to display
-      ##
-      ## Get the subset of exons to use, if specified
-      whichExonsSet <- WHICHEXONS[[inputGene]];
-      if (!class(whichExonsSet) %in% c("list")) {
-         whichExonsSet <- list(whichExonsSet);
-      }
-      if (is.null(names(whichExonsSet))) {
-         names(whichExonsSet) <- makeNames(rep("whichExonSet",
-            length(whichExonsSet)));
-      }
-
-         ## Iterate each subset of exons for this gene
-         allExonPlots <- lapply(whichExonsSet, function(whichExons){
-            if (length(whichExons) == 0 || whichExons %in% c(NA, "NA", "", 0, "0")) {
-               whichExons <- seq_along(inputExonsGR);
-            }
-
-            ## Allow matching whichExons using the exon label
-            if (igrepHas("character", whichExons) && length(exonLabelColname) > 0) {
-               printDebug("Matching whichExons to exon labels.");
-               whichExons <- rmNA(nameVector(match(whichExons,
-                  values(inputExonsGR)[,exonLabelColname]),
-                  whichExons));
-            } else {
-               l1 <- length(inputExonsGR);
-               whichExons <- intersect(whichExons, seq_len(l1));
-               if (length(exonLabelColname) > 0) {
-                  names(whichExons) <- values(inputExonsGR)[whichExons,exonLabelColname]
-               }
-            }
-            if (verbose) {
-               printDebug("sashimiPrep(): ",
-                  "whichExons (length=",
-                  length(whichExons),
-                  "):");
-               print(whichExons);
-            }
-            ## Extract exons and sort by chromosome position
-            inputExonsGR <- sort(inputExonsGR[whichExons]);
-
-            ## Define color function
-            colorFuncX <- function(n,...){colorFunc2(l1)};
-
-            if (igrepHas("_", seqlevels(inputExonsGR))) {
-               seqlevels(inputExonsGR) <- unique(unvigrep("_", seqlevels(inputExonsGR)));
-            }
-            seqlevels(inputExonsGR) <- seqlevelsInUse(inputExonsGR);
-            if (compressGaps) {
-               if (verbose) {
-                  printDebug("sashimiPrep(): ",
-                     "running compressGRgaps().");
-               }
-               ## 20oct2017: added upstream, upstreamGapWidth which
-               ## effectively allows any reasonably close coordinates
-               ## to be converted to compressed form, with anything outside
-               ## the exon range being compressed about 10-fold in width.
-               ## Otherwise splice junctions outside the viewing range
-               ## become NULL coordinates
-               newCoordsGR <- compressGRgaps(inputExonsGR,
-                  gapWidth=GAPWIDTH,
-                  upstream=1e7,
-                  upstreamGapWidth=1e6,
-                  downstream=1e7,
-                  downstreamGapWidth=1e6);
-               ## Get the function to convert reference coordinates
-               ## to compressed coordinates.
-               ref2compressed <- attr(newCoordsGR, "ref2compressed");
-               lookupCoordDF <- attr(newCoordsGR, "lookupCoordDF");
-            } else {
-               newCoordsGR <- inputExonsGR;
-               if (verbose) {
-                  printDebug("sashimiPrep(): ",
-                     "newCoordsGR (without compressing gaps):");
-                  print(head(newCoordsGR, 5));
-               }
-               lookupCoordDF <- NULL;
-               ref2compressed <- NULL;
-            }
-            ## Optionally propagate labels
-            if (labelExons) {
-               values(newCoordsGR)[,exonLabelColname] <- values(inputExonsGR)[,exonLabelColname]
-            }
-
-            ## Load all coverages upfront
-            ## Updated 17aug2016 to use coverages only for the same strand as the exons
-            ## We use the actual bigWigName SAMPLE_pos, but assign a name
-            ## which removes the _pos, e.g. SAMPLE
-            if (length(bigWigFiles) > 0) {
-               exonStrand <- as.vector(head(strand(inputExonsGR), 1));
-               if (igrepHas("_(pos|neg)", names(bigWigFiles))) {
-                  if (exonStrand %in% "+") {
-                     bigWigFilesUse <- vigrep("[._]pos", names(bigWigFiles));
-                  } else {
-                     bigWigFilesUse <- vigrep("[._]neg", names(bigWigFiles));
-                  }
-                  names(bigWigFilesUse) <- gsub("[._](pos|neg)", "", bigWigFilesUse);
-               } else {
-                  bigWigFilesUse <- nameVector(names(bigWigFiles));
-               }
-               if (verbose) {
-                  printDebug("sashimiPlot(): ",
-                     "bigWigFilesUse:",
-                     bigWigFilesUse);
-               }
-               bigWigCovs <- lapply(bigWigFilesUse, function(bigWigName) {
-                  if (verbose) {
-                     printDebug("   bigWigName: ", bigWigName,
-                        ", running bigWig2numericList()");
-                     printDebug("bigWigFiles[bigWigName]:",
-                        bigWigFiles[bigWigName]);
-                     printDebug("sashimiPlot(): ",
-                        "head(inputExonsGR):");
-                     print(head(inputExonsGR));
-                  }
-                  strand(inputExonsGR) <- "*";
-                  inputExonsCovNL <- bigWig2numericList(bigWigFiles[bigWigName],
-                     inputExonsGR,
-                     absValues=absValues,
-                     verbose=verbose,
-                     ...);
-                  if (verbose) {
-                     printDebug("length(inputExonsCovNL):",
-                        formatInt(length(inputExonsCovNL)));
-                  }
-                  inputExonsCovNL;
-               });
-            } else {
-               ## Use supplied coverages as a list named by sample, named by exon
-               ## Note: if no covL is supplied, coverage is assumed to be zero,
-               ## which can allow display of splice features without coverages.
-               bigWigCovs <- lapply(covL, function(i){
-                  iMatch <- match(names(inputExonsGR), names(i));
-                  if (any(is.na(iMatch))) {
-                     ## Fill with zeros
-                     noMatch <- is.na(iMatch);
-                     ix <- lapply(nameVector(width(inputExonsGR[noMatch]), names(inputExonsGR)[noMatch]), function(j){
-                        rep(0, j);
-                     });
-                  } else {
-                     ix <- NULL;
-                  }
-                  c(i[names(inputExonsGR)[!is.na(iMatch)]],
-                     ix)[names(inputExonsGR)];
-               });
-            }
-            if (unionCoverages && length(bigWigCovs) > 1) {
-               bigWigCovs1 <- bigWigCovs[[1]];
-               for (i in tail(seq_along(bigWigCovs), -1)) {
-                  bigWigCovs1 <- bigWigCovs1 + bigWigCovs[[i]];
-               }
-               bigWigCovs <- list(unionCoverage=bigWigCovs1);
-               names(bigWigCovs) <- unionLabel;
-               rm(bigWigCovs1);
-            }
-
-            ## Establish the y-axis bounds
-            if (is.null(YMAX)) {
-               ymax <- 0;
-               for (bigWigName in names(bigWigCovs)) {
-                  inputExonsCovNL <- bigWigCovs[[bigWigName]];
-                  ymax <- max(c(ymax, max(unlist(do.call(c, inputExonsCovNL)))));
-                  #ymax <- max(c(ymax, max(abs(unlist(do.call(c, inputExonsCovNL))))));
-                  if (verbose) {
-                     printDebug("         ", bigWigName,
-                        " ymax: ", ymax,
-                        fgText=c("orange", "lightblue"));
-                  }
-               }
-               ymax <- ymax * ylimFactor;
-               #if (!is.null(spliceCountsDF)) {
-               #   ymax <- ymax * ylimFactor;
-               #}
-               if (verbose) {
-                  printDebug("      ymax: ", ymax,
-                     fgText=c("orange", "lightgreen"));
-               }
-            } else {
-               ymax <- YMAX;
-            }
-            ymin <- 0;
-            arcExpandFactor <- 1.6 * arcScaleFactor/50;
-            if (alternateSpliceUpDown) {
-               #ymin <- -1 * (ymax / ylimFactor / 1.3);
-               ymin <- -1 * (ymax / ylimFactor / arcExpandFactor);
-            }
-            if (transformY %in% "sqrt") {
-               #yaxisDiff <- sqrt(ymax) / ylimFactor / 1.3;
-               yaxisDiff <- sqrt(ymax) / ylimFactor / arcExpandFactor;
-            } else if (transformY %in% "log2") {
-               #yaxisDiff <- log2(ymax+1) / ylimFactor / 1.3;
-               yaxisDiff <- log2(ymax+1) / ylimFactor / arcExpandFactor;
-            } else {
-               #yaxisDiff <- ymax / ylimFactor / 1.3;
-               yaxisDiff <- ymax / ylimFactor / arcExpandFactor;
-            }
-
-            ## Prepare the plot space
-            if (doPar) {
-               par("mfrow"=rev(plotLayout(length(bigWigCovs))));
-               if (!is.null(spliceCountsDF) && doMargins) {
-                  if (doTitle) {
-                     par("mar"=c(8,
-                        par("mar")[c(2,3,4)]));
-                  } else {
-                     par("mar"=c(2,
-                        par("mar")[c(2,3,4)]));
-                  }
-               }
-               par("xpd"=FALSE);
-            }
-            ##########################################################
-            ## Consider drawing coverages after splice junctions?
-            allCoveragePlots <- lapply(nameVector(names(bigWigCovs)),
-               function(bigWigName){
-                  inputExonsCovNL <- bigWigCovs[[bigWigName]];
-                  if (verbose) {
-                     printDebug("sashimiPlot(): ",
-                        " bigWigName:", bigWigName);
-                     printDebug("   inputExonsCovNL:");
-                     print(head(inputExonsCovNL, 5));
-                     printDebug("   newCoordsGR sent to plotGRangesSimple():");
-                     print(head(newCoordsGR, 5));
-                  }
-                  ## flipStrand=TRUE, reverseStrandCoords=TRUE,
-                  pgrs1 <- plotGRangesSimple(GR=newCoordsGR,
-                     NL=inputExonsCovNL,
-                     plotType="coverage",
-                     reverseStrandCoords=reverseStrandCoords,
-                     flipStrand=flipStrand,
-                     drawGrid=TRUE,
-                     drawGaps=FALSE,
-                     ylim=c(ymin,ymax),
-                     showCoords=showCoords,
-                     colorFunc=colorFunc2,
-                     bty="n",
-                     compressGaps=FALSE,
-                     plotLabels=labelExons,
-                     initialRadius=yaxisDiff/20,
-                     transformY=transformY,
-                     verbose=FALSE,
-                     doPlot=doPlot,
-                     ...);
-                  if (verbose) {
-                     printDebug("whichExons:", whichExons);
-                     printDebug("length(newCoordsGR):", length(newCoordsGR));
-                     printDebug("length(inputExonsCovNL):", length(inputExonsCovNL));
-                  }
-                  #if (doPar) {
-                  #   par("lend"=parLend);
-                  #}
-                  inputGeneLabel <- gsub("[.]chr[0-9MTXYWZ]+[.](pos|neg)", "", inputGene);
-                  if (doTitle && doPlot) {
-                     title(main=paste(inputGeneLabel, "in", bigWigName),
-                        font.main=font.main, cex.main=cex.main);
-                  }
-
-                  #######################################################
-                  ## Draw arcs for splice junction read counts
-                  spliceTexts <- NULL;
-                  spliceCountsDF1 <- NULL;
-                  if (verbose) {
-                     printDebug("spliceCountsDF:");
-                     print(head(spliceCountsDF));
-                  }
-                  if (!is.null(spliceCountsDF) && inputGene %in% spliceCountsDF[,"gene"]) {
-                     cov1 <- rbindList(pgrs1[["cov1"]]);
-                     if (verbose) {
-                        printDebug("length(pgrs1[[cov1]]):", length(pgrs1[["cov1"]]));
-                        printDebug("dim(cov1):", dim(cov1));
-                        ch(cov1);
-                     }
-                     rownames(cov1) <- whichExons;
-                     exonMaxSteps <- diff(range(as.numeric(rownames(cov1))));
-                     if (unionCoverages) {
-                        spliceCountsDF1 <- spliceCountsDF[spliceCountsDF[,"gene"] %in% inputGene,];
-                        ## 20oct2017: Add some key that handles junctions
-                        ## which do not snap to a known exon
-                        ##
-                        ## TODO: change naming convention for junctions not matching
-                        ## an exon, to use closest exon name, and coordinate distance
-                        ## from that exon. The goal is for someone to recognize
-                        ## whether a junction was between exon 2 and 3, e.g.
-                        ## 3a.-1700 would mean 1700 bases upstream exon "3a".
-                        ## Another option is "2b.1700.3a" which would mean 1700
-                        ## bases downstream "2b". In that case, "1700.1a" would mean
-                        ## 1700 bases upstream the first exon "1a". Similarly,
-                        ## "7f.1700" would mean 1700 bases downstream the last exon
-                        ## "7f".
-                        fromStr <- ifelse(!is.na(spliceCountsDF1[,"exonFrom"]),
-                           spliceCountsDF1[,"exonFrom"],
-                           paste0("c", spliceCountsDF1[,"coordFrom"]));
-                        toStr <- ifelse(!is.na(spliceCountsDF1[,"exonTo"]),
-                           spliceCountsDF1[,"exonTo"],
-                           paste0("c", spliceCountsDF1[,"coordTo"]));
-                        spliceCountsDF1[,"exonFromTo"] <- paste0(fromStr, "_", toStr);
-                        #spliceCountsDF1[,"exonFromTo"] <-
-                        #   pasteByRow(spliceCountsDF1[,c("exonFrom", "exonTo")], sep="_");
-                        spliceCountsDF1readCts <- shrinkMatrix(spliceCountsDF1[,"readCount"],
-                           groupBy=spliceCountsDF1[,"exonFromTo"],
-                           shrinkFunc=sum);
-                        ## Apply the counts to the original data.frame,
-                        ## taking only the first row, keeping all the
-                        ## annotation columns as-is
-                        spliceCountsDF1 <- spliceCountsDF1[match(spliceCountsDF1readCts[,"groupBy"],
-                           spliceCountsDF1[,"exonFromTo"]),];
-                        spliceCountsDF1[,"readCount"] <- spliceCountsDF1readCts[,"x"];
-                        spliceCountsDF1[,"file"] <- bigWigName;
-                        maxCts <- max(spliceCountsDF1[,"readCount"]);
-                     } else {
-                        spliceSubset <- which(spliceCountsDF[,"file"] %in% bigWigName &
-                              spliceCountsDF[,"gene"] %in% inputGene);
-                        spliceCountsDF1 <- spliceCountsDF[spliceSubset,,drop=FALSE];
-                        maxCts <- max(spliceCountsDF[spliceCountsDF[,"gene"] %in% inputGene,"readCount"]);
-                     }
-                     ## 20oct2017 convert reference coordinates to compressed
-                     if (compressGaps) {
-                        spliceCountsDF1[,"coordFrom"] <- round(ref2compressed(spliceCountsDF1[,"coordFrom"]));
-                        spliceCountsDF1[,"coordTo"] <- round(ref2compressed(spliceCountsDF1[,"coordTo"]));
-                        if (verbose) {
-                           printDebug("sashimiPlot(): ",
-                              "lookupCoordDF:");
-                           ch(lookupCoordDF, 100);
-                        }
-                     }
-
-                     spliceCountsDF1 <- mixedSortDF(spliceCountsDF1,
-                        byCols=match(c("coordFrom", "coordTo"),
-                           colnames(spliceCountsDF1)));
-                     if (verbose) {
-                        printDebug("sashimiPlot(): ",
-                           "head(spliceCountsDF1):");
-                        print(head(spliceCountsDF1), 100);
-                     }
-                     ## 20oct2017: Add some key that handles junctions
-                     ## which do not snap to a known exon
-                     fromStr <- ifelse(!is.na(spliceCountsDF1[,"exonFrom"]),
-                        spliceCountsDF1[,"exonFrom"],
-                        spliceCountsDF1[,"coordFrom"]);
-                     toStr <- ifelse(!is.na(spliceCountsDF1[,"exonTo"]),
-                        spliceCountsDF1[,"exonTo"],
-                        spliceCountsDF1[,"coordTo"]);
-                     spliceCountsDF1[,"exonFromTo"] <- paste0(fromStr, "_", toStr);
-                     if (doPlot) {
-                        par("xpd"=TRUE);
-                     }
-
-                     ## Sometimes there are still multiple entries per junction,
-                     ## so we shrink them here for now
-                     ## 20oct2017 added exonFromTo for non-canonical junctions
-                     if (verbose) {
-                        printDebug("head(spliceCountsDF1) before compression:");
-                        ch(spliceCountsDF1);
-                     }
-                     spliceCountsDF1 <- shrinkDataFrame(spliceCountsDF1,
-                        #groupBy=c("exonFrom", "exonTo", "gene", "file"),
-                        groupBy=c("exonFromTo", "gene", "file"),
-                        numShrinkFunc=list(readCount=sum, exonFromDist=mean, exonToDist=mean));
-
-                     ## 06oct2017: added exonDiff so arcs could be ordered by the number of
-                     ## exon hops, which should allow their left and right edges to be stacked
-                     ## properly, with respect to other splice junction arcs
-                     ##
-                     ## 23oct2017: changed exonDiff to represent the coordinate
-                     ## distance, instead of exon jumps, since not all junctions
-                     ## will snap to an annotated exon
-                     maxExonNum <- max(c(spliceCountsDF1$exonFrom,
-                        spliceCountsDF1$exonTo), na.rm=TRUE);
-                     #spliceCountsDF1[,"exonDiff"] <- abs(
-                     #   rmNA(as.numeric(spliceCountsDF1$exonTo), naValue=maxExonNum+1) -
-                     #   rmNA(as.numeric(spliceCountsDF1$exonFrom), naValue=0) );
-                     spliceCountsDF1[,"exonDiff"] <- abs(spliceCountsDF1$coordTo -
-                           spliceCountsDF1$coordFrom);
-                     if (alternateSpliceUpDown) {
-                        ## 20oct2017: changed to use coordFrom,coordTo
-                        ## 23oct2017: changed to use coordFrom,exonDiff
-                        spliceCountsDF1 <- mixedSortDF(spliceCountsDF1,
-                           byCols=match(c("coordFrom","exonDiff"),
-                              colnames(spliceCountsDF1))*c(1,+1));
-                        #spliceCountsDF1 <- mixedSortDF(spliceCountsDF1, byCols=match(c("exonFrom","exonDiff"),
-                        #   colnames(spliceCountsDF1))*c(1,+1));
-                     } else {
-                        ## 20oct2017: changed to use coordFrom,coordTo
-                        ## 23oct2017: changed to use coordFrom,exonDiff
-                        spliceCountsDF1 <- mixedSortDF(spliceCountsDF1,
-                           byCols=match(c("coordFrom","exonDiff"),
-                              colnames(spliceCountsDF1)));
-                        #spliceCountsDF1 <- mixedSortDF(spliceCountsDF1,
-                        #   byCols=match(c("exonFrom","exonDiff"),
-                        #   colnames(spliceCountsDF1)));
-                     }
-                     ## 20oct2017: changed to use coordFrom
-                     spliceCountsDF1[,"fromY"] <- unlist(lapply(split(spliceCountsDF1,
-                        spliceCountsDF1$coordFrom), function(iDF1){
-                           cumsum(c(0, iDF1$readCount))[seq_len(nrow(iDF1))];
-                        }));
-                     ## Now do the same for the exonTo
-                     if (alternateSpliceUpDown) {
-                        spliceCountsDF1 <- mixedSortDF(spliceCountsDF1,
-                           byCols=match(c("coordTo","exonDiff"),
-                              colnames(spliceCountsDF1))*c(1,+1));
-                     } else {
-                        spliceCountsDF1 <- mixedSortDF(spliceCountsDF1,
-                           byCols=match(c("coordTo","exonDiff"),
-                              colnames(spliceCountsDF1)));
-                     }
-                     ## 18dec2017: change the stacking order of splice junctions
-                     ## so the shorter distance comes last.
-                     spliceCountsDF1[,"toY"] <- unlist(lapply(split(spliceCountsDF1,
-                        #spliceCountsDF1$exonTo), function(iDF1){
-                        spliceCountsDF1$coordTo), function(iDF1){
-                           cumsum(c(0, iDF1$readCount))[seq_len(nrow(iDF1))];
-                        }));
-                     if (verbose) {
-                        printDebug("spliceCountsDF1:");
-                        print(spliceCountsDF1);
-                     }
-
-                     ## Iterate each splice junction and draw an arc with text label
-                     spliceTexts <- lapply(1:nrow(spliceCountsDF1), function(spliceRow) {
-                        exonFrom <- as.character(spliceCountsDF1[spliceRow,"exonFrom"]);
-                        exonTo <- as.character(spliceCountsDF1[spliceRow,"exonTo"]);
-                        readCts <- spliceCountsDF1[spliceRow,"readCount"];
-                        exonDiff <- abs(as.numeric(exonTo) - as.numeric(exonFrom));
-
-                        ## New code for arc segments
-                        if (transformY %in% "none") {
-                           transFunc <- c;
-                        } else if (transformY %in% "sqrt") {
-                           transFunc <- sqrt;
-                        } else if (transformY %in% "log2") {
-                           transFunc <- function(x){log2(1+x)};
-                        }
-                        #if (exonFrom %in% rownames(cov1) && exonTo %in% rownames(cov1)) {
-                        flipLabel <- (alternateSpliceUpDown && spliceCountsDF1[spliceRow,"exonDiff"]<=1);
-                        if (as.character(strand(inputExonsGR)[1]) %in% "-") {
-                           ## Negative strand
-                           flipLabel <- flipLabel * -1;
-                        }
-                        ## 20oct2017: changed to use coordFrom, coordTo
-                        x0 <- spliceCountsDF1[spliceRow,"coordFrom"];
-                        x1 <- spliceCountsDF1[spliceRow,"coordTo"];
-                        ## 20oct2017: changed to draw arc based upon horizontal
-                        ## segment, then linearly scale from fromY to toY.
-                        ## This change avoid the case where the segment has
-                        ## a high slope, and would otherwise cause the arc
-                        ## to be spin nearly sideways.
-                        as1 <- arcSegments(x0=x0,
-                           x1=x1,
-                           y0=transFunc(spliceCountsDF1[spliceRow,"fromY"]),
-                           y1=transFunc(spliceCountsDF1[spliceRow,"fromY"]),
-                           doPlot=FALSE,
-                           useAspect=useAspect,
-                           verbose=FALSE,
-                           scaling1=0.45 * sign(flipLabel-0.5))[[1]];
-                        as1$y <- seq(from=0,
-                           to=(spliceCountsDF1[spliceRow,"toY"]-
-                                 spliceCountsDF1[spliceRow,"fromY"]),
-                           length.out=length(as1$y)) + as1$y;
-                        as2 <- as1;
-                        as2$y <- as2$y + spliceCountsDF1[spliceRow,"readCount"];
-                        ## Define a suitable midpoint for labeling
-                        arcX12 <- mean(as2$x);
-                        if (flipLabel) {
-                           arcY12 <- as1$y[round(length(as1$y)/2)];
-                        } else {
-                           arcY12 <- as2$y[round(length(as2$y)/2)];
-                        }
-                        arcY12 <- (as1$y[round(length(as1$y)/2)] +
-                              as2$y[round(length(as2$y)/2)])/2;
-                        ## Convert the two arcs into a polygon
-                        as1x1 <- c(head(as1$x, 1)-0.0001,
-                           as1$x,
-                           tail(as1$x, 1)+0.0001);
-                        as2x1 <- c(head(as2$x, 1)-0.0001,
-                           as2$x,
-                           tail(as2$x, 1)+0.0001);
-                        as1y1 <- c(head(as1$y, 1),
-                           as1$y,
-                           tail(as1$y, 1));
-                        as2y1 <- c(head(as2$y, 1),
-                           as2$y,
-                           tail(as2$y, 1));
-                        as1x <- c(as1x1, rev(as2x1), head(as1x1, 1));
-                        as1y <- c(as1y1, rev(as2y1), head(as1y1, 1));
-                        ## Draw the polygon
-                        if (doPlot) {
-                           polygon(x=as1x,
-                              y=as1y,
-                              border=alpha2col(readColor, alpha=1),
-                              col=readColor,
-                              lwd=1);
-                        }
-                        ## Adjust labels either with leading spaces or trailing spaces,
-                        ## depending if the arcs are above or below the line
-                        readCountPadding <- "";
-                        readCtLabels <- ifelse(flipLabel,
-                           paste0(formatInt(readCts), readCountPadding),
-                           paste0(readCountPadding, formatInt(readCts)));
-                        readCtAdj <- c(0.5,ifelse(flipLabel, 1.5, -0.5));
-                        readCtAdj <- rep(0.5, length(readCtAdj));
-                        arcLwd <- maxLwd;
-                        list(x=arcX12,
-                           y=arcY12,
-                           xpoly=as1x,
-                           ypoly=as1y,
-                           polyColor=readColor,
-                           labels=readCtLabels,
-                           adj=readCtAdj,
-                           col=makeColorDarker(readColor, fixAlpha=1, darkFactor=5),
-                           cex=readCountCex,
-                           font=readCountFont,
-                           srt=srtSplice,
-                           arcLwd=arcLwd,
-                           readCts=readCts,
-                           maxCts=maxCts,
-                           maxLwd=maxLwd);
-                     });
-                     #if (verbose) {
-                     #   printDebug("spliceTexts:");
-                     #   print(head(spliceTexts));
-                     #}
-                     if (doPlot) {
-                        for (spliceText in spliceTexts) {
-                           if (!is.null(spliceText)) {
-                              text(x=spliceText$x,
-                                 y=spliceText$y,
-                                 labels=spliceText$labels, #adj=c(0.5,0.5),#adj=spliceText$adj,
-                                 col=spliceText$col,
-                                 cex=spliceText$cex,
-                                 font=spliceText$font,
-                                 srt=spliceText$srt);
-                              srt=#srtSplice);
-                                 spliceTextDF <- data.frame(x=spliceText$x,
-                                    y=spliceText$y,
-                                    labels=spliceText$labels,
-                                    adj=spliceText$adj,
-                                    col=spliceText$col,
-                                    cex=spliceText$cex,
-                                    font=spliceText$font,
-                                    srt=spliceText$srt);
-                              #srt=srtSplice);
-                              if (verbose) {
-                                 printDebug("spliceTextDF:");
-                                 ch(spliceTextDF, maxRows=100);
-                              }
-                           }
-                        }
-                        par("xpd"=FALSE);
-                     }
-                  }
-                  list(inputExonsGR=inputExonsGR,
-                     pgrs1=pgrs1,
-                     spliceTexts=spliceTexts,
-                     spliceCountsDF1=spliceCountsDF1,
-                     lookupCoordDF=lookupCoordDF,
-                     ref2compressed=ref2compressed);
-               });
-         });
-      });
-   if (doPar) {
-      par("mfrow"=parMfrow);
-   }
-   invisible(allGenePlots);
-}
 
 #' Expand exon GRanges upstream and downstream
 #'
 #' Expand exon GRanges upstream and downstream
 #'
-#' This function is called by `sashimiPrep()`.
+#' This function expands an exon to make it wider before and
+#' after the start,end coordinates.
 #'
 #' @export
 expandExonsGR <- function
@@ -887,6 +60,7 @@ closestExonToJunctions <- function
 (spliceGRgene,
  exonsGR,
  flipNegativeStrand=TRUE,
+ sampleColname=sampleColname,
  reportActualCoords=FALSE,
  verbose=TRUE,
  ...)
@@ -1049,6 +223,14 @@ closestExonToJunctions <- function
       fromToCols <- paste0(rep(c("dist", "name", "coord", "tooFar"), each=2), c("From", "To"));
       switchCols1 <- intersect(fromToCols, colnames(values(spliceGRgene)));
       switchCols2 <- as.vector(matrix(nrow=2, switchCols1)[2:1,])
+      if (verbose) {
+         printDebug("closestExonToJunctions(): ",
+            "switchCols1:",
+            switchCols1);
+         printDebug("closestExonToJunctions(): ",
+            "switchCols2:",
+            switchCols2);
+      }
       negStrand <- (as.vector(strand(spliceGRgene)) %in% "-");
       if (any(negStrand)) {
          values(spliceGRgene)[negStrand,switchCols1] <-
@@ -1070,17 +252,18 @@ closestExonToJunctions <- function
 #' @export
 spliceGR2junctionDF <- function
 (spliceGRgene,
-exonsGR,
-spliceBuffer=3,
-spliceGRname="score",
-geneExonSep="(:|_exon)",
-useOnlyValidEntries=FALSE,
-renameTooFar=TRUE,
-scoreColname="score",
-flipNegativeStrand=TRUE,
-returnGRanges=FALSE,
+ exonsGR,
+ spliceBuffer=3,
+ spliceGRname="score",
+ geneExonSep="(:|_exon)",
+ useOnlyValidEntries=FALSE,
+ renameTooFar=TRUE,
+ scoreColname="score",
+ sampleColname="sample_id",
+ flipNegativeStrand=TRUE,
+ returnGRanges=FALSE,
  verbose=FALSE,
-...)
+ ...)
 {
    ## Purpose is to take junctions as GRanges, and exons as GRanges, and
    ## name the junctions by gene, then exonFrom, exonTo, for use in
@@ -1109,6 +292,7 @@ returnGRanges=FALSE,
    #   values(spliceGRgene)[!eitherNA,"strandTo"] <- as.vector(strand(exonsGR[(spliceEndExonStart)]));
    #   table(strandFrom=values(spliceGRgene)[!eitherNA,"strandFrom"], strandTo=values(spliceGRgene)[!eitherNA,"strandTo"]);
    #   table(strandSplice=as.vector(strand(spliceGRgene[!eitherNA])), strandTo=values(spliceGRgene)[!eitherNA,"strandTo"]);
+   sampleColname <- intersect(sampleColname, colnames(values(spliceGRgene)));
 
    ## Vectorized logic:
    ## - find closest start/end for each splice start/end
@@ -1118,11 +302,12 @@ returnGRanges=FALSE,
    ## and knows to match splice start with exon end, etc.
    #spliceGRgeneVals <- closestExonToJunctions(spliceGRgene=spliceGRgene[,scoreColname], exonsGR=exonsGR,
    #   flipNegativeStrand=flipNegativeStrand, ...);
-   spliceGRgene <- closestExonToJunctions(spliceGRgene=spliceGRgene[,scoreColname],
+   spliceGRgene <- closestExonToJunctions(spliceGRgene=spliceGRgene[,c(scoreColname,sampleColname)],
       exonsGR=exonsGR,
       flipNegativeStrand=flipNegativeStrand,
-      verbose=verbose,
-      ...)$spliceGRgene;
+      sampleColname=sampleColname,
+      verbose=verbose)$spliceGRgene;
+      #...)$spliceGRgene;
    #spliceGRgene <- spliceGRgeneVals$spliceGRgene;
 
    ## Check when genes match for the two junction sites
@@ -1238,29 +423,45 @@ returnGRanges=FALSE,
          " entries did not meet the criteria.");
    }
 
-   spliceColnames <- c("seqnames", "start", "end", "nameFrom", "nameTo", scoreColname, "strand");
+   spliceColnames <- c("seqnames", "start", "end", "nameFrom", "nameTo",
+      scoreColname, "strand", sampleColname);
    spliceCountsDF <- as.data.frame(spliceGRgene[toUse])[,spliceColnames,drop=FALSE];
    spliceCountsDF[,"nameFromTo"] <- pasteByRow(spliceCountsDF[,c("nameFrom","nameTo"),drop=FALSE],
       sep=" ",
       na.rm=TRUE);
+   spliceCountsDF[,"nameFromToSample"] <- pasteByRow(
+      spliceCountsDF[,c("nameFromTo", sampleColname),drop=FALSE],
+      sep=":!:");
 
    if (verbose) {
       printDebug("spliceGR2junctionDF(): ",
          "Shrinking matrix to combine counts spanning the same junctions.");
    }
-   spliceCountsDFshrunk <- shrinkMatrix(spliceCountsDF[,scoreColname],
-      groupBy=spliceCountsDF[,"nameFromTo"],
-      shrinkFunc=sum);
-   spliceCountsDFshrunk <- cbind(spliceCountsDFshrunk,
-      rbindList(strsplit(spliceCountsDFshrunk[,"groupBy"], " ")));
-   colnames(spliceCountsDFshrunk) <- c("nameFromTo", spliceGRname, "nameFrom", "nameTo");
+   spliceCountsDFshrunk <- renameColumn(
+      shrinkMatrix(spliceCountsDF[,scoreColname,drop=FALSE],
+         groupBy=spliceCountsDF[,"nameFromToSample"],
+         shrinkFunc=sum),
+      from="groupBy",
+      to="nameFromToSample");
+   if (length(sampleColname) > 0) {
+      spliceCountsDFshrunk[,c("nameFromTo",sampleColname)] <- rbindList(
+         strsplit(spliceCountsDFshrunk[,"nameFromToSample"], ":!:"));
+   } else {
+      spliceCountsDFshrunk[,"nameFromTo"] <- spliceCountsDFshrunk[,"nameFromToSample"];
+   }
+   spliceCountsDFshrunk[,c("nameFrom", "nameTo")] <- rbindList(
+      strsplit(spliceCountsDFshrunk[,"nameFromTo"], " "));
+   #spliceCountsDFshrunk <- cbind(spliceCountsDFshrunk,
+   #   rbindList(strsplit(spliceCountsDFshrunk[,"groupBy"], " ")));
+   #colnames(spliceCountsDFshrunk) <- c("nameFromTo", spliceGRname, "nameFrom", "nameTo");
 
    ## Now add the start and end coordinates, so the results can be plotted
    if (verbose) {
       printDebug("spliceGR2junctionDF(): ",
          "Adding ref, strand, start, end.");
    }
-   matchFromTo <- match(spliceCountsDFshrunk[,"nameFromTo"], spliceCountsDF[,"nameFromTo"]);
+   matchFromTo <- match(spliceCountsDFshrunk[,"nameFromToSample"],
+      spliceCountsDF[,"nameFromToSample"]);
    spliceCountsDFshrunk[,"ref"] <- as.vector(spliceCountsDF[matchFromTo,"seqnames"]);
    spliceCountsDFshrunk[,"start"] <- as.vector(spliceCountsDF[matchFromTo,"start"]);
    spliceCountsDFshrunk[,"end"] <- as.vector(spliceCountsDF[matchFromTo,"end"]);
@@ -1285,22 +486,10 @@ returnGRanges=FALSE,
       gsub(exonGsub, "",
          spliceCountsDFshrunk[,"nameTo"]));
 
-   ## TODO: flip the from/to for negative stranded genes
-   if (1 == 2 && flipNegativeStrand) {
-      negStrand <- (spliceCountsDFshrunk[,"strand"] %in% "-");
-      ## Exchange values in the exonFrom and exonTo column for negative strand entries
-      ## using direct assignment so we avoid using temporary vectors
-      spliceCountsDFshrunk[negStrand,c("exonFrom", "exonTo")] <- spliceCountsDFshrunk[negStrand,c("exonTo", "exonFrom")];
-      spliceCountsDFshrunk[negStrand,c("nameFrom", "nameTo")] <- spliceCountsDFshrunk[negStrand,c("nameTo", "nameFrom")];
-      spliceCountsDFshrunk[negStrand,c("geneSymbolFrom", "geneSymbolTo")] <-
-         spliceCountsDFshrunk[negStrand,c("geneSymbolTo", "geneSymbolFrom")];
-
-   }
-
    ## Create junctionID only after we decided how to orient exonFrom and exonTo
    ## for negative strand entries, avoiding re-creating the name for those rows
    spliceCountsDFshrunk[,"junctionID"] <- pasteByRow(
-      spliceCountsDFshrunk[,c("exonFrom","exonTo")],
+      spliceCountsDFshrunk[,c("exonFrom","exonTo",sampleColname),drop=FALSE],
       sep="_",
       na.rm=TRUE);
 
@@ -1497,8 +686,8 @@ compressGRgaps <- function
 #'
 #' @export
 make_ref2compressed <- function
-(GR,
-gapWidth=NULL,
+(gr,
+gapWidth=200,
 keepValues=FALSE,
 upstream=50000,
 upstreamGapWidth=gapWidth*3,
@@ -1515,7 +704,7 @@ verbose=FALSE,
    ## width.
    if (length(gapWidth) == 0) {
       gapWidth <- max(c(10,
-         round(max(width(reduce(GR))) / 2)));
+         round(median(width(reduce(gr))) / 2)));
       if (verbose) {
          printDebug("compressGRgaps(): ",
             "determined gapWidth:",
@@ -1532,8 +721,8 @@ verbose=FALSE,
    }
 
    ## Define the exon-exon distance, to see if they are adjacent or not
-   #disGR <- disjoin(GR);
-   disGR <- reduce(GR);
+   #disGR <- disjoin(gr);
+   disGR <- reduce(gr);
    if (is.null(names(disGR))) {
       names(disGR) <- makeNames(rep("disGR", length(disGR)));
    }
@@ -1550,11 +739,17 @@ verbose=FALSE,
    ## Now reset coordinates using fixed gap width
    #newWidths <- head(intercalate(width(disGR),
    #   (gapWidth)*exonGaps), -1);
-   newWidths <- head(intercalate(width(disGR),
-      (gapWidth)*exonGaps),
-      length(disGR)*2-1);
+   newWidths <- suppressWarnings(
+      head(intercalate(width(disGR),
+         (gapWidth)*exonGaps),
+         length(disGR)*2-1)
+      );
 
    ##
+   if (verbose) {
+      printDebug("compressGRgaps(): ",
+         "newCoords");
+   }
    newCoords <- cumsum(newWidths);
    newCoordsM <- matrix(c(0, newCoords), ncol=2, byrow=TRUE);
    newCoordsM[,1] <- newCoordsM[,1] + 1;
@@ -1564,47 +759,192 @@ verbose=FALSE,
       coord=c(newCoordsM[,1],newCoordsM[,2])
    )));
    if (upstream > 0) {
+      ## Add one upstream point
+      refCoord1 <- head(lookupCoordDF$refCoord,1);
+      coord1 <- head(lookupCoordDF$coord,1);
+      upExtended1 <- (refCoord1 - upstream);
+      upComp1 <- (coord1 - upstreamGapWidth);
       lookupCoordDF <- rbind(
-         data.frame(refCoord=head(lookupCoordDF$refCoord,1)-upstream,
-            coord=head(lookupCoordDF$coord,1)-upstreamGapWidth),
+         data.frame(refCoord=upExtended1,
+            coord=upComp1),
          lookupCoordDF);
+
+      ## Extend the upstream gap to 1
+      minRefCoord <- 1;
+      if (upExtended1 > minRefCoord) {
+         upExtended1 <- minRefCoord;
+         newRefDiff <- (refCoord1 - minRefCoord);
+         upComp1 <- coord1 - (upstreamGapWidth * newRefDiff) / upstream;
+         lookupCoordDF <- rbind(
+            data.frame(refCoord=upExtended1,
+               coord=upComp1),
+            lookupCoordDF);
+      }
    }
    if (downstream > 0) {
+      ## Add one downstream point
+      refCoord2 <- tail(lookupCoordDF$refCoord,1);
+      coord2 <- tail(lookupCoordDF$coord,1);
+      downExtended2 <- (refCoord2 + downstream);
+      downComp2 <- (coord2 + downstreamGapWidth);
       lookupCoordDF <- rbind(
          lookupCoordDF,
-         data.frame(refCoord=tail(lookupCoordDF$refCoord,1)+downstream,
-            coord=tail(lookupCoordDF$coord,1)+downstreamGapWidth)
+         data.frame(refCoord=downExtended2,
+            coord=downComp2)
       );
+      ## Extend the upstream gap to 10 Gb
+      maxRefCoord <- 3e10;
+      if (downExtended2 < maxRefCoord) {
+         downExtended2 <- maxRefCoord;
+         newRefDiff <- (maxRefCoord - refCoord2);
+         downComp2 <- coord2 + (downstreamGapWidth * newRefDiff) / downstream;
+         lookupCoordDF <- rbind(
+            lookupCoordDF,
+            data.frame(refCoord=downExtended2,
+               coord=downComp2)
+         );
+      }
    }
    ## TODO: expand the range of coordinates so approxfun() will not fail
+   if (verbose) {
+      printDebug("compressGRgaps(): ",
+         "approxfun");
+   }
    ref2compressed <- approxfun(x=lookupCoordDF[,1],
       y=lookupCoordDF[,2],
       method="linear");
+   compressed2ref <- approxfun(x=lookupCoordDF[,2],
+      y=lookupCoordDF[,1],
+      method="linear");
 
-   ## Add some attributes for later ease of use
-   ref2compressedGR <- function(GR) {
+   ## Add a convenience function for GRanges objects
+   if (verbose) {
+      printDebug("compressGRgaps(): ",
+         "ref2compressedGR");
+   }
+   ref2compressedGR <- function(gr) {
+      if (length(names(gr)) > 0) {
+         GRnames <- names(gr);
+      }
       if (all(c("refStart","refEnd") %in% colnames(values(GR)))) {
          ## Re-compress the original reference coordinates
-         start(GR) <- values(GR)[,"refStart"];
-         end(GR) <- values(GR)[,"refEnd"];
+         ranges(gr) <- IRanges(
+            start=values(gr)[,"refStart"],
+            end=values(gr)[,"refEnd"]
+         );
       } else {
-         values(GR)[,"refStart"] <- start(GR);
-         values(GR)[,"refEnd"] <- end(GR);
+         values(gr)[,"refStart"] <- start(gr);
+         values(gr)[,"refEnd"] <- end(gr);
       }
-      ranges(GR) <- IRanges(
-         start=ref2compressed(start(GR)),
-         end=ref2compressed(end(GR))
+      ranges(gr) <- IRanges(
+         start=ref2compressed(start(gr)),
+         end=ref2compressed(end(gr))
       );
-      return(GR);
+      if (length(GRnames) > 0) {
+         names(gr) <- GRnames;
+      }
+      return(gr);
+   }
+   ## Add a convenience function for GRangesList objects
+   ref2compressedGRL <- function(grl) {
+      if (length(names(grl)) == 0) {
+         names(grl) <- makeNames(rep("grl", length(grl)));
+      }
+      grlc1 <- ref2compressedGR(grl@unlistData);
+      grlc <- GenomicRanges::split(grlc1,
+         factor(
+            rep(names(grl), elementNROWS(grl)),
+            levels=names(grl)));
+      grlc;
+   }
+   if (verbose) {
+      printDebug("compressGRgaps(): ",
+         "retVals");
+   }
+
+   ## Custom breaks function
+   breaks_gr <- function(x, limits=NULL, n=7, xFixed=lookupCoordDF[,1], verbose=FALSE, ...) {
+      xvals <- unique(sort(xFixed));
+      xvals <- xvals[xvals >= min(x) & xvals <= max(x)];
+      if (verbose) {
+         printDebug("breaks_gr(): ",
+            "x:", x);
+         printDebug("breaks_gr(): ",
+            "limits:", limits);
+         printDebug("breaks_gr(): ",
+            "n:", n);
+      }
+      if (n > length(xvals)) {
+         return(xvals);
+      }
+      idx1 <- round(seq.int(from=1, to=length(xvals), length.out=n));
+      return(xvals[idx1]);
+   }
+   minor_breaks <- function(b, limits=NULL, n=2, xFixed=lookupCoordDF[,1], verbose=FALSE, ...) {
+      if (verbose) {
+         printDebug("minor_breaks(): ",
+            "x:", x);
+         printDebug("minor_breaks(): ",
+            "limits:", limits);
+         printDebug("minor_breaks(): ",
+            "n:", n);
+      }
+      nUse <- length(b) * n;
+      ref2compressed(breaks_gr(compressed2ref(x),
+         limits=compressed2ref(limits),
+         n=nUse,
+         xFixed=xFixed,
+         verbose=verbose));
+   }
+   labels <- function(x, n=10) {
+      scales::comma_format()(breaks_gr(x, n=n))
    }
    retVals <- list();
-   retVals$GR <- ref2compressedGR;
-   retVals$x <- ref2compressed;
+
+   ## Make the custom trans function
+   trans_grc <- scales::trans_new(name="compressed_gr",
+      transform=ref2compressed,
+      inverse=compressed2ref,
+      breaks=breaks_gr,
+      minor_breaks=minor_breaks,
+      format=scales::comma_format(),
+      domain=range(lookupCoordDF[,1]));
+
+   ## Make the actual scale_x_gr_compressed() function
+   scale_x_grc <- function(..., trans=trans_grc){
+      scale_x_continuous(name="grc",
+         breaks=waiver(),#trans_grc$breaks,
+         minor_breaks=waiver(),#trans_grc$minor_breaks,
+         labels=function(...){scales::comma(...)},#trans_grc$labels,
+         trans=trans,
+         ...)
+   }
+
+   ## Functions required by scales::trans_new()
+   retVals$transform <- ref2compressed;
+   retVals$inverse <- compressed2ref;
+
+   ## Convenience functions for GenomicRanges objects
+   retVals$gr <- ref2compressedGR;
+   retVals$grl <- ref2compressedGRL;
+
+   #retVals$breaks <- breaks_gr;
+   #retVals$minor_breaks <- minor_breaks;
+   #retVals$format <- scales::comma_format;
+   #retVals$labels <- labels;
+
+   ## ggplot2 functions to compress the x-axis
+   retVals$scale_x_grc <- scale_x_grc;
+   retVals$trans_grc <- trans_grc;
+
+   ## TODO: custom breaks() function that prioritizes choosing labels
+   ## at borders of the compressed ranges, then sensible labels between them
+
 
    attr(retVals, "lookupCoordDF") <- lookupCoordDF;
    attr(retVals, "gapWidth") <- gapWidth;
    ## GR might be used to allow adding a feature then refreshing the function
-   attr(retVals, "GR") <- GR;
+   attr(retVals, "gr") <- gr;
 
    ## TODO: Convert reference coordinates to feature-based coordinates,
    ## e.g. to coordinates relative to the length of a transcript
@@ -1739,25 +1079,57 @@ simplifyXY <- function
 #' @export
 compressPolygonM <- function
 (polyM,
- ref2compressed,
+ ref2c,
+ minRatio=3,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to compress coordinates in coverage polygons
-   ## polyM <- covPolyML[[1]]
-   polyMlengths <- diff(unique(c(0, which(is.na(polyM[,1])), nrow(polyM))));
+   ##
+   ## General strategy is to determine the relative scaling of
+   ## each polygon, and downsample polygons proportional to the
+   ## amount of compression on the x-axis.
+   if (any(is.na(polyM[,1]))) {
+      data_style <- "base";
+      polyMlengths <- diff(unique(c(0, which(is.na(polyM[,1])), nrow(polyM))));
+      polyMratios <- shrinkMatrix(polyDF$ratio,
+         groupBy=polyDF$n,
+         shrinkFunc=function(x){median(x, na.rm=TRUE)})$x;
+   } else {
+      data_style <- "fortify";
+      idrows <- pasteByRow(polyM[,c("cov","gr")]);
+      idrows <- factor(idrows, levels=unique(idrows));
+      polyML <- split(polyM, idrows);
+      polyMratios <- unlist(lapply(polyML, function(i){
+         xr1 <- range(i[,1]);
+         xc1 <- ref2c$transform(xr1);
+         xv1 <- rev(sort(c(diff(xr1)+1, diff(xc1)+1)));
+         xv1[1] / xv1[2];
+      }));
+      polyMlengths <- sdim(polyML)[,1];
+   }
+   if (verbose) {
+      printDebug("compressPolygonM(): ",
+         "polyMratios:", head(polyMratios, 20));
+   }
+
+   ## data.frame describing the compression and polygon
    polyDF <- as.data.frame(polyM);
-   polyDF$newX <- ref2compressed$x(polyDF$x);
+   polyDF$newX <- ref2c$transform(polyDF$x);
    polyDF$ratio <- c(NA, diff(polyDF$newX) / diff(polyDF$x));
    polyMrepN <- rep(seq_along(polyMlengths), polyMlengths);
    polyDF$n <- polyMrepN;
-   iMedianRatios <- shrinkMatrix(polyDF$ratio,
-      groupBy=polyDF$n,
-      shrinkFunc=function(x){median(x, na.rm=TRUE)})$x;
-   polyDF$medianRatio <- rep(iMedianRatios,
+
+   polyDF$medianRatio <- rep(polyMratios,
       polyMlengths);
+
    polyDFL <- split(polyDF, polyMrepN);
-   whichComp <- which(iMedianRatios < 0.5);
-   whichNorm <- which(iMedianRatios >= 0.5);
+   whichComp <- which(polyMratios >= minRatio);
+   whichNorm <- which(polyMratios < minRatio);
+   if (length(whichComp) == 0) {
+      return(polyM);
+   }
+   ## Compress those polygons whose coordinates get compressed
    polyDFLnew <- lapply(nameVector(whichComp), function(k){
       iDF <- polyDFL[[k]];
       baseline <- iDF[1,"y"];
@@ -1766,31 +1138,44 @@ compressPolygonM <- function
 
       iRange <- range(iDF$x, na.rm=TRUE);
       iRangeNew <- range(iDF$newX, na.rm=TRUE);
-      iN <- ceiling(diff(iRange)*head(iDF$medianRatio, 1));
       iMedRatio <- head(iDF$medianRatio, 1);
-      iMultiple <- ceiling(1/iMedRatio);
-      iSeqNew <- seq(from=iRangeNew[1],
-         to=iRangeNew[2],
+      iN <- ceiling(diff(iRange)/iMedRatio);
+      iMultiple <- ceiling(iMedRatio);
+      iSeqNew <- seq(from=iRange[1],
+         to=iRange[2],
          by=iMedRatio);
-      iSeqSub <- seq(from=iRangeNew[1],
-         to=iRangeNew[2],
+      iSeqSub <- seq(from=iRange[1],
+         to=iRange[2],
          length.out=iN);
+      #iSeqNew <- seq(from=iRangeNew[1],
+      #   to=iRangeNew[2],
+      #   by=iMedRatio);
+      #iSeqSub <- seq(from=iRangeNew[1],
+      #   to=iRangeNew[2],
+      #   length.out=iN);
       iSeqSub[iSeqSub > max(iSeqNew)] <- max(iSeqNew);
 
       ## use approx() to fill in holes
-      iYnew <- approx(x=iDFu$newX, y=iDFu$y, xout=iSeqNew)$y;
-      iYrunmax <- caTools::runmax(iYnew, k=iMultiple, endrule="keep");
+      #iYnew <- approx(x=iDFu$newX,
+      iYnew <- approx(x=iDFu$x,
+         y=iDFu$y,
+         xout=iSeqNew)$y;
+      ## Take running max value, then use approx
+      iYrunmax <- caTools::runmax(iYnew,
+         k=iMultiple,
+         endrule="keep");
+      if (1 == 2) {
+         printDebug("head(iDFu):");print(head(iDFu));
+         printDebug("head(iYnew):", head(iYnew));
+         printDebug("head(iMultiple):", head(iMultiple));
+         printDebug("head(iN):", head(iN));
+         printDebug("head(iSeqNew):", head(iSeqNew));
+         printDebug("head(iYrunmax):", head(iYrunmax));
+         printDebug("head(iSeqSub):", head(iSeqSub));
+      }
       iYsub <- approx(x=iSeqNew,
          y=iYrunmax,
          xout=iSeqSub)$y;
-      if (1 == 2) {
-         plot(x=iDFu$newX, y=iDFu$y, cex=2);
-         polygon(x=c(iDFu$newX[1], iDFu$newX, tail(iDFu$newX, 1)),
-            y=c(0,iDFu$y, 0), col="grey85");
-         points(x=iSeqNew, y=iYnew, pch=20, cex=2, col="red");
-         points(x=iSeqNew, y=iYrunmax, pch=17, cex=1, col="orange");
-         points(x=iSeqSub, y=iYsub, pch=17, cex=2, col="purple");
-      }
       if (head(iYsub, 1) != baseline) {
          iYsub <- c(baseline, iYsub);
          iSeqSub <- c(head(iSeqSub, 1), iSeqSub);
@@ -1799,13 +1184,16 @@ compressPolygonM <- function
          iYsub <- c(iYsub, baseline);
          iSeqSub <- c(iSeqSub, tail(iSeqSub, 1));
       }
-      iM <- cbind(x=c(iSeqSub, NA),
-         y=c(iYsub, NA));
+      iM <- data.frame(check.names=FALSE,
+         stringsAsFactors=FALSE,
+         x=iSeqSub,
+         y=iYsub,
+         gr=head(iDF$gr,1),
+         cov=head(iDF$cov, 1));
    });
    newPolyDFL <- list();
    newPolyDFL[names(polyDFL)[whichNorm]] <- lapply(nameVector(whichNorm), function(k){
-      as.matrix(renameColumn(polyDFL[[k]][,c("newX","y")],
-         from="newX", to="x"));
+      polyDFL[[k]][,c("x","y","cov","gr"),drop=FALSE];
    });
    newPolyDFL[names(polyDFLnew)] <- polyDFLnew;
    newPolyDFL <- newPolyDFL[mixedSort(names(newPolyDFL))];
@@ -1819,13 +1207,35 @@ compressPolygonM <- function
 #'
 #' Convert exon coverage to polygons
 #'
+#' @param gr GRanges where `colnames(values(gr))` is present in `covNames`,
+#'    and contains data with class `NumericList`.
+#' @param covNames character vector contained in `colnames(values(gr))`.
+#' @param baseline numeric vector of length 0, 1 or `length(gr)`. If
+#'    `baseline` has names matching `names(gr)` they will be used for
+#'    each `gr` entry; if `baseline` is not named, it is extended
+#'    to `length(gr)`. The `baseline` value is added to the coverage
+#'    for each exon to offset the polygon as needed.
+#' @param gapWidth numeric value sent to `make_ref2compressed()`.
+#' @param coord_style character value to define the output style:
+#'    `"base"` returns a matrix with polygons separated by a row of `NA`
+#'    values; `"fortify"` returns a `data.frame` intended for ggplot2,
+#'    with columns `"cov"` and `"gr"` indicating the values in `covNames` and
+#'    `names(gr)` used to separate each polygon.
+#' @param ref2c optional list containing output from `make_ref2compressed()`,
+#'    used to compress the GRanges coordinates.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
 #' @export
 exoncov2polygon <- function
 (gr,
  covNames=NULL,
- baseline=0,
+ sample_id=NULL,
+ baseline=NULL,
  gapWidth=250,
  doPlot=FALSE,
+ coord_style=c("fortify", "base", "list", "all"),
+ ref2c=NULL,
  verbose=FALSE,
  ...)
 {
@@ -1837,30 +1247,45 @@ exoncov2polygon <- function
    ## - input GRanges with coverages in the values columns
    ##   stored as NumericList
    ## create polygons
+   coord_style <- match.arg(coord_style);
 
    if (!igrepHas("granges", class(gr))) {
       stop("Input gr should be a GRanges object.");
    }
    if (length(covNames) == 0) {
-      covNames <- vigrep("pos|neg", colnames(values(gr)));
+      covNames <- provigrep(c("pos|[+]$", "neg|[-]$"),
+         colnames(values(gr)));
    }
    if (length(covNames) == 0) {
       stop("covNames must be colnames(values(gr)).");
    }
+   retVals <- list();
 
    ## Define compressed coordinate space
-   ref2c <- make_ref2compressed(
-      subset(gr, feature_type %in% "exon"),
-      gapWidth=gapWidth);
+   #ref2c <- make_ref2compressed(
+   #   subset(gr, feature_type %in% "exon"),
+   #   gapWidth=gapWidth);
 
    ## Extend baseline to length of gr, so the baseline applies
    ## to each exon
-   baseline <- rep(baseline, length.out=length(gr));
+   baselineV <- nameVector(
+      rep(0,
+         length.out=length(gr)),
+      names(gr));
+   if (length(baseline) > 0) {
+      if (length(names(baseline)) > 0) {
+         baselineV[names(baseline)] <- baseline;
+      } else {
+         baselineV[] <- baseline;
+      }
+   }
 
    ## List of lists of polygons
    covPolyL <- lapply(nameVector(covNames), function(iName){
-      polyL <- lapply(names(gr), function(iGRname){
-         yVals1 <- unlist(values(gr[iGRname])[[iName]]) + baseline;
+      polyL <- lapply(nameVectorN(gr), function(iGRname){
+         yVals1a <- unlist(values(gr[iGRname])[[iName]]);
+         iBase <- baselineV[iGRname];
+         yVals1 <- yVals1a + iBase;
          ## Note: we define xVals1 width using yVals1 width,
          ## because this GRanges might have compressed coordinates
          ## and therefore the width(gr) is not an accurate measure
@@ -1872,12 +1297,16 @@ exoncov2polygon <- function
             xVals1,
             rep(tail(xVals1, 1), 2) + 0.5,
             head(xVals1, 1) - 0.5);
-         yVals <- c(0,
+         yVals <- c(iBase,
             head(yVals1, 1),
             yVals1,
             tail(yVals1, 1),
-            0,
-            0);
+            iBase,
+            iBase);
+         if (length(xVals) != length(yVals)) {
+            printDebug("length(xVals):", length(xVals));
+            printDebug("length(yVals):", length(yVals));
+         }
          ## TODO: compress coordinates where y-value doesn't change
          xy <- cbind(x=xVals, y=yVals);
          ## Simplify the coordinates, typically removing up to 90% rows
@@ -1885,43 +1314,784 @@ exoncov2polygon <- function
             restrictDegrees=c(0,180));
       });
    });
-   ## List of coordinate matrices suitable for vectorized polygon()
-   covPolyML <- lapply(covPolyL, function(iL){
-      tail(rbindList(lapply(iL, function(iM){
-         rbind(cbind(x=NA, y=NA),
-            iM)
-      })), -1);
-   });
+   if ("list" %in% coord_style) {
+      return(covPolyL);
+   }
+   retVals$covPolyL <- covPolyL;
 
-   ## Compress polygon
-   compCovPolyML <- lapply(covPolyML, function(iL){
-      iML <- compressPolygonM(iL, ref2compressed=ref2c);
-   });
+   if ("base" %in% coord_style) {
+      ## coordinate matrix suitable for vectorized polygon() by separating
+      ## each polygon with a row of NA values
+      covPolyML <- lapply(covPolyL, function(iL){
+         tail(rbindList(lapply(iL, function(iM){
+            rbind(cbind(x=NA, y=NA),
+               iM)
+         })), -1);
+      });
+      return(covPolyML);
+   }
+   if ("fortify" %in% coord_style) {
+      covPolyML <- lapply(nameVectorN(covPolyL), function(iN){
+         iL <- covPolyL[[iN]];
+         rbindList(lapply(nameVectorN(iL), function(iN2){
+            iM <- iL[[iN2]];
+            data.frame(check.names=FALSE,
+               stringsAsFactors=FALSE,
+               iM,
+               cov=iN,
+               gr=iN2);
+         }));
+      });
+      retVals$covPolyML <- covPolyML;
+
+      ## Compress polygon
+      if (length(ref2c) > 0) {
+         compCovPolyML <- lapply(covPolyML, function(iL){
+            iML <- compressPolygonM(iL,
+               ref2c=ref2c,
+               coord_style=coord_style);
+         });
+         retVals$compCovPolyML <- compCovPolyML;
+         #return(compCovPolyML);
+         covPolyML <- compCovPolyML;
+      }
+
+      covPolyDF <- rbindList(covPolyML);
+      covPolyDF$cov <- factor(covPolyDF$cov,
+         levels=unique(c(covNames, covPolyDF$cov)));
+      covPolyDF$gr <- factor(covPolyDF$gr,
+         levels=unique(c(names(gr),
+            covPolyDF$gr)));
+      ## Optionally add sample_id
+      if (length(sample_id) > 0) {
+         cov2sample <- nameVector(sample_id, covNames);
+         covPolyDF$sample_id <- cov2sample[covPolyDF$cov];
+      }
+      return(covPolyDF);
+   }
+
+      ## Compress polygon
+      if (length(ref2c) > 0) {
+         compCovPolyML <- lapply(covPolyML, function(iL){
+            iML <- compressPolygonM(iL,
+               ref2compressed=ref2c,
+               coord_style=coord_style);
+         });
+         retVals$compCovPolyML <- compCovPolyML;
+      }
 
    ## Optionally plot coverage
    if (doPlot) {
-      par("mfrow"=c(2,1));
-      polyCol <- colorjam::rainbowJam(length(covPolyL[[1]]));
-      plot(rbindList(covPolyML),
-         pch=".",
-         xaxt="n",
-         col="transparent");
-      polygon(rbindList(covPolyML),
-         border=polyCol,
-         col=polyCol);
-      plot(rbindList(compCovPolyML),
-         pch=".",
-         xaxt="n",
-         col="transparent");
-      polygon(compCovPolyML[[1]],
-         border=polyCol,
-         col=polyCol);
-      polygon(compCovPolyML[[2]],
-         border=polyCol,
-         col=polyCol);
-      par("mfrow"=c(1,1));
+      if ("base" %in% coord_style) {
+         if (exists(compCovPolyML)) {
+            par("mfrow"=c(2,1));
+         }
+         polyCol <- colorjam::rainbowJam(length(covPolyL[[1]]));
+         plot(rbindList(covPolyML),
+            pch=".",
+            xaxt="n",
+            col="transparent");
+         polygon(rbindList(covPolyML),
+            border=polyCol,
+            col=polyCol);
+         if (exists(compCovPolyML)) {
+            plot(rbindList(compCovPolyML),
+               pch=".",
+               xaxt="n",
+               col="transparent");
+            polygon(compCovPolyML[[1]],
+               border=polyCol,
+               col=polyCol);
+            polygon(compCovPolyML[[2]],
+               border=polyCol,
+               col=polyCol);
+            par("mfrow"=c(1,1));
+         }
+      }
    }
-   retVals <- list(covPolyML=covPolyML,
-      compCovPolyML=compCovPolyML);
    return(retVals);
 }
+
+#' Get coverage for GRanges from bigWig files
+#'
+#' Get coverage for GRanges from bigWig files
+#'
+#' This function takes a GRanges object to define genomic regions,
+#' for which coverage data is loaded for each `bwUrls` input file.
+#'
+#' @return DataFrame object, whose colnames are defined using
+#'    `makeNames(basename(bwUrls))`. Each column is type `NumericList`,
+#'    which is a list of numeric coverage values.
+#'
+#' @param gr GRanges object
+#' @param bwUrls character vector of full file paths or web URLs
+#'    to bigWig files, suitable for use by `rtracklayer::import()`.
+#' @param addGaps logical indicating whether gaps between GRanges
+#'    should be added to the query. Gaps are determined using
+#'    `getGRgaps()`.
+#' @param feature_type_colname,gap_feature_type,default_feature_type
+#'    When `addGaps=TRUE` a
+#'    new column named using `feature_type_colname` is added to `values(gr)`,
+#'    whose value for gap regions is `gap_feature_type`. When
+#'    `feature_type_colname` is already present in `gr` it is not modified,
+#'    otherwise the column is created with value `default_feature_type`.
+#'    By default, this function adds a column `"feature_type"` with
+#'    value `"gap"`.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+getGRcoverageFromBw <- function
+(gr,
+ bwUrls,
+ addGaps=FALSE,
+ gap_feature_type="gap",
+ default_feature_type="exon",
+ feature_type_colname="feature_type",
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose is to get coverage from bigWig files,
+   ## returning GRanges with columns containing NumericList
+   ## get coverage across the regions of interest.
+   ##
+   ## TODO: consider splitting bwUrls into bwUrlsPos, bwUrlsNeg
+   ## in order to allow strand-specificity
+   if (!igrepHas("GRanges", class(gr))) {
+      stop("gr must be a GRanges object.");
+   }
+   if (length(names(bwUrls)) == 0) {
+      names(bwUrls) <- makeNames(
+         gsub("[.](bw|bigWig)$",
+            "",
+            ignore.case=TRUE,
+            basename(bwUrls)));
+   }
+   default_feature_type <- head(c(default_feature_type, "exon"), 1);
+   gap_feature_type <- head(c(gap_feature_type, "gap"), 1);
+   if (addGaps) {
+      newValues <- list(feature_type=gap_feature_type);
+      names(newValues)[1] <- feature_type_colname;
+      if (!feature_type_colname %in% colnames(values(gr))) {
+         values(gr)[[feature_type_colname]] <- default_feature_type;
+      }
+      gr <- addGRgaps(gr,
+         newValues=newValues,
+         ...);
+   }
+   covL <- lapply(nameVectorN(bwUrls), function(iBw){
+      bwUrl <- bwUrls[[iBw]];
+      if (verbose) {
+         printDebug("getGRcoverageFromBw(): ",
+            "Importing bwUrl:",
+            bwUrl);
+      }
+      cov1 <- rtracklayer::import(bwUrl,
+         selection=rtracklayer::BigWigSelection(gr),
+         as="NumericList");
+   });
+   #grNew <- gr[,0];
+   values(gr)[,names(covL)] <-S4Vectors::DataFrame(covL);
+   #if (addGaps) {
+   #   values(grNew)[,feature_type_colname] <- values(gr)[,feature_type_colname];
+   #}
+   return(gr);
+}
+
+#' Combine GRanges coverage replicates
+#'
+#' Combine GRanges coverage replicates
+#'
+#' This function takes a GRanges object as output from
+#' `getGRcoverageFromBw()` and combines the coverages into
+#' one coverage per strand. The strand is inferred by the
+#' presence of negative values, where any negative value
+#' indicates the column is negative strand.
+#'
+#' @export
+combineGRcoverage <- function
+(gr,
+ covNames=NULL,
+ covName=NULL,
+ strands=NULL,
+ scaleFactors=1,
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose is to combine replicate coverage values
+   ##
+   ## covName is used to group together replicates of a sample_id
+   ## covNames is a unique name per coverage
+   if (any(!covNames %in% colnames(values(gr)))) {
+      stop("combineGRcoverage() requires covNames be present in colnames(values(gr)).");
+   }
+   if (length(scaleFactors) == 0) {
+      scaleFactors <- 1;
+   }
+   if (length(covName) == 0) {
+      covName <- "cov";
+   }
+   covName <- rep(covName, length.out=length(covNames));
+   names(covName) <- covNames;
+   if (length(scaleFactors) != length(covNames)) {
+      scaleFactors <- rep(scaleFactors, length.out=length(covNames));
+   }
+   names(scaleFactors) <- covNames;
+   if (length(strands) == 0) {
+      strands <- factor(sapply(seq_along(covNames), function(i){
+         iCov <- covNames[[i]];
+         ifelse(any(any(values(gr)[[iCov]] * scaleFactors[i] < 0)),
+            "-",
+            "+")
+      }), levels=c("+", "-"));
+   }
+   if (!"factor" %in% class(strands)) {
+      strands <- factor(strands,
+         levels=jamba::provigrep(c("[+]|pos|plus", "[-]|neg|minus", "."),
+            unique(strands)));
+   }
+   covNamesL <- split(covNames, paste0(covName, strands));
+   covNameL <- split(covName, paste0(covName, strands));
+   for (iCovN in names(covNamesL)) {
+      iCovV <- covNamesL[[iCovN]];
+      if (verbose) {
+         printDebug("combineGRcoverage(): ",
+            "iCovN:", iCovN);
+         printDebug("combineGRcoverage(): ",
+            "iCovV:", iCovV);
+      }
+      iCovX <- Reduce("+",
+         lapply(iCovV, function(i){
+            values(gr)[[i]]
+         }));
+      if (verbose) {
+         printDebug("combineGRcoverage(): ",
+            "iCovN:",
+            iCovN);
+      }
+      values(gr)[[iCovN]] <- iCovX;
+   }
+   gr <- gr[,!colnames(values(gr)) %in% covNames];
+   attr(gr, "covNames") <- names(covNamesL);
+   attr(gr, "covName") <- cPasteUnique(covNameL);
+   return(gr);
+}
+
+#' Prepare Sashimi plot data
+#'
+#' Prepare Sashimi plot data
+#'
+#' @param flatExonsByGene GRangesList named by gene, whose GRanges
+#'    elements are flattened, disjoint, non-overlapping genomic ranges
+#'    per gene.
+#' @param filesDF data.frame with columns `url`, `sample_id`, `type`,
+#'    where: `url` is any valid file path or URL compatible with
+#'    `base::read.table()`; `sample_id` is an identified representing
+#'    a biological sample, used to group common files together;
+#'    `type` is one of `"bw"` for bigWig coverage, `"junction"` for
+#'    BED12 format splice junctions.
+#' @param gene character string of the gene to prepare, which must be
+#'    present in `names(flatExonsByGene)`.
+#' @param gapWidth numeric value of the fixed width to use for
+#'    gaps (introns) between exon features. If `NULL` then
+#'    `getGRgaps()` will use the default based upon the median exon
+#'    width.
+#' @param addGaps logical indicating whether to include gap regions
+#'    in the coverage plot, for example including introns or intergenic
+#'    regions. When `compressGR=TRUE` then gaps regions are
+#'    down-sampled using running maximum signal with roughly the same
+#'    x-axis resolution as uncompressed regions.
+#' @param compressGR logical indicating whether to compress GRanges
+#'    coordinates in the output data, where gaps/introns are set
+#'    to a fixed width. When `ref2c` is not supplied, and
+#'    `compressGR=TRUE`, then `ref2c` is created using
+#'    `make_ref2compressed()`.
+#' @param ref2c list object output from `make_ref2compressed()` used
+#'    to compress axis coordinates, to compress polygon coverage
+#'    data in compressed regions, and to adjust splice junction arcs
+#'    using compressed coordinates.
+#' @param gapname the default feature_type value to use for gaps when
+#'    `addGaps=TRUE`.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are passed to `make_ref2compressed()`,
+#'    `getGRcoverageFromBw()`, `exoncov2polygon()`.
+#'
+#' @examples
+#' # First assemble a data.frame of coverage bigWig and junction BED files
+#' baseurl <- "https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/";
+#' bedext <- ".STAR_mm10.combinedJunctions.bed";
+#' bwext <- c("492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw",
+#'    "492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw");
+#' c1 <- c("CA1", "CA2");
+#' r1 <- c("CB", "DE");
+#' bedsamples <- paste0(rep(c1, each=2), "_", r1);
+#' bedurls <- paste0(baseurl,
+#'    bedsamples,
+#'    bedext);
+#' bedurls;
+#' bwsamples <- paste0(rep(c1, each=4), rep(r1, each=2));
+#' bwurls <- paste0(baseurl,
+#'    bwsamples,
+#'    bwext);
+#' bwurls;
+#' filesDF <- data.frame(url=c(bedurls, bwurls),
+#'    type=rep(c("junction", "bw"), c(4,8)),
+#'    sample_id=gsub("_", "", c(bedsamples, bwsamples)));
+#' filesDF;
+#'
+#' ## Next assemble exons by gene from a GTF file
+#' if (!require(rtracklater)) {
+#'    stop("rtracklayer is required.");
+#' }
+#' vM12gtf <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz";
+#' vM12gtfBase <- basename(vM12gtf);
+#' if (!file.exists(vM12gtfBase)) {
+#'    curl::curl_download(url=vM12gtf,
+#'       destfile=vM12gtfBase);
+#' }
+#' localDb <- file.path(".", "vM12gtf.txdb");
+#' if (!file.exists(localDb)) {
+#'    vM12txdb <- GenomicFeatures::makeTxDbFromGFF(vM12gtfBase);
+#'    AnnotationDbi::saveDb(x=vM12txdb, file=localDb);
+#' } else {
+#'    vM12txdb <- AnnotationDbi::loadDb(file=localDb);
+#' }
+#' exonsByTx <- GenomicFeatures::exonsBy(vM12txdb,
+#'    by="tx",
+#'    use.names=TRUE);
+#' values(exonsByTx@unlistData)[,"transcript_id"] <- rep(names(exonsByTx),
+#'    elementNROWS(exonsByTx));
+#'
+#' ## Use the GTF file to define a tx2geneDF data.frame
+#' tx2geneDF <- makeTx2geneFromGtf(GTF=vM12gtfBase);
+#'
+#' ## Next flatten exons per gene, optionally using detectedTx
+#' ## to limit the exon models to observed transcripts.
+#' flatExonsByGene <- flattenExonsByGene(exonsByTx=exonsByTx,
+#' #   detectedTx=detectedTx,
+#'    tx2geneDF=tx2geneDF);
+#'
+#' ## Finally, you can choose a gene, and any sample_id from
+#' ## filesDF$sample_id to prepare Sashimi plot data
+#' shGria1 <- prepareSashimi(flatExonsByGene=flatExonsByGene,
+#'    gene="Gria1",
+#'    sample_id=c("CA2CB", "CA2DE"),
+#'    filesDF=filesDF);
+#'
+#' ## Print the structure of data returned
+#' jamba::sdim(shGria1);
+#'
+#' ## Of initial interest is the ggplot2 sashimi plot
+#' print(shGria1$ggSashimi);
+#'
+#' ## You can just plot coverage
+#' print(shGria1$ggCov);
+#'
+#' ## You can just plot junction reads
+#' print(shGria1$ggJunc);
+#'
+#' ## For more intricate manipulations, use the data.frames
+#' head(shGria1$covDF);
+#' head(shGria1$juncDF);
+#'
+#' ## For kicks, the ref2c data
+#' sdim(shGria1$ref2c)
+#' ## the shGria1$ref2c$trans_grc is usable in ggplot like this
+#' ## + trans_new(x=shGria1$ref2c$trans_grc)
+#' ## or
+#' ## + scale_x_continuous(trans=shGria1$ref2c$trans_grc)
+#'
+#' @export
+prepareSashimi <- function
+(flatExonsByGene=NULL,
+ filesDF=NULL,
+ gene,
+ sample_id,
+ minJunctionScore=10,
+ gapWidth=200,
+ addGaps=TRUE,
+ compressGR=TRUE,
+ ref2c=NULL,
+ gap_feature_type="intron",
+ default_feature_type="exon",
+ feature_type_colname="feature_type",
+ exon_label_type=c("repel", "mark", "none"),
+ junc_label_type=c("repel", "mark", "none"),
+ return_data=c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF", "ref2c", "all"),
+ junc_color=alpha2col("goldenrod3", 0.7),
+ junc_fill=alpha2col("goldenrod1", 0.4),
+ coord_method=c("coord", "scale", "none"),
+ scoreFactor=1,
+ verbose=TRUE,
+ ...)
+{
+   ## Purpose it to wrapper several functions used to prepare various
+   ## types of data for Sashimi plots
+   ##
+   ## TODO: Allow filtering junction scores based upon the exon coverage
+   ## so the threshold is proportional to the coverage.
+   junc_label_type <- match.arg(junc_label_type);
+   exon_label_type <- match.arg(exon_label_type);
+   coord_method <- match.arg(coord_method);
+   retVals <- list();
+   #if (length(return_data) > 1 || "all" %in% return_data) {
+   #}
+
+   ## Validate filesDF
+   if (length(filesDF) == 0 ||
+         !jamba::igrepHas("tibble|tbl|data.*frame", class(filesDF))) {
+      stop("filesDF must be a data.frame or equivalent");
+   }
+   if (!all(c("url","sample_id","type") %in% colnames(filesDF))) {
+      stop("filesDF must contain colnames 'url', 'sample_id', and 'type'.");
+   }
+   ## validate other input
+   if (!igrepHas("GRangesList", class(flatExonsByGeneCds))) {
+      stop("flatExonsByGeneCds must be GRangesList")
+   }
+
+   ############################################
+   ## Extract exons
+   gr <- flatExonsByGene[gene]@unlistData;
+   if (any(c("all") %in% return_data)) {
+      retVals$gr <- gr;
+   }
+
+   ## Compress GRanges coordinates
+   if (length(ref2c) == 0) {
+      if (compressGR) {
+         if (verbose) {
+            printDebug("prepareSashimi(): ",
+               "running make_ref2compressed.");
+         }
+         ref2c <- make_ref2compressed(gr=gr,
+            gapWidth=gapWidth,
+            ...);
+      } else {
+         ref2c <- NULL;
+         coord_method <- "none";
+      }
+   }
+   if (any(c("all", "ref2c") %in% return_data)) {
+      retVals$ref2c <- ref2c;
+   }
+
+   ############################################
+   ## Get coverage data
+   bwFilesDF <- filesDF[filesDF$type %in% "bw" &
+         filesDF$sample_id %in% sample_id,c("url","sample_id"),drop=FALSE];
+   bwUrls <- nameVector(bwFilesDF);
+   bwSamples <- nameVector(bwFilesDF[,c("sample_id","url")]);
+   bwUrlsL <- split(bwUrls, bwSamples);
+   if ("scale_factor" %in% colnames(bwFilesDF)) {
+      bwScaleFactors <- rmNA(naValue=1,
+         bwFilesDF$scale_factor);
+   } else {
+      bwScaleFactors <- rep(1, length(bwUrls));
+   }
+   if (verbose) {
+      printDebug("prepareSashimi(): ",
+         "bwUrls:");
+      if (length(bwUrls) > 0) {
+         print(data.frame(bwUrls));
+      } else {
+         printDebug("No coverage files", fgText="red");
+      }
+   }
+   if (length(bwUrls) > 0) {
+      covGR <- getGRcoverageFromBw(gr=gr,
+         bwUrls=bwUrls,
+         addGaps=addGaps,
+         gap_feature_type=gap_feature_type,
+         default_feature_type=default_feature_type,
+         feature_type_colname=feature_type_colname,
+         ...);
+      ## Combine coverage per strand
+      covGR2 <- combineGRcoverage(covGR,
+         covName=bwSamples,
+         scaleFactors=bwScaleFactors,
+         covNames=names(bwUrls));
+      #retVals$covGR <- covGR2;
+      ## Obtain the new set of covNames
+      covNames <- attr(covGR2, "covNames");
+      covName <- attr(covGR2, "covName");
+      if (any(c("all", "covDF") %in% return_data)) {
+         retVals$covGR <- covGR;
+         retVals$covGR2 <- covGR2;
+      }
+
+      ## Create polygon data.frame
+      covDF <- exoncov2polygon(covGR2,
+         ref2c=ref2c,
+         covNames=covNames,
+         sample_id=covName,
+         coord_style="fortify",
+         ...);
+      if (any(c("all", "covDF") %in% return_data)) {
+         retVals$covDF <- covDF;
+      }
+      ## Add feature_type data
+      if (feature_type_colname %in% colnames(values(covGR2)) &&
+            !feature_type_colname %in% colnames(covDF)) {
+         covDF[,feature_type_colname] <- values(covGR2)[match(
+            as.character(covDF$gr),
+            names(covGR2)),feature_type_colname];
+      }
+
+      ## ggplot2 for exon coverage data
+      if (any(c("all","ggCov","ggSashimmi") %in% return_data)) {
+         ggCov <- ggplot(covDF, aes(x=x, y=y, group=gr, fill=gr)) +
+            geom_shape(show.legend=FALSE) +
+            theme_jam() +
+            scale_fill_jam() +
+            facet_grid(~sample_id, scales="free_y");
+         if ("scale" %in% coord_method) {
+            ggCov <- ggCov +
+               scale_x_continuous(trans=ref2c$trans_grc);
+         } else if ("coord" %in% coord_method) {
+            ggCov <- ggCov +
+               coord_trans(x=ref2c$trans_grc);
+         }
+         if (any(c("all", "ggCov") %in% return_data)) {
+            retVals$ggCov <- ggCov;
+         }
+         ########################################
+         ## Optional exon labels
+         covDFsub <- (as.character(covDF$gr) %in% names(gr));
+         covDFlab <- covDF[covDFsub,,drop=FALSE];
+
+         exonLabelDF1 <- shrinkMatrix(covDFlab[,c("x","y")],
+            groupBy=pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
+            shrinkFunc=function(x){mean(range(x))});
+         exonLabelDF1[,c("gr","sample_id")] <- rbindList(
+            strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
+         exonLabelDF1$gr <- factor(exonLabelDF1$gr, levels=unique(exonLabelDF1$gr));
+         exonLabelDF <- renameColumn(exonLabelDF1,
+            from="groupBy",
+            to="gr_sample");
+         head(exonLabelDF);
+         if ("mark" %in% exon_label_type) {
+            ggExonLabels <- ggforce::geom_mark_hull(data=exonLabelDF,
+               aes(x=x, y=y, label=gr, group=gr_sample),
+               fill="transparent",
+               label.fontsize=10,
+               label.fill=alpha2col("white", 0.3),
+               colour="transparent",
+               concavity=1,
+               label.buffer=unit(2, 'mm'),
+               con.cap=0,
+               expand=unit(1, "mm"),
+               con.border="one",
+               con.colour="navy",
+               label.colour="navy");
+            ggCov <- ggCov + ggExonLabels;
+         } else if ("repel" %in% junc_label_type) {
+            yMax <- max(exonLabelDF$y);
+            yUnit <- 10^floor(log10(yMax));
+            yMaxUse <- floor(yMax/yUnit)*yUnit;
+            ggExonLabels <- ggrepel::geom_text_repel(data=exonLabelDF,
+               inherit.aes=FALSE,
+               aes(x=x, y=y,
+                  group=gr_sample,
+                  fill="transparent",
+                  label=gr),
+               #nudge_y=yMaxUse-juncLabelDF$y, vjust=1, ## Used to fix labels at certain height
+               angle=90,
+               vjust=1,
+               direction="y",
+               point.padding=0
+            );
+            ggCov <- ggCov + ggExonLabels;
+         } else {
+            ggExonLabels <- NULL;
+         }
+      }
+   }
+
+   ############################################
+   ## Load Junctions
+   juncFilesDF <- filesDF[filesDF$type %in% "junction" &
+         filesDF$sample_id %in% sample_id,c("url","sample_id"),drop=FALSE];
+   juncUrls <- nameVector(juncFilesDF);
+   juncSamples <- nameVector(juncFilesDF[,c("sample_id","sample_id")]);
+   juncUrlsL <- split(juncUrls, juncSamples);
+   if ("score_factor" %in% colnames(juncFilesDF)) {
+      juncScoreFactors <- rmNA(naValue=1,
+         juncFilesDF$scale_factor);
+   } else {
+      juncScoreFactors <- rep(1, length(juncUrls));
+   }
+   names(juncScoreFactors) <- names(juncUrls);
+   #juncUrls <- nameVector(
+   #   filesDF[filesDF$type %in% "junction" & filesDF$sample_id %in% sample_id,c("url","sample_id"),drop=FALSE]);
+   if (verbose) {
+      printDebug("prepareSashimi(): ",
+         "juncUrls:");
+      if (length(juncUrls) > 0) {
+         print(data.frame(juncUrls));
+      } else {
+         printDebug("No junction files", fgText="red");
+      }
+   }
+   if (length(juncUrls) > 0) {
+      juncBedGR <- GRangesList(lapply(nameVectorN(juncUrls), function(iBedName){
+         iBed <- juncUrls[[iBedName]];
+         if (verbose) {
+            printDebug("prepareSashimi(): ",
+               "Importing bed:",
+               iBed);
+         }
+         bed1 <- rtracklayer::import(iBed,
+            which=range(gr));
+         values(bed1)$score <- as.numeric(values(bed1)$name) * juncScaleFactors[iBedName];
+         values(bed1)[,c("juncNames")] <- iBedName;
+         values(bed1)[,c("sample_id")] <- juncSamples[iBedName];
+         bed1;
+      }))@unlistData;
+      ## Create junction summary data.frame
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "running spliceGR2junctionDF()");
+      }
+      juncDF1 <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
+         exonsGR=gr,
+         sampleColname="sample_id");
+      juncGR <- as(renameColumn(juncDF1, from="ref", to="seqnames"), "GRanges");
+      names(juncGR) <- makeNames(values(juncGR)[,"nameFromToSample"]);
+      ## Convert junctions to polygons usable by geom_diagonal_wide()
+      #      juncPolyDF <- grl2df(setNames(GRangesList(subset(juncGR, score > minJunctionScore)), sample_id),
+      juncDF <- grl2df(split(juncGR, values(juncGR)[["sample_id"]]),
+         shape="junction",
+         ref2c=ref2c,
+         scoreFactor=juncScoreFactors,
+         scoreArcFactor=0.3,
+         baseline=baseline,
+         verbose=verbose,
+         doStackJunctions=TRUE);
+      if (!"sample_id" %in% colnames(juncDF)) {
+         juncDF <- renameColumn(juncDF,
+            from="grlNames",
+            to="sample_id");
+      }
+      juncDF <- juncDF[,!colnames(juncDF) %in% c("grlNames"),drop=FALSE];
+
+      if ("Gria1_exon13 Gria1_exon15" %in% values(juncGR)[["nameFromTo"]]) {
+         printDebug("juncDF1:");
+         print(subset(juncGR, nameFromTo %in% "Gria1_exon13 Gria1_exon15"));
+      }
+      if ("Gria1_exon13 Gria1_exon15" %in% juncDF1$nameFromTo) {
+         printDebug("juncDF1:");
+         print(subset(juncDF1, nameFromTo %in% "Gria1_exon13 Gria1_exon15"));
+      }
+      if ("Gria1_exon13 Gria1_exon15" %in% juncDF$nameFromTo) {
+         printDebug("juncDF:");
+         print(subset(juncDF, nameFromTo %in% "Gria1_exon13 Gria1_exon15"));
+      }
+      if (any(c("all", "juncDF") %in% return_data)) {
+         retVals$juncDF1 <- juncDF1;
+         retVals$juncDF <- juncDF;
+      }
+
+      ## define junction label positions
+      #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
+      juncLabelDF1 <- subset(mutate(juncDF, id_name=makeNames(id)),
+         grepl("_v1_v[23]$", id_name));
+      juncLabelDF <- renameColumn(
+         shrinkMatrix(juncLabelDF1[,c("x","y","score"),drop=FALSE],
+            groupBy=juncLabelDF1[,"nameFromToSample"]),
+         from="groupBy",
+         to="nameFromToSample");
+      juncLabelDF[,c("nameFromTo","sample_id")] <- rbindList(
+         strsplit(juncLabelDF[,"nameFromToSample"], ":!:"));
+      juncLabelDF[,c("nameFrom", "nameTo")] <- rbindList(
+         strsplit(juncLabelDF[,"nameFromTo"], " "));
+
+      if (any(c("all", "juncLabelDF") %in% return_data)) {
+         retVals$juncLabelDF <- juncLabelDF;
+      }
+
+      ## ggplot2 for junction data
+      if (any(c("all","ggJunc","ggSashimi") %in% return_data)) {
+         ggJunc <- ggplot(juncDF) +
+            ggforce::geom_diagonal_wide(aes(x=x, y=y, group=id),
+               color=junc_color,
+               fill=junc_fill,
+               strength=0.4);
+         ggJunc <- ggJunc +
+            facet_grid(~sample_id, scales="free_y");
+         if ("mark" %in% junc_label_type) {
+            ggJuncLabels <- ggforce::geom_mark_hull(data=juncLabelDF,
+               aes(x=x, y=y, group=nameFromToSample, label=round(score)),
+               fill="transparent",
+               label.fontsize=10,
+               label.fill=alpha2col("white", 0.3),
+               colour="transparent",
+               concavity=1,
+               label.buffer=unit(2, 'mm'),
+               con.cap=0,
+               expand=unit(1, "mm"),
+               con.border="one",
+               con.colour="navy",
+               label.colour="navy");
+            ggJunc <- ggJunc + ggJuncLabels;
+         } else if ("repel" %in% junc_label_type) {
+            yMax <- max(juncLabelDF$y);
+            yUnit <- 10^floor(log10(yMax));
+            yMaxUse <- floor(yMax/yUnit)*yUnit;yMaxUse;
+            ggJuncLabels <- ggrepel::geom_text_repel(data=juncLabelDF,
+               inherit.aes=FALSE,
+               aes(x=x, y=y,
+                  group=nameFromToSample,
+                  fill="transparent",
+                  label=scales::comma(round(score))),
+               #nudge_y=yMaxUse-juncLabelDF$y, vjust=1, ## Used to fix labels at certain height
+               angle=90, vjust=0.5,
+               direction="y",
+               point.padding=0
+               );
+            ggJunc <- ggJunc + ggJuncLabels;
+         } else {
+            ggJuncLabels <- NULL;
+         }
+         ggJunc <- ggJunc +
+            theme_jam() + scale_fill_jam();
+         if ("scale" %in% coord_method) {
+            ggJunc <- ggJunc +
+               scale_x_continuous(trans=ref2c$trans_grc);
+         } else if ("coord" %in% coord_method) {
+            ggJunc <- ggJunc +
+               coord_trans(x=ref2c$trans_grc);
+         }
+         if (any(c("all", "ggJunc") %in% return_data)) {
+            retVals$ggJunc <- ggJunc;
+         }
+      }
+   }
+
+   #########################################
+   ## ggplot2 for Sashimi plot
+   if (any(c("all","ggSashimi") %in% return_data)) {
+      if (length(bwUrls) > 0) {
+         ggSashimi <- ggCov;
+         if (length(juncUrls) > 0) {
+            ggSashimi <- ggSashimi +
+               geom_diagonal_wide(data=juncDF,
+                  aes(x=x, y=y, group=id),
+                  color=junc_color,
+                  fill=junc_fill,
+                  strength=0.4);
+            if (length(ggJuncLabels) > 0) {
+               ggSashimi <- ggSashimi + ggJuncLabels;
+            }
+         }
+      } else {
+         if (length(juncUrls) > 0) {
+            ggSashimi <- ggJunc;
+         } else {
+            ggSashimi <- NULL;
+         }
+      }
+      retVals$ggSashimi <- ggSashimi;
+   }
+   return(retVals);
+}
+

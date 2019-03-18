@@ -4,7 +4,7 @@
 \alias{compressPolygonM}
 \title{Compress genome coordinates of a matrix of polygons}
 \usage{
-compressPolygonM(polyM, ref2compressed, ...)
+compressPolygonM(polyM, ref2c, minRatio = 3, verbose = FALSE, ...)
 }
 \description{
 Compress genome coordinates of a matrix of polygons

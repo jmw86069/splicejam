@@ -715,6 +715,9 @@ intercalate <- function
    }
    ## do.call will automatically repeat any vector to fill each row
    ## up to the maximum number of columns.
+   if (length(unique(lengths(aList))) > 1) {
+      ## Unequal lengths, to avoid warning should we expand them?
+   }
    aMatrix <- do.call(rbind, aList);
    newVector <- as.vector(aMatrix);
 
@@ -727,9 +730,9 @@ intercalate <- function
    ##
    ## desired output is
    ## c("A","B","A","B","A")
-   #if (length(aList) == 2 && length(aList[[1]]) == (length(aList[[2]]) + 1)) {
-   #   newVector <- head(newVector, -1);
-   #}
+   if (length(aList) == 2 && length(aList[[1]]) == (length(aList[[2]]) + 1)) {
+      newVector <- head(newVector, -1);
+   }
    return(newVector);
 }
 

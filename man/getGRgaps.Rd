@@ -4,9 +4,23 @@
 \alias{getGRgaps}
 \title{Get gaps in GRanges}
 \usage{
-getGRgaps(GR, strandSpecific = TRUE, keepValues = FALSE,
-  trimEnds = TRUE, method = c("new", "old"), ...)
+getGRgaps(gr, strandSpecific = TRUE, verbose = FALSE, ...)
+}
+\arguments{
+\item{gr}{GRanges object}
+
+\item{strandSpecific}{logical indicating whether to convert strand
+to \code{"*"} prior to determining gaps between features.}
+
+\item{verbose}{logical indicating whether to print verbose output.}
+
+\item{...}{additional arguments are passed to \code{getGRLgaps()}.}
 }
 \description{
 Get gaps in GRanges
+}
+\details{
+This function returns the gaps between GRanges regions, calculated
+for each chromosome (using \code{seqnames(gr)}), and when \code{strandSpecific=TRUE}
+it determines gaps in stranded fashion.
 }

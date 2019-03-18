@@ -1,3 +1,54 @@
+# splicejam version 0.0.16.900
+
+## new functions
+
+* `prepareSashimi()` is a workhorse function that prepares several
+types of Sashimi-like data output, including ggplot2-based
+Sashimi plots. This plot uses vanilla ggplot2 with custom x-axis
+scaling to compress genomic coordinates, while keeping data in
+proper genomic coordinate space.
+* `grl2df()` is similar to `fortify()` from ggplot2, or the
+`broom::tidy()` functions, that take a custom object and return
+a data.frame for downstream use. Here the function currently works
+with "rectangle" data (like exons, introns, peaks, etc.), and
+"junction" (like junction regions to be represented by
+`ggforce::geom_diagonal_wide()`). In future it may also handle
+sequence coverage polygons.
+* `exoncov2polygon()` converts a GRanges object containing coverage
+in the form of NumericList for each exon or intron, into a data.frame
+suitable for use by `geom_polygon()` or `ggforce::geom_shape()`.
+* `getGRcoverageFromBw()` loads bigWig coverage data for a GRanges of
+exons and introns, returning a GRanges object with columns representing
+each sample_id. It calls `combineGRcoverage()` to combine coverages
+by strand within each `sample_id`.
+* `flattenExonsByGene()` is intended to provide a set of unique exons
+per gene, using all or only detected transcript exon models. It numbers
+exons by contiguous segment, then labels subsections of each exon
+with a letter suffix, for example "exon1", "exon2a", "exon2b", "exon3".
+Lastly, it can annotate exons as CDS or non-CDS, if given a set
+of `cdsByTx` data.
+* `make_ref2compressed()` takes a GRanges object of exons (or any
+useful feature like ChIP-seq peaks, etc) and returns functions needed
+to compress x-axis coordinates, in order to shrink gaps/introns to
+a fixed width, suitable for use by ggplot2.
+* `spliceGR2junctionDF()` takes junctions GRanges data, and flatExonsByGene,
+and summarizes and annotates each junction by the gene_exon connected,
+and combines scores when multiple junctions are within "spliceBuffer"
+distance of an exon boundary, by default 3 bases. It can accept a
+GRanges object that was derived from multiple sample_id, and will return
+data summarized within each sample_id. It calls `stackJunctions()` to
+combine junctions per replicate.
+* `simplifyXY()` takes a vector of coordinates, and simplifies them to
+the minimal set of points to represent the polygon. For sequence
+coverage data, that process can reduce individual points by 90%,
+but it works with any coordinate data. When two or more consecutive line
+segments have identical angle (with non-zero distance), they are combined
+using only the first and last points.
+* `getGRgaps()`, `getGRLgaps()`, `addGRgaps()`, `addGRLgaps()` are functions
+that take GRanges input, and return either just the gaps between
+non-overlapping regions, or the original features with gaps inserted between
+them. Useful to convert a set of exons, to a set of exons and introns.
+
 # splicejam version 0.0.15.900
 
 ## new functions

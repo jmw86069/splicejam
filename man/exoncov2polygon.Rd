@@ -4,8 +4,37 @@
 \alias{exoncov2polygon}
 \title{Convert exon coverage to polygons}
 \usage{
-exoncov2polygon(gr, covNames = NULL, baseline = 0, gapWidth = 250,
-  doPlot = FALSE, verbose = FALSE, ...)
+exoncov2polygon(gr, covNames = NULL, sample_id = NULL,
+  baseline = NULL, gapWidth = 250, doPlot = FALSE,
+  coord_style = c("fortify", "base", "list", "all"), ref2c = NULL,
+  verbose = FALSE, ...)
+}
+\arguments{
+\item{gr}{GRanges where \code{colnames(values(gr))} is present in \code{covNames},
+and contains data with class \code{NumericList}.}
+
+\item{covNames}{character vector contained in \code{colnames(values(gr))}.}
+
+\item{baseline}{numeric vector of length 0, 1 or \code{length(gr)}. If
+\code{baseline} has names matching \code{names(gr)} they will be used for
+each \code{gr} entry; if \code{baseline} is not named, it is extended
+to \code{length(gr)}. The \code{baseline} value is added to the coverage
+for each exon to offset the polygon as needed.}
+
+\item{gapWidth}{numeric value sent to \code{make_ref2compressed()}.}
+
+\item{coord_style}{character value to define the output style:
+\code{"base"} returns a matrix with polygons separated by a row of \code{NA}
+values; \code{"fortify"} returns a \code{data.frame} intended for ggplot2,
+with columns \code{"cov"} and \code{"gr"} indicating the values in \code{covNames} and
+\code{names(gr)} used to separate each polygon.}
+
+\item{ref2c}{optional list containing output from \code{make_ref2compressed()},
+used to compress the GRanges coordinates.}
+
+\item{verbose}{logical indicating whether to print verbose output.}
+
+\item{...}{additional arguments are ignored.}
 }
 \description{
 Convert exon coverage to polygons

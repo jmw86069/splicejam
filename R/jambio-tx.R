@@ -2005,33 +2005,8 @@ annotateGRfromGR <- function
                iValsX <- unlist(iVals);
                iValsXnames1 <- rep(grOLq,
                   S4Vectors::lengths(iVals));
-               if (1 == 2) {
-                  iValsDF <- data.frame(stringsAsFactors=FALSE,
-                     check.names=FALSE,
-                     iValsX=iValsX,
-                     iValsXnames1=iValsXnames1);
-                  if (useMixedSort) {
-                     if (verbose) {
-                        printDebug("annotateGRfromGR(): ",
-                           "Using mixedSortDF() on iCol:",
-                           iCol);
-                        printDebug("annotateGRfromGR(): ",
-                           "      iValsDF:");
-                        print(head(iValsDF));
-                     }
-                     if (DEBUG) {
-                        return(iValsDF);
-                     }
-                     #iValsDF <- mmixedOrderDF(iValsDF);
-                     iValsDF <- mixedSortDF(iValsDF);
-                  }
-                  iValsDFnonNA <- which(!is.na(iValsDF$iValsX));
-                  iX <- nameVector(rep(NA, length(GR1)), names(GR1));
-                  iValsSplit <- split(iValsDF[,"iValsX"][iValsDFnonNA],
-                     iValsDF[,"iValsXnames1"][iValsDFnonNA]);
-               } else {
-                  iValsSplit <- split(iValsX, iValsXnames1);
-               }
+               iValsSplit <- split(iValsX, iValsXnames1);
+
                iXnonNA <- stringShrinkFunc[[iCol]](iValsSplit,
                   sep=sep);
                iX[names(iXnonNA)] <- iXnonNA;
@@ -2040,20 +2015,6 @@ annotateGRfromGR <- function
                ## Non-list column
                iValsX <- values(GR2)[grOLs,iCol];
                iValsXnames1 <- grOLq;
-
-               if (1 == 2) {
-                  if (useMixedSort) {
-                     if (verbose) {
-                        printDebug("      useMixedSort started");
-                     }
-                     iValsXo <- mixedOrder(iValsX);
-                     iValsX <- iValsX[iValsXo];
-                     iValsXnames1 <- iValsXnames1[iValsXo];
-                     if (verbose) {
-                        printDebug("      useMixedSort completed");
-                     }
-                  }
-               }
 
                ## Split the values
                nonNA <- which(!is.na(iValsX));
@@ -2097,10 +2058,12 @@ annotateGRfromGR <- function
          numShrunkDF <- data.frame(check.names=FALSE,
             stringsAsFactors=FALSE,
             do.call(cbind, numShrunk));
-         printDebug("annotateGRfromGR(): ",
-            "   nrow(numShrunkDF):",
-            formatInt(nrow(numShrunkDF)),
-            " (before)");
+         if (verbose) {
+            printDebug("annotateGRfromGR(): ",
+               "   nrow(numShrunkDF):",
+               formatInt(nrow(numShrunkDF)),
+               " (before)");
+         }
       }
       if (nrow(grOLm1) > 0) {
          ## Create data.frame using the original entries
@@ -2247,10 +2210,10 @@ annotateGRLfromGRL <- function
  annoName1="name",
  annoName2="name",
  grlOL=NULL,
- addGRLnames=TRUE,
+ addGRLnames=FALSE,
  returnType=c("GRL", "GR"),
  splitColname=annoName1,
- verbose=verbose,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to run annotateGRfromGR() except allow for GRangesList
@@ -2259,13 +2222,22 @@ annotateGRLfromGRL <- function
    ## allowed for the same annotated entries, defined in annoName1,
    ## and annoName2.
    returnType <- match.arg(returnType);
+   ## Assign names to GRL1 and GRL2 as needed
+   if (length(names(GRL1@unlistData)) == 0) {
+      names(GRL1@unlistData) <- makeNames(rep("GRL1",
+         length(GRL1@unlistData)));
+   }
+   if (length(names(GRL2@unlistData)) == 0) {
+      names(GRL2@unlistData) <- makeNames(rep("GRL2",
+         length(GRL2@unlistData)));
+   }
    if (is.null(grlOL)) {
       grlOL <- findOverlapsGRL(GRL1,
          GRL2,
          annoName1=annoName1,
          annoName2=annoName2);
    }
-   if (addGRLnames) {
+   #if (addGRLnames) {
       if (annoName1 %in% "name") {
          values(GRL1@unlistData)[,"GRL1name"] <- rep(names(GRL1),
             S4Vectors::lengths(GRL1));
@@ -2276,18 +2248,32 @@ annotateGRLfromGRL <- function
             S4Vectors::lengths(GRL2));
          annoName2 <- "GRL2name";
       }
-   }
+   #}
    annoNames2 <- setdiff(colnames(values(GRL2@unlistData)), annoName2);
+   if (verbose) {
+      printDebug("annotateGRLfromGRL(): ",
+         "annoNames2:",
+         annoNames2);
+   }
    GR12 <- annotateGRfromGR(GRL1@unlistData,
       GRL2@unlistData[,annoNames2],
       grOL=grlOL,
       verbose=verbose,
       ...);
    if (returnType %in% "GR") {
+      if (!addGRLnames) {
+         values(GR12) <- values(GR12)[,setdiff(colnames(values(GR12)),
+            c("GRL1name", "GRL2name"))];
+      }
       return(GR12);
    } else {
-      return(GenomicRanges::split(GR12,
-         values(GR12)[,splitColname]));
+      GRL12 <- GenomicRanges::split(GR12,
+         values(GR12)[,splitColname]);
+      if (!addGRLnames) {
+         values(GRL12@unlistData) <- values(GRL12@unlistData)[,setdiff(colnames(values(GRL12@unlistData)),
+            c("GRL1name", "GRL2name"))];
+      }
+      return(GRL12);
    }
 }
 
@@ -2409,6 +2395,8 @@ findOverlapsGRL <- function
 #' @param checkDisjoin character value indicating how to handle non-disjoint
 #'    input GRL ranges. When `checkDisjoin="stop"` then any non-disjoint
 #'    GRanges in an element of `GRL` will cause the function to fail.
+#' @param assignGRLnames logical indicating whether names for the
+#'    resulting GRangesList should use the exon names.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
@@ -2421,6 +2409,7 @@ assignGRLexonNames <- function
  renameOnes=FALSE,
  filterTwoStrand=TRUE,
  checkDisjoin=c("warn","none","stop"),
+ assignGRLnames=TRUE,
  verbose=FALSE,
  ...)
 {
@@ -2456,11 +2445,20 @@ assignGRLexonNames <- function
       }
       iRemove <- which(S4Vectors::lengths(GRLstrandL) > 1);
       GRL <- GRL[-iRemove];
+   } else {
+      if (verbose) {
+         printDebug("assignGRLexonNames(): ",
+            "No multi-stranded exon entries.");
+      }
    }
 
    ## check disjoint GRanges
    if (checkDisjoin %in% c("warn","stop")) {
-      GRLdis <- disjoin(GRL);
+      if (verbose) {
+         printDebug("assignGRLexonNames(): ",
+            "Checking disjoint ranges.");
+      }
+      GRLdis <- GenomicRanges::disjoin(GRL);
       if (!all(S4Vectors::lengths(GRLdis) == S4Vectors::lengths(GRL))) {
          if (checkDisjoin %in% "stop") {
             stop("assignGRLexonNames() detected overlapping GRanges, stopping.");
@@ -2473,25 +2471,29 @@ assignGRLexonNames <- function
    }
 
    ## Reduce entries
-   GRLred <- reduce(GRL);
+   if (verbose) {
+      printDebug("assignGRLexonNames(): ",
+         "Reducing ranges.");
+   }
+   GRLred <- GenomicRanges::reduce(GRL);
 
    ## Add geneSymbolColname if it does not already exist
    if (!geneSymbolColname %in% colnames(values(GRLred@unlistData))) {
       values(GRLred@unlistData)[,geneSymbolColname] <- rep(names(GRLred),
-         lengths(GRLred));
+         S4Vectors::elementNROWS(GRLred));
    }
    if (verbose) {
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "head(GRLred):");
       print(head(GRLred));
    }
    if (verbose) {
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "geneSymbolColname:",
          geneSymbolColname);
    }
    if (verbose) {
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "geneSymbolColname values:",
          head(values(GRLred@unlistData)[,geneSymbolColname], 10));
    }
@@ -2531,7 +2533,8 @@ assignGRLexonNames <- function
    }
 
    ## Add lowercase letter suffix
-   GRLcolnames <- unvigrep(paste0(exonNameColname, "(_v[0-9]|)$"), colnames(values(GRL@unlistData)));
+   GRLcolnames <- unvigrep(paste0(exonNameColname, "(_v[0-9]|)$"),
+      colnames(values(GRL@unlistData)));
    if (verbose) {
       printDebug("assignGRLexonNames(): ",
          "head(GRL[,GRLcolnames]):");
@@ -2579,18 +2582,12 @@ assignGRLexonNames <- function
             suffix=subFeatureSuffix,
             renameOnes=renameOnes));
    }
+   if (assignGRLnames) {
+      names(GRLnew@unlistData) <- makeNames(values(GRLnew@unlistData)[,exonNameColname]);
+   }
 
    return(GRLnew);
 
-   ## subsection exon numbering using lowercase letters
-   GRnew <- renumberGRanges(GR1=GRL@unlistData,
-      groupColname=geneSymbolColname);
-   GRLnew <- split(GRnew[,c(colnames(values(GRL@unlistData)),"exon_id")],
-      values(GRnew)[,geneSymbolColname]);
-   values(GRLnew@unlistData) <- renameColumn(values(GRLnew@unlistData),
-      from="exon_id", to=exonNameColname)
-
-   return(GRLnew);
 }
 
 #' Prepare ALE data for violin plots
@@ -3281,13 +3278,21 @@ runDiffSplice <- function
 #'
 #' Get gaps in GRanges
 #'
+#' This function returns the gaps between GRanges regions, calculated
+#' for each chromosome (using `seqnames(gr)`), and when `strandSpecific=TRUE`
+#' it determines gaps in stranded fashion.
+#'
+#' @param gr GRanges object
+#' @param strandSpecific logical indicating whether to convert strand
+#'    to `"*"` prior to determining gaps between features.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are passed to `getGRLgaps()`.
+#'
 #' @export
 getGRgaps <- function
-(GR,
+(gr,
  strandSpecific=TRUE,
- keepValues=FALSE,
- trimEnds=TRUE,
- method=c("new","old"),
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to wrapper the gaps() function from GenomicRanges
@@ -3298,37 +3303,473 @@ getGRgaps <- function
    ## so the resulting object can be appended to the original GR.
    ##
    #GRDF <- as.data.frame(GR);
+   ##
+   ## This function is essentially a wrapper around getGRLgaps()
+   #if (!strandSpecific) {
+   #   strand(gr) <- "*";
+   #}
+   #grl <- GRangesList(split(gr,
+   #   pasteByRowOrdered(as.data.frame(gr)[,c("seqnames", "strand")])));
+   gapsGRL <- getGRLgaps(grl=GRangesList(list(`gr`=gr)),
+      strandSpecific=strandSpecific,
+      verbose=verbose,
+      ...);
+   return(gapsGRL@unlistData);
+}
 
-   if (method %in% "old") {
-      refStrands <- paste(seqnames(GR),
-         strand(GR), sep="");
-      gapsGR2 <- GRangesList(sapply(unique(refStrands), function(refStrand) {
-         #ref1 <- gsub("^(.+)([-+])$", "\\1", refStrand);
-         #strand1 <- gsub("^(.+)([-+])$", "\\2", refStrand);
-         gapsGR <- gaps(subset(GR, refStrands %in% refStrand));
-         #gapsGR1 <- gapsGR[seqnames(gapsGR) %in% ref1 & strand(gapsGR) %in% strand1 & start(gapsGR) > 1];
-      }))@unlistData;
-      ## Remove gaps outside the original region, e.g. ends of chromosomes
-      ## and '*' strand
+#' Get gaps in GRangesList objects
+#'
+#' Get gaps in GRangesList objects
+#'
+#' This function returns gaps between GRanges regions in a GRangesList
+#' object. When `strandSpecific=TRUE` is determines gaps per strand,
+#' otherwise strands are converted to `"*"`. It will also determine
+#' gaps within chromosome for each GRanges entry in GRangesList.
+#'
+#' @return GRangesList object with gaps for each chromosome and strand
+#'    present in each GRanges entry. It does not return gap sequence
+#'    at the edges of GRanges regions to the chromosome ends.
+#'
+#' @param grl GRangesList object.
+#' @param strandSpecific logical indicating whether to determine gaps
+#'    within strand.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+getGRLgaps <- function
+(grl,
+ strandSpecific=TRUE,
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose is to wrapper the gaps() function from GenomicRanges
+   ## except to return only the gaps between features on the same
+   ## chromosome and strand
+   ##
+   ## Check for one strand per grl
+   ## grl <- grlGria1;strand(grl@unlistData)[3:4] <- "-";
+   ## seqnames(grl@unlistData)[3:4] <- "chr7";
+   if (!strandSpecific) {
+      strand(grl) <- "*";
+   }
+   isMultiStrand <- any(lengths(unique(strand(grl))) > 1);
+   isMultiSeqname <- any(lengths(unique(seqnames(grl))) > 1);
+
+   if (length(names(grl)) == 0) {
+      names(grl) <- makeNames(rep("grl", length(grl)));
+   }
+   grlNames <- names(grl);
+
+   ## pre-process GRangesList to split each GRanges by seqnames_strand
+   ## TODO: check whether any GRanges entry has multiple seqnames or
+   ## multiple strands -- if not then skip this step.
+   ## If so, then split each GRanges by seqnames_strand
+   if (isMultiStrand || isMultiSeqname) {
+      values(grl@unlistData)[,"grlName"] <- rep(names(grl),
+         elementNROWS(grl));
+      grl <- GRangesList(split(grl@unlistData,
+         pasteByRowOrdered(sep=":!:",
+            as.data.frame(grl@unlistData)[,c("grlName","seqnames","strand")])
+         )
+      );
+   }
+
+   ## Use gaps() method directly
+   if (verbose) {
+      printDebug("getGRLgaps(): ",
+         "Began gaps logic.");
+   }
+   IRL <- as(grl, "IRangesList");
+   gapsIRL <- gaps(IRL);
+   irlName <- rep(names(gapsIRL),
+      elementNROWS(gapsIRL));
+   grlName <- gsub(":!:.*$", "", irlName);
+   grlName <- factor(grlName,
+      levels=unique(c(grlNames, grlName)));
+   grNew <- GRanges(seqnames=rep(as.character(seqnames(range(grl))),
+      elementNROWS(gapsIRL)),
+      range=IRanges(start=start(gapsIRL@unlistData),
+         end=end(gapsIRL@unlistData)),
+      strand=rep(strand(range(grl)@unlistData),
+         elementNROWS(gapsIRL)),
+      irlName=irlName,
+      grlName=grlName
+   );
+   ## Split by the original grl name, which will combine different
+   ## seqnames and strands if needed
+   grlNew <- GenomicRanges::split(grNew[,0],
+      values(grNew)[,"grlName"]);
+   return(grlNew);
+}
+
+#' Flatten transcript exons by gene
+#'
+#' Flatten transcript exons by gene
+#'
+#' This function takes `exonsByTx` which is a `GRangesList` object
+#' of transcript exons, named by the `transcript_id`. It groups transcripts
+#' together by gene, produces a flattened unique set of disjoint exons
+#' which do not overlap. Finally, it labels each exon using a defined
+#' naming scheme:
+#'
+#' * Each contiguous exon is numbered in order, starting at `1` for the
+#' first stranded exon for the gene, for example `exon1`, `exon2`,
+#' `exon3`.
+#' * Adjacent exons (within a contiguous exon and no gap between them)
+#' are additionally labeled with a letter suffix to indicate the order
+#' within that exon, for example `exon1a`, `exon1b`, `exon1c`.
+#'
+#' This function is also useful for generating gene exon models using
+#' only detected transcripts, which can be very helpful in simplifying
+#' gene models composed of a large number of predicted alternative
+#' transcripts. If the method for defining detected transcript isoforms
+#' is relatively effective, the resulting gene models are typically
+#' much improved and easier to interpret visually.
+#'
+#' @return GRangesList named by gene, containing non-overlapping GRanges
+#' with exon names as described above.
+#'
+#' @param exonsByTx GRangesList named by transcript, containing one or
+#'    more GRanges representing exons.
+#' @param tx2geneDF data.frame containing at least two columns with
+#'    transcript and gene annotation, whose colnames are defined by
+#'    arguments `txColname` and `geneColname` respectively.
+#' @param detectedTx character vector of detected transcripts, used to
+#'    subset the overall transcripts prior to producing a flattened gene
+#'    exon model.
+#'
+#' @export
+flattenExonsByGene <- function
+(exonsByTx,
+ tx2geneDF,
+ detectedTx,
+ genes=NULL,
+ txColname="transcript_id",
+ geneColname="gene_name",
+ cdsByTx=NULL,
+ cdsByGene=NULL,
+ verbose=FALSE,
+ ...)
+{
+   ##
+   if (!suppressPackageStartupMessages(require(GenomicRanges))) {
+      stop("The GenomicRanges package is required.");
+   }
+   if (!igrepHas("data.frame|tibble|tbl|dataframe", class(tx2geneDF))) {
+      stop("tx2geneDF must be a form of data.frame or related class.");
+   }
+   if (!all(c(txColname, geneColname) %in% colnames(tx2geneDF))) {
+      stop("colnames(tx2geneDF) must contain txColname and geneColname.");
+   }
+   if (length(detectedTx) > 0) {
+      iTxs <- intersect(names(exonsByTx), detectedTx);
    } else {
-      #gapsGR2 <- gaps(GR, start=start(GR), end=end(GR));
-      gapsGR2 <- gaps(GR);
-      gapsGR2 <- subset(gapsGR2,
-         start(gapsGR2) > start(range(GR)) &
-            end(gapsGR2) < end(range(GR)))
+      iTxs <- names(exonsByTx);
    }
-
-   ## By default, trim the ends and only return gaps between entries
-   if (method %in% "old" && trimEnds) {
-      gapsGR2 <- GenomicRanges::intersect(gapsGR2, range(GR));
-   }
-
-   ## Optionally re-annotated entries from original data
-   if (keepValues) {
-      values(gapsGR2) <- values(GR[1]);
-      for (vCol in colnames(values(gapsGR2))) {
-         values(gapsGR2)[,vCol] <- NA;
+   ## Optionally subset tx2geneDF by genes
+   if (length(genes) > 0) {
+      tx2geneDF <- subset(tx2geneDF, tx2geneDF[[geneColname]] %in% genes);
+      if (nrow(tx2geneDF) == 0) {
+         stop("tx2geneDF[[geneColname]] contains no values matching the supplied genes.");
       }
    }
-   gapsGR2;
+   ## Validate iTxs in tx2geneDF
+   iTxs <- intersect(iTxs, tx2geneDF[[txColname]]);
+   tx2geneDF <- subset(tx2geneDF, tx2geneDF[[txColname]] %in% iTxs);
+   if (length(iTxs) == 0) {
+      stop("There are no Tx entries shared by: names(exonsByTx), tx2geneDF[,txColname], detectedTx.");
+   }
+   if (verbose) {
+      printDebug("flattenExonsByGene(): ",
+         "Flattening ", length(iTxs), " transcripts from ",
+         length(unique(tx2geneDF[[geneColname]])),
+         " unique genes.");
+   }
+
+   ## Subset exonsByTx and add gene annotations
+   iTxExonsGRL <- exonsByTx[iTxs];
+   iTxMatch <- match(names(iTxExonsGRL), tx2geneDF[[txColname]]);
+   values(iTxExonsGRL@unlistData)[,geneColname] <- rep(
+      as.character(tx2geneDF[iTxMatch,geneColname]),
+      elementNROWS(iTxExonsGRL));
+
+   ## split exons by gene
+   if (verbose) {
+      printDebug("flattenExonsByGene(): ",
+         "Splitting tx exons by gene.");
+   }
+   exonsByGene <- GRangesList(
+      GenomicRanges::split(
+         iTxExonsGRL@unlistData,
+         values(iTxExonsGRL@unlistData)[[geneColname]])
+      );
+
+
+   ## Disjoin exons within each gene GRL
+   if (verbose) {
+      printDebug("flattenExonsByGene(): ",
+         "Preparing disjoint gene exons.");
+   }
+   iGeneExonsDisGRL <- disjoin(exonsByGene);
+   ## Add gene annotation to each entry
+   values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
+      names(iGeneExonsDisGRL),
+      elementNROWS(iGeneExonsDisGRL));
+
+   ## Optionally subdivide by CDS boundary if supplied
+   if (length(cdsByTx) > 0) {
+      if (verbose) {
+         printDebug("flattenExonsByGene(): ",
+            "Creating cdsByGene from cdsByTx.");
+      }
+      cdsByTx <- cdsByTx[names(cdsByTx) %in% iTxs];
+      if (length(cdsByTx) > 0) {
+         if (!geneColname %in% colnames(values(cdsByTx))) {
+            values(cdsByTx@unlistData)[,geneColname] <- rep(
+               tx2geneDF[match(names(cdsByTx), tx2geneDF[[txColname]]),geneColname],
+               elementNROWS(cdsByTx));
+         }
+         cdsByGene <- reduce(GRangesList(
+            GenomicRanges::split(cdsByTx@unlistData,
+            values(cdsByTx@unlistData)[[geneColname]])));
+         if (verbose) {
+            printDebug("flattenExonsByGene(): ",
+               "length(cdsByGene):",
+               length(cdsByGene));
+         }
+      }
+   }
+   if (length(cdsByGene) > 0 && any(names(iGeneExonsDisGRL) %in% names(cdsByGene))) {
+      if (verbose) {
+         printDebug("flattenExonsByGene(): ",
+            "Adding CDS exon boundary information.");
+      }
+      cdsByGene <- cdsByGene[names(cdsByGene) %in% names(iGeneExonsDisGRL)];
+      ## Use subset of exonsByGene that have cds exons
+      exonsByGeneSub <- iGeneExonsDisGRL[names(cdsByGene)];
+      exonsByGeneSubCds <- GenomicRanges::intersect(exonsByGeneSub, cdsByGene);
+      values(exonsByGeneSubCds@unlistData)[,geneColname] <- rep(
+         names(exonsByGeneSubCds),
+         elementNROWS(exonsByGeneSubCds));
+      values(exonsByGeneSubCds@unlistData)[,"subclass"] <- "cds";
+      exonsByGeneCds <- sort(disjoin(GRangesList(
+         GenomicRanges::split(
+         c(exonsByGeneSub@unlistData[,geneColname],
+            exonsByGeneSubCds@unlistData[,geneColname]),
+         c(values(exonsByGeneSub@unlistData)[,geneColname],
+            values(exonsByGeneSubCds@unlistData)[,geneColname])))));
+      values(exonsByGeneCds@unlistData)[,geneColname] <- rep(
+         names(exonsByGeneCds),
+         elementNROWS(exonsByGeneCds));
+      exonsByGeneCds <- annotateGRLfromGRL(exonsByGeneCds,
+         exonsByGeneSubCds[,"subclass"]);
+      naClass <- is.na(values(exonsByGeneCds@unlistData)[,"subclass"]);
+      values(exonsByGeneCds@unlistData)[naClass,"subclass"] <- "noncds";
+      values(iGeneExonsDisGRL@unlistData)[,"subclass"] <- "noncds";
+      iGeneExonsDisGRL[names(exonsByGeneCds)] <- exonsByGeneCds[,c(geneColname, "subclass")];
+   }
+
+   ## Assign exon names and numbers
+   if (verbose) {
+      printDebug("flattenExonsByGene(): ",
+         "Assigning exon labels to disjoint gene exons.");
+   }
+   iGeneExonsDisGRL <- assignGRLexonNames(iGeneExonsDisGRL,
+      geneSymbolColname=geneColname,
+      verbose=FALSE);
+   values(iGeneExonsDisGRL@unlistData)[,"feature_type"] <- "exon";
+   ## TODO: optionally add intron regions between exons of each gene
+
+   return(iGeneExonsDisGRL);
 }
+
+#' Add gaps between GRanges regions
+#'
+#' Add gaps between GRanges regions
+#'
+#' This function adds gaps between each GRanges region where
+#' there is a gap between two GRanges for
+#' the same seqnames. When `strandSpecific=TRUE` the gaps are
+#' determined per strand.
+#'
+#' This function is a wrapper around `getGRgaps()`, which is then
+#' concatenated to the input `gr` GRanges object using `base::c()`.
+#' When the input `gr` has column `S4Vectors::values()` then the
+#' gaps GRanges object will have `NA` values used by default. To supply
+#' values, use the `newValues` argument, which assigns name-value pairs.
+#'
+#' @family jam GRanges functions
+#'
+#' @return GRanges object, sorted when `doSort=TRUE`. When `newValues`
+#'    is supplied, the values for gaps GRanges elements will be assigned,
+#'    otherwise any column values present in `gr` will be `NA` for
+#'    gaps elements. The names of gaps elements are assigned using
+#'    `gapname` then are made unique using `jamba::makeNames()`,
+#'    unless `gapname is NULL`.
+#'
+#' @param gr GRanges object
+#' @param strandSpecific logical indicating whether the gaps are calculated
+#'    per strand, see `getGRgaps()`.
+#' @param gapname,suffix character vector supplying the name to assign to new
+#'    gap GRanges elements, using `jamba::makeNames()` with `suffix` as
+#'    described to define non-duplicated names. If `gapname is NULL` then
+#'    no names are assigned to new gap GRanges entries, however when the
+#'    input `gr` GRanges object has names, the concatenation of gaps
+#'    causes names `""` to be assigned to all gap GRanges elements, which
+#'    are duplicated for multiple gaps.
+#' @param newValues list of values to add to the resulting gap GRanges,
+#'    whose names become `colnames(gr)`, and whose values are used
+#'    to populate each column. By default a colname `"feature_type"` is
+#'    added, with value `"gap"` added to each row. When `newValues is NULL`
+#'    then no values are added to the gaps GRanges.
+#' @param doSort logical indicating whether to sort the resulting
+#'    GRanges object. When `doSort=FALSE` the gaps are added to the end
+#'    of the `gr` input GRanges object.
+#' @param ... additional arguments are passed to `getGRgaps()`.
+#'
+#' @examples
+#' gr <- GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
+#'    ranges=IRanges(start=c(100, 300, 400, 300, 700),
+#'       end=c(199, 450, 500, 600, 800)),
+#'    strand=rep(c("+","-"), c(3,2)));
+#' gr;
+#' getGRLgaps(GenomicRanges::split(gr, seqnames(gr)))
+#' getGRgaps(gr);
+#'
+#' @export
+addGRgaps <- function
+(gr,
+ strandSpecific=TRUE,
+ gapname="gap",
+ suffix="_v",
+ newValues=list(feature_type="gap"),
+ doSort=TRUE,
+ ...)
+{
+   ## Purpose is to add gaps as GRanges elements between the
+   ## GRanges elements given
+   grGaps <- getGRgaps(gr,
+      strandSpecific=strandSpecific,
+      ...);
+   if (length(gapname) > 0) {
+      gapnames <- makeNames(
+         rep(gapname,
+            length.out=length(grGaps)),
+         suffix=suffix);
+      names(grGaps) <- gapnames;
+   }
+   if (length(newValues) > 0) {
+      for (newValueName in names(newValues)) {
+         values(grGaps)[[newValueName]] <- rep(newValues[[newValueName]],
+            length(grGaps));
+      }
+   }
+   if (doSort) {
+      grNew <- sort(c(gr, grGaps));
+   } else {
+      grNew <- c(gr, grGaps);
+   }
+   return(grNew);
+}
+
+#' Add gaps between GRangesList regions
+#'
+#' Add gaps between GRangesList regions
+#'
+#' This function adds gaps between each GRanges region separately
+#' for each GRangesList element, where
+#' there is a gap between two GRanges for
+#' the same seqnames. When `strandSpecific=TRUE` the gaps are
+#' determined per strand.
+#'
+#' This function is a wrapper around `getGRLgaps()`, which is then
+#' concatenated to the input `gr` GRanges object using `S4Vectors::pc()`.
+#' When the input `grl` GRanges has column `S4Vectors::values()` then the
+#' gaps GRanges object will have `NA` values used by default. To supply
+#' values, use the `newValues` argument, which assigns name-value pairs.
+#'
+#' @family jam GRanges functions
+#'
+#' @return GRangesList object, sorted per GRangesList element
+#'    when `doSort=TRUE`. When `newValues`
+#'    is supplied, the values for gaps GRanges elements will be assigned,
+#'    otherwise any column values present in `gr` will be `NA` for
+#'    gaps elements. The names of gaps elements are assigned using
+#'    `gapname` then are made unique using `jamba::makeNames()`,
+#'    unless `gapname is NULL`.
+#'
+#' @param grl GRangesList object
+#' @param strandSpecific logical indicating whether the gaps are calculated
+#'    per strand, see `getGRLgaps()`.
+#' @param gapname,suffix character vector supplying the name to assign to new
+#'    gap GRanges elements, using `jamba::makeNames()` with `suffix` as
+#'    described to define non-duplicated names. If `gapname is NULL` then
+#'    no names are assigned to new gap GRanges entries, however when the
+#'    input `gr` GRanges object has names, the concatenation of gaps
+#'    causes names `""` to be assigned to all gap GRanges elements, which
+#'    are duplicated for multiple gaps.
+#' @param newValues list of values to add to the resulting gap GRanges,
+#'    whose names become `colnames(grl@unlistData)`, and whose values are used
+#'    to populate each column. By default a colname `"feature_type"` is
+#'    added, with value `"gap"` added to each row. When `newValues is NULL`
+#'    then no values are added to the gaps GRanges.
+#' @param doSort logical indicating whether to sort the resulting
+#'    GRanges objects. When `doSort=FALSE` the gaps are added to the end
+#'    of each input `grl` GRanges object. Note that the GrangesList object
+#'    is not sorted, only the GRanges objects within the GRangesList
+#'    are sorted.
+#' @param ... additional arguments are passed to `getGRLgaps()`.
+#'
+#' @examples
+#' gr <- GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
+#'    ranges=IRanges(start=c(100, 300, 400, 300, 700),
+#'       end=c(199, 450, 500, 600, 800)),
+#'    strand=rep(c("+","-"), c(3,2)),
+#'    feature_type="exon");
+#' names(gr) <- makeNames(rep("exon", length(gr)));
+#' gr;
+#' addGRgaps(gr);
+#'
+#' grl <- GenomicRanges::split(gr, seqnames(gr));
+#' grl;
+#' addGRLgaps(grl);
+#' addGRLgaps(grl, strandSpecific=FALSE);
+#'
+#' @export
+addGRLgaps <- function
+(grl,
+ strandSpecific=TRUE,
+ gapname="gap",
+ suffix="_v",
+ newValues=list(feature_type="gap"),
+ doSort=TRUE,
+ ...)
+{
+   ## Purpose is to add gaps as GRanges elements between the
+   ## GRanges elements given, applied to each element in the
+   ## GRangesList.
+   grlGaps <- getGRLgaps(grl,
+      strandSpecific=strandSpecific,
+      ...);
+   if (length(gapname) > 0) {
+      gapnames <- makeNames(
+         rep(gapname,
+            length.out=length(grlGaps@unlistData)),
+         suffix=suffix);
+      names(grlGaps@unlistData) <- gapnames;
+   }
+   if (length(newValues) > 0) {
+      for (newValueName in names(newValues)) {
+         values(grlGaps@unlistData)[[newValueName]] <- rep(newValues[[newValueName]],
+            length(grlGaps));
+      }
+   }
+   if (doSort) {
+      grlNew <- sort(pc(grl, grlGaps));
+   } else {
+      grlNew <- pc(grl, grlGaps);
+   }
+   return(grlNew);
+}
+

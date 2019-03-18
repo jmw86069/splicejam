@@ -35,7 +35,9 @@ GRangesList element has only one strand, as is true for exons
 in one transcript.
 }
 \seealso{
-Other jam GRanges functions: \code{\link{annotateGRLfromGRL}},
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
   \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
   \code{\link{findOverlapsGRL}}, \code{\link{sortGRL}}

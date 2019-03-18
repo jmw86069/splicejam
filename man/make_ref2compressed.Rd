@@ -4,7 +4,7 @@
 \alias{make_ref2compressed}
 \title{Create a ref2compressed function to compress GR gaps}
 \usage{
-make_ref2compressed(GR, gapWidth = NULL, keepValues = FALSE,
+make_ref2compressed(gr, gapWidth = 200, keepValues = FALSE,
   upstream = 50000, upstreamGapWidth = gapWidth * 3,
   downstream = 50000, downstreamGapWidth = gapWidth * 3,
   refGR = NULL, refGRnames = NULL, verbose = FALSE, ...)

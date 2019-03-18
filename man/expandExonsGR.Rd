@@ -12,5 +12,6 @@ expandExonsGR(inputExonsGR, expandUpDown = c(0, 0),
 Expand exon GRanges upstream and downstream
 }
 \details{
-This function is called by \code{sashimiPrep()}.
+This function expands an exon to make it wider before and
+after the start,end coordinates.
 }

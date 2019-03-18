@@ -37,7 +37,9 @@ case of two GRangesList objects, restricting results to those including
 the same GRangesList index in the subject and query.
 }
 \seealso{
-Other jam GRanges functions: \code{\link{annotateGRLfromGRL}},
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
   \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
   \code{\link{getFirstStrandedFromGRL}},

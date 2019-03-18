@@ -7,8 +7,9 @@
 spliceGR2junctionDF(spliceGRgene, exonsGR, spliceBuffer = 3,
   spliceGRname = "score", geneExonSep = "(:|_exon)",
   useOnlyValidEntries = FALSE, renameTooFar = TRUE,
-  scoreColname = "score", flipNegativeStrand = TRUE,
-  returnGRanges = FALSE, verbose = FALSE, ...)
+  scoreColname = "score", sampleColname = "sample_id",
+  flipNegativeStrand = TRUE, returnGRanges = FALSE, verbose = FALSE,
+  ...)
 }
 \description{
 Splice junction data.frame summary

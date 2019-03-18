@@ -7,7 +7,8 @@
 assignGRLexonNames(GRL, geneSymbolColname = "geneSymbol",
   exonNameColname = paste0(geneSymbolColname, "Exon"),
   suffix = "_exon", renameOnes = FALSE, filterTwoStrand = TRUE,
-  checkDisjoin = c("warn", "none", "stop"), verbose = FALSE, ...)
+  checkDisjoin = c("warn", "none", "stop"), assignGRLnames = TRUE,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{GRL}{GRangesList input object. Ideally, the input GRanges are
@@ -39,6 +40,9 @@ occurring on two different strands.}
 \item{checkDisjoin}{character value indicating how to handle non-disjoint
 input GRL ranges. When \code{checkDisjoin="stop"} then any non-disjoint
 GRanges in an element of \code{GRL} will cause the function to fail.}
+
+\item{assignGRLnames}{logical indicating whether names for the
+resulting GRangesList should use the exon names.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 
@@ -78,7 +82,9 @@ to number exons to indicate the numbered contiguous exon, with suffix
 to indicate the sub-section of each exon.
 }
 \seealso{
-Other jam GRanges functions: \code{\link{annotateGRLfromGRL}},
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
   \code{\link{annotateGRfromGR}},
   \code{\link{findOverlapsGRL}},
   \code{\link{getFirstStrandedFromGRL}},

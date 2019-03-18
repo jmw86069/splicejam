@@ -5,8 +5,8 @@
 \title{Annotate GRangesList from GRangesList objects}
 \usage{
 annotateGRLfromGRL(GRL1, GRL2, annoName1 = "name", annoName2 = "name",
-  grlOL = NULL, addGRLnames = TRUE, returnType = c("GRL", "GR"),
-  splitColname = annoName1, verbose = verbose, ...)
+  grlOL = NULL, addGRLnames = FALSE, returnType = c("GRL", "GR"),
+  splitColname = annoName1, verbose = FALSE, ...)
 }
 \arguments{
 \item{GRL1}{GRangesList query}
@@ -67,7 +67,8 @@ not currently apply annotations at the GRangesList level, thus
 it does not use \code{values(GRL2)} if they exist.
 }
 \seealso{
-Other jam GRanges functions: \code{\link{annotateGRfromGR}},
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}}, \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
   \code{\link{findOverlapsGRL}},
   \code{\link{getFirstStrandedFromGRL}},
