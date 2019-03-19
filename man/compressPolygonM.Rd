@@ -6,17 +6,57 @@
 \usage{
 compressPolygonM(polyM, ref2c, minRatio = 3, verbose = FALSE, ...)
 }
+\arguments{
+\item{polyM}{data.frame including \code{x},\code{y} coordinates of polygons,
+\code{cov} and \code{gr} to group each polygon.}
+
+\item{ref2c}{list output from \code{make_ref2compressed()}.}
+
+\item{minRatio}{the minimum ratio of coordinate compression required
+before polygon resolution is downsampled.}
+
+\item{verbose}{logical indicating whether to print verbose output.}
+
+\item{...}{additional arguments are ignored.}
+}
+\value{
+data.frame with the same colnames, with reduced rows
+for polygons where the coordinate compression defined in
+\code{ref2c} is above \code{minRatio} ratio. The compressed coverage roughly
+represents the max coverage value for each point.
+}
 \description{
 Compress genome coordinates of a matrix of polygons
 }
 \details{
 This function takes a two-column numeric matrix of polygons
 where the x coordinate is the genomic position, and y coordinate
-is the coverage. It uses \code{ref2compressed$x} to convert coordinates
-to compressed coordinates.
+is the coverage. It uses \code{ref2compressed$transform} to convert
+coordinates to compressed coordinates, as output from
+\code{make_ref2compressed()}.
 
 For regions that have been compresssed, it then compresses the
 y-coordinate information to roughly one y value per integer in
 compressed coordinate space, using the runmax across the window of
 coverages compressed to this value.
 }
+\seealso{
+Other jam spatial functions: \code{\link{bgaPlotly3d}},
+  \code{\link{dfWide2segments}}, \code{\link{simplifyXY}},
+  \code{\link{spline3d}}
+
+Other jam RNA-seq functions: \code{\link{ale2violin}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{codonUsage2df}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{defineDetectedTx}},
+  \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
+  \code{\link{flattenExonsByGene}},
+  \code{\link{groups2contrasts}}, \code{\link{jamCai}},
+  \code{\link{makeTx2geneFromGtf}},
+  \code{\link{make_ref2compressed}},
+  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
+  \code{\link{tx2ale}}
+}
+\concept{jam RNA-seq functions}
+\concept{jam spatial functions}

@@ -86,8 +86,27 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{addGRgaps}},
   \code{\link{annotateGRLfromGRL}},
   \code{\link{annotateGRfromGR}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
   \code{\link{findOverlapsGRL}},
   \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{sortGRL}}
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+
+Other jam RNA-seq functions: \code{\link{ale2violin}},
+  \code{\link{codonUsage2df}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{compressPolygonM}},
+  \code{\link{defineDetectedTx}},
+  \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
+  \code{\link{flattenExonsByGene}},
+  \code{\link{groups2contrasts}}, \code{\link{jamCai}},
+  \code{\link{makeTx2geneFromGtf}},
+  \code{\link{make_ref2compressed}},
+  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
+  \code{\link{tx2ale}}
 }
 \concept{jam GRanges functions}
+\concept{jam RNA-seq functions}

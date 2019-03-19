@@ -7,6 +7,9 @@ types of Sashimi-like data output, including ggplot2-based
 Sashimi plots. This plot uses vanilla ggplot2 with custom x-axis
 scaling to compress genomic coordinates, while keeping data in
 proper genomic coordinate space.
+* `gene2gg()` is a lightweight function that creates gene and
+transcript exons models, and returns a ggplot2 object for
+plotting. It can optionally return the data.frame used by ggplot2.
 * `grl2df()` is similar to `fortify()` from ggplot2, or the
 `broom::tidy()` functions, that take a custom object and return
 a data.frame for downstream use. Here the function currently works
@@ -48,6 +51,24 @@ using only the first and last points.
 that take GRanges input, and return either just the gaps between
 non-overlapping regions, or the original features with gaps inserted between
 them. Useful to convert a set of exons, to a set of exons and introns.
+
+## other changes
+
+* Added package dependencies to ggplot2, ggforce, ggrepel
+
+## TODO
+
+* Need a way of annotating GRangesList gaps by the parent feature name.
+* In future, allow samples to have replicates, optionally allow each
+replicate to be independently plotted, while being part of the
+parent `sample_id`.
+* Allow alternative input for `prepareSashimi()`, namely
+BAM alignment files, from which coverage and junctions can be
+derived.
+* Consider making `ref2c` chromosome-wide, however it would require
+x-axis coordinates to know their context, in terms of chromosome/seqname.
+* Multiple vignettes to demonstrate workflows: Sashimi plots; preparing
+exon GRangesList; using `annotateGRLfromGRL()` to add annotations, etc.
 
 # splicejam version 0.0.15.900
 

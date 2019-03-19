@@ -23,7 +23,8 @@ Imports: jamba (>= 0.0.26.900),
     arules,
     ggplot2,
     ggforce,
-    rtracklayer
+    rtracklayer,
+    ggrepel
 Suggests: 
     made4,
     plotly,

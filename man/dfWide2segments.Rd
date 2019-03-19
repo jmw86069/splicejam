@@ -39,6 +39,7 @@ line breaks via empty rows, for example plotly.
 }
 \seealso{
 Other jam spatial functions: \code{\link{bgaPlotly3d}},
+  \code{\link{compressPolygonM}}, \code{\link{simplifyXY}},
   \code{\link{spline3d}}
 }
 \concept{jam spatial functions}

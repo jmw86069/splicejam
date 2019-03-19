@@ -30,3 +30,18 @@ object. When \code{strandSpecific=TRUE} is determines gaps per strand,
 otherwise strands are converted to \code{"*"}. It will also determine
 gaps within chromosome for each GRanges entry in GRangesList.
 }
+\seealso{
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
+  \code{\link{annotateGRfromGR}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
+  \code{\link{findOverlapsGRL}},
+  \code{\link{getFirstStrandedFromGRL}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+}
+\concept{jam GRanges functions}

@@ -33,6 +33,7 @@ row rank.
 }
 \seealso{
 Other jam spatial functions: \code{\link{bgaPlotly3d}},
-  \code{\link{dfWide2segments}}
+  \code{\link{compressPolygonM}},
+  \code{\link{dfWide2segments}}, \code{\link{simplifyXY}}
 }
 \concept{jam spatial functions}

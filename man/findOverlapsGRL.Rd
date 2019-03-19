@@ -42,7 +42,12 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{annotateGRLfromGRL}},
   \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
   \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{sortGRL}}
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
 }
 \concept{jam GRanges functions}

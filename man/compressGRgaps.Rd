@@ -12,3 +12,6 @@ compressGRgaps(GR, gapWidth = NULL, keepValues = FALSE,
 \description{
 Compress GRanges gaps to a fixed width
 }
+\details{
+This function is deprecated, in factor of \code{make_ref2compressed()}.
+}

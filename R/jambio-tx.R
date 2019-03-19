@@ -2371,6 +2371,7 @@ findOverlapsGRL <- function
 #' exon name.
 #'
 #' @family jam GRanges functions
+#' @family jam RNA-seq functions
 #'
 #' @param GRL GRangesList input object. Ideally, the input GRanges are
 #'    disjoint, meaning no two exons overlap, but instead are represented
@@ -3282,6 +3283,8 @@ runDiffSplice <- function
 #' for each chromosome (using `seqnames(gr)`), and when `strandSpecific=TRUE`
 #' it determines gaps in stranded fashion.
 #'
+#' @family jam GRanges functions
+#'
 #' @param gr GRanges object
 #' @param strandSpecific logical indicating whether to convert strand
 #'    to `"*"` prior to determining gaps between features.
@@ -3325,6 +3328,8 @@ getGRgaps <- function
 #' object. When `strandSpecific=TRUE` is determines gaps per strand,
 #' otherwise strands are converted to `"*"`. It will also determine
 #' gaps within chromosome for each GRanges entry in GRangesList.
+#'
+#' @family jam GRanges functions
 #'
 #' @return GRangesList object with gaps for each chromosome and strand
 #'    present in each GRanges entry. It does not return gap sequence
@@ -3426,6 +3431,9 @@ getGRLgaps <- function
 #' transcripts. If the method for defining detected transcript isoforms
 #' is relatively effective, the resulting gene models are typically
 #' much improved and easier to interpret visually.
+#'
+#' @family jam RNA-seq functions
+#' @family GRanges functions
 #'
 #' @return GRangesList named by gene, containing non-overlapping GRanges
 #' with exon names as described above.
@@ -3579,6 +3587,7 @@ flattenExonsByGene <- function
       geneSymbolColname=geneColname,
       verbose=FALSE);
    values(iGeneExonsDisGRL@unlistData)[,"feature_type"] <- "exon";
+   values(iGeneExonsDisGRL)[,"gene_name"] <- names(iGeneExonsDisGRL);
    ## TODO: optionally add intron regions between exons of each gene
 
    return(iGeneExonsDisGRL);
@@ -3762,7 +3771,7 @@ addGRLgaps <- function
    if (length(newValues) > 0) {
       for (newValueName in names(newValues)) {
          values(grlGaps@unlistData)[[newValueName]] <- rep(newValues[[newValueName]],
-            length(grlGaps));
+            length(grlGaps@unlistData));
       }
    }
    if (doSort) {

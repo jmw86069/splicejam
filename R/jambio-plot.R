@@ -1,66 +1,35 @@
 
 
-#' Expand exon GRanges upstream and downstream
-#'
-#' Expand exon GRanges upstream and downstream
-#'
-#' This function expands an exon to make it wider before and
-#' after the start,end coordinates.
-#'
-#' @export
-expandExonsGR <- function
-(inputExonsGR,
-expandUpDown=c(0,0),
-expandLabels=c("upstream","downstream"),
-inputExonsGRlabel="exonLabel",
-...)
-{
-   ## Helper function to add upstream and downstream ranges to
-   ## the exons being displayed
-   expandUpDown <- rep(c(rep(expandUpDown, length.out=2), 0),
-      length.out=2);
-   if (expandUpDown[1] > 0) {
-      if ("-" %in% as.character(strand(inputExonsGR))) {
-         upGR <- tail(sort(inputExonsGR), 1);
-      } else {
-         upGR <- head(sort(inputExonsGR), 1);
-      }
-      upGR <- flank(upGR, width=expandUpDown[1], start=TRUE);
-      if (inputExonsGRlabel %in% names(values(upGR))) {
-         values(upGR)[,inputExonsGRlabel] <- expandLabels[1];
-      }
-      names(upGR) <- paste0(names(upGR), "_up");
-   } else {
-      upGR <- inputExonsGR[0];
-   }
-   if (expandUpDown[2] > 0) {
-      if ("-" %in% as.character(strand(inputExonsGR))) {
-         dnGR <- head(sort(inputExonsGR), 1);
-      } else {
-         dnGR <- tail(sort(inputExonsGR), 1);
-      }
-      dnGR <- flank(dnGR, width=expandUpDown[2], start=FALSE);
-      if (inputExonsGRlabel %in% names(values(dnGR))) {
-         values(dnGR)[,inputExonsGRlabel] <- expandLabels[2];
-      }
-      names(dnGR) <- paste0(names(dnGR), "_dn");
-   } else {
-      dnGR <- inputExonsGR[0];
-   }
-   return(c(upGR, dnGR));
-}
-
-
 #' Find closest exon to splice junction ends
 #'
 #' Find closest exon to splice junction ends
+#'
+#' This function is used to annotate splice junction GRanges entries
+#' based upon the closest compatible stranded exon boundary.
+#'
+#' This function should usually be called by `spliceGR2junctionDF()`
+#' and not called directly.
+#'
+#' @param spliceGRgene GRanges representing splice junctions
+#' @param exonsGR GRanges representing flattened exons per gene, as
+#'    is produced by `flattenExonsByGene()`.
+#' @param flipNegativeStrand logical indicating whether to flip
+#'    the orientation of features on the negative strand.
+#' @param sampleColname character value matching the colname that
+#'    defines distinct sample identifier, for which junctions will
+#'    be kept separate.
+#' @param reportActualCoords logical indicating whether to report
+#'    genomic coordinates or transcriptome coordinates. (Work in
+#'    progress.)
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
 #'
 #' @export
 closestExonToJunctions <- function
 (spliceGRgene,
  exonsGR,
  flipNegativeStrand=TRUE,
- sampleColname=sampleColname,
+ sampleColname="sample_id",
  reportActualCoords=FALSE,
  verbose=TRUE,
  ...)
@@ -249,12 +218,48 @@ closestExonToJunctions <- function
 #'
 #' Splice junction data.frame summary
 #'
+#' This function takes a GRanges object representing multiple splice
+#' junction ranges, with associated scores, and returns a data.frame
+#' summary of junctions with annotated boundaries using a set
+#' of gene exon models. Junctions whose ends are within `spliceBuffer`
+#' distance are combined, and the scores are summed.
+#'
+#' By default, junctions not within `spliceBuffer` of a compatible exon
+#' boundary are named by the nearest exon boundary, and the distance
+#' upstream or downstream from the boundary.
+#'
+#' Multiple samples can be processed together, and the results will
+#' be aggregated within each sample, using `sampleColname`. The results
+#' in that case may be cast to wide format using `nameFromTo` as the
+#' row identifier, `score` as the value column, and `sampleColname` as
+#' the new column headers.
+#'
+#' @param spliceGRgene GRanges object containing splice junctions, where
+#'    the `scoreColname` contains numeric scores.
+#' @param exonsGR GRanges object containing flattened exons by gene,
+#'    as is provided by `flattenExonsByGene()`.
+#' @param spliceBuffer integer distance allowed from a compatible exon
+#'    boundary, for a junction read to be snapped to that boundary.
+#' @param useOnlyValidEntries logical indicating whether to remove
+#'    junctions that do not align with a compatible exon boundary.
+#' @param renameTooFar logical indicating whether junctions are
+#'    named by the nearest exon boundary and the distance to that
+#'    boundary.
+#' @param scoreColname,sampleColname colnames in `values(spliceGRgene)`
+#'    to define the score, and `sample_id`.
+#' @param flipNegativeStrand logical indicating whether to flip the
+#'    orientation of negative strand features when matching exon
+#'    boundaries. This argument is passed to `closestExonToJunctions()`.
+#' @param returnGRanges logical indicating whether to return GRanges,
+#'    or by default, `data.frame`.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
 #' @export
 spliceGR2junctionDF <- function
 (spliceGRgene,
  exonsGR,
  spliceBuffer=3,
- spliceGRname="score",
  geneExonSep="(:|_exon)",
  useOnlyValidEntries=FALSE,
  renameTooFar=TRUE,
@@ -507,6 +512,8 @@ spliceGR2junctionDF <- function
 #'
 #' Compress GRanges gaps to a fixed width
 #'
+#' This function is deprecated, in factor of `make_ref2compressed()`.
+#'
 #' @export
 compressGRgaps <- function
 (GR,
@@ -684,18 +691,56 @@ compressGRgaps <- function
 #' with fixed aspect ratio, and it defines a function to compress
 #' coordinates of the gaps between GRanges features.
 #'
+#' @family jam GRanges functions
+#' @family jam RNA-seq functions
+#'
+#' @return list with `trans_grc` which is class `"trans"` suitable
+#'    for use in ggplot2 functions; `transform` a function that converts
+#'    chromosome coordinates to compressed coordinates; `inverse` a function
+#'    that converts compressed coordinates to chromosome coordinates;
+#'    `scale_x_grc` a function used similar to `ggplot2::scale_x_continuous()`
+#'    during ggplot2 creation; `gr` a function that compresses coordinates
+#'    in a `GRanges` object; `grl` a function that compresses coordinates in
+#'    a `GRangesList` object. Attributes `"lookupCoordDF"` is a two-column
+#'    data.frame with chromosome coordinates and compressed coordinates,
+#'    which is used to create the other transformation functions via
+#'    `stats::approx()`; `"gapWidth"` the gap width used, since it can
+#'    be programmatically defined; `"gr"` the `GRanges` input data used
+#'    to train the transformation.
+#'
+#' @family jam GRanges functions
+#'
+#' @param gr GRanges object containing regions not to compress. Regions
+#'    which are unstranded gaps are compressed to fixed width.
+#' @param gapWidth integer value used for fixed gap width, or when
+#'    NULL the gap width is defined as 3 times the median feature width.
+#' @param keepValues logical indicating whether to keep feature values
+#'    in the GRanges data.
+#' @param upstream,downstream,upstreamGapWidth,downstreamGapWidth used
+#'    to define the compression of coordinates upstream and downstream
+#'    the supplied GRanges. In reality, the upstream range and upstream
+#'    gap width defines a multiplier, and all upstream coordinates are
+#'    compressed through zero. Similarly, all downstream coordinates
+#'    are compressed to 10 billion, which is roughly 3 times the size
+#'    of the human genome.
+#' @param nBreaks the default number of x-axis coordinate breaks used
+#'    in ggplot labeling.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
+#' @seealso `grl2df()`
+#'
 #' @export
 make_ref2compressed <- function
 (gr,
-gapWidth=200,
-keepValues=FALSE,
-upstream=50000,
-upstreamGapWidth=gapWidth*3,
-downstream=50000,
-downstreamGapWidth=gapWidth*3,
-refGR=NULL,
-refGRnames=NULL,
-verbose=FALSE,
+ gapWidth=200,
+ keepValues=FALSE,
+ upstream=50000,
+ upstreamGapWidth=gapWidth*3,
+ downstream=50000,
+ downstreamGapWidth=gapWidth*3,
+ nBreaks=7,
+ verbose=FALSE,
 ...)
 {
    ## Purpose is to use a GRanges object to train a coordinate
@@ -754,7 +799,7 @@ verbose=FALSE,
    newCoordsM <- matrix(c(0, newCoords), ncol=2, byrow=TRUE);
    newCoordsM[,1] <- newCoordsM[,1] + 1;
 
-   lookupCoordDF <- mixedSortDF(unique(data.frame(
+   lookupCoordDF <- jamba::mixedSortDF(unique(data.frame(
       refCoord=c(start(disGR),end(disGR)),
       coord=c(newCoordsM[,1],newCoordsM[,2])
    )));
@@ -863,7 +908,7 @@ verbose=FALSE,
    }
 
    ## Custom breaks function
-   breaks_gr <- function(x, limits=NULL, n=7, xFixed=lookupCoordDF[,1], verbose=FALSE, ...) {
+   breaks_gr <- function(x, limits=NULL, n=nBreaks, xFixed=lookupCoordDF[,1], verbose=FALSE, ...) {
       xvals <- unique(sort(xFixed));
       xvals <- xvals[xvals >= min(x) & xvals <= max(x)];
       if (verbose) {
@@ -976,6 +1021,17 @@ verbose=FALSE,
 #'    simplify horizontal lines.
 #' @param ... additional arguments are ignored.
 #'
+#' @family jam spatial functions
+#'
+#' @param xy numeric matrix of two columns x,y
+#' @param minN integer minimum number of consecutive points to
+#'    cause compression to occur. It requires at least 3 points
+#'    inherent to the algorithm.
+#' @param restrictDegrees numeric vector of allowed angles in degrees
+#'    (range 0 to 360) of angles allowed to be compressed, when supplied
+#'    all other angles will not be compressed.
+#' @param ... additional arguments are ignored.
+#'
 #' @examples
 #' xy <- cbind(
 #'    x=c(1,1:15,1),
@@ -1068,13 +1124,30 @@ simplifyXY <- function
 #'
 #' This function takes a two-column numeric matrix of polygons
 #' where the x coordinate is the genomic position, and y coordinate
-#' is the coverage. It uses `ref2compressed$x` to convert coordinates
-#' to compressed coordinates.
+#' is the coverage. It uses `ref2compressed$transform` to convert
+#' coordinates to compressed coordinates, as output from
+#' `make_ref2compressed()`.
 #'
 #' For regions that have been compresssed, it then compresses the
 #' y-coordinate information to roughly one y value per integer in
 #' compressed coordinate space, using the runmax across the window of
 #' coverages compressed to this value.
+#'
+#' @family jam spatial functions
+#' @family jam RNA-seq functions
+#'
+#' @return data.frame with the same colnames, with reduced rows
+#'    for polygons where the coordinate compression defined in
+#'    `ref2c` is above `minRatio` ratio. The compressed coverage roughly
+#'    represents the max coverage value for each point.
+#'
+#' @param polyM data.frame including `x`,`y` coordinates of polygons,
+#'    `cov` and `gr` to group each polygon.
+#' @param ref2c list output from `make_ref2compressed()`.
+#' @param minRatio the minimum ratio of coordinate compression required
+#'    before polygon resolution is downsampled.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
 #'
 #' @export
 compressPolygonM <- function
@@ -1206,6 +1279,30 @@ compressPolygonM <- function
 #' Convert exon coverage to polygons
 #'
 #' Convert exon coverage to polygons
+#'
+#' This function is a workhorse function that converts a GRanges
+#' object containing column values with NumericList coverage data,
+#' into a full data.frame sufficient to define ggplot2 and other
+#' coverage polygon plots.
+#'
+#' An interesting argument is `baseline` which allows each exon
+#' in the `gr` GRanges object to be offset from zero, in order to
+#' make certain features visually easier to distinguish.
+#'
+#' This function also calls `simplifyXY()` which reduces the
+#' stored polygon detail for regions whose coordinates are compressed
+#' on the x-axis, taking roughly the max value for each point.
+#'
+#' The default output is roughly similar to `broom::tidy()` in
+#' that it converts a custom R object into a tidy data.frame
+#' suitable for use by ggplot2 and other tidy workflows.
+#'
+#' The function `getGRcoverageFromBw()` takes a set of bigWig files
+#' and returns a GRanges object whose columns contain NumericList data,
+#' which is the intended input for `exoncov2polygon()`.
+#'
+#' @family jam GRanges functions
+#' @famly jam RNA-seq functions
 #'
 #' @param gr GRanges where `colnames(values(gr))` is present in `covNames`,
 #'    and contains data with class `NumericList`.
@@ -1423,6 +1520,9 @@ exoncov2polygon <- function
 #'    `makeNames(basename(bwUrls))`. Each column is type `NumericList`,
 #'    which is a list of numeric coverage values.
 #'
+#' @family jam GRanges functions
+#' @family RNA-seq functions
+#'
 #' @param gr GRanges object
 #' @param bwUrls character vector of full file paths or web URLs
 #'    to bigWig files, suitable for use by `rtracklayer::import()`.
@@ -1503,9 +1603,38 @@ getGRcoverageFromBw <- function
 #'
 #' This function takes a GRanges object as output from
 #' `getGRcoverageFromBw()` and combines the coverages into
-#' one coverage per strand. The strand is inferred by the
+#' one coverage per strand for each `covName` (equivalent
+#' to `sample_id`). Each coverage value is multiplied by
+#' its `scaleFactors` value, then the sum is returned for
+#' each strand, for each `covName` (`sample_id`).
+#'
+#' The strand is inferred by the
 #' presence of negative values, where any negative value
 #' indicates the column is negative strand.
+#'
+#' @return GRanges object whose colnames contain the
+#'    `covName` (`sample_id`) for each observed strand,
+#'    with coverage combined taking the sum of individual
+#'    coverages after multiplying each by `scaleFactors`.
+#'
+#' @family jam GRanges functions
+#' @family jam RNA-seq functions
+#'
+#' @param gr GRanges object containing coverage data in columns
+#'    containing NumericList class data.
+#' @param covNames character vector of `colnames(values(gr))`
+#'    that contain coverage in NumericList format.
+#' @param covName character vector with length equal to
+#'    `length(covNames)` representing the `sample_id` for each
+#'    `covNames` entry.
+#' @param strands character vector, or NULL, indicating the strand
+#'    for which the coverage data was obtained. When `NULL` the strand
+#'    is inferred by the presence of any negative values.
+#' @param scaleFactors numeric vector length equal to `length(covNames)`
+#'    of values to multiply by each coverage result, in order to
+#'    normalized coverages to each other.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
 #'
 #' @export
 combineGRcoverage <- function
@@ -1580,6 +1709,55 @@ combineGRcoverage <- function
 #'
 #' Prepare Sashimi plot data
 #'
+#' This function is the workhorse function used to produce
+#' Sashimi plots, and is intended to be a convenient wrapper
+#' function for several other individual functions.
+#'
+#' At a minimum, a Sashimi plot requires three things:
+#'
+#' 1. The gene of interest, with corresponding exon model.
+#' 2. RNA-seq coverage data.
+#' 3. Splice junction data.
+#'
+#' There is some required pre-processing before running
+#' `prepareSashimi()`:
+#'
+#' * Prepare flattened exons by gene using `flattenExonsByGene()`
+#' and corresponding data, including `exonsByGene`, `cdsByGene`,
+#' and `tx2geneDF`. Verify the gene exon model data using
+#' `gene2gg()`.
+#' * Find file paths, or web URLs, for a set of bigWig coverage
+#' files, representing RNA-seq coverage for each strand, for
+#' the samples of interest. Test the coverage data using
+#' `getGRcoverageFromBw()` for a small set of GRanges data.
+#' * Find file paths, or web URLs, for a set of BED6 or BED12
+#' format files, note that it cannot currently use bigBed format
+#' due to limitations in the `rtracklayer` package.
+#' Test the splice junction data using `rtracklayer::import()`
+#' for a small range of GRanges features, then send the data
+#' to `spliceGR2junctionDF()` to prepare a data.frame summary.
+#'
+#' The basic input for coverage and junction data is a data.frame,
+#' which defines each file path or url, the type of data
+#' `"bw"` or `"junction"`, and the biological sample `"sample_id"`.
+#' Any file path compatible with `rtracklayer::import()` will
+#' work, including web URLs and local files. When using a web URL
+#' you may need to use `"https://"` format to force the use
+#' of secure web requests, but this requirement varies by country.
+#'
+#' @return list containing `ggSashimi` a ggplot2 graphical object
+#'    containing a full Sashimi plot; `ggCov` the RNA-seq coverage
+#'    subset of the Sashimi plot; `ggJunc` the splice junction
+#'    subsset of the Sashimi plot; `ref2c` the output of
+#'    `make_ref2compressed()` used for ggplot2 coordinate
+#'    visualization; `covDF`, `juncDF` data.frame objects
+#'    with the raw data used to create ggplot2 objects;
+#'    `covGR`, `juncGR` the GRanges objects used to create
+#'    the data.frames; `gr` the GRanges object representing the
+#'    exons for the gene of interest; `juncLabelDF` the data.frame
+#'    containing exon label coordinates used to add labels to
+#'    the splice junction arcs.
+#'
 #' @param flatExonsByGene GRangesList named by gene, whose GRanges
 #'    elements are flattened, disjoint, non-overlapping genomic ranges
 #'    per gene.
@@ -1615,8 +1793,17 @@ combineGRcoverage <- function
 #' @param ... additional arguments are passed to `make_ref2compressed()`,
 #'    `getGRcoverageFromBw()`, `exoncov2polygon()`.
 #'
+#' @family RNA-seq functions
+#' @family jam plot functions
+#'
 #' @examples
 #' # First assemble a data.frame of coverage bigWig and junction BED files
+#' if (1 == 2) {
+#' ## Steps below will capture all replicate coverage and junction
+#' ## files for the Farris et all dataset, and although are relatively
+#' ## efficient (5-10 seconds per gene figure for 8 samples), are
+#' ## too slow to be allowed in CRAN package docs.
+#' ##
 #' baseurl <- "https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/";
 #' bedext <- ".STAR_mm10.combinedJunctions.bed";
 #' bwext <- c("492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw",
@@ -1700,6 +1887,8 @@ combineGRcoverage <- function
 #' ## or
 #' ## + scale_x_continuous(trans=shGria1$ref2c$trans_grc)
 #'
+#' }
+#'
 #' @export
 prepareSashimi <- function
 (flatExonsByGene=NULL,
@@ -1714,7 +1903,7 @@ prepareSashimi <- function
  gap_feature_type="intron",
  default_feature_type="exon",
  feature_type_colname="feature_type",
- exon_label_type=c("repel", "mark", "none"),
+ exon_label_type=c("none", "repel", "mark"),
  junc_label_type=c("repel", "mark", "none"),
  return_data=c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF", "ref2c", "all"),
  junc_color=alpha2col("goldenrod3", 0.7),

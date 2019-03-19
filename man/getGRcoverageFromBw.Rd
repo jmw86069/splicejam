@@ -40,3 +40,21 @@ Get coverage for GRanges from bigWig files
 This function takes a GRanges object to define genomic regions,
 for which coverage data is loaded for each \code{bwUrls} input file.
 }
+\seealso{
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
+  \code{\link{annotateGRfromGR}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
+  \code{\link{findOverlapsGRL}},
+  \code{\link{getFirstStrandedFromGRL}},
+  \code{\link{getGRLgaps}}, \code{\link{getGRgaps}},
+  \code{\link{grl2df}}, \code{\link{make_ref2compressed}},
+  \code{\link{sortGRL}}
+
+Other RNA-seq functions: \code{\link{prepareSashimi}}
+}
+\concept{RNA-seq functions}
+\concept{jam GRanges functions}

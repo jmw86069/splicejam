@@ -8,7 +8,7 @@ prepareSashimi(flatExonsByGene = NULL, filesDF = NULL, gene, sample_id,
   minJunctionScore = 10, gapWidth = 200, addGaps = TRUE,
   compressGR = TRUE, ref2c = NULL, gap_feature_type = "intron",
   default_feature_type = "exon", feature_type_colname = "feature_type",
-  exon_label_type = c("repel", "mark", "none"),
+  exon_label_type = c("none", "repel", "mark"),
   junc_label_type = c("repel", "mark", "none"),
   return_data = c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF",
   "ref2c", "all"), junc_color = alpha2col("goldenrod3", 0.7),
@@ -60,11 +60,70 @@ using compressed coordinates.}
 \item{gapname}{the default feature_type value to use for gaps when
 \code{addGaps=TRUE}.}
 }
+\value{
+list containing \code{ggSashimi} a ggplot2 graphical object
+containing a full Sashimi plot; \code{ggCov} the RNA-seq coverage
+subset of the Sashimi plot; \code{ggJunc} the splice junction
+subsset of the Sashimi plot; \code{ref2c} the output of
+\code{make_ref2compressed()} used for ggplot2 coordinate
+visualization; \code{covDF}, \code{juncDF} data.frame objects
+with the raw data used to create ggplot2 objects;
+\code{covGR}, \code{juncGR} the GRanges objects used to create
+the data.frames; \code{gr} the GRanges object representing the
+exons for the gene of interest; \code{juncLabelDF} the data.frame
+containing exon label coordinates used to add labels to
+the splice junction arcs.
+}
 \description{
 Prepare Sashimi plot data
 }
+\details{
+This function is the workhorse function used to produce
+Sashimi plots, and is intended to be a convenient wrapper
+function for several other individual functions.
+
+At a minimum, a Sashimi plot requires three things:
+\enumerate{
+\item The gene of interest, with corresponding exon model.
+\item RNA-seq coverage data.
+\item Splice junction data.
+}
+
+There is some required pre-processing before running
+\code{prepareSashimi()}:
+\itemize{
+\item Prepare flattened exons by gene using \code{flattenExonsByGene()}
+and corresponding data, including \code{exonsByGene}, \code{cdsByGene},
+and \code{tx2geneDF}. Verify the gene exon model data using
+\code{gene2gg()}.
+\item Find file paths, or web URLs, for a set of bigWig coverage
+files, representing RNA-seq coverage for each strand, for
+the samples of interest. Test the coverage data using
+\code{getGRcoverageFromBw()} for a small set of GRanges data.
+\item Find file paths, or web URLs, for a set of BED6 or BED12
+format files, note that it cannot currently use bigBed format
+due to limitations in the \code{rtracklayer} package.
+Test the splice junction data using \code{rtracklayer::import()}
+for a small range of GRanges features, then send the data
+to \code{spliceGR2junctionDF()} to prepare a data.frame summary.
+}
+
+The basic input for coverage and junction data is a data.frame,
+which defines each file path or url, the type of data
+\code{"bw"} or \code{"junction"}, and the biological sample \code{"sample_id"}.
+Any file path compatible with \code{rtracklayer::import()} will
+work, including web URLs and local files. When using a web URL
+you may need to use \code{"https://"} format to force the use
+of secure web requests, but this requirement varies by country.
+}
 \examples{
 # First assemble a data.frame of coverage bigWig and junction BED files
+if (1 == 2) {
+## Steps below will capture all replicate coverage and junction
+## files for the Farris et all dataset, and although are relatively
+## efficient (5-10 seconds per gene figure for 8 samples), are
+## too slow to be allowed in CRAN package docs.
+##
 baseurl <- "https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/";
 bedext <- ".STAR_mm10.combinedJunctions.bed";
 bwext <- c("492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw",
@@ -149,3 +208,14 @@ sdim(shGria1$ref2c)
 ## + scale_x_continuous(trans=shGria1$ref2c$trans_grc)
 
 }
+
+}
+\seealso{
+Other RNA-seq functions: \code{\link{getGRcoverageFromBw}}
+
+Other jam plot functions: \code{\link{bgaPlotly3d}},
+  \code{\link{factor2label}}, \code{\link{gene2gg}},
+  \code{\link{grl2df}}
+}
+\concept{RNA-seq functions}
+\concept{jam plot functions}

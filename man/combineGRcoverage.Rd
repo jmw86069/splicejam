@@ -7,13 +7,76 @@
 combineGRcoverage(gr, covNames = NULL, covName = NULL,
   strands = NULL, scaleFactors = 1, verbose = FALSE, ...)
 }
+\arguments{
+\item{gr}{GRanges object containing coverage data in columns
+containing NumericList class data.}
+
+\item{covNames}{character vector of \code{colnames(values(gr))}
+that contain coverage in NumericList format.}
+
+\item{covName}{character vector with length equal to
+\code{length(covNames)} representing the \code{sample_id} for each
+\code{covNames} entry.}
+
+\item{strands}{character vector, or NULL, indicating the strand
+for which the coverage data was obtained. When \code{NULL} the strand
+is inferred by the presence of any negative values.}
+
+\item{scaleFactors}{numeric vector length equal to \code{length(covNames)}
+of values to multiply by each coverage result, in order to
+normalized coverages to each other.}
+
+\item{verbose}{logical indicating whether to print verbose output.}
+
+\item{...}{additional arguments are ignored.}
+}
+\value{
+GRanges object whose colnames contain the
+\code{covName} (\code{sample_id}) for each observed strand,
+with coverage combined taking the sum of individual
+coverages after multiplying each by \code{scaleFactors}.
+}
 \description{
 Combine GRanges coverage replicates
 }
 \details{
 This function takes a GRanges object as output from
 \code{getGRcoverageFromBw()} and combines the coverages into
-one coverage per strand. The strand is inferred by the
+one coverage per strand for each \code{covName} (equivalent
+to \code{sample_id}). Each coverage value is multiplied by
+its \code{scaleFactors} value, then the sum is returned for
+each strand, for each \code{covName} (\code{sample_id}).
+
+The strand is inferred by the
 presence of negative values, where any negative value
 indicates the column is negative strand.
 }
+\seealso{
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
+  \code{\link{annotateGRfromGR}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{exoncov2polygon}},
+  \code{\link{findOverlapsGRL}},
+  \code{\link{getFirstStrandedFromGRL}},
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+
+Other jam RNA-seq functions: \code{\link{ale2violin}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{codonUsage2df}},
+  \code{\link{compressPolygonM}},
+  \code{\link{defineDetectedTx}},
+  \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
+  \code{\link{flattenExonsByGene}},
+  \code{\link{groups2contrasts}}, \code{\link{jamCai}},
+  \code{\link{makeTx2geneFromGtf}},
+  \code{\link{make_ref2compressed}},
+  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
+  \code{\link{tx2ale}}
+}
+\concept{jam GRanges functions}
+\concept{jam RNA-seq functions}

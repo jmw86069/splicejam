@@ -5,9 +5,37 @@
 \title{Find closest exon to splice junction ends}
 \usage{
 closestExonToJunctions(spliceGRgene, exonsGR, flipNegativeStrand = TRUE,
-  sampleColname = sampleColname, reportActualCoords = FALSE,
+  sampleColname = "sample_id", reportActualCoords = FALSE,
   verbose = TRUE, ...)
+}
+\arguments{
+\item{spliceGRgene}{GRanges representing splice junctions}
+
+\item{exonsGR}{GRanges representing flattened exons per gene, as
+is produced by \code{flattenExonsByGene()}.}
+
+\item{flipNegativeStrand}{logical indicating whether to flip
+the orientation of features on the negative strand.}
+
+\item{sampleColname}{character value matching the colname that
+defines distinct sample identifier, for which junctions will
+be kept separate.}
+
+\item{reportActualCoords}{logical indicating whether to report
+genomic coordinates or transcriptome coordinates. (Work in
+progress.)}
+
+\item{verbose}{logical indicating whether to print verbose output.}
+
+\item{...}{additional arguments are ignored.}
 }
 \description{
 Find closest exon to splice junction ends
+}
+\details{
+This function is used to annotate splice junction GRanges entries
+based upon the closest compatible stranded exon boundary.
+
+This function should usually be called by \code{spliceGR2junctionDF()}
+and not called directly.
 }

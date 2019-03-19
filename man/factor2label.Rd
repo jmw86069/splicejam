@@ -54,6 +54,8 @@ factor2label(x);
 
 }
 \seealso{
-Other jam plot functions: \code{\link{bgaPlotly3d}}
+Other jam plot functions: \code{\link{bgaPlotly3d}},
+  \code{\link{gene2gg}}, \code{\link{grl2df}},
+  \code{\link{prepareSashimi}}
 }
 \concept{jam plot functions}

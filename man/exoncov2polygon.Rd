@@ -39,3 +39,40 @@ used to compress the GRanges coordinates.}
 \description{
 Convert exon coverage to polygons
 }
+\details{
+This function is a workhorse function that converts a GRanges
+object containing column values with NumericList coverage data,
+into a full data.frame sufficient to define ggplot2 and other
+coverage polygon plots.
+
+An interesting argument is \code{baseline} which allows each exon
+in the \code{gr} GRanges object to be offset from zero, in order to
+make certain features visually easier to distinguish.
+
+This function also calls \code{simplifyXY()} which reduces the
+stored polygon detail for regions whose coordinates are compressed
+on the x-axis, taking roughly the max value for each point.
+
+The default output is roughly similar to \code{broom::tidy()} in
+that it converts a custom R object into a tidy data.frame
+suitable for use by ggplot2 and other tidy workflows.
+
+The function \code{getGRcoverageFromBw()} takes a set of bigWig files
+and returns a GRanges object whose columns contain NumericList data,
+which is the intended input for \code{exoncov2polygon()}.
+}
+\seealso{
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
+  \code{\link{annotateGRfromGR}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{findOverlapsGRL}},
+  \code{\link{getFirstStrandedFromGRL}},
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+}
+\concept{jam GRanges functions}

@@ -6,8 +6,48 @@
 \usage{
 make_ref2compressed(gr, gapWidth = 200, keepValues = FALSE,
   upstream = 50000, upstreamGapWidth = gapWidth * 3,
-  downstream = 50000, downstreamGapWidth = gapWidth * 3,
-  refGR = NULL, refGRnames = NULL, verbose = FALSE, ...)
+  downstream = 50000, downstreamGapWidth = gapWidth * 3, nBreaks = 7,
+  verbose = FALSE, ...)
+}
+\arguments{
+\item{gr}{GRanges object containing regions not to compress. Regions
+which are unstranded gaps are compressed to fixed width.}
+
+\item{gapWidth}{integer value used for fixed gap width, or when
+NULL the gap width is defined as 3 times the median feature width.}
+
+\item{keepValues}{logical indicating whether to keep feature values
+in the GRanges data.}
+
+\item{upstream, downstream, upstreamGapWidth, downstreamGapWidth}{used
+to define the compression of coordinates upstream and downstream
+the supplied GRanges. In reality, the upstream range and upstream
+gap width defines a multiplier, and all upstream coordinates are
+compressed through zero. Similarly, all downstream coordinates
+are compressed to 10 billion, which is roughly 3 times the size
+of the human genome.}
+
+\item{nBreaks}{the default number of x-axis coordinate breaks used
+in ggplot labeling.}
+
+\item{verbose}{logical indicating whether to print verbose output.}
+
+\item{...}{additional arguments are ignored.}
+}
+\value{
+list with \code{trans_grc} which is class \code{"trans"} suitable
+for use in ggplot2 functions; \code{transform} a function that converts
+chromosome coordinates to compressed coordinates; \code{inverse} a function
+that converts compressed coordinates to chromosome coordinates;
+\code{scale_x_grc} a function used similar to \code{ggplot2::scale_x_continuous()}
+during ggplot2 creation; \code{gr} a function that compresses coordinates
+in a \code{GRanges} object; \code{grl} a function that compresses coordinates in
+a \code{GRangesList} object. Attributes \code{"lookupCoordDF"} is a two-column
+data.frame with chromosome coordinates and compressed coordinates,
+which is used to create the other transformation functions via
+\code{stats::approx()}; \code{"gapWidth"} the gap width used, since it can
+be programmatically defined; \code{"gr"} the \code{GRanges} input data used
+to train the transformation.
 }
 \description{
 Create a ref2compressed function to compress GR gaps
@@ -17,3 +57,49 @@ This function takes a set of GRanges which are to be maintained
 with fixed aspect ratio, and it defines a function to compress
 coordinates of the gaps between GRanges features.
 }
+\seealso{
+\code{grl2df()}
+
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
+  \code{\link{annotateGRfromGR}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
+  \code{\link{findOverlapsGRL}},
+  \code{\link{getFirstStrandedFromGRL}},
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{sortGRL}}
+
+Other jam RNA-seq functions: \code{\link{ale2violin}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{codonUsage2df}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{compressPolygonM}},
+  \code{\link{defineDetectedTx}},
+  \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
+  \code{\link{flattenExonsByGene}},
+  \code{\link{groups2contrasts}}, \code{\link{jamCai}},
+  \code{\link{makeTx2geneFromGtf}},
+  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
+  \code{\link{tx2ale}}
+
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
+  \code{\link{annotateGRfromGR}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
+  \code{\link{findOverlapsGRL}},
+  \code{\link{getFirstStrandedFromGRL}},
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{sortGRL}}
+}
+\concept{jam GRanges functions}
+\concept{jam RNA-seq functions}

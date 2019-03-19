@@ -5,12 +5,59 @@
 \title{Splice junction data.frame summary}
 \usage{
 spliceGR2junctionDF(spliceGRgene, exonsGR, spliceBuffer = 3,
-  spliceGRname = "score", geneExonSep = "(:|_exon)",
-  useOnlyValidEntries = FALSE, renameTooFar = TRUE,
-  scoreColname = "score", sampleColname = "sample_id",
-  flipNegativeStrand = TRUE, returnGRanges = FALSE, verbose = FALSE,
-  ...)
+  geneExonSep = "(:|_exon)", useOnlyValidEntries = FALSE,
+  renameTooFar = TRUE, scoreColname = "score",
+  sampleColname = "sample_id", flipNegativeStrand = TRUE,
+  returnGRanges = FALSE, verbose = FALSE, ...)
+}
+\arguments{
+\item{spliceGRgene}{GRanges object containing splice junctions, where
+the \code{scoreColname} contains numeric scores.}
+
+\item{exonsGR}{GRanges object containing flattened exons by gene,
+as is provided by \code{flattenExonsByGene()}.}
+
+\item{spliceBuffer}{integer distance allowed from a compatible exon
+boundary, for a junction read to be snapped to that boundary.}
+
+\item{useOnlyValidEntries}{logical indicating whether to remove
+junctions that do not align with a compatible exon boundary.}
+
+\item{renameTooFar}{logical indicating whether junctions are
+named by the nearest exon boundary and the distance to that
+boundary.}
+
+\item{scoreColname, sampleColname}{colnames in \code{values(spliceGRgene)}
+to define the score, and \code{sample_id}.}
+
+\item{flipNegativeStrand}{logical indicating whether to flip the
+orientation of negative strand features when matching exon
+boundaries. This argument is passed to \code{closestExonToJunctions()}.}
+
+\item{returnGRanges}{logical indicating whether to return GRanges,
+or by default, \code{data.frame}.}
+
+\item{verbose}{logical indicating whether to print verbose output.}
+
+\item{...}{additional arguments are ignored.}
 }
 \description{
 Splice junction data.frame summary
+}
+\details{
+This function takes a GRanges object representing multiple splice
+junction ranges, with associated scores, and returns a data.frame
+summary of junctions with annotated boundaries using a set
+of gene exon models. Junctions whose ends are within \code{spliceBuffer}
+distance are combined, and the scores are summed.
+
+By default, junctions not within \code{spliceBuffer} of a compatible exon
+boundary are named by the nearest exon boundary, and the distance
+upstream or downstream from the boundary.
+
+Multiple samples can be processed together, and the results will
+be aggregated within each sample, using \code{sampleColname}. The results
+in that case may be cast to wide format using \code{nameFromTo} as the
+row identifier, \code{score} as the value column, and \code{sampleColname} as
+the new column headers.
 }

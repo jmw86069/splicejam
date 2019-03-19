@@ -70,11 +70,16 @@ to the output data, then returns a tall data.frame sufficient
 for viewing as a violin plot using \code{ggplot2::geom_violin()}.
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{codonUsage2df}},
+Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
+  \code{\link{codonUsage2df}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{compressPolygonM}},
   \code{\link{defineDetectedTx}},
   \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
+  \code{\link{flattenExonsByGene}},
   \code{\link{groups2contrasts}}, \code{\link{jamCai}},
   \code{\link{makeTx2geneFromGtf}},
+  \code{\link{make_ref2compressed}},
   \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
   \code{\link{tx2ale}}
 }

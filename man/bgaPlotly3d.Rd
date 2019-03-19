@@ -115,9 +115,12 @@ sample centroids, and optionally a subset of genes in the same
 BGA component space.
 }
 \seealso{
-Other jam plot functions: \code{\link{factor2label}}
+Other jam plot functions: \code{\link{factor2label}},
+  \code{\link{gene2gg}}, \code{\link{grl2df}},
+  \code{\link{prepareSashimi}}
 
-Other jam spatial functions: \code{\link{dfWide2segments}},
+Other jam spatial functions: \code{\link{compressPolygonM}},
+  \code{\link{dfWide2segments}}, \code{\link{simplifyXY}},
   \code{\link{spline3d}}
 }
 \concept{jam plot functions}

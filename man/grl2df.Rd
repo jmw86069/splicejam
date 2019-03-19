@@ -5,12 +5,152 @@
 \title{GRangesList to data.frame for ggplot2}
 \usage{
 grl2df(grl, keepGRvalues = TRUE, keepGRLvalues = FALSE,
-  addGaps = TRUE, width = 0.6, widthV = c(exon = 0.6, intron = 0.02,
-  gap = 0.02), width_colname = "feature_type", shape = c("rectangle",
-  "junction"), baseline = NULL, scoreColname = "score",
-  scoreMinimum = 200, scoreFactor = 1, scoreArcFactor = 0.5,
-  doStackJunctions = TRUE, ref2c = NULL, verbose = FALSE, ...)
+  addGaps = TRUE, width = 0.6, widthV = c(exon = 0.6, cds = 0.6,
+  noncds = 0.3, intron = 0.01, gap = 0.01), width_colname = c("subclass",
+  "feature_type"), shape = c("rectangle", "junction"), baseline = NULL,
+  scoreColname = "score", scoreMinimum = 200, scoreFactor = 1,
+  scoreArcFactor = 0.5, doStackJunctions = TRUE, ref2c = NULL,
+  verbose = FALSE, ...)
+}
+\arguments{
+\item{grl}{GRangesList, or GRanges which will be converted to a
+GRangesList of length=1.}
+
+\item{keepGRvalues, keepGRLvalues}{logical indicating whether the
+output data.frame should include column values from GRangesList and
+GRanges, if available.}
+
+\item{addGaps}{logical indicating whether to add gap GRanges between
+same-strand GRanges features within each GRangesList element.
+When \code{TRUE} the gaps will be drawn between each GRanges rectangle.}
+
+\item{width}{numeric value of default width for features when
+\code{shape="rectangle"}.}
+
+\item{widthV}{numeric vector whose names are column values, using values
+from the first available colname from \code{width_colname}. Some common
+defaults are provided. Values are suggested to be between 0 and 1,
+since each GRangesList element is separated by 1 y-axis unit.}
+
+\item{width_colname}{when \code{widthV} is used to determine width based
+upon a column value, the first matching colname of \code{width_colname}
+is used.}
+
+\item{shape}{character string indicating whether input data should
+be processed as rectangular segments or splice junction arcs.}
+
+\item{scoreColname, scoreMinimum, scoreFactor, scoreArcFactor}{numeric
+values used to determine junction ribbon height, the minimum
+height of the arc above the starting y-axis values based upon
+the score, the scaling factor for score values, and the
+relative height of the arc above the starting y-axis values
+multiplied by the score.}
+
+\item{doStackJunctions}{logical indicating whether to stack junctions
+at the start and end of junctions sharing the same coordinate,
+in order of shortest to longest junction width.}
+
+\item{ref2c}{optional output from \code{make_ref2compressed()} used to
+compress axis coordinates during junction arc calculations.}
+
+\item{verbose}{logical indicating whether to print verbose output.}
+
+\item{...}{additional arguments are passsed to relevant downstream
+functions.}
+}
+\value{
+data.frame with \code{x,y} coordinates, and \code{id} which is used
+to group polygon coordinates when used with \code{ggplot2::geom_polygon()}
+or \code{ggforce::geom_shape()}. When \code{shape="rectangle"} the colnames
+include \code{grlNames} which are names of the input GRangesList
+\code{names(grl)}; \code{grNames} which are names of the GRanges entries; and
+other columns from the input GRanges entries. When \code{shape="junction"}
+the data includes two polygons per junction, intended to be used
+with \code{ggforce::geom_diagonal_wide()} for each side in order to
+produce a ribbon arc. The data also includes \code{sample_id} which is
+helpful for keeping data distinct when derived from multiple
+samples.
 }
 \description{
 GRangesList to data.frame for ggplot2
 }
+\details{
+This function central to other plotting functions for
+GRanges and GRangesList objects. It currently has two
+modes:
+\itemize{
+\item \code{shape="rectangle"} is intended for
+exons/peaks/regions, for example plotting exons in a gene structure,
+or plotting ChIP-seq peaks.
+\item \code{shape="junction"} is intended for splice junctions, and
+returns two polygons that join junction ends with a the middle
+point raised above both baselines. The polygon height is determined
+by the score, resulting in visual reinforcement of the number
+of splice junction reads, usually compared to the sequence read
+coverage at adjacent exons.
+}
+
+An interesting argument is \code{baseline} which can be a named vector
+of baseline y-axis values for each GRanges entry in the \code{grl}
+GRangesList object. For example, it can be used to shift exons
+up or down on the y-axis to make alternative exons more visibly
+distinct. When used for Sashimi plots, it should also be
+supplied to \code{prepareSashimi()} or \code{exoncov2polygon()} so
+the coverages and splice junctions have consistent y-axis baselines.
+
+When chromosome coordinates are compressed (to reduce the visible
+width of introns) it affects the midpoint of splice junction arcs,
+therefore \code{ref2c} should be supplied so the arcs are defined
+using compresssed coordinates.
+}
+\examples{
+gr <- GRanges(seqnames=rep(c("chr1"), 7),
+   ranges=IRanges(start=c(50, 100, 1300, 2500, 23750, 24900, 25000),
+      end=c(100, 150, 1450, 2600, 23800, 25000, 25200)),
+   strand=rep("+", 7),
+   feature_type=rep(c("noncds", "cds", "noncds"), c(1,5,1)));
+names(gr) <- makeNames(rep("exon", 7));
+grldf <- grl2df(gr, addGaps=TRUE);
+
+gg1 <- ggplot2::ggplot(grldf, ggplot2::aes(x=x, y=y, group=id)) +
+   ggforce::geom_shape(ggplot2::aes(fill=feature_type)) +
+   colorjam::theme_jam()
+print(gg1);
+
+## For fun, compress the introns and plot again.
+## This method uses x-axis breaks at the exon boundaries.
+ref2c <- make_ref2compressed(gr);
+gg2 <- gg1 +
+   ggplot2::scale_x_continuous(trans=ref2c$trans_grc) +
+   colorjam::theme_jam()
+print(gg2);
+
+## data can also be plotted using coord_trans()
+## the main difference is that x-axis breaks are defined before the
+## transformation, which can result in non-optimal placement
+gg3 <- gg1 +
+   coord_trans(x=ref2c$trans_grc) + colorjam::theme_jam();
+print(gg3);
+
+}
+\seealso{
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
+  \code{\link{annotateGRfromGR}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
+  \code{\link{findOverlapsGRL}},
+  \code{\link{getFirstStrandedFromGRL}},
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}},
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+
+Other jam plot functions: \code{\link{bgaPlotly3d}},
+  \code{\link{factor2label}}, \code{\link{gene2gg}},
+  \code{\link{prepareSashimi}}
+}
+\concept{jam GRanges functions}
+\concept{jam plot functions}

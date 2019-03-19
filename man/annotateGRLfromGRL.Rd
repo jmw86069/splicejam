@@ -70,8 +70,13 @@ it does not use \code{values(GRL2)} if they exist.
 Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{addGRgaps}}, \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
   \code{\link{findOverlapsGRL}},
   \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{sortGRL}}
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
 }
 \concept{jam GRanges functions}

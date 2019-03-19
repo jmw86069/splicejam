@@ -19,6 +19,18 @@ simplification. For exmample \code{restrictDegrees=c(0,180)} will only
 simplify horizontal lines.}
 
 \item{...}{additional arguments are ignored.}
+
+\item{xy}{numeric matrix of two columns x,y}
+
+\item{minN}{integer minimum number of consecutive points to
+cause compression to occur. It requires at least 3 points
+inherent to the algorithm.}
+
+\item{restrictDegrees}{numeric vector of allowed angles in degrees
+(range 0 to 360) of angles allowed to be compressed, when supplied
+all other angles will not be compressed.}
+
+\item{...}{additional arguments are ignored.}
 }
 \description{
 Simplify XY coordinates to minimal line segments
@@ -44,3 +56,9 @@ legend("topleft", pch=c(1, 20, 17),# box.col="black", border="black",
    legend=c("all points", "simplified points", "only simplified horizontal"));
 
 }
+\seealso{
+Other jam spatial functions: \code{\link{bgaPlotly3d}},
+  \code{\link{compressPolygonM}},
+  \code{\link{dfWide2segments}}, \code{\link{spline3d}}
+}
+\concept{jam spatial functions}
