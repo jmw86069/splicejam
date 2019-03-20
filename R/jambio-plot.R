@@ -935,7 +935,7 @@ make_ref2compressed <- function
             "n:", n);
       }
       nUse <- length(b) * n;
-      ref2compressed(breaks_gr(compressed2ref(x),
+      ref2compressed(breaks_gr(compressed2ref(b),
          limits=compressed2ref(limits),
          n=nUse,
          xFixed=xFixed,
@@ -2057,7 +2057,7 @@ prepareSashimi <- function
          exonLabelDF <- renameColumn(exonLabelDF1,
             from="groupBy",
             to="gr_sample");
-         head(exonLabelDF);
+         retVals$exonLabelDF <- exonLabelDF;
          if ("mark" %in% exon_label_type) {
             ggExonLabels <- ggforce::geom_mark_hull(data=exonLabelDF,
                aes(x=x, y=y, label=gr, group=gr_sample),

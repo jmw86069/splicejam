@@ -3451,7 +3451,8 @@ getGRLgaps <- function
 flattenExonsByGene <- function
 (exonsByTx,
  tx2geneDF,
- detectedTx,
+ by=c("gene", "tx"),
+ detectedTx=NULL,
  genes=NULL,
  txColname="transcript_id",
  geneColname="gene_name",
@@ -3470,6 +3471,7 @@ flattenExonsByGene <- function
    if (!all(c(txColname, geneColname) %in% colnames(tx2geneDF))) {
       stop("colnames(tx2geneDF) must contain txColname and geneColname.");
    }
+   by <- match.arg(by);
    if (length(detectedTx) > 0) {
       iTxs <- intersect(names(exonsByTx), detectedTx);
    } else {
@@ -3477,14 +3479,17 @@ flattenExonsByGene <- function
    }
    ## Optionally subset tx2geneDF by genes
    if (length(genes) > 0) {
-      tx2geneDF <- subset(tx2geneDF, tx2geneDF[[geneColname]] %in% genes);
+      tx2geneDF <- subset(tx2geneDF,
+         tx2geneDF[[geneColname]] %in% genes);
       if (nrow(tx2geneDF) == 0) {
          stop("tx2geneDF[[geneColname]] contains no values matching the supplied genes.");
       }
    }
    ## Validate iTxs in tx2geneDF
-   iTxs <- intersect(iTxs, tx2geneDF[[txColname]]);
-   tx2geneDF <- subset(tx2geneDF, tx2geneDF[[txColname]] %in% iTxs);
+   iTxs <- intersect(iTxs,
+      tx2geneDF[[txColname]]);
+   tx2geneDF <- subset(tx2geneDF,
+      tx2geneDF[[txColname]] %in% iTxs);
    if (length(iTxs) == 0) {
       stop("There are no Tx entries shared by: names(exonsByTx), tx2geneDF[,txColname], detectedTx.");
    }
@@ -3497,7 +3502,8 @@ flattenExonsByGene <- function
 
    ## Subset exonsByTx and add gene annotations
    iTxExonsGRL <- exonsByTx[iTxs];
-   iTxMatch <- match(names(iTxExonsGRL), tx2geneDF[[txColname]]);
+   iTxMatch <- match(names(iTxExonsGRL),
+      tx2geneDF[[txColname]]);
    values(iTxExonsGRL@unlistData)[,geneColname] <- rep(
       as.character(tx2geneDF[iTxMatch,geneColname]),
       elementNROWS(iTxExonsGRL));
@@ -3507,23 +3513,47 @@ flattenExonsByGene <- function
       printDebug("flattenExonsByGene(): ",
          "Splitting tx exons by gene.");
    }
-   exonsByGene <- GRangesList(
-      GenomicRanges::split(
-         iTxExonsGRL@unlistData,
-         values(iTxExonsGRL@unlistData)[[geneColname]])
-      );
+   if ("gene" %in% by) {
+      exonsByGene <- GRangesList(
+         GenomicRanges::split(
+            iTxExonsGRL@unlistData,
+            values(iTxExonsGRL@unlistData)[[geneColname]])
+         );
+   } else {
+      values(iTxExonsGRL@unlistData)[,txColname] <- rep(
+         names(iTxExonsGRL),
+         elementNROWS(iTxExonsGRL));
+      exonsByGene <- iTxExonsGRL[,c(txColname,geneColname)];
+   }
 
 
    ## Disjoin exons within each gene GRL
+   if ("gene" %in% by) {
+      if (verbose) {
+         printDebug("flattenExonsByGene(): ",
+            "Preparing disjoint gene exons.");
+      }
+      iGeneExonsDisGRL <- disjoin(exonsByGene);
+   } else {
+      iGeneExonsDisGRL <- exonsByGene;
+   }
    if (verbose) {
       printDebug("flattenExonsByGene(): ",
-         "Preparing disjoint gene exons.");
+         "Completed disjoint gene exons.");
    }
-   iGeneExonsDisGRL <- disjoin(exonsByGene);
    ## Add gene annotation to each entry
-   values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
-      names(iGeneExonsDisGRL),
-      elementNROWS(iGeneExonsDisGRL));
+   if ("gene" %in% by) {
+      values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
+         names(iGeneExonsDisGRL),
+         elementNROWS(iGeneExonsDisGRL));
+   } else {
+      values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
+         names(iGeneExonsDisGRL),
+         elementNROWS(iGeneExonsDisGRL));
+      txMatch <- match(names(iGeneExonsDisGRL),
+         tx2geneDF[[txColname]]);
+      values(iGeneExonsDisGRL)[,geneColname] <- tx2geneDF[txMatch, geneColname]
+   }
 
    ## Optionally subdivide by CDS boundary if supplied
    if (length(cdsByTx) > 0) {
@@ -3538,9 +3568,17 @@ flattenExonsByGene <- function
                tx2geneDF[match(names(cdsByTx), tx2geneDF[[txColname]]),geneColname],
                elementNROWS(cdsByTx));
          }
-         cdsByGene <- reduce(GRangesList(
-            GenomicRanges::split(cdsByTx@unlistData,
-            values(cdsByTx@unlistData)[[geneColname]])));
+         if ("gene" %in% by) {
+            cdsByGene <- reduce(GRangesList(
+               GenomicRanges::split(cdsByTx@unlistData,
+               values(cdsByTx@unlistData)[[geneColname]])));
+         } else {
+            cdsByGene <- cdsByTx;
+            values(cdsByGene@unlistData)[,txColname] <- rep(
+               names(cdsByGene),
+               elementNROWS(cdsByGene)
+            );
+         }
          if (verbose) {
             printDebug("flattenExonsByGene(): ",
                "length(cdsByGene):",
@@ -3557,23 +3595,76 @@ flattenExonsByGene <- function
       ## Use subset of exonsByGene that have cds exons
       exonsByGeneSub <- iGeneExonsDisGRL[names(cdsByGene)];
       exonsByGeneSubCds <- GenomicRanges::intersect(exonsByGeneSub, cdsByGene);
-      values(exonsByGeneSubCds@unlistData)[,geneColname] <- rep(
-         names(exonsByGeneSubCds),
-         elementNROWS(exonsByGeneSubCds));
       values(exonsByGeneSubCds@unlistData)[,"subclass"] <- "cds";
-      exonsByGeneCds <- sort(disjoin(GRangesList(
-         GenomicRanges::split(
-         c(exonsByGeneSub@unlistData[,geneColname],
-            exonsByGeneSubCds@unlistData[,geneColname]),
-         c(values(exonsByGeneSub@unlistData)[,geneColname],
-            values(exonsByGeneSubCds@unlistData)[,geneColname])))));
-      values(exonsByGeneCds@unlistData)[,geneColname] <- rep(
-         names(exonsByGeneCds),
-         elementNROWS(exonsByGeneCds));
+      if ("gene" %in% by) {
+         values(exonsByGeneSubCds@unlistData)[,geneColname] <- rep(
+            names(exonsByGeneSubCds),
+            elementNROWS(exonsByGeneSubCds));
+         exonsByGeneCds <- sort(disjoin(GRangesList(
+            GenomicRanges::split(
+            c(exonsByGeneSub@unlistData[,geneColname],
+               exonsByGeneSubCds@unlistData[,geneColname]),
+            c(values(exonsByGeneSub@unlistData)[,geneColname],
+               values(exonsByGeneSubCds@unlistData)[,geneColname])))));
+         values(exonsByGeneCds@unlistData)[,geneColname] <- rep(
+            names(exonsByGeneCds),
+            elementNROWS(exonsByGeneCds));
+      } else {
+         values(exonsByGeneSubCds@unlistData)[,txColname] <- rep(
+            names(exonsByGeneSubCds),
+            elementNROWS(exonsByGeneSubCds));
+         #txMatch <- match(names(exonsByGeneSubCds),
+         #   tx2geneDF[[txColname]]);
+         #values(exonsByGeneSubCds@unlistData)[,geneColname] <- rep(
+         #   tx2geneDF[txMatch, geneColname],
+         #   elementNROWS(exonsByGeneSubCds)
+         #);
+         if (verbose) {
+            printDebug("flattenExonsByGene(): ",
+               "split()");
+         }
+         exonsByGeneCds <- GenomicRanges::split(
+               c(exonsByGeneSub@unlistData,
+                  exonsByGeneSubCds@unlistData),
+               c(values(exonsByGeneSub@unlistData)[,txColname],
+                  values(exonsByGeneSubCds@unlistData)[,txColname]));
+         if (verbose) {
+            printDebug("flattenExonsByGene(): ",
+               "disjoin()");
+         }
+         exonsByGeneCds <- GenomicRanges::disjoin(exonsByGeneCds);
+         if (verbose) {
+            printDebug("flattenExonsByGene(): ",
+               "Sorting.");
+         }
+         exonsByGeneCds <- sort(exonsByGeneCds);
+         if (verbose) {
+            printDebug("flattenExonsByGene(): ",
+               "Adding txColname,geneColname to disjoint tx exons.");
+         }
+         values(exonsByGeneCds@unlistData)[,txColname] <- rep(
+            names(exonsByGeneCds),
+            elementNROWS(exonsByGeneCds));
+         txMatch <- match(names(exonsByGeneCds),
+            tx2geneDF[[txColname]]);
+         values(exonsByGeneCds@unlistData)[,geneColname] <- rep(
+            tx2geneDF[txMatch, geneColname],
+            elementNROWS(exonsByGeneCds)
+         );
+      }
+      if (verbose) {
+         printDebug("flattenExonsByGene(): ",
+            "Running annotateGRLfromGRL on CDS disjoint exons.");
+      }
       exonsByGeneCds <- annotateGRLfromGRL(exonsByGeneCds,
          exonsByGeneSubCds[,"subclass"]);
       naClass <- is.na(values(exonsByGeneCds@unlistData)[,"subclass"]);
       values(exonsByGeneCds@unlistData)[naClass,"subclass"] <- "noncds";
+      if (verbose) {
+         #printDebug("flattenExonsByGene(): ",
+         #   "head(exonsByGeneCds):");
+         #print(head(exonsByGeneCds));
+      }
       values(iGeneExonsDisGRL@unlistData)[,"subclass"] <- "noncds";
       iGeneExonsDisGRL[names(exonsByGeneCds)] <- exonsByGeneCds[,c(geneColname, "subclass")];
    }
@@ -3583,11 +3674,29 @@ flattenExonsByGene <- function
       printDebug("flattenExonsByGene(): ",
          "Assigning exon labels to disjoint gene exons.");
    }
-   iGeneExonsDisGRL <- assignGRLexonNames(iGeneExonsDisGRL,
-      geneSymbolColname=geneColname,
-      verbose=FALSE);
+   if ("gene" %in% by) {
+      iGeneExonsDisGRL <- assignGRLexonNames(iGeneExonsDisGRL,
+         geneSymbolColname=geneColname,
+         verbose=FALSE);
+      values(iGeneExonsDisGRL)[,geneColname] <- names(iGeneExonsDisGRL);
+   } else {
+      iGeneExonsDisGRL <- assignGRLexonNames(iGeneExonsDisGRL,
+         geneSymbolColname=txColname,
+         verbose=FALSE);
+      values(iGeneExonsDisGRL)[,txColname] <- names(iGeneExonsDisGRL);
+      values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
+         names(iGeneExonsDisGRL),
+         elementNROWS(iGeneExonsDisGRL)
+      )
+      txMatch <- match(names(iGeneExonsDisGRL),
+         tx2geneDF[[txColname]]);
+      values(iGeneExonsDisGRL)[,geneColname] <- tx2geneDF[txMatch, geneColname];
+      values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
+         values(iGeneExonsDisGRL)[,geneColname],
+         elementNROWS(iGeneExonsDisGRL)
+      )
+   }
    values(iGeneExonsDisGRL@unlistData)[,"feature_type"] <- "exon";
-   values(iGeneExonsDisGRL)[,"gene_name"] <- names(iGeneExonsDisGRL);
    ## TODO: optionally add intron regions between exons of each gene
 
    return(iGeneExonsDisGRL);

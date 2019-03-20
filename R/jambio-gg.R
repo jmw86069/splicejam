@@ -405,7 +405,7 @@ gene2gg <- function
  flatExonsByTx=NULL,
  geneColor="dodgerblue",
  labelExons=TRUE,
- exonLabelAngle=70,
+ exonLabelAngle=90,
  newValues=list(feature_type="gap", subclass="gap", gene_nameExon="gap"),
  gene_order=c("first","last"),
  return_type=c("grob", "df"),
@@ -413,10 +413,17 @@ gene2gg <- function
  hjust=1.2,
  vjust=0,
  compressGaps=TRUE,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is a lightweight wrapper around grl2df() specifically intended
    ## for gene and transcript exon structure
+   if (!suppressPackageStartupMessages(require(ggplot2))) {
+      stop("gene2gg() requires ggplot2.");
+   }
+   if (!suppressPackageStartupMessages(require(ggforce))) {
+      stop("gene2gg() requires ggforce.");
+   }
    gene_order <- match.arg(gene_order);
    return_type <- match.arg(return_type);
    if (length(flatExonsByGene) > 0 && length(gene) > 0) {
@@ -430,11 +437,11 @@ gene2gg <- function
    if (length(flatExonsByTx) > 0) {
       grl1 <- NULL;
       if (length(gene) > 0) {
-         grl1 <- subset(flatExonsByTxCds2, gene_name %in% gene);
+         grl1 <- subset(flatExonsByTx, gene_name %in% gene);
       }
       if (length(tx) > 0) {
          grl1 <- c(grl1,
-            flatExonsByTxCds2[names(flatExonsByTxCds2) %in% tx]);
+            flatExonsByTx[names(flatExonsByTx) %in% tx]);
       }
    } else {
       grl1 <- NULL;
@@ -478,6 +485,11 @@ gene2gg <- function
    }
    if (length(ref2c) == 0) {
       if (compressGaps) {
+         if (verbose) {
+            printDebug("gene2gg(): ",
+               "grl1a1:");
+            print(grl1a1);
+         }
          ref2c <- make_ref2compressed(grl1a1@unlistData,
             ...);
       } else {
@@ -497,7 +509,8 @@ gene2gg <- function
          limits=c(-0.7, length(grl1a1)-0.5),
          labels=names(grl1a1));
    if (length(ref2c) > 0) {
-      grl1a1gg <- grl1a1gg + scale_x_continuous(trans=ref2c$trans_grc);
+      grl1a1gg <- grl1a1gg +
+         scale_x_continuous(trans=ref2c$trans_grc);
    }
    if (labelExons) {
       if (1 == 1 || length(ref2c) == 0) {
@@ -505,7 +518,9 @@ gene2gg <- function
             ggrepel::geom_text_repel(
                inherit.aes=FALSE,
                data=exonLabelDF,
-               aes(x=x, y=min(y), label=gene_nameExon),
+               aes(x=x,
+                  y=min(y),
+                  label=gene_nameExon),
                angle=exonLabelAngle,
                hjust=vjust,
                vjust=hjust,
@@ -603,4 +618,147 @@ stackJunctions <- function
       juncGR1 <- sort(juncGR1);
    }
    return(juncGR1);
+}
+
+#' Jam Sashimi plot
+#'
+#' Jam Sashimi plot
+#'
+#' This function uses Sashimi data prepared by `prepareSashimi()`
+#' and creates a ggplot graphical object ready for visualization.
+#' As a result, this function provides several arguments to
+#' customize the visualization.
+#'
+#' @param sashimi Sashimi data prepared by `prepareSashimi()` which
+#'    is a `list` with `covDF` coverage data in data.frame format,
+#'    `juncDF` junction data in data.frame format,
+#'    `juncLabelDF` junction label coordinates in data.frame format,
+#'    `exonLabelDF` exon label coordinates per coverage polygon in
+#'    data.frame format,
+#'    `ref2c` list output from `make_ref2compressed()` to
+#'    transform genomic coordinates.
+#' @param show character vector of Sashimi plot features to include:
+#'    `"coverage"` sequence read coverage data;
+#'    `"junction"` splice junction read data.
+#' @param coord_method character value indicating the type of
+#'    coordinate scaling to use:
+#'    `"scale"` uses `ggplot2::scale_x_continuous()`;
+#'    `"coord"` uses `"ggplot2::coord_trans()`;
+#'    `"none"` does not compress genomic coordinates.
+#' @param exonsGrl GRangesList object with one or more gene or
+#'    transcript exon models, where exons are disjoint (not
+#'    overlapping.)
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are sent to `grl2df()`.
+#'
+#' @export
+jamSashimi <- function
+(sashimi,
+ show=c("coverage", "junction",
+    "exonLabels", "junctionLabels"),
+ coord_method=c("scale", "coord", "none"),
+ exonsGrl=NULL,
+ junc_color=alpha2col("goldenrod3", 0.7),
+ junc_fill=alpha2col("goldenrod1", 0.4),
+ use_jam_themes=TRUE,
+ apply_facet=TRUE,
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose is to take prepared Sashimi data, and return ggplot
+   coord_method <- match.arg(coord_method);
+   if (!"ref2c" %in% names(sashimi)) {
+      coord_method <- "none";
+   }
+   ggCov <- NULL;
+   if ("coverage" %in% show && "covDF" %in% names(sashimi)) {
+      ggSashimi <- ggplot(sashimi$covDF,
+         aes(x=x,
+            y=y,
+            group=gr,
+            fill=gr)) +
+         ggforce::geom_shape(show.legend=FALSE) +
+         colorjam::theme_jam() +
+         colorjam::scale_fill_jam() +
+         facet_grid(~sample_id,
+            scales="free_y");
+      if ("exonLabels" %in% show && "exonLabelDF" %in% names(sashimi)) {
+         yMax <- max(sashimi$exonLabelDF$y);
+         yUnit <- 10^floor(log10(yMax));
+         yMaxUse <- floor(yMax/yUnit)*yUnit;
+         ggExonLabels <- ggrepel::geom_text_repel(
+            data=sashimi$exonLabelDF,
+            inherit.aes=FALSE,
+            aes(x=x,
+               y=y,
+               group=gr_sample,
+               fill="transparent",
+               label=gr),
+            angle=90,
+            vjust=1,
+            direction="y",
+            point.padding=0
+         );
+         ggSashimi <- ggSashimi + ggExonLabels;
+      }
+   }
+   ## Junction data
+   if ("junction" %in% show && "juncDF" %in% names(sashimi)) {
+      if (length(ggSashimi) == 0) {
+         ggSashimi <- ggplot(juncDF) +
+            ggforce::geom_diagonal_wide(
+               aes(x=x,
+                  y=y,
+                  group=id),
+               color=junc_color,
+               fill=junc_fill,
+               strength=0.4);
+      } else {
+         ggSashimi <- ggSashimi +
+            geom_diagonal_wide(data=juncDF,
+               aes(x=x,
+                  y=y,
+                  group=id),
+               color=junc_color,
+               fill=junc_fill,
+               strength=0.4);
+      }
+      if ("junctionLabels" %in% show && "juncLabelDF" %in% names(sashimi)) {
+         yMax <- max(sashimi$juncLabelDF$y);
+         yUnit <- 10^floor(log10(yMax));
+         yMaxUse <- floor(yMax/yUnit)*yUnit;yMaxUse;
+         ggJuncLabels <- ggrepel::geom_text_repel(
+            data=sashimi$juncLabelDF,
+            inherit.aes=FALSE,
+            aes(x=x,
+               y=y,
+               group=nameFromToSample,
+               fill="transparent",
+               label=scales::comma(round(score))),
+            angle=90,
+            vjust=0.5,
+            direction="y",
+            point.padding=0
+         );
+         ggSashimi <- ggSashimi + ggJuncLabels;
+      }
+   }
+   if ("scale" %in% coord_method) {
+      ggSashimi <- ggSashimi +
+         scale_x_continuous(trans=sashimi$ref2c$trans_grc);
+   } else if ("coord" %in% coord_method) {
+      ggSashimi <- ggSashimi +
+         coord_trans(x=sashimi$ref2c$trans_grc);
+   }
+   if (use_jam_themes) {
+      ggSashimi <- ggSashimi +
+         theme_jam() +
+         scale_fill_jam();
+   }
+   if (apply_facet) {
+      ggSashimi <- ggSashimi +
+         facet_grid(~sample_id,
+         scales="free_y");
+   }
+   return(ggSashimi);
 }

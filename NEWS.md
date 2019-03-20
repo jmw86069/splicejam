@@ -1,3 +1,16 @@
+# splicejam version 0.0.17.900
+
+## new functions
+
+* `jamSashimi()` is used to plot Sashimi data prepared by
+`prepareSashimi()` in order to separate the download
+and preparation of Sashimi data from the visualization.
+
+## changes to existing functions
+
+* `prepareSashimi()` is refactored to remove the plot functions,
+moving them to the new `jamSashimi()`.
+
 # splicejam version 0.0.16.900
 
 ## new functions
