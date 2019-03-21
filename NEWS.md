@@ -10,6 +10,9 @@ and preparation of Sashimi data from the visualization.
 
 * `prepareSashimi()` is refactored to remove the plot functions,
 moving them to the new `jamSashimi()`.
+* `flattenExonsByGene()` can now handle Tx data, mainly useful
+to add CDS regions to existing exon models.
+* `gene2gg()` is more robust to edge input cases.
 
 # splicejam version 0.0.16.900
 

@@ -3891,3 +3891,34 @@ addGRLgaps <- function
    return(grlNew);
 }
 
+#' Convert PSL alignment to data.frame
+#'
+#' Convert PSL alignment to data.frame
+#'
+#' This function takes PSL alignment format, as produced by BLAT,
+#' and converts to data.frame.
+#'
+#' @param psl file or other connection compatible with `base::readLines()`
+#'    of data in PSL alignment format.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+psl2df <- function
+(psl,
+ ...)
+{
+   ## Purpose is to convert psl format to data.frame
+   pslLines <- gsub("[' ]+", "",
+      readLines("Adam19_KO_e5_Tomato_mRNA.psl")[-1*c(1,2,5)]);
+   psldf1 <- rbindList(
+      strsplit(
+         head(pslLines, 2),
+         "\t"));
+   pslHeader <- jamba::pasteByRow(t(psldf1), sep="");
+   psldf <- read.table(text=tail(pslLines, 2),
+      sep="\t",
+      stringsAsFactors=FALSE,
+      header=FALSE);
+   colnames(psldf) <- pslHeader;
+   return(psldf);
+}
