@@ -6,10 +6,10 @@
 \usage{
 gene2gg(gene = NULL, tx = NULL, flatExonsByGene = NULL,
   flatExonsByTx = NULL, geneColor = "dodgerblue", labelExons = TRUE,
-  exonLabelAngle = 70, newValues = list(feature_type = "gap", subclass
+  exonLabelAngle = 90, newValues = list(feature_type = "gap", subclass
   = "gap", gene_nameExon = "gap"), gene_order = c("first", "last"),
   return_type = c("grob", "df"), ref2c = NULL, hjust = 1.2,
-  vjust = 0, compressGaps = TRUE, ...)
+  vjust = 0, compressGaps = TRUE, verbose = FALSE, ...)
 }
 \arguments{
 \item{gene}{character string of the gene to plot, compared

@@ -224,6 +224,9 @@ grl2df <- function
             printDebug("grl2df(): ",
                "stackJunctions()");
          }
+         if (length(baseline) == 0) {
+            baseline <- 0;
+         }
          grlNew <- GRangesList(
             lapply(grl, function(iGR){
                stackJunctions(gr=iGR,
@@ -652,10 +655,10 @@ stackJunctions <- function
 #' @param ... additional arguments are sent to `grl2df()`.
 #'
 #' @export
-jamSashimi <- function
+plotSashimi <- function
 (sashimi,
  show=c("coverage", "junction",
-    "exonLabels", "junctionLabels"),
+    "junctionLabels"),
  coord_method=c("scale", "coord", "none"),
  exonsGrl=NULL,
  junc_color=alpha2col("goldenrod3", 0.7),
@@ -705,7 +708,7 @@ jamSashimi <- function
    ## Junction data
    if ("junction" %in% show && "juncDF" %in% names(sashimi)) {
       if (length(ggSashimi) == 0) {
-         ggSashimi <- ggplot(juncDF) +
+         ggSashimi <- ggplot(sashimi$juncDF) +
             ggforce::geom_diagonal_wide(
                aes(x=x,
                   y=y,
@@ -715,7 +718,7 @@ jamSashimi <- function
                strength=0.4);
       } else {
          ggSashimi <- ggSashimi +
-            geom_diagonal_wide(data=juncDF,
+            geom_diagonal_wide(data=sashimi$juncDF,
                aes(x=x,
                   y=y,
                   group=id),

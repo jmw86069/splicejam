@@ -459,6 +459,7 @@ to the per-isoform data.
 Either transcript- or gene-level data may be clustered using
 an ordination technique such as principal components analysis (PCA)
 or correspondence analysis (CCA or CA).
+
 For this workflow, between groups analysis (BGA) will be employed,
 as provided by the made4 Bioconductor package (Culhane et al.)
 In short, BGA enhances a basic ordination method by re-ordering
@@ -529,6 +530,9 @@ if (1 == 2 && suppressPackageStartupMessages(require(made4))) {
       ellipseType="none",
       sceneX=0, sceneY=1, sceneZ=1,
       verbose=FALSE);
-   salmonBga1ly;
+   geneBgaly;
+   htmlwidgets::saveWidget(geneBgaly,
+      file="Adam19_BGA_clustering_21mar2019.html",
+      title="Adam19 RNA-seq BGA clustering");
 }
 ```

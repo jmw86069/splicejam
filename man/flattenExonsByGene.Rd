@@ -4,9 +4,10 @@
 \alias{flattenExonsByGene}
 \title{Flatten transcript exons by gene}
 \usage{
-flattenExonsByGene(exonsByTx, tx2geneDF, detectedTx, genes = NULL,
-  txColname = "transcript_id", geneColname = "gene_name",
-  cdsByTx = NULL, cdsByGene = NULL, verbose = FALSE, ...)
+flattenExonsByGene(exonsByTx, tx2geneDF, by = c("gene", "tx"),
+  detectedTx = NULL, genes = NULL, txColname = "transcript_id",
+  geneColname = "gene_name", cdsByTx = NULL, cdsByGene = NULL,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{exonsByTx}{GRangesList named by transcript, containing one or

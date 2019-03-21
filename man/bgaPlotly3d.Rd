@@ -9,12 +9,12 @@ bgaPlotly3d(bgaInfo, axes = c(1, 2, 3), superGroups = NULL,
   colorSub = NULL, drawVectors = c("none", "centroids", "genes"),
   highlightGenes = NULL, drawSampleLabels = TRUE,
   ellipseType = c("ellipsoid", "alphahull", "none"),
-  useScaledCoords = FALSE, geneColor = "#555555",
-  geneScaleFactor = 1, geneLwd = 2, geneAlpha = 0.7, maxGenes = 50,
-  centroidLwd = 15, centroidAlpha = 0.3, sceneX = -1.25,
-  sceneY = 1.25, sceneZ = 1.25, main = "",
-  plot_bgcolor = "#eeeeee", paper_bgcolor = "#dddddd", debug = FALSE,
-  verbose = TRUE, ...)
+  ellipseOpacity = 0.2, useScaledCoords = FALSE,
+  geneColor = "#555555", geneScaleFactor = 1, geneLwd = 2,
+  geneAlpha = 0.7, maxGenes = 50, centroidLwd = 15,
+  centroidAlpha = 0.3, sceneX = -1.25, sceneY = 1.25,
+  sceneZ = 1.25, main = "", plot_bgcolor = "#eeeeee",
+  paper_bgcolor = "#dddddd", debug = FALSE, verbose = TRUE, ...)
 }
 \arguments{
 \item{bgaInfo}{object of class \code{"bga"} as created by \code{made4::bga()}.}
@@ -59,6 +59,10 @@ gene.}
 \item{drawSampleLabels}{logical indicating whether to label each
 individual sample point, as opposed to labeling only the
 sample group centroid.}
+
+\item{ellipseOpacity}{numeric value between 0 and 1 indicating the
+transparency of the ellipse, when \code{ellipseType} is not \code{"none"};
+0 is fully transparent, and 1 is non-transparent.}
 
 \item{useScaledCoords}{logical indicating whether to use the BGA
 scaled coordinates, or the raw coordinates. By default the raw

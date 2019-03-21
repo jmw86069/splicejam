@@ -1,3 +1,17 @@
+# splicejam version 0.0.18.900
+
+## changes to existing functions
+
+* `bgaPlotly3d()` now properly handles ellipsoid colors,
+previously the colors were assigned but not honored by
+`plotly::add_trace()`.
+* `combineGRcoverage()` determines strandedness by requiring all
+values to be at or below zero, with at least one negative value.
+Otherwise, data can have position and negative values and will
+be considered positive stranded.
+* `plotSashimi()` replaces `jamSashimi()` because it is just more
+intuitive... Ah well.
+
 # splicejam version 0.0.17.900
 
 ## new functions

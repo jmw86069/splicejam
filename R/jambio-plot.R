@@ -1378,6 +1378,11 @@ exoncov2polygon <- function
    }
 
    ## List of lists of polygons
+   if (verbose) {
+      printDebug("exoncov2polygon(): ",
+         "covNames:",
+         covNames);
+   }
    covPolyL <- lapply(nameVector(covNames), function(iName){
       polyL <- lapply(nameVectorN(gr), function(iGRname){
          yVals1a <- unlist(values(gr[iGRname])[[iName]]);
@@ -1405,10 +1410,14 @@ exoncov2polygon <- function
             printDebug("length(yVals):", length(yVals));
          }
          ## TODO: compress coordinates where y-value doesn't change
-         xy <- cbind(x=xVals, y=yVals);
-         ## Simplify the coordinates, typically removing up to 90% rows
-         xy <- simplifyXY(xy,
-            restrictDegrees=c(0,180));
+         if (length(xVals) > 0 && length(yVals) > 0) {
+            xy <- cbind(x=xVals, y=yVals);
+            ## Simplify the coordinates, typically removing up to 90% rows
+            xy <- simplifyXY(xy,
+               restrictDegrees=c(0,180));
+         } else {
+            xy <- cbind(x=0, y=0)[0,,drop=FALSE];
+         }
       });
    });
    if ("list" %in% coord_style) {
@@ -1569,6 +1578,10 @@ getGRcoverageFromBw <- function
    default_feature_type <- head(c(default_feature_type, "exon"), 1);
    gap_feature_type <- head(c(gap_feature_type, "gap"), 1);
    if (addGaps) {
+      if (verbose) {
+         printDebug("getGRcoverageFromBw(): ",
+            "addGRgaps()");
+      }
       newValues <- list(feature_type=gap_feature_type);
       names(newValues)[1] <- feature_type_colname;
       if (!feature_type_colname %in% colnames(values(gr))) {
@@ -1668,7 +1681,8 @@ combineGRcoverage <- function
    if (length(strands) == 0) {
       strands <- factor(sapply(seq_along(covNames), function(i){
          iCov <- covNames[[i]];
-         ifelse(any(any(values(gr)[[iCov]] * scaleFactors[i] < 0)),
+         ifelse(any(any(values(gr)[[iCov]] * scaleFactors[i] < 0) &
+               all(values(gr)[[iCov]] * scaleFactors[i] <= 0)),
             "-",
             "+")
       }), levels=c("+", "-"));
@@ -1690,7 +1704,7 @@ combineGRcoverage <- function
       }
       iCovX <- Reduce("+",
          lapply(iCovV, function(i){
-            values(gr)[[i]]
+            values(gr)[[i]] * scaleFactors[i]
          }));
       if (verbose) {
          printDebug("combineGRcoverage(): ",
@@ -1778,6 +1792,9 @@ combineGRcoverage <- function
 #'    regions. When `compressGR=TRUE` then gaps regions are
 #'    down-sampled using running maximum signal with roughly the same
 #'    x-axis resolution as uncompressed regions.
+#' @param baseline numeric vector named by `names(flatExonsByGene)`
+#'    where baseline is used to adjust the y-axis baseline position
+#'    above or below zero.
 #' @param compressGR logical indicating whether to compress GRanges
 #'    coordinates in the output data, where gaps/introns are set
 #'    to a fixed width. When `ref2c` is not supplied, and
@@ -1894,10 +1911,11 @@ prepareSashimi <- function
 (flatExonsByGene=NULL,
  filesDF=NULL,
  gene,
- sample_id,
+ sample_id=NULL,
  minJunctionScore=10,
  gapWidth=200,
  addGaps=TRUE,
+ baseline=0,
  compressGR=TRUE,
  ref2c=NULL,
  gap_feature_type="intron",
@@ -1910,7 +1928,7 @@ prepareSashimi <- function
  junc_fill=alpha2col("goldenrod1", 0.4),
  coord_method=c("coord", "scale", "none"),
  scoreFactor=1,
- verbose=TRUE,
+ verbose=FALSE,
  ...)
 {
    ## Purpose it to wrapper several functions used to prepare various
@@ -1934,8 +1952,11 @@ prepareSashimi <- function
       stop("filesDF must contain colnames 'url', 'sample_id', and 'type'.");
    }
    ## validate other input
-   if (!igrepHas("GRangesList", class(flatExonsByGeneCds))) {
-      stop("flatExonsByGeneCds must be GRangesList")
+   if (!igrepHas("GRangesList", class(flatExonsByGene))) {
+      stop("flatExonsByGene must be GRangesList")
+   }
+   if (length(sample_id) == 0) {
+      sample_id <- unique(filesDF$sample_id);
    }
 
    ############################################
@@ -1967,16 +1988,22 @@ prepareSashimi <- function
    ############################################
    ## Get coverage data
    bwFilesDF <- filesDF[filesDF$type %in% "bw" &
-         filesDF$sample_id %in% sample_id,c("url","sample_id"),drop=FALSE];
-   bwUrls <- nameVector(bwFilesDF);
+         filesDF$sample_id %in% sample_id,,drop=FALSE];
+   bwUrls <- nameVector(bwFilesDF[,c("url","url")]);
    bwSamples <- nameVector(bwFilesDF[,c("sample_id","url")]);
-   bwUrlsL <- split(bwUrls, bwSamples);
+   bwUrlsL <- split(bwUrls, unname(bwSamples));
    if ("scale_factor" %in% colnames(bwFilesDF)) {
       bwScaleFactors <- rmNA(naValue=1,
          bwFilesDF$scale_factor);
    } else {
       bwScaleFactors <- rep(1, length(bwUrls));
    }
+   names(bwScaleFactors) <- names(bwUrls);
+   #if (any(bwScaleFactors != 1)) {
+      printDebug("prepareSashimi(): ",
+         "bwScaleFactors:",
+         bwScaleFactors);
+   #}
    if (verbose) {
       printDebug("prepareSashimi(): ",
          "bwUrls:");
@@ -1985,6 +2012,8 @@ prepareSashimi <- function
       } else {
          printDebug("No coverage files", fgText="red");
       }
+      printDebug("GRanges:");
+      print(gr);
    }
    if (length(bwUrls) > 0) {
       covGR <- getGRcoverageFromBw(gr=gr,
@@ -1993,6 +2022,7 @@ prepareSashimi <- function
          gap_feature_type=gap_feature_type,
          default_feature_type=default_feature_type,
          feature_type_colname=feature_type_colname,
+         verbose=verbose,
          ...);
       ## Combine coverage per strand
       covGR2 <- combineGRcoverage(covGR,
@@ -2104,12 +2134,12 @@ prepareSashimi <- function
    juncSamples <- nameVector(juncFilesDF[,c("sample_id","sample_id")]);
    juncUrlsL <- split(juncUrls, juncSamples);
    if ("score_factor" %in% colnames(juncFilesDF)) {
-      juncScoreFactors <- rmNA(naValue=1,
+      juncScaleFactors <- rmNA(naValue=1,
          juncFilesDF$scale_factor);
    } else {
-      juncScoreFactors <- rep(1, length(juncUrls));
+      juncScaleFactors <- rep(1, length(juncUrls));
    }
-   names(juncScoreFactors) <- names(juncUrls);
+   names(juncScaleFactors) <- names(juncUrls);
    #juncUrls <- nameVector(
    #   filesDF[filesDF$type %in% "junction" & filesDF$sample_id %in% sample_id,c("url","sample_id"),drop=FALSE]);
    if (verbose) {
@@ -2148,10 +2178,13 @@ prepareSashimi <- function
       names(juncGR) <- makeNames(values(juncGR)[,"nameFromToSample"]);
       ## Convert junctions to polygons usable by geom_diagonal_wide()
       #      juncPolyDF <- grl2df(setNames(GRangesList(subset(juncGR, score > minJunctionScore)), sample_id),
+      if (length(baseline) == 0) {
+         baseline <- 0;
+      }
       juncDF <- grl2df(split(juncGR, values(juncGR)[["sample_id"]]),
          shape="junction",
          ref2c=ref2c,
-         scoreFactor=juncScoreFactors,
+         scoreFactor=juncScaleFactors,
          scoreArcFactor=0.3,
          baseline=baseline,
          verbose=verbose,
@@ -2182,7 +2215,7 @@ prepareSashimi <- function
 
       ## define junction label positions
       #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
-      juncLabelDF1 <- subset(mutate(juncDF, id_name=makeNames(id)),
+      juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=makeNames(id)),
          grepl("_v1_v[23]$", id_name));
       juncLabelDF <- renameColumn(
          shrinkMatrix(juncLabelDF1[,c("x","y","score"),drop=FALSE],

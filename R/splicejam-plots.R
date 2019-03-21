@@ -51,6 +51,9 @@
 #'    a partially transparent shell. Note that plotly does not handle
 #'    transparency well in 3-D space, sometimes fully obscuring
 #'    background components.
+#' @param ellipseOpacity numeric value between 0 and 1 indicating the
+#'    transparency of the ellipse, when `ellipseType` is not `"none"`;
+#'    0 is fully transparent, and 1 is non-transparent.
 #' @param useScaledCoords logical indicating whether to use the BGA
 #'    scaled coordinates, or the raw coordinates. By default the raw
 #'    coordinates are used in order to preserve the relative contribution
@@ -92,6 +95,7 @@ bgaPlotly3d <- function
  highlightGenes=NULL,
  drawSampleLabels=TRUE,
  ellipseType=c("ellipsoid","alphahull","none"),
+ ellipseOpacity=0.2,
  useScaledCoords=FALSE,
  geneColor="#555555",
  geneScaleFactor=1,
@@ -174,16 +178,18 @@ bgaPlotly3d <- function
       printDebug("bgaPlotly3d(): ",
          "sampleGroups:");
       print(sampleGroups);
-      printDebug("bgaPlotly3d(): ",
-         "superGroups:");
-      print(superGroups);
+      if (length(superGroups) > 0) {
+         printDebug("bgaPlotly3d(): ",
+            "superGroups:");
+         print(superGroups);
+      }
       printDebug("bgaPlotly3d(): ",
          "sampleColors:",
-         sampleColors,
+         names(sampleColors),
          fgText=list("orange","dodgerblue",sampleColors));
       printDebug("bgaPlotly3d(): ",
          "groupNameColors:",
-         groupNameColors,
+         names(groupNameColors),
          fgText=list("orange","dodgerblue",groupNameColors));
    }
 
@@ -378,6 +384,7 @@ bgaPlotly3d <- function
       return(dfSampleLinesDF);
    }
    p9 <- plot_ly(data=dfSampleLinesDF,
+      name="Samples",
       type="scatter3d",
       x=as.formula(paste0("~", Xs)),
       y=as.formula(paste0("~", Ys)),
@@ -410,6 +417,7 @@ bgaPlotly3d <- function
          print(head(dfCVLDF, 20));
       }
       p10 <- p10 %>% add_trace(
+         name="CentroidLines",
          type="scatter3d",
          x=dfCVLDF[[Xsc]],
          y=dfCVLDF[[Ysc]],
@@ -475,6 +483,9 @@ bgaPlotly3d <- function
          printDebug("bgaPlotly3d(): ",
             "Creating sample centroid ellipsoids.");
       }
+      ###################################
+      ## Iterate each group
+      p11 <- p10;
       for (iGroup in names(sampleGroupsL)) {
          if (verbose) {
             printDebug("   bgaPlotly3d(): ",
@@ -483,9 +494,16 @@ bgaPlotly3d <- function
                ".");
          }
          iGroupSamples <- sampleGroupsL[[iGroup]];
-         bgaS2coords <- dfSamplesDF[iGroupSamples,c(Xs,Ys,Zs)];
+         dfSamplesDFsub <- dfSamplesDF[iGroupSamples,,drop=FALSE];
+         bgaS2coords <- dfSamplesDFsub[,c(Xs,Ys,Zs),drop=FALSE];
+         ## Expand the points with radial jitter
+         ## to help the ellipsoid calculation
          if (nrow(bgaS2coords) <= 150) {
-            bgaS2coords <- dfSamplesDF[rep(iGroupSamples, each=100),c(Xs,Ys,Zs)];
+            if (verbose) {
+               printDebug("   bgaPlotly3d(): ",
+                  "radialJitter()");
+            }
+            bgaS2coords <- dfSamplesDF[rep(iGroupSamples, each=100),c(Xs,Ys,Zs),drop=FALSE];
             for (k in 1:3) {
                ## Use the range along each axis to impart variance relative to the visual noise space
                newC <- radialJitter(bgaS2coords[,k],
@@ -493,29 +511,65 @@ bgaPlotly3d <- function
                bgaS2coords[,k] <- newC;
             }
          }
+         #printDebug("Xs:", Xs, ", Xsc:", Xsc, ", Xg:", Xg);
+         print(head(dfSamplesDFsub, 8));
          if (ellipseType %in% "ellipsoid") {
             ## Return a mesh3d object
             ## formerly rgl::ellipse3d()
             #iEllipse <- ellipse3d.default(cov(bgaS2coords)*1,
             iEllipse <- rgl::ellipse3d(cov(bgaS2coords)*1,
-               centre=colMeans(dfSamplesDF[iGroupSamples,c(Xsc,Ysc,Zsc)]),
-               subdivide=3, smooth=TRUE, level=0.95);
+               centre=colMeans(dfSamplesDFsub[,c(Xsc,Ysc,Zsc),drop=FALSE]),
+               subdivide=3,
+               smooth=TRUE,
+               level=0.95);
          } else {
             iEllipse <- list(vb=t(bgaS2coords));
          }
-         iGroupColor <- unique(dfSampleLinesDF[match(iGroupSamples, dfSampleLinesDF$Name),"color"]);
-         ## Add to the plotly object
-         p10 <- p10 %>% add_trace(
-            type="mesh3d",
-            hovertext=NULL,
-            #vertexcolor=rep(iGroupColor, nrow(aEllipse$x)),
-            vertexcolor=rep(iGroupColor, length(iEllipse$x)),
-            opacity=0.4,
-            x=iEllipse$vb[1,],
+         dfSampleLinesDFsub <- dfSampleLinesDF[match(iGroupSamples, dfSampleLinesDF$Name),,drop=FALSE];
+         iGroupColor1 <- nameVector(
+            dfSampleLinesDFsub[,"color"],
+            iGroupSamples);
+         iGroupColor <- head(iGroupColor1, 1);
+         if (verbose) {
+            printDebug("   bgaPlotly3d(): ",
+               "hull name:",
+               paste0(iGroup,
+                  " group hull (", closestRcolor(iGroupColor), ")"));
+         }
+         iName <- head(paste0(iGroup, " group hull (", closestRcolor(iGroupColor), ")"), 1);
+         iEllipseDF <- data.frame(x=iEllipse$vb[1,],
             y=iEllipse$vb[2,],
             z=iEllipse$vb[3,],
+            name=factor(rep(iGroup, length(iEllipse$vb[2,])), levels=levels(sampleGroups)),
+            color=rep(iGroupColor, length(iEllipse$vb[2,]))
+         );
+         printDebug("head(iEllipseDF):");
+         print(head(iEllipseDF));
+         ## Add to the plotly object
+         p11 <- p11 %>% add_trace(
+            data=iEllipseDF,
+            name=iGroup,
+            type="mesh3d",
+            showlegend=TRUE,
+            inherit=FALSE,
+            legendgroup="ellipsoids",
+            hoverinfo="text",
+            text=iGroup,
+            hoverlabel=list(
+               bgcolor=iGroupColor,
+               bordercolor=setTextContrastColor(iGroupColor),
+               font=list(
+                  color=setTextContrastColor(iGroupColor))),
+            flatshading=FALSE,
+            #vertexcolor=iEllipseDF$color,
+            vertexcolor=~color,
+            opacity=ellipseOpacity,
+            x=~x,
+            y=~y,
+            z=~z,
             alphahull=0);
       }
+      p10 <- p11;
    }
 
 
@@ -546,6 +600,7 @@ bgaPlotly3d <- function
             if (nrow(iDF) <= 1) {
                next;
             }
+            iSuperGroup <- iDF[1,"superGroups"];
             if (verbose) {
                printDebug("   bgaPlotly3d(): ",
                   "head(iDF, 30):");
@@ -569,11 +624,13 @@ bgaPlotly3d <- function
             ## Now add to plotly object
             p10 <- p10 %>% add_trace(
                data=iDFnew,
+               name=iSuperGroup,
+               legendgroup="supergroups",
                inherit=FALSE,
                type="scatter3d",
-               text=NULL,
+               text=iSuperGroup,
                mode="lines",
-               hoverinfo="none",
+               hoverinfo="text",
                line=list(color=iDFnew$newColor,
                   width=superGroupLwd),
                opacity=superGroupAlpha,
@@ -599,9 +656,17 @@ bgaPlotly3d <- function
          eye=list(
             x=sceneX,
             y=sceneY,
-            z=sceneZ)),
-      aspectmode="data"
-   );
+            z=sceneZ),
+         xaxis=list(
+            tickwidth=2,
+            gridwidth=4),
+         zaxis=list(
+            gridwidth=5),
+         yaxis=list(
+            gridwidth=5)
+         ),
+         aspectmode="data"
+      );
    p10 <- p10 %>% plotly::layout(title=main,
       dragmode="orbit",
       scene=scene,

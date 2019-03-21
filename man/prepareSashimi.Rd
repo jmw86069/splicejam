@@ -4,16 +4,16 @@
 \alias{prepareSashimi}
 \title{Prepare Sashimi plot data}
 \usage{
-prepareSashimi(flatExonsByGene = NULL, filesDF = NULL, gene, sample_id,
-  minJunctionScore = 10, gapWidth = 200, addGaps = TRUE,
-  compressGR = TRUE, ref2c = NULL, gap_feature_type = "intron",
-  default_feature_type = "exon", feature_type_colname = "feature_type",
-  exon_label_type = c("none", "repel", "mark"),
-  junc_label_type = c("repel", "mark", "none"),
+prepareSashimi(flatExonsByGene = NULL, filesDF = NULL, gene,
+  sample_id = NULL, minJunctionScore = 10, gapWidth = 200,
+  addGaps = TRUE, baseline = 0, compressGR = TRUE, ref2c = NULL,
+  gap_feature_type = "intron", default_feature_type = "exon",
+  feature_type_colname = "feature_type", exon_label_type = c("none",
+  "repel", "mark"), junc_label_type = c("repel", "mark", "none"),
   return_data = c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF",
   "ref2c", "all"), junc_color = alpha2col("goldenrod3", 0.7),
   junc_fill = alpha2col("goldenrod1", 0.4), coord_method = c("coord",
-  "scale", "none"), scoreFactor = 1, verbose = TRUE, ...)
+  "scale", "none"), scoreFactor = 1, verbose = FALSE, ...)
 }
 \arguments{
 \item{flatExonsByGene}{GRangesList named by gene, whose GRanges
@@ -40,6 +40,10 @@ in the coverage plot, for example including introns or intergenic
 regions. When \code{compressGR=TRUE} then gaps regions are
 down-sampled using running maximum signal with roughly the same
 x-axis resolution as uncompressed regions.}
+
+\item{baseline}{numeric vector named by \code{names(flatExonsByGene)}
+where baseline is used to adjust the y-axis baseline position
+above or below zero.}
 
 \item{compressGR}{logical indicating whether to compress GRanges
 coordinates in the output data, where gaps/introns are set
