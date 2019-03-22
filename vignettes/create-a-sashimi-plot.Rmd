@@ -1,0 +1,129 @@
+---
+title: "Create a Sashimi Plot"
+author: "James M. Ward"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Create a Sashimi Plot}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+This vignette is intended to describe how to create a Sashimi
+plot using RNA-seq data.
+
+### Requirements
+
+There are three basic requirements for a Sashimi plot:
+
+1. Gene-exon structure
+2. RNA-seq coverage data
+3. exon-exon splice junction data
+
+
+### Gene-exon structure
+
+There are several sources of gene-exon structures:
+
+* Txdb transcript database, provided by `GenomicFeatures::TxDb`
+
+    * It is convenient and recommended to use the same GTF or GFF file
+    used in upstream RNA-seq processing steps as the source of exon data.
+    In this case, you would use `GenomicFeatures::makeTxDbFromGFF()` to
+    create a `TxDb` object, then follow the steps starting with `TxDb`.
+    * Bioconductor provides several  Txdb data packages
+    (see BiocView https://bioconductor.org/packages/release/BiocViews.html#___TxDb)
+    this they do not currently provide Gencode in TxDb format. For
+    example, to install the package for hg19 UCSC knownGenes as a TxDb, use
+    `BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene")`.
+
+* GRanges or GRangesList objects, already assembled by other methods.
+
+    * For example `rtracklayer::import()` has several methods that can
+    import BED files, or GTF files.
+
+The goal for Sashimi plots is to flatten exons to disjoint (non-overlapping)
+exons across the gene region of interest. The exons are used to determine
+the genomic regions to use for sequence coverage, and splice junction reads.
+The exons are also used to define intron region compression, in order
+to make the Sashimi plot more transcript-focused.
+
+
+#### Starting with TxDb
+
+The recommended workflow involves assembling transcript exons, then
+aggregating detected transcripts into gene-exon models. The driving
+reason is that transcriptome data is increasingly comprehensive, and
+is derived from numerous tissue samples and cell types, many of which
+are not relevant nor representative of the transcriptome observed in
+a particular experimental condition. While it is not problematic
+to visualize a gene model whose exons are derived from all possible
+conditions, we found many gene models to be unnecessarily complex,
+therefore overshadowing the actual observed structure.
+
+Said another way, many of the automated transcript structures are
+either just wrong, or were derived from conditions vastly different
+from those observed. Since tools like Salmon or Kallisto have the
+capability to determine detected and undetected transcripts based
+upon observing experimental data, we found it effective to use that
+information to develop directed gene-exon models.
+
+
+```{r, hg19_txdb}
+if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
+
+   # First obtain exons by transcript
+   exonsByTxMm10 <- exonsBy(TxDb.Mmusculus.UCSC.mm10.knownGene,
+      by="tx",
+      use.names=TRUE);
+   
+   # For added insights, also obtain CDS exons by transcript
+   cdsByTxMm10 <- cdsBy(TxDb.Mmusculus.UCSC.mm10.knownGene,
+      by="tx",
+      use.names=TRUE);
+   
+   #cols <- c("tx_id", "tx_chrom", "tx_strand",
+   #   "exon_id", "exon_chrom", "exon_strand");
+   #genes(TxDb.Mmusculus.UCSC.mm10.knownGene, columns=cols)
+   #transcripts(TxDb.Mmusculus.UCSC.mm10.knownGene, columns=c("tx_id", "gene_id", "gene_name"))
+   tx2geneMm10 <- select(TxDb.Mmusculus.UCSC.mm10.knownGene,
+      keys(TxDb.Mmusculus.UCSC.mm10.knownGene, "GENEID"),
+      columns=c("GENEID","TXNAME"),
+      keytype="GENEID");
+   colnames(tx2geneMm10) <- c("gene_id", "transcript_id");
+   if (require(org.Mm.eg.db)) {
+      tx2geneMm10$gene_name <- mget(tx2geneMm10$gene_id,
+         org.Mm.egSYMBOL,
+         ifnotfound=NA);
+      if (any(is.na(tx2geneMm10$gene_name))) {
+         xNA <- is.na(tx2geneMm10$gene_name);
+         tx2geneMm10$gene_name[xNA] <-
+            paste0("LOC", tx2geneMm10$gene_id[xNA]);
+      }
+   } else {
+      tx2geneMm10$gene_name <- tx2geneMm10$gene_id;
+   }
+   
+   
+   # flatten exons to the gene level
+   flatExonsByGene <- flattenExonsByGene(exonsByTx=exonsByTxMm10,
+#      cdsByTx=cdsByTxMm10,
+      genes=c("Gria1"),
+      tx2geneDF=tx2geneMm10,
+      verbose=TRUE);
+
+}
+```
+
+

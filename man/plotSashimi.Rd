@@ -7,8 +7,9 @@
 plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   coord_method = c("scale", "coord", "none"), exonsGrl = NULL,
   junc_color = alpha2col("goldenrod3", 0.7),
-  junc_fill = alpha2col("goldenrod1", 0.4), use_jam_themes = TRUE,
-  apply_facet = TRUE, verbose = FALSE, ...)
+  junc_fill = alpha2col("goldenrod1", 0.4), fill_scheme = c("exon",
+  "sample_id"), use_jam_themes = TRUE, apply_facet = TRUE,
+  ref2c = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{sashimi}{Sashimi data prepared by \code{prepareSashimi()} which
@@ -33,6 +34,19 @@ coordinate scaling to use:
 \item{exonsGrl}{GRangesList object with one or more gene or
 transcript exon models, where exons are disjoint (not
 overlapping.)}
+
+\item{junc_color, junc_fill}{character string with valid R color,
+used for junction outline, and fill, for the junction arc
+polygon. Alpha transparency is recommended for \code{junc_fill}
+so overlapping junction arcs are visible.}
+
+\item{fill_scheme}{character string for how the exon coverages
+will be color-filled: \code{"exon"} will define colors for each
+distinct exon, using the GRanges names from \code{flatExonsByGene};
+\code{"sample_id"} to color all exons the same by sample_id.}
+
+\item{ref2c}{optional output from \code{make_ref2compressed()} used to
+compress axis coordinates during junction arc calculations.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 

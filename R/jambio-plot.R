@@ -1302,7 +1302,7 @@ compressPolygonM <- function
 #' which is the intended input for `exoncov2polygon()`.
 #'
 #' @family jam GRanges functions
-#' @famly jam RNA-seq functions
+#' @family jam RNA-seq functions
 #'
 #' @param gr GRanges where `colnames(values(gr))` is present in `covNames`,
 #'    and contains data with class `NumericList`.
@@ -1999,12 +1999,12 @@ prepareSashimi <- function
       bwScaleFactors <- rep(1, length(bwUrls));
    }
    names(bwScaleFactors) <- names(bwUrls);
-   #if (any(bwScaleFactors != 1)) {
-      printDebug("prepareSashimi(): ",
-         "bwScaleFactors:",
-         bwScaleFactors);
-   #}
    if (verbose) {
+      if (any(bwScaleFactors != 1)) {
+         printDebug("prepareSashimi(): ",
+            "bwScaleFactors:",
+            bwScaleFactors);
+      }
       printDebug("prepareSashimi(): ",
          "bwUrls:");
       if (length(bwUrls) > 0) {
@@ -2056,72 +2056,75 @@ prepareSashimi <- function
             names(covGR2)),feature_type_colname];
       }
 
-      ## ggplot2 for exon coverage data
-      if (any(c("all","ggCov","ggSashimmi") %in% return_data)) {
-         ggCov <- ggplot(covDF, aes(x=x, y=y, group=gr, fill=gr)) +
-            geom_shape(show.legend=FALSE) +
-            theme_jam() +
-            scale_fill_jam() +
-            facet_grid(~sample_id, scales="free_y");
-         if ("scale" %in% coord_method) {
-            ggCov <- ggCov +
-               scale_x_continuous(trans=ref2c$trans_grc);
-         } else if ("coord" %in% coord_method) {
-            ggCov <- ggCov +
-               coord_trans(x=ref2c$trans_grc);
-         }
-         if (any(c("all", "ggCov") %in% return_data)) {
-            retVals$ggCov <- ggCov;
-         }
-         ########################################
-         ## Optional exon labels
-         covDFsub <- (as.character(covDF$gr) %in% names(gr));
-         covDFlab <- covDF[covDFsub,,drop=FALSE];
+      ########################################
+      ## Optional exon labels
+      covDFsub <- (as.character(covDF$gr) %in% names(gr));
+      covDFlab <- covDF[covDFsub,,drop=FALSE];
 
-         exonLabelDF1 <- shrinkMatrix(covDFlab[,c("x","y")],
-            groupBy=pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
-            shrinkFunc=function(x){mean(range(x))});
-         exonLabelDF1[,c("gr","sample_id")] <- rbindList(
-            strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
-         exonLabelDF1$gr <- factor(exonLabelDF1$gr, levels=unique(exonLabelDF1$gr));
-         exonLabelDF <- renameColumn(exonLabelDF1,
-            from="groupBy",
-            to="gr_sample");
-         retVals$exonLabelDF <- exonLabelDF;
-         if ("mark" %in% exon_label_type) {
-            ggExonLabels <- ggforce::geom_mark_hull(data=exonLabelDF,
-               aes(x=x, y=y, label=gr, group=gr_sample),
-               fill="transparent",
-               label.fontsize=10,
-               label.fill=alpha2col("white", 0.3),
-               colour="transparent",
-               concavity=1,
-               label.buffer=unit(2, 'mm'),
-               con.cap=0,
-               expand=unit(1, "mm"),
-               con.border="one",
-               con.colour="navy",
-               label.colour="navy");
-            ggCov <- ggCov + ggExonLabels;
-         } else if ("repel" %in% junc_label_type) {
-            yMax <- max(exonLabelDF$y);
-            yUnit <- 10^floor(log10(yMax));
-            yMaxUse <- floor(yMax/yUnit)*yUnit;
-            ggExonLabels <- ggrepel::geom_text_repel(data=exonLabelDF,
-               inherit.aes=FALSE,
-               aes(x=x, y=y,
-                  group=gr_sample,
+      exonLabelDF1 <- shrinkMatrix(covDFlab[,c("x","y")],
+         groupBy=pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
+         shrinkFunc=function(x){mean(range(x))});
+      exonLabelDF1[,c("gr","sample_id")] <- rbindList(
+         strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
+      exonLabelDF1$gr <- factor(exonLabelDF1$gr, levels=unique(exonLabelDF1$gr));
+      exonLabelDF <- renameColumn(exonLabelDF1,
+         from="groupBy",
+         to="gr_sample");
+      retVals$exonLabelDF <- exonLabelDF;
+
+      ## ggplot2 for exon coverage data
+      if (1 == 2) {
+         if (any(c("all","ggCov","ggSashimmi") %in% return_data)) {
+            ggCov <- ggplot(covDF, aes(x=x, y=y, group=gr, fill=gr)) +
+               geom_shape(show.legend=FALSE) +
+               theme_jam() +
+               scale_fill_jam() +
+               facet_grid(~sample_id, scales="free_y");
+            if ("scale" %in% coord_method) {
+               ggCov <- ggCov +
+                  scale_x_continuous(trans=ref2c$trans_grc);
+            } else if ("coord" %in% coord_method) {
+               ggCov <- ggCov +
+                  coord_trans(x=ref2c$trans_grc);
+            }
+            if (any(c("all", "ggCov") %in% return_data)) {
+               retVals$ggCov <- ggCov;
+            }
+            if ("mark" %in% exon_label_type) {
+               ggExonLabels <- ggforce::geom_mark_hull(data=exonLabelDF,
+                  aes(x=x, y=y, label=gr, group=gr_sample),
                   fill="transparent",
-                  label=gr),
-               #nudge_y=yMaxUse-juncLabelDF$y, vjust=1, ## Used to fix labels at certain height
-               angle=90,
-               vjust=1,
-               direction="y",
-               point.padding=0
-            );
-            ggCov <- ggCov + ggExonLabels;
-         } else {
-            ggExonLabels <- NULL;
+                  label.fontsize=10,
+                  label.fill=alpha2col("white", 0.3),
+                  colour="transparent",
+                  concavity=1,
+                  label.buffer=unit(2, 'mm'),
+                  con.cap=0,
+                  expand=unit(1, "mm"),
+                  con.border="one",
+                  con.colour="navy",
+                  label.colour="navy");
+               ggCov <- ggCov + ggExonLabels;
+            } else if ("repel" %in% junc_label_type) {
+               yMax <- max(exonLabelDF$y);
+               yUnit <- 10^floor(log10(yMax));
+               yMaxUse <- floor(yMax/yUnit)*yUnit;
+               ggExonLabels <- ggrepel::geom_text_repel(data=exonLabelDF,
+                  inherit.aes=FALSE,
+                  aes(x=x, y=y,
+                     group=gr_sample,
+                     fill="transparent",
+                     label=gr),
+                  #nudge_y=yMaxUse-juncLabelDF$y, vjust=1, ## Used to fix labels at certain height
+                  angle=90,
+                  vjust=1,
+                  direction="y",
+                  point.padding=0
+               );
+               ggCov <- ggCov + ggExonLabels;
+            } else {
+               ggExonLabels <- NULL;
+            }
          }
       }
    }
@@ -2174,65 +2177,63 @@ prepareSashimi <- function
       juncDF1 <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
          exonsGR=gr,
          sampleColname="sample_id");
-      juncGR <- as(renameColumn(juncDF1, from="ref", to="seqnames"), "GRanges");
-      names(juncGR) <- makeNames(values(juncGR)[,"nameFromToSample"]);
-      ## Convert junctions to polygons usable by geom_diagonal_wide()
-      #      juncPolyDF <- grl2df(setNames(GRangesList(subset(juncGR, score > minJunctionScore)), sample_id),
-      if (length(baseline) == 0) {
-         baseline <- 0;
+      ## Subset junctions by minimum score
+      if (length(minJunctionScore) > 0 && minJunctionScore > 0) {
+         juncDF1 <- subset(juncDF1, abs(score) >= minJunctionScore);
       }
-      juncDF <- grl2df(split(juncGR, values(juncGR)[["sample_id"]]),
-         shape="junction",
-         ref2c=ref2c,
-         scoreFactor=juncScaleFactors,
-         scoreArcFactor=0.3,
-         baseline=baseline,
-         verbose=verbose,
-         doStackJunctions=TRUE);
-      if (!"sample_id" %in% colnames(juncDF)) {
-         juncDF <- renameColumn(juncDF,
-            from="grlNames",
-            to="sample_id");
-      }
-      juncDF <- juncDF[,!colnames(juncDF) %in% c("grlNames"),drop=FALSE];
+      if (nrow(juncDF1) > 0) {
+         juncGR <- as(renameColumn(juncDF1, from="ref", to="seqnames"), "GRanges");
+         names(juncGR) <- makeNames(values(juncGR)[,"nameFromToSample"]);
+         ## Convert junctions to polygons usable by geom_diagonal_wide()
+         #      juncPolyDF <- grl2df(setNames(GRangesList(subset(juncGR, score > minJunctionScore)), sample_id),
+         if (length(baseline) == 0) {
+            baseline <- 0;
+         }
+         juncDF <- grl2df(split(juncGR, values(juncGR)[["sample_id"]]),
+            shape="junction",
+            ref2c=ref2c,
+            scoreFactor=juncScaleFactors,
+            scoreArcFactor=0.3,
+            baseline=baseline,
+            verbose=verbose,
+            doStackJunctions=TRUE);
+         if (!"sample_id" %in% colnames(juncDF)) {
+            juncDF <- renameColumn(juncDF,
+               from="grlNames",
+               to="sample_id");
+         }
+         juncDF <- juncDF[,!colnames(juncDF) %in% c("grlNames"),drop=FALSE];
 
-      if ("Gria1_exon13 Gria1_exon15" %in% values(juncGR)[["nameFromTo"]]) {
-         printDebug("juncDF1:");
-         print(subset(juncGR, nameFromTo %in% "Gria1_exon13 Gria1_exon15"));
-      }
-      if ("Gria1_exon13 Gria1_exon15" %in% juncDF1$nameFromTo) {
-         printDebug("juncDF1:");
-         print(subset(juncDF1, nameFromTo %in% "Gria1_exon13 Gria1_exon15"));
-      }
-      if ("Gria1_exon13 Gria1_exon15" %in% juncDF$nameFromTo) {
-         printDebug("juncDF:");
-         print(subset(juncDF, nameFromTo %in% "Gria1_exon13 Gria1_exon15"));
-      }
-      if (any(c("all", "juncDF") %in% return_data)) {
-         retVals$juncDF1 <- juncDF1;
-         retVals$juncDF <- juncDF;
-      }
+         if (any(c("all", "juncDF") %in% return_data)) {
+            retVals$juncDF1 <- juncDF1;
+            retVals$juncDF <- juncDF;
+         }
 
-      ## define junction label positions
-      #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
-      juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=makeNames(id)),
-         grepl("_v1_v[23]$", id_name));
-      juncLabelDF <- renameColumn(
-         shrinkMatrix(juncLabelDF1[,c("x","y","score"),drop=FALSE],
-            groupBy=juncLabelDF1[,"nameFromToSample"]),
-         from="groupBy",
-         to="nameFromToSample");
-      juncLabelDF[,c("nameFromTo","sample_id")] <- rbindList(
-         strsplit(juncLabelDF[,"nameFromToSample"], ":!:"));
-      juncLabelDF[,c("nameFrom", "nameTo")] <- rbindList(
-         strsplit(juncLabelDF[,"nameFromTo"], " "));
+         ## define junction label positions
+         #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
+         juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=makeNames(id)),
+            grepl("_v1_v[23]$", id_name));
+         juncLabelDF <- renameColumn(
+            shrinkMatrix(juncLabelDF1[,c("x","y","score"),drop=FALSE],
+               groupBy=juncLabelDF1[,"nameFromToSample"]),
+            from="groupBy",
+            to="nameFromToSample");
+         juncLabelDF[,c("nameFromTo","sample_id")] <- rbindList(
+            strsplit(juncLabelDF[,"nameFromToSample"], ":!:"));
+         juncLabelDF[,c("nameFrom", "nameTo")] <- rbindList(
+            strsplit(juncLabelDF[,"nameFromTo"], " "));
 
-      if (any(c("all", "juncLabelDF") %in% return_data)) {
-         retVals$juncLabelDF <- juncLabelDF;
+         if (any(c("all", "juncLabelDF") %in% return_data)) {
+            retVals$juncLabelDF <- juncLabelDF;
+         }
+      } else {
+         juncDF1 <- NULL;
+         juncDF <- NULL;
+         juncLabelDF <- NULL;
       }
 
       ## ggplot2 for junction data
-      if (any(c("all","ggJunc","ggSashimi") %in% return_data)) {
+      if (1 == 2 && any(c("all","ggJunc","ggSashimi") %in% return_data)) {
          ggJunc <- ggplot(juncDF) +
             ggforce::geom_diagonal_wide(aes(x=x, y=y, group=id),
                color=junc_color,
@@ -2291,7 +2292,7 @@ prepareSashimi <- function
 
    #########################################
    ## ggplot2 for Sashimi plot
-   if (any(c("all","ggSashimi") %in% return_data)) {
+   if (1 == 2 && any(c("all","ggSashimi") %in% return_data)) {
       if (length(bwUrls) > 0) {
          ggSashimi <- ggCov;
          if (length(juncUrls) > 0) {

@@ -86,6 +86,22 @@ Alternatively, when \code{return_type="df"}, the output is
 the \code{data.frame} used to produce the ggplot, which allows
 for more customization.
 }
+\examples{
+## Assume we start with flattened gene exons
+if (1 == 2) {
+   ## Do not run automated examples until sample data is available
+
+ggGria1 <- gene2gg("Gria1",
+   flatExonsByGene=flatExonsByGeneCds);
+
+## if transcript exons are available
+ggGria1 <- gene2gg("Gria1",
+   flatExonsByGene=flatExonsByGene,
+   flatExonsByTx=flatExonsByTx);
+
+}
+
+}
 \seealso{
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{grl2df}},

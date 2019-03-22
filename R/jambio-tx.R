@@ -3473,9 +3473,13 @@ flattenExonsByGene <- function
    }
    by <- match.arg(by);
    if (length(detectedTx) > 0) {
-      iTxs <- intersect(names(exonsByTx), detectedTx);
+      iTxs <- intersect(
+         c(names(exonsByTx),
+            names(cdsByTx)),
+         detectedTx);
    } else {
-      iTxs <- names(exonsByTx);
+      iTxs <- unique(c(names(exonsByTx),
+         names(cdsByTx)));
    }
    ## Optionally subset tx2geneDF by genes
    if (length(genes) > 0) {
@@ -3492,6 +3496,12 @@ flattenExonsByGene <- function
       tx2geneDF[[txColname]] %in% iTxs);
    if (length(iTxs) == 0) {
       stop("There are no Tx entries shared by: names(exonsByTx), tx2geneDF[,txColname], detectedTx.");
+   }
+   if (length(exonsByTx) > 0) {
+      exonsByTx <- exonsByTx[names(exonsByTx) %in% tx2geneDF[[txColname]]];
+   }
+   if (length(cdsByTx) > 0) {
+      cdsByTx <- cdsByTx[names(cdsByTx) %in% tx2geneDF[[txColname]]];
    }
    if (verbose) {
       printDebug("flattenExonsByGene(): ",
@@ -3564,8 +3574,9 @@ flattenExonsByGene <- function
       cdsByTx <- cdsByTx[names(cdsByTx) %in% iTxs];
       if (length(cdsByTx) > 0) {
          if (!geneColname %in% colnames(values(cdsByTx))) {
+            txMatch <- match(names(cdsByTx), tx2geneDF[[txColname]]);
             values(cdsByTx@unlistData)[,geneColname] <- rep(
-               tx2geneDF[match(names(cdsByTx), tx2geneDF[[txColname]]),geneColname],
+               tx2geneDF[txMatch,geneColname],
                elementNROWS(cdsByTx));
          }
          if ("gene" %in% by) {

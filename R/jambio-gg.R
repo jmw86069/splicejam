@@ -400,6 +400,8 @@ grl2df <- function
 #'    flatExonsByGene=flatExonsByGene,
 #'    flatExonsByTx=flatExonsByTx);
 #'
+#' }
+#'
 #' @export
 gene2gg <- function
 (gene=NULL,
@@ -651,6 +653,16 @@ stackJunctions <- function
 #' @param exonsGrl GRangesList object with one or more gene or
 #'    transcript exon models, where exons are disjoint (not
 #'    overlapping.)
+#' @param junc_color,junc_fill character string with valid R color,
+#'    used for junction outline, and fill, for the junction arc
+#'    polygon. Alpha transparency is recommended for `junc_fill`
+#'    so overlapping junction arcs are visible.
+#' @param fill_scheme character string for how the exon coverages
+#'    will be color-filled: `"exon"` will define colors for each
+#'    distinct exon, using the GRanges names from `flatExonsByGene`;
+#'    `"sample_id"` to color all exons the same by sample_id.
+#' @param ref2c optional output from `make_ref2compressed()` used to
+#'    compress axis coordinates during junction arc calculations.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are sent to `grl2df()`.
 #'
@@ -663,13 +675,19 @@ plotSashimi <- function
  exonsGrl=NULL,
  junc_color=alpha2col("goldenrod3", 0.7),
  junc_fill=alpha2col("goldenrod1", 0.4),
+ fill_scheme=c("exon", "sample_id"),
  use_jam_themes=TRUE,
  apply_facet=TRUE,
+ ref2c=NULL,
  verbose=FALSE,
  ...)
 {
    ## Purpose is to take prepared Sashimi data, and return ggplot
    coord_method <- match.arg(coord_method);
+   fill_scheme <- match.arg(fill_scheme);
+   if (length(ref2c) > 0) {
+      sashimi$ref2c <- ref2c;
+   }
    if (!"ref2c" %in% names(sashimi)) {
       coord_method <- "none";
    }
@@ -678,13 +696,19 @@ plotSashimi <- function
       ggSashimi <- ggplot(sashimi$covDF,
          aes(x=x,
             y=y,
-            group=gr,
-            fill=gr)) +
-         ggforce::geom_shape(show.legend=FALSE) +
+            group=gr));
+      if ("exon" %in% fill_scheme) {
+         ggSashimi <- ggSashimi +
+            ggforce::geom_shape(show.legend=FALSE,
+               aes(fill=gr));
+      } else if ("sample_id" %in% fill_scheme) {
+         ggSashimi <- ggSashimi +
+            ggforce::geom_shape(show.legend=FALSE,
+               aes(fill=sample_id));
+      }
+      ggSashimi <- ggSashimi +
          colorjam::theme_jam() +
-         colorjam::scale_fill_jam() +
-         facet_grid(~sample_id,
-            scales="free_y");
+         colorjam::scale_fill_jam();
       if ("exonLabels" %in% show && "exonLabelDF" %in% names(sashimi)) {
          yMax <- max(sashimi$exonLabelDF$y);
          yUnit <- 10^floor(log10(yMax));
@@ -755,12 +779,13 @@ plotSashimi <- function
    }
    if (use_jam_themes) {
       ggSashimi <- ggSashimi +
-         theme_jam() +
+         theme_jam(panel.grid.major.colour="grey80",
+            panel.grid.minor.colour="grey90") +
          scale_fill_jam();
    }
    if (apply_facet) {
       ggSashimi <- ggSashimi +
-         facet_grid(~sample_id,
+         facet_grid(sample_id~.,
          scales="free_y");
    }
    return(ggSashimi);
