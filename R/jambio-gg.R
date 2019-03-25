@@ -648,7 +648,7 @@ stackJunctions <- function
 #' @param coord_method character value indicating the type of
 #'    coordinate scaling to use:
 #'    `"scale"` uses `ggplot2::scale_x_continuous()`;
-#'    `"coord"` uses `"ggplot2::coord_trans()`;
+#'    `"coord"` uses `ggplot2::coord_trans()`;
 #'    `"none"` does not compress genomic coordinates.
 #' @param exonsGrl GRangesList object with one or more gene or
 #'    transcript exon models, where exons are disjoint (not

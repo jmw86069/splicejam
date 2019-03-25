@@ -28,7 +28,7 @@ transform genomic coordinates.}
 \item{coord_method}{character value indicating the type of
 coordinate scaling to use:
 \code{"scale"} uses \code{ggplot2::scale_x_continuous()};
-\code{"coord"} uses \code{"ggplot2::coord_trans()};
+\code{"coord"} uses \code{ggplot2::coord_trans()};
 \code{"none"} does not compress genomic coordinates.}
 
 \item{exonsGrl}{GRangesList object with one or more gene or

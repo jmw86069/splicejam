@@ -25,7 +25,8 @@ Imports: jamba (>= 0.0.26.900),
     ggforce,
     rtracklayer,
     ggrepel,
-    plyr
+    plyr,
+    tximportData
 Suggests: 
     made4,
     plotly,
