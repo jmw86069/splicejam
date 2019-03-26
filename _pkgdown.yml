@@ -6,18 +6,22 @@ reference:
   desc: Functions aimed at RNA-seq analysis
   contents:
   - has_concept("jam RNA-seq functions")
+- title: GRanges functions
+  desc: Functions to manipulate the Genomic Ranges (GRanges) family of objects
+  contents:
+  - has_concept("jam GRanges functions")
 - title: Design functions
   desc: Functions aimed at manipulation of experimental design
   contents:
   - has_concept("jam design functions")
-- title: GRanges functions
-  desc: Functions to manipulate Genomic Ranges and related objects
-  contents:
-  - has_concept("jam GRanges functions")
 - title: Plot functions
   desc: Functions that assist with R plotting
   contents:
   - has_concept("jam plot functions")
+- title: ggplot2 functions
+  desc: Functions specific to ggplot2 visualization
+  contents:
+  - has_concept("jam ggplot2 functions")
 - title: List functions
   desc: Functions that assist with list manipulation
   contents:
@@ -34,11 +38,16 @@ reference:
   desc: Functions that assist with color manipulation
   contents:
   - has_concept("jam color functions")
-- title: Table (data.frame or matrix) functions
-  desc: Functions aimed at manipulation of tabular data
+- title: Matrix functions
+  desc: Functions aimed at manipulation of matrix data
   contents:
-  - has_concept("jam table functions")
+  - has_concept("jam matrix functions")
 - title: Numeric functions
   desc: Functions aimed at manipulation of numeric data
   contents:
   - has_concept("jam numeric functions")
+- title: Import functions
+  desc: Functions to import specific data formats
+  contents:
+  - has_concept("jam data import functions")
+

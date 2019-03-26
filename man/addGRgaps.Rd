@@ -5,7 +5,9 @@
 \title{Add gaps between GRanges regions}
 \usage{
 addGRgaps(gr, strandSpecific = TRUE, gapname = "gap", suffix = "_v",
-  newValues = list(feature_type = "gap"), doSort = TRUE, ...)
+  newValues = list(feature_type = "gap"),
+  default_feature_type = "exon", feature_type_colname = "feature_type",
+  doSort = TRUE, ...)
 }
 \arguments{
 \item{gr}{GRanges object}
@@ -71,6 +73,7 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{annotateGRLfromGRL}},
   \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
   \code{\link{combineGRcoverage}},
   \code{\link{exoncov2polygon}},
   \code{\link{findOverlapsGRL}},
@@ -78,6 +81,8 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{getGRLgaps}},
   \code{\link{getGRcoverageFromBw}},
   \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
+  \code{\link{spliceGR2junctionDF}},
+  \code{\link{stackJunctions}}
 }
 \concept{jam GRanges functions}

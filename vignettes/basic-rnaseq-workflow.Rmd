@@ -5,6 +5,8 @@ date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     fig_caption: yes
+    toc: true
+    df_print: kable
 vignette: >
   %\VignetteIndexEntry{Splicejam basic RNAseq workflow}
   %\VignetteEngine{knitr::rmarkdown}
@@ -506,8 +508,8 @@ if (suppressPackageStartupMessages(require(made4))) {
 #### BGA plotly visualization
 
 A convenient tool to view the output in 3-D employs
-the plotly R package (ref). A helper function is available
-from jampack called `bgaPlotly3d()`.
+the plotly R package (https://CRAN.R-project.org/package=plotly ).
+A helper function is available `splicejam::bgaPlotly3d()`.
 
 At this point it is also helpful to define sample group
 colors which can help represent the experimental design.
@@ -517,7 +519,8 @@ names match the sample group names. If no `colorSub`
 is supplied, default colors will be defined.
 
 ```{r bga_plotly, dependson=c("bga_plot","color_sub"), fig.height=8, fig.width=8}
-if (1 == 2 && suppressPackageStartupMessages(require(made4))) {
+if (1 == 2 && suppressPackageStartupMessages(require(made4)) &&
+      suppressPackageStartupMessages(require(plotly))) {
    colorSubBga <- colorjam::group2colors(colData(GeneSE)$Group);
    
    geneBgaly <- bgaPlotly3d(geneBga,
@@ -529,10 +532,10 @@ if (1 == 2 && suppressPackageStartupMessages(require(made4))) {
       superGroups=gsub("_.+", "", geneBga$fac),
       ellipseType="none",
       sceneX=0, sceneY=1, sceneZ=1,
-      verbose=FALSE);
-   geneBgaly;
-   htmlwidgets::saveWidget(geneBgaly,
-      file="Adam19_BGA_clustering_21mar2019.html",
-      title="Adam19 RNA-seq BGA clustering");
+      verbose=TRUE);
+   print(geneBgaly);
+   #htmlwidgets::saveWidget(geneBgaly,
+   #   file="RNAseq_BGA_clustering.html",
+   #   title="RNA-seq BGA clustering");
 }
 ```

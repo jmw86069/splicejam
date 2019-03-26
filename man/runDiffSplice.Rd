@@ -192,6 +192,7 @@ iContrasts <- iDC$iContrasts;
 \seealso{
 Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
   \code{\link{codonUsage2df}},
   \code{\link{combineGRcoverage}},
   \code{\link{compressPolygonM}},
@@ -202,6 +203,7 @@ Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{groups2contrasts}}, \code{\link{jamCai}},
   \code{\link{makeTx2geneFromGtf}},
   \code{\link{make_ref2compressed}},
-  \code{\link{sortSamples}}, \code{\link{tx2ale}}
+  \code{\link{sortSamples}},
+  \code{\link{spliceGR2junctionDF}}, \code{\link{tx2ale}}
 }
 \concept{jam RNA-seq functions}

@@ -36,12 +36,15 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{annotateGRLfromGRL}},
   \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
   \code{\link{combineGRcoverage}},
   \code{\link{exoncov2polygon}},
   \code{\link{findOverlapsGRL}},
   \code{\link{getFirstStrandedFromGRL}},
   \code{\link{getGRcoverageFromBw}},
   \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
+  \code{\link{spliceGR2junctionDF}},
+  \code{\link{stackJunctions}}
 }
 \concept{jam GRanges functions}

@@ -121,7 +121,8 @@ BGA component space.
 \seealso{
 Other jam plot functions: \code{\link{factor2label}},
   \code{\link{gene2gg}}, \code{\link{grl2df}},
-  \code{\link{prepareSashimi}}
+  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}},
+  \code{\link{stackJunctions}}
 
 Other jam spatial functions: \code{\link{compressPolygonM}},
   \code{\link{dfWide2segments}}, \code{\link{simplifyXY}},

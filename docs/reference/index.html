@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.15.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
       </span>
     </div>
 
@@ -84,6 +84,9 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/basic-rnaseq-workflow.html">Splicejam basic RNAseq workflow</a>
+    </li>
+    <li>
+      <a href="../articles/create-a-sashimi-plot.html">Create a Sashimi Plot</a>
     </li>
   </ul>
 </li>
@@ -138,9 +141,33 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="assignGRLexonNames.html">assignGRLexonNames()</a></code> </p>
+        </td>
+        <td><p>Assign exon names to GRangesList</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="closestExonToJunctions.html">closestExonToJunctions()</a></code> </p>
+        </td>
+        <td><p>Find closest exon to splice junction ends</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="codonUsage2df.html">codonUsage2df()</a></code> </p>
         </td>
         <td><p>Make codon usage data.frame</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="combineGRcoverage.html">combineGRcoverage()</a></code> </p>
+        </td>
+        <td><p>Combine GRanges coverage replicates</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="compressPolygonM.html">compressPolygonM()</a></code> </p>
+        </td>
+        <td><p>Compress genome coordinates of a matrix of polygons</p></td>
       </tr><tr>
         
         <td>
@@ -162,6 +189,18 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="exoncov2polygon.html">exoncov2polygon()</a></code> </p>
+        </td>
+        <td><p>Convert exon coverage to polygons</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="flattenExonsByGene.html">flattenExonsByGene()</a></code> </p>
+        </td>
+        <td><p>Flatten transcript exons by gene</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="groups2contrasts.html">groups2contrasts()</a></code> </p>
         </td>
         <td><p>Define experimental contrasts from sample groups</p></td>
@@ -180,6 +219,12 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="make_ref2compressed.html">make_ref2compressed()</a></code> </p>
+        </td>
+        <td><p>Create a ref2compressed function to compress GR gaps</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="runDiffSplice.html">runDiffSplice()</a></code> </p>
         </td>
         <td><p>Perform differential isoform analysis using diffSplice</p></td>
@@ -192,9 +237,131 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="spliceGR2junctionDF.html">spliceGR2junctionDF()</a></code> </p>
+        </td>
+        <td><p>Splice junction data.frame summary</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="tx2ale.html">tx2ale()</a></code> </p>
         </td>
         <td><p>tx2ale: detect alternative last exons (ALE) from transcript data</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-granges-functions" class="hasAnchor"><a href="#section-granges-functions" class="anchor"></a>GRanges functions</h2>
+          <p class="section-desc"><p>Functions to manipulate the Genomic Ranges (GRanges) family of objects</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="addGRLgaps.html">addGRLgaps()</a></code> </p>
+        </td>
+        <td><p>Add gaps between GRangesList regions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="addGRgaps.html">addGRgaps()</a></code> </p>
+        </td>
+        <td><p>Add gaps between GRanges regions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="annotateGRLfromGRL.html">annotateGRLfromGRL()</a></code> </p>
+        </td>
+        <td><p>Annotate GRangesList from GRangesList objects</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="annotateGRfromGR.html">annotateGRfromGR()</a></code> </p>
+        </td>
+        <td><p>Annotate GRanges using another GRanges object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="assignGRLexonNames.html">assignGRLexonNames()</a></code> </p>
+        </td>
+        <td><p>Assign exon names to GRangesList</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="closestExonToJunctions.html">closestExonToJunctions()</a></code> </p>
+        </td>
+        <td><p>Find closest exon to splice junction ends</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="combineGRcoverage.html">combineGRcoverage()</a></code> </p>
+        </td>
+        <td><p>Combine GRanges coverage replicates</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="exoncov2polygon.html">exoncov2polygon()</a></code> </p>
+        </td>
+        <td><p>Convert exon coverage to polygons</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="findOverlapsGRL.html">findOverlapsGRL()</a></code> </p>
+        </td>
+        <td><p>Find overlaps between two GRangesList objects</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getFirstStrandedFromGRL.html">getFirstStrandedFromGRL()</a></code> </p>
+        </td>
+        <td><p>Get first stranded GRanges feature per GRangesList</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getGRLgaps.html">getGRLgaps()</a></code> </p>
+        </td>
+        <td><p>Get gaps in GRangesList objects</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getGRcoverageFromBw.html">getGRcoverageFromBw()</a></code> </p>
+        </td>
+        <td><p>Get coverage for GRanges from bigWig files</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getGRgaps.html">getGRgaps()</a></code> </p>
+        </td>
+        <td><p>Get gaps in GRanges</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="grl2df.html">grl2df()</a></code> </p>
+        </td>
+        <td><p>GRangesList to data.frame for ggplot2</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="make_ref2compressed.html">make_ref2compressed()</a></code> </p>
+        </td>
+        <td><p>Create a ref2compressed function to compress GR gaps</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="sortGRL.html">sortGRL()</a></code> </p>
+        </td>
+        <td><p>Sort GRangesList elements by chromosome and position</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="spliceGR2junctionDF.html">spliceGR2junctionDF()</a></code> </p>
+        </td>
+        <td><p>Splice junction data.frame summary</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="stackJunctions.html">stackJunctions()</a></code> </p>
+        </td>
+        <td><p>Stack the y-axis position of junctions</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -225,50 +392,6 @@
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-granges-functions" class="hasAnchor"><a href="#section-granges-functions" class="anchor"></a>GRanges functions</h2>
-          <p class="section-desc"><p>Functions to manipulate Genomic Ranges and related objects</p></p>
-        </th>
-      </tr>
-      <tr>
-        
-        <td>
-          <p><code><a href="annotateGRLfromGRL.html">annotateGRLfromGRL()</a></code> </p>
-        </td>
-        <td><p>Annotate GRangesList from GRangesList objects</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="annotateGRfromGR.html">annotateGRfromGR()</a></code> </p>
-        </td>
-        <td><p>Annotate GRanges using another GRanges object</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="assignGRLexonNames.html">assignGRLexonNames()</a></code> </p>
-        </td>
-        <td><p>Assign exon names to GRangesList</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="findOverlapsGRL.html">findOverlapsGRL()</a></code> </p>
-        </td>
-        <td><p>Find overlaps between two GRangesList objects</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="getFirstStrandedFromGRL.html">getFirstStrandedFromGRL()</a></code> </p>
-        </td>
-        <td><p>Get first stranded GRanges feature per GRangesList</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="sortGRL.html">sortGRL()</a></code> </p>
-        </td>
-        <td><p>Sort GRangesList elements by chromosome and position</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
           <h2 id="section-plot-functions" class="hasAnchor"><a href="#section-plot-functions" class="anchor"></a>Plot functions</h2>
           <p class="section-desc"><p>Functions that assist with R plotting</p></p>
         </th>
@@ -285,6 +408,56 @@
           <p><code><a href="factor2label.html">factor2label()</a></code> </p>
         </td>
         <td><p>Convert factor to a factor label</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="gene2gg.html">gene2gg()</a></code> </p>
+        </td>
+        <td><p>Gene GRangesList to ggplot2 grob</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="grl2df.html">grl2df()</a></code> </p>
+        </td>
+        <td><p>GRangesList to data.frame for ggplot2</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plotSashimi.html">plotSashimi()</a></code> </p>
+        </td>
+        <td><p>Jam Sashimi plot</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="prepareSashimi.html">prepareSashimi()</a></code> </p>
+        </td>
+        <td><p>Prepare Sashimi plot data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="stackJunctions.html">stackJunctions()</a></code> </p>
+        </td>
+        <td><p>Stack the y-axis position of junctions</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-ggplot-functions" class="hasAnchor"><a href="#section-ggplot-functions" class="anchor"></a>ggplot2 functions</h2>
+          <p class="section-desc"><p>Functions specific to ggplot2 visualization</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="gene2gg.html">gene2gg()</a></code> </p>
+        </td>
+        <td><p>Gene GRangesList to ggplot2 grob</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plotSashimi.html">plotSashimi()</a></code> </p>
+        </td>
+        <td><p>Jam Sashimi plot</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -348,9 +521,21 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="compressPolygonM.html">compressPolygonM()</a></code> </p>
+        </td>
+        <td><p>Compress genome coordinates of a matrix of polygons</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="dfWide2segments.html">dfWide2segments()</a></code> </p>
         </td>
         <td><p>Convert data.frame to plotly line segment format</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="simplifyXY.html">simplifyXY()</a></code> </p>
+        </td>
+        <td><p>Simplify XY coordinates to minimal line segments</p></td>
       </tr><tr>
         
         <td>
@@ -375,8 +560,8 @@
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-table-data-frame-or-matrix-functions" class="hasAnchor"><a href="#section-table-data-frame-or-matrix-functions" class="anchor"></a>Table (data.frame or matrix) functions</h2>
-          <p class="section-desc"><p>Functions aimed at manipulation of tabular data</p></p>
+          <h2 id="section-matrix-functions" class="hasAnchor"><a href="#section-matrix-functions" class="anchor"></a>Matrix functions</h2>
+          <p class="section-desc"><p>Functions aimed at manipulation of matrix data</p></p>
         </th>
       </tr>
       <tr>
@@ -406,6 +591,20 @@
         </td>
         <td><p>Modified geometric mean for positive and negative values</p></td>
       </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-import-functions" class="hasAnchor"><a href="#section-import-functions" class="anchor"></a>Import functions</h2>
+          <p class="section-desc"><p>Functions to import specific data formats</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="psl2df.html">psl2df()</a></code> </p>
+        </td>
+        <td><p>Convert PSL alignment to data.frame</p></td>
+      </tr>
     </tbody>
     </table>
   </div>
@@ -414,15 +613,17 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-rna-seq-functions">RNA-seq functions</a></li>
-      <li><a href="#section-design-functions">Design functions</a></li>
       <li><a href="#section-granges-functions">GRanges functions</a></li>
+      <li><a href="#section-design-functions">Design functions</a></li>
       <li><a href="#section-plot-functions">Plot functions</a></li>
+      <li><a href="#section-ggplot-functions">ggplot2 functions</a></li>
       <li><a href="#section-list-functions">List functions</a></li>
       <li><a href="#section-string-functions">String functions</a></li>
       <li><a href="#section-spatial-functions">Spatial functions</a></li>
       <li><a href="#section-color-functions">Color functions</a></li>
-      <li><a href="#section-table-data-frame-or-matrix-functions">Table (data.frame or matrix) functions</a></li>
+      <li><a href="#section-matrix-functions">Matrix functions</a></li>
       <li><a href="#section-numeric-functions">Numeric functions</a></li>
+      <li><a href="#section-import-functions">Import functions</a></li>
     </ul>
   </div>
 </div>

@@ -6,10 +6,11 @@
 \usage{
 gene2gg(gene = NULL, tx = NULL, flatExonsByGene = NULL,
   flatExonsByTx = NULL, geneColor = "dodgerblue", labelExons = TRUE,
-  exonLabelAngle = 90, newValues = list(feature_type = "gap", subclass
-  = "gap", gene_nameExon = "gap"), gene_order = c("first", "last"),
-  return_type = c("grob", "df"), ref2c = NULL, hjust = 1.2,
-  vjust = 0, compressGaps = TRUE, verbose = FALSE, ...)
+  exonLabelAngle = 90, exonLabelSize = 3,
+  newValues = list(feature_type = "gap", subclass = "gap", gene_nameExon
+  = "gap"), gene_order = c("first", "last"), return_type = c("grob",
+  "df"), ref2c = NULL, hjust = 1.2, vjust = 0, compressGaps = TRUE,
+  tx2geneDF = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{gene}{character string of the gene to plot, compared
@@ -40,6 +41,10 @@ unique exon label.}
 indicating how to rotate exon labels, where \code{90} is
 vertical, and \code{0} is horizontal.}
 
+\item{exonLabelSize}{numeric value, compatible with
+argument \code{size} in \code{ggrepel::geom_text_repel()}, used
+to size exon labels when \code{labelExons=TRUE}.}
+
 \item{newValues}{argument passed to \code{addGRLgaps()} to fill
 column values for newly created gap entries. It is useful
 to have \code{feature_type="gap"} so gaps have a different value
@@ -67,6 +72,10 @@ using \code{ggplot::geom_text()}.}
 \item{compressGaps}{logical indicating whether to compress gaps
 between exons. When \code{ref2c} is supplied, this argument is
 ignored and the supplied \code{ref2c} is used directly.}
+
+\item{tx2geneDF}{data.frame or NULL, optionally used to help
+identify matching transcripts for the requested \code{gene} value,
+used when \code{"gene_name"} is not present in \code{values(flatExonsByTx)}.}
 
 \item{...}{additional arguments are passed to relevant functions
 as needed, including \code{make_ref2compressed()}.}
@@ -105,6 +114,10 @@ ggGria1 <- gene2gg("Gria1",
 \seealso{
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{grl2df}},
-  \code{\link{prepareSashimi}}
+  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}},
+  \code{\link{stackJunctions}}
+
+Other jam ggplot2 functions: \code{\link{plotSashimi}}
 }
+\concept{jam ggplot2 functions}
 \concept{jam plot functions}

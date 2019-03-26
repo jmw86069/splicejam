@@ -7,6 +7,112 @@
 stackJunctions(gr, scoreColname = "score", scoreFactor = 1,
   baseline = NULL, ...)
 }
+\arguments{
+\item{gr}{GRanges object representing splice junctions.}
+
+\item{scoreColname}{character string matching one of \code{colnames(values(gr))}
+that contains a numeric value representing the abundance of
+each splice junction observed.}
+
+\item{scoreFactor}{numeric value multiplied by the value in \code{scoreColname}
+to allow scaling the junctions across samples.}
+
+\item{baseline}{numeric vector of length 0, 1 or \code{length(gr)}, with values
+added to the y-axis value for junctions.
+If \code{baseline} has names matching \code{names(gr)} they will be used for
+each \code{gr} entry; if \code{baseline} is not named, values are recycled
+to \code{length(gr)}. The purpose is to allow exons to be shifted up
+or down on the y-axis, along with associated junctions and
+coverage data (see \code{exoncov2polygon()} for another example.)}
+
+\item{...}{additional arguments are ignored.}
+}
 \description{
 Stack the y-axis position of junctions
 }
+\details{
+This function is intended to help visualize splice junctions
+specifically when plotted using \code{ggforce::geom_diagonal_wide()},
+where the height of the junction arc is defined by the \code{score}.
+When two junctions have the same start position, their y-positions
+are stacked, such that the shorter junction width is placed before
+longer junction widths. The intention is to reduce visible overlaps.
+
+The input data is expected to have annotations similar to
+those provided by \code{closestExonToJunctions()}, specifically
+the columns \code{"nameFrom"} and \code{"nameTo"}, see examples below.
+}
+\examples{
+require(GenomicRanges)
+grExons <- GRanges(seqnames=rep("chr1", 4),
+   ranges=IRanges(start=c(100, 300, 500, 900),
+      end=c(200, 400, 750, 1000)),
+   strand=rep("+", 4));
+names(grExons) <- makeNames(rep("exon", length(grExons)),
+   suffix="");
+
+grJunc <- GRanges(seqnames=rep("chr1", 5),
+   ranges=IRanges(start=c(200, 200, 400, 400, 750),
+      end=c(300, 500, 500, 900, 900)),
+   strand=rep("+", 5),
+   score=c(200, 50, 160, 40, 210));
+names(grJunc) <- makeNames(rep("junc", length(grJunc)));
+
+# quick plot showing exons and junctions using rectangles
+ggplot(grl2df(grl), aes(x=x, y=y, group=id, fill=feature_type)) +
+   ggforce::geom_shape() +
+   scale_y_continuous(breaks=seq_along(grl)-1, labels=names(grl)) +
+   colorjam::theme_jam() +
+   colorjam::scale_fill_jam() +
+   ggtitle("Schematic of exons and junctions GRanges");
+
+# add annotation for closest known exon
+grJunc <- closestExonToJunctions(grJunc, grExons)$spliceGRgene;
+
+# The un-stacked junctions
+grlJunc2df1 <- grl2df(grJunc,
+   shape="junction",
+   doStackJunctions=FALSE);
+ggplot(grlJunc2df1, aes(x=x, y=y, group=id, fill=gr_name)) +
+   ggforce::geom_diagonal_wide(alpha=0.7) +
+   colorjam::scale_fill_jam() +
+   colorjam::theme_jam() +
+   ggtitle("Junctions not stacked at boundaries")
+
+# The stacked junctions
+grJunc2 <- stackJunctions(grJunc2);
+grlJunc2df2 <- grl2df(grJunc2,
+   scoreMinimum=20,
+   shape="junction");
+ggplot(grlJunc2df2, aes(x=x, y=y, group=id, fill=gr_name)) +
+   ggforce::geom_diagonal_wide(alpha=0.7) +
+   colorjam::scale_fill_jam() +
+   colorjam::theme_jam() +
+   ggtitle("Junctions stacked at boundaries")
+
+
+}
+\seealso{
+Other jam plot functions: \code{\link{bgaPlotly3d}},
+  \code{\link{factor2label}}, \code{\link{gene2gg}},
+  \code{\link{grl2df}}, \code{\link{plotSashimi}},
+  \code{\link{prepareSashimi}}
+
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
+  \code{\link{annotateGRfromGR}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
+  \code{\link{findOverlapsGRL}},
+  \code{\link{getFirstStrandedFromGRL}},
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
+  \code{\link{spliceGR2junctionDF}}
+}
+\concept{jam GRanges functions}
+\concept{jam plot functions}

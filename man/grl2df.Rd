@@ -6,11 +6,11 @@
 \usage{
 grl2df(grl, keepGRvalues = TRUE, keepGRLvalues = FALSE,
   addGaps = TRUE, width = 0.6, widthV = c(exon = 0.6, cds = 0.6,
-  noncds = 0.3, intron = 0.01, gap = 0.01), width_colname = c("subclass",
-  "feature_type"), shape = c("rectangle", "junction"), baseline = NULL,
-  scoreColname = "score", scoreMinimum = 200, scoreFactor = 1,
-  scoreArcFactor = 0.5, doStackJunctions = TRUE, ref2c = NULL,
-  verbose = FALSE, ...)
+  noncds = 0.3, intron = 0.01, gap = 0.01, `NA` = 0.01),
+  width_colname = c("subclass", "feature_type"), shape = c("rectangle",
+  "junction"), baseline = NULL, scoreColname = "score",
+  scoreMinimum = 100, scoreFactor = 1, scoreArcFactor = 0.5,
+  doStackJunctions = TRUE, ref2c = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{grl}{GRangesList, or GRanges which will be converted to a
@@ -62,8 +62,8 @@ functions.}
 data.frame with \code{x,y} coordinates, and \code{id} which is used
 to group polygon coordinates when used with \code{ggplot2::geom_polygon()}
 or \code{ggforce::geom_shape()}. When \code{shape="rectangle"} the colnames
-include \code{grlNames} which are names of the input GRangesList
-\code{names(grl)}; \code{grNames} which are names of the GRanges entries; and
+include \code{grl_name} which are names of the input GRangesList
+\code{names(grl)}; \code{gr_name} which are names of the GRanges entries; and
 other columns from the input GRanges entries. When \code{shape="junction"}
 the data includes two polygons per junction, intended to be used
 with \code{ggforce::geom_diagonal_wide()} for each side in order to
@@ -139,6 +139,7 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{annotateGRLfromGRL}},
   \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
   \code{\link{combineGRcoverage}},
   \code{\link{exoncov2polygon}},
   \code{\link{findOverlapsGRL}},
@@ -146,11 +147,14 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{getGRLgaps}},
   \code{\link{getGRcoverageFromBw}},
   \code{\link{getGRgaps}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
+  \code{\link{spliceGR2junctionDF}},
+  \code{\link{stackJunctions}}
 
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},
-  \code{\link{prepareSashimi}}
+  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}},
+  \code{\link{stackJunctions}}
 }
 \concept{jam GRanges functions}
 \concept{jam plot functions}

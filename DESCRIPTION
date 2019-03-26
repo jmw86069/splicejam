@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.18.900
+Version: 0.0.19.900
 Authors@R: person(given="James M.", family="Ward",
     email="jmw86069@gmail.com", role=c("aut", "cre"))
 Maintainer: James M. Ward <jmw86069@gmail.com>
@@ -34,7 +34,7 @@ Suggests:
     knitr,
     rmarkdown,
     tximport,
-    TxDb.Hsapiens.UCSC.mm10.knownGene,
+    TxDb.Mmusculus.UCSC.mm10.knownGene,
     org.Mm.eg.db
 License: GPL-2
 Encoding: UTF-8

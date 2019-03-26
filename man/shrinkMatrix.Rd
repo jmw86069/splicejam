@@ -29,4 +29,4 @@ This function is mainly a wrapper around the very efficient
 functions in the \code{data.table} package, with the ability to
 provide a custom function to shrink row values.
 }
-\concept{jam table functions}
+\concept{jam matrix functions}

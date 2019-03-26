@@ -71,6 +71,7 @@ for viewing as a violin plot using \code{ggplot2::geom_violin()}.
 }
 \seealso{
 Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
   \code{\link{codonUsage2df}},
   \code{\link{combineGRcoverage}},
   \code{\link{compressPolygonM}},
@@ -82,6 +83,6 @@ Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
   \code{\link{makeTx2geneFromGtf}},
   \code{\link{make_ref2compressed}},
   \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{tx2ale}}
+  \code{\link{spliceGR2junctionDF}}, \code{\link{tx2ale}}
 }
 \concept{jam RNA-seq functions}

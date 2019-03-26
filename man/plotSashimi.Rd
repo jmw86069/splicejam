@@ -61,3 +61,13 @@ and creates a ggplot graphical object ready for visualization.
 As a result, this function provides several arguments to
 customize the visualization.
 }
+\seealso{
+Other jam plot functions: \code{\link{bgaPlotly3d}},
+  \code{\link{factor2label}}, \code{\link{gene2gg}},
+  \code{\link{grl2df}}, \code{\link{prepareSashimi}},
+  \code{\link{stackJunctions}}
+
+Other jam ggplot2 functions: \code{\link{gene2gg}}
+}
+\concept{jam ggplot2 functions}
+\concept{jam plot functions}

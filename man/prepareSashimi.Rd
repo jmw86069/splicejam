@@ -219,7 +219,8 @@ Other RNA-seq functions: \code{\link{getGRcoverageFromBw}}
 
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},
-  \code{\link{grl2df}}
+  \code{\link{grl2df}}, \code{\link{plotSashimi}},
+  \code{\link{stackJunctions}}
 }
 \concept{RNA-seq functions}
 \concept{jam plot functions}

@@ -247,7 +247,7 @@ makeTx2geneFromGtf <- function
 #' \code{limma::diffSplice()} or \code{DEXSeq}.
 #'
 #' This function depends upon custom functions: \code{annotateGRLfromGRL()},
-#' \code{annotateGRfromGRnew()}, and \code{assignGRLexonNames()}.
+#' \code{annotateGRfromGR()}, and \code{assignGRLexonNames()}.
 
 #' @param gtf character path to a GTF file, used to import gene models
 #'    using Bioconductor \code{GenomicFeatures::makeTxDbFromGFF()}
@@ -369,7 +369,7 @@ tx2ale <- function
    ##    combining all transcripts into one huge ALE.
    ##
    ## Other R custom function dependencies:
-   ## - annotateGRLfromGRL(), annotateGRfromGRnew()
+   ## - annotateGRLfromGRL(), annotateGRfromGR()
    ## - assignGRLexonNames()
    if (suppressPackageStartupMessages(!require(jamba))) {
       stop("gencode2ale() requires the jamba package, installable with: devtools::install_github('jmw86069/jamba')");
@@ -974,7 +974,7 @@ defineDetectedTx <- function
 #'
 #' @import data.table
 #'
-#' @family jam table functions
+#' @family jam matrix functions
 #'
 #' @export
 shrinkMatrix <- function
@@ -2000,12 +2000,15 @@ annotateGRfromGR <- function
             }
             if (igrepHas("list", class(values(GR2)[grOLs,iCol]))) {
                ## list column
-               iVals <- values(GR2)[grOLs,iCol];
-               names(iVals) <- names(GR2)[grOLs];
-               iValsX <- unlist(iVals);
-               iValsXnames1 <- rep(grOLq,
-                  S4Vectors::lengths(iVals));
-               iValsSplit <- split(iValsX, iValsXnames1);
+               ## What was all this effort doing?
+               #iVals <- values(GR2)[grOLs,iCol];
+               #names(iVals) <- names(GR2)[grOLs];
+               #iValsX <- unlist(iVals);
+               #iValsXnames1 <- rep(grOLq,
+               #   S4Vectors::lengths(iVals));
+               #iValsSplit <- split(iValsX, iValsXnames1);
+               #iValsSplit <- iVals;
+               iValsSplit <- values(GR2)[grOLs,iCol];
 
                iXnonNA <- stringShrinkFunc[[iCol]](iValsSplit,
                   sep=sep);
@@ -2191,13 +2194,16 @@ annotateGRfromGR <- function
 #' @param grlOL overlap result (optional) from `GenomicRanges::findOverlaps()`
 #'    for these same GRangesList objects, used to save time by not re-running
 #'    `GenomicRanges::findOverlaps()` again.
-#' @param addGRLnames logical indicating whether to add the names of each
+#' @param add_grl_name logical indicating whether to add the names of each
 #'    GRangesList object to the output object, useful for tracking the
 #'    annotations to the source data.
 #' @param returnType character value indicating whether to return
 #'    GRangesList "GRL" or GRange "GR" object.
 #' @param splitColname character value used internally to indicate how
 #'    to split the resulting GRanges annotated data back to GRangesList.
+#'    Almost always, this value should be identical to `annoName1` which
+#'    will split the resulting GRanges back into the identical input
+#'    GRangesList.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are passed to `annotateGRfromGR()`.
 #'    To customize the aggregation functions, supply `numShrinkFunc` or
@@ -2210,7 +2216,7 @@ annotateGRLfromGRL <- function
  annoName1="name",
  annoName2="name",
  grlOL=NULL,
- addGRLnames=FALSE,
+ add_grl_name=FALSE,
  returnType=c("GRL", "GR"),
  splitColname=annoName1,
  verbose=FALSE,
@@ -2224,54 +2230,77 @@ annotateGRLfromGRL <- function
    returnType <- match.arg(returnType);
    ## Assign names to GRL1 and GRL2 as needed
    if (length(names(GRL1@unlistData)) == 0) {
-      names(GRL1@unlistData) <- makeNames(rep("GRL1",
+      names(GRL1@unlistData) <- makeNames(rep("grl1",
          length(GRL1@unlistData)));
    }
    if (length(names(GRL2@unlistData)) == 0) {
-      names(GRL2@unlistData) <- makeNames(rep("GRL2",
+      names(GRL2@unlistData) <- makeNames(rep("grl2",
          length(GRL2@unlistData)));
    }
-   if (is.null(grlOL)) {
-      grlOL <- findOverlapsGRL(GRL1,
-         GRL2,
-         annoName1=annoName1,
-         annoName2=annoName2);
+
+   ## Validate annoName1
+   annoName1 <- head(annoName1, 1);
+   if ("name" %in% annoName1 || "name" %in% splitColname) {
+      values(GRL1@unlistData)[,"grl_name1"] <- rep(names(GRL1),
+         S4Vectors::lengths(GRL1));
    }
-   #if (addGRLnames) {
-      if (annoName1 %in% "name") {
-         values(GRL1@unlistData)[,"GRL1name"] <- rep(names(GRL1),
-            S4Vectors::lengths(GRL1));
-         annoName1 <- "GRL1name";
-      }
-      if (annoName2 %in% "name") {
-         values(GRL2@unlistData)[,"GRL2name"] <- rep(names(GRL2),
-            S4Vectors::lengths(GRL2));
-         annoName2 <- "GRL2name";
-      }
-   #}
+   if ("name" %in% annoName1) {
+      annoName1 <- "grl_name1";
+   }
+   if ("name" %in% splitColname) {
+      splitColname[splitColname %in% "name"] <- "grl_name1";
+   }
+   if (!annoName1 %in% colnames(values(GRL1@unlistData))) {
+      stop(paste0("Supplied annoName1:'",
+         annoName1,
+         "' was not found in colnames(values(GRL1@unlistData))."));
+   }
+   ## Validate annoName2
+   annoName2 <- head(annoName2, 1);
+   if ("name" %in% annoName2) {
+      values(GRL2@unlistData)[,"grl_name2"] <- rep(names(GRL2),
+         S4Vectors::lengths(GRL2));
+      annoName2 <- "grl_name2";
+   }
+   if (!annoName2 %in% colnames(values(GRL2@unlistData))) {
+      stop(paste0("Supplied annoName2:'",
+         annoName2,
+         "' was not found in colnames(values(GRL2@unlistData))."));
+   }
    annoNames2 <- setdiff(colnames(values(GRL2@unlistData)), annoName2);
    if (verbose) {
       printDebug("annotateGRLfromGRL(): ",
          "annoNames2:",
          annoNames2);
    }
+
+   ## Find overlaps in GRL fashion
+   if (is.null(grlOL)) {
+      grlOL <- findOverlapsGRL(GRL1,
+         GRL2,
+         annoName1=annoName1,
+         annoName2=annoName2);
+   }
+
    GR12 <- annotateGRfromGR(GRL1@unlistData,
       GRL2@unlistData[,annoNames2],
       grOL=grlOL,
       verbose=verbose,
       ...);
    if (returnType %in% "GR") {
-      if (!addGRLnames) {
-         values(GR12) <- values(GR12)[,setdiff(colnames(values(GR12)),
-            c("GRL1name", "GRL2name"))];
+      if (!add_grl_name) {
+         keepCols <- setdiff(colnames(values(GR12)),
+            c("grl_name1", "grl_name2"));
+         values(GR12) <- values(GR12)[,keepCols];
       }
       return(GR12);
    } else {
       GRL12 <- GenomicRanges::split(GR12,
          values(GR12)[,splitColname]);
-      if (!addGRLnames) {
-         values(GRL12@unlistData) <- values(GRL12@unlistData)[,setdiff(colnames(values(GRL12@unlistData)),
-            c("GRL1name", "GRL2name"))];
+      if (!add_grl_name) {
+         keepCols <- setdiff(colnames(values(GRL12@unlistData)),
+            c("grl_name1", "grl_name2"));
+         values(GRL12@unlistData) <- values(GRL12@unlistData)[,keepCols];
       }
       return(GRL12);
    }
@@ -2285,8 +2314,12 @@ annotateGRLfromGRL <- function
 #' case of two GRangesList objects, restricting results to those including
 #' the same GRangesList index in the subject and query.
 #'
+#' @family jam GRanges functions
+#'
 #' @return Hits object, or the natural output from
-#'    `GenomicRanges::findOverlaps()` dependent upon the `...` arguments.
+#'    `GenomicRanges::findOverlaps()` dependent upon the `...` arguments,
+#'    subsetted for only entries with matching values defined
+#'    by `annoName1` and `annoName2`.
 #'
 #' @family jam GRanges functions
 #'
@@ -2298,6 +2331,12 @@ annotateGRLfromGRL <- function
 #' @param annoName2 character value indicating either the colname of
 #'    `values(GRL2)` to use as the name, or if `"name"` then it uses
 #'    `names(GRL2)`.
+#' @param check_names logical indicating whether the values defined
+#'    by `annoName1` should match the values defined by `annoName2`.
+#'    Note that when `check_names=FALSE` the overlaps returned will
+#'    depend upon GRL1 and GRL2 being in identical order. Otherwise,
+#'    the values in `annoName1` and `annoName2` are used, which means
+#'    GRL1 and GRL2 do not have to be in identical order.
 #' @param ... additional arguments are passed to
 #'    `GenomicRanges::findOverlaps()`, useful for customizing the overlap
 #'    criteria.
@@ -2308,6 +2347,7 @@ findOverlapsGRL <- function
  GRL2,
  annoName1="name",
  annoName2="name",
+ check_names=TRUE,
  ...)
 {
    ## Purpose is to run findOverlaps() on GRangesList objects,
@@ -2317,9 +2357,6 @@ findOverlapsGRL <- function
    ## Specifically, it helps run findOverlaps() on GRangesList objects
    ## separated by gene, then only returning entries which match the same
    ## gene.
-   grOL <- findOverlaps(GRL1@unlistData,
-      GRL2@unlistData,
-      ...);
    if (annoName1 %in% "name") {
       GRLnames1 <- rep(names(GRL1), elementNROWS(GRL1));
    } else {
@@ -2330,13 +2367,26 @@ findOverlapsGRL <- function
    } else {
       GRLnames2 <- values(GRL2@unlistData)[,annoName2];
    }
-   if (!any(GRLnames1 %in% GRLnames2)) {
-      stop("No names are shared between GRL1 and GRL2. Please try again.");
+   if (check_names && !any(GRLnames1 %in% GRLnames2)) {
+      warning("No names are shared between GRL1 and GRL2. Please try again.");
+      return(GRL1);
    }
+
+   ## Perform overlap between of all GRanges
+   grOL <- findOverlaps(GRL1@unlistData,
+      GRL2@unlistData,
+      ...);
    grOLdf <- data.frame(as.data.frame(grOL));
    grOLdf[,"queryName"] <- GRLnames1[grOLdf[,"queryHits"]];
    grOLdf[,"subjectName"] <- GRLnames2[grOLdf[,"subjectHits"]];
-   grOLdfUse <- which(grOLdf[,"queryName"] == grOLdf[,"subjectName"]);
+   ## Subset the overlap for matching GRL entries
+   if (check_names) {
+      ## Match by name
+      grOLdfUse <- which(grOLdf[,"queryName"] == grOLdf[,"subjectName"]);
+   } else {
+      ## Match by the index, assuming GRL1 and GRL2 are in identical order
+      grOLdfUse <- which(grOLdf[,"queryHits"] == grOLdf[,"subjectHits"]);
+   }
    return(grOL[grOLdfUse]);
 }
 
@@ -3371,11 +3421,11 @@ getGRLgaps <- function
    ## multiple strands -- if not then skip this step.
    ## If so, then split each GRanges by seqnames_strand
    if (isMultiStrand || isMultiSeqname) {
-      values(grl@unlistData)[,"grlName"] <- rep(names(grl),
+      values(grl@unlistData)[,"grl_name"] <- rep(names(grl),
          elementNROWS(grl));
       grl <- GRangesList(split(grl@unlistData,
          pasteByRowOrdered(sep=":!:",
-            as.data.frame(grl@unlistData)[,c("grlName","seqnames","strand")])
+            as.data.frame(grl@unlistData)[,c("grl_name","seqnames","strand")])
          )
       );
    }
@@ -3398,13 +3448,15 @@ getGRLgaps <- function
          end=end(gapsIRL@unlistData)),
       strand=rep(strand(range(grl)@unlistData),
          elementNROWS(gapsIRL)),
-      irlName=irlName,
-      grlName=grlName
+      irl_name=irlName,
+      grl_name=grlName
    );
    ## Split by the original grl name, which will combine different
    ## seqnames and strands if needed
    grlNew <- GenomicRanges::split(grNew[,0],
-      values(grNew)[,"grlName"]);
+      values(grNew)[,"grl_name"]);
+   keepColnames <- setdiff(colnames(values(grlNew@unlistData)), "grl_name");
+   values(grlNew@unlistData) <- values(grlNew@unlistData)[,keepColnames];
    return(grlNew);
 }
 
@@ -3773,11 +3825,22 @@ addGRgaps <- function
  gapname="gap",
  suffix="_v",
  newValues=list(feature_type="gap"),
+ default_feature_type="exon",
+ feature_type_colname="feature_type",
  doSort=TRUE,
  ...)
 {
    ## Purpose is to add gaps as GRanges elements between the
    ## GRanges elements given
+   if (length(feature_type_colname) > 0 &&
+         !feature_type_colname %in% colnames(values(gr))) {
+      if (length(default_feature_type) == 0) {
+         default_feature_type <- c("exon");
+      } else {
+         default_feature_type <- head(default_feature_type, 1);
+      }
+      values(gr)[[feature_type_colname]] <- default_feature_type;
+   }
    grGaps <- getGRgaps(gr,
       strandSpecific=strandSpecific,
       ...);
@@ -3872,12 +3935,23 @@ addGRLgaps <- function
  gapname="gap",
  suffix="_v",
  newValues=list(feature_type="gap"),
+ default_feature_type="exon",
+ feature_type_colname="feature_type",
  doSort=TRUE,
  ...)
 {
    ## Purpose is to add gaps as GRanges elements between the
    ## GRanges elements given, applied to each element in the
    ## GRangesList.
+   if (length(feature_type_colname) > 0 &&
+         !feature_type_colname %in% colnames(values(grl@unlistData))) {
+      if (length(default_feature_type) == 0) {
+         default_feature_type <- c("exon");
+      } else {
+         default_feature_type <- head(default_feature_type, 1);
+      }
+      values(grl@unlistData)[[feature_type_colname]] <- default_feature_type;
+   }
    grlGaps <- getGRLgaps(grl,
       strandSpecific=strandSpecific,
       ...);
@@ -3902,34 +3976,517 @@ addGRLgaps <- function
    return(grlNew);
 }
 
-#' Convert PSL alignment to data.frame
+
+#' Find closest exon to splice junction ends
 #'
-#' Convert PSL alignment to data.frame
+#' Find closest exon to splice junction ends
 #'
-#' This function takes PSL alignment format, as produced by BLAT,
-#' and converts to data.frame.
+#' This function is used to annotate splice junction GRanges entries
+#' based upon the closest compatible stranded exon boundary.
 #'
-#' @param psl file or other connection compatible with `base::readLines()`
-#'    of data in PSL alignment format.
+#' This function should usually be called by `spliceGR2junctionDF()`
+#' and not called directly.
+#'
+#' @family jam RNA-seq functions
+#' @family jam GRanges functions
+#'
+#' @param spliceGRgene GRanges representing splice junctions
+#' @param exonsGR GRanges representing flattened exons per gene, as
+#'    is produced by `flattenExonsByGene()`.
+#' @param flipNegativeStrand logical indicating whether to flip
+#'    the orientation of features on the negative strand.
+#' @param sampleColname character value matching the colname that
+#'    defines distinct sample identifier, for which junctions will
+#'    be kept separate.
+#' @param reportActualCoords logical indicating whether to report
+#'    genomic coordinates or transcriptome coordinates. (Work in
+#'    progress.)
+#' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
 #' @export
-psl2df <- function
-(psl,
+closestExonToJunctions <- function
+(spliceGRgene,
+ exonsGR,
+ flipNegativeStrand=TRUE,
+ sampleColname="sample_id",
+ reportActualCoords=FALSE,
+ verbose=FALSE,
  ...)
 {
-   ## Purpose is to convert psl format to data.frame
-   pslLines <- gsub("[' ]+", "",
-      readLines("Adam19_KO_e5_Tomato_mRNA.psl")[-1*c(1,2,5)]);
-   psldf1 <- rbindList(
-      strsplit(
-         head(pslLines, 2),
-         "\t"));
-   pslHeader <- jamba::pasteByRow(t(psldf1), sep="");
-   psldf <- read.table(text=tail(pslLines, 2),
-      sep="\t",
-      stringsAsFactors=FALSE,
-      header=FALSE);
-   colnames(psldf) <- pslHeader;
-   return(psldf);
+   ## Purpose is to take:
+   ## - spliceGRgene: GRanges representing splice junctions where
+   ##    start-end represents the first and last base of the junction span;
+   ## - exonsGR: GRanges representing exons per gene, flattened so that no
+   ##    two exons overlap on the same strand.
+   ##    Expected to have names which are useful downstream, typically gene:exonnum
+   ##
+   ## This function augments distanceToNearest in two ways:
+   ## 1. It returns the closest feature along with the distance, and
+   ## 2. It returns the stranded distance, so one can tell whether the splice
+   ##    start comes before or after the annotated end of an exon, similarly whether
+   ##    splice end comes before or after the annotated start of an exon.
+   ##
+   ## The hope is that the relative position of the splice site can help name
+   ## splice junctions when the site lies between two exons, e.g. 5.1, 5.2, 5.3, etc.
+   ##
+   ## flipNegativeStrand=TRUE will orient the "from" and "to" to follow
+   ## the direction of the transcript, instead of being relative to the genome coordinates.
+   ##
+   ##
+   ## First make sure the spliceGRgene supplied already has values in the colnames we
+   ## will be propagating, otherwise we may only update the entries per this method which
+   ## might be incomplete
+   updateColnames <- c("distFrom", "distTo", "nameFrom", "nameTo", "genesDiffer", "genesMatch", "tooFarFrom", "tooFarTo", "tooFar");
+   if (any(updateColnames %in% colnames(values(spliceGRgene)))) {
+      values(spliceGRgene) <- values(spliceGRgene)[,setdiff(colnames(spliceGRgene), updateColnames),drop=FALSE];
+   }
+
+   ## Distance from splice start to exon end
+   ## ignore.strand=TRUE on resize makes the method search the left side of a splice site with the right side of an exon.
+   if (verbose) {
+      printDebug("closestExonToJunctions(): ",
+         "Finding closest exons for splice starts.");
+   }
+   spliceStartExonEndD1 <- as.data.frame(
+      distanceToNearest(
+         resize(spliceGRgene,
+            width=1,
+            fix="start",
+            ignore.strand=TRUE),
+         resize(exonsGR,
+            width=1,
+            fix="end",
+            ignore.strand=TRUE),
+         select="all"));
+
+   ## Calculate stranded distance
+   if (verbose) {
+      printDebug("closestExonToJunctions(): ",
+         "Calculating stranded distance.");
+      print(spliceStartExonEndD1);
+   }
+   spliceStartExonEndDactual1 <- (
+      start(
+         resize(spliceGRgene,
+            width=1,
+            fix="start",
+            ignore.strand=TRUE)[spliceStartExonEndD1[,"queryHits"]]) -
+         start(
+            resize(exonsGR,
+               width=1,
+               fix="end",
+               ignore.strand=TRUE)[spliceStartExonEndD1[,"subjectHits"]]));
+
+   ## TODO: add the actual end coordinate of the exon matched
+   ## end(exonsGR[spliceStartExonEndD1[,"subjectHits"]])
+   spliceStartExonEndDactual1end <- end(exonsGR[spliceStartExonEndD1[,"subjectHits"]]);
+   spliceStartExonEndDactual <- spliceStartExonEndDactual1 - sign(spliceStartExonEndDactual1);
+
+   ## Flip the direction when strand is negative
+   spliceGRgeneNeg <- as.vector(strand(spliceGRgene)) %in% "-";
+   if (any(spliceGRgeneNeg)) {
+      spliceStartExonEndDactual[spliceGRgeneNeg] <- spliceStartExonEndDactual[spliceGRgeneNeg] * -1;
+   }
+
+   ## Distance from splice end to exon start
+   ## ignore.strand=TRUE on resize makes the method search the right side of a splice site with the left side of an exon.
+   if (verbose) {
+      printDebug("closestExonToJunctions(): ",
+         "Finding closest exons for splice ends.");
+   }
+   spliceEndExonStartD1 <- as.data.frame(
+      distanceToNearest(
+         resize(spliceGRgene,
+            width=1,
+            fix="end",
+            ignore.strand=TRUE),
+         resize(exonsGR,
+            width=1,
+            fix="start",
+            ignore.strand=TRUE),
+         select="all"));
+
+   ## Calculate stranded distance
+   if (verbose) {
+      printDebug("closestExonToJunctions(): ",
+         "Calculating stranded distance.");
+   }
+   spliceEndExonStartDactual1 <- (
+      start(
+         resize(spliceGRgene,
+            width=1,
+            fix="end",
+            ignore.strand=TRUE)[spliceEndExonStartD1[,"queryHits"]]) -
+         start(
+            resize(exonsGR,
+               width=1,
+               fix="start",
+               ignore.strand=TRUE)[spliceEndExonStartD1[,"subjectHits"]]));
+
+   ## TODO: add the actual start coordinate of the exon matched
+   ## start(exonsGR[spliceEndExonStartD1[,"subjectHits"]])
+   spliceEndExonStartDactual1start <- start(exonsGR[spliceEndExonStartD1[,"subjectHits"]]);
+   spliceEndExonStartDactual <- spliceEndExonStartDactual1 - sign(spliceEndExonStartDactual1);
+
+   ## Flip the direction when strand is negative
+   if (any(spliceGRgeneNeg)) {
+      spliceEndExonStartDactual[spliceGRgeneNeg] <- spliceEndExonStartDactual[spliceGRgeneNeg] * -1;
+   }
+
+   ## Add the stranded distance to the data.frame typically returned by distanceToNearest
+   spliceStartExonEndD1[,"strandedDistance"] <- spliceStartExonEndDactual;
+   spliceEndExonStartD1[,"strandedDistance"] <- spliceEndExonStartDactual;
+
+   #NAfrom <- (!seq_along(spliceGRgene) %in% spliceStartExonEndD1[,"queryHits"]);
+   #NAto <- (!seq_along(spliceGRgene) %in% spliceEndExonStartD1[,"queryHits"]);
+   #itherNA <- (NAfrom | NAto);
+
+   ## Update the exon name on the start side (from) and end side (to) of the splice junction
+   values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"nameFrom"] <- names(exonsGR[spliceStartExonEndD1[,"subjectHits"]]);
+   values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"nameTo"] <- names(exonsGR[spliceEndExonStartD1[,"subjectHits"]]);
+
+   ## Update the stranded distance on the start side (from) and end side (to) of the splice junction
+   values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"distFrom"] <- spliceStartExonEndD1[,"strandedDistance"];
+   values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"distTo"] <- spliceEndExonStartD1[,"strandedDistance"];
+
+   ## TODO: report the actual coordinate boundary being matched
+   if (reportActualCoords) {
+      if (verbose) {
+         printDebug("closestExonToJunctions(): ",
+            "Reporting actual coords.");
+      }
+      values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"coordFrom"] <- spliceStartExonEndDactual1end;
+      values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"coordTo"] <- spliceEndExonStartDactual1start;
+      ## TODO: flip the from/to for negative strand entries
+      if (flipNegativeStrand) {
+      }
+   }
+
+   ## Optionally flip negative strand "from" and "to" entries
+   if (flipNegativeStrand) {
+      if (verbose) {
+         printDebug("closestExonToJunctions(): ",
+            "Flipping negative strand.");
+      }
+      fromToCols <- paste0(rep(c("dist", "name", "coord", "tooFar"), each=2), c("From", "To"));
+      switchCols1 <- intersect(fromToCols, colnames(values(spliceGRgene)));
+      switchCols2 <- as.vector(matrix(nrow=2, switchCols1)[2:1,])
+      if (verbose) {
+         printDebug("closestExonToJunctions(): ",
+            "switchCols1:",
+            switchCols1);
+         printDebug("closestExonToJunctions(): ",
+            "switchCols2:",
+            switchCols2);
+      }
+      negStrand <- (as.vector(strand(spliceGRgene)) %in% "-");
+      if (any(negStrand)) {
+         values(spliceGRgene)[negStrand,switchCols1] <-
+            values(spliceGRgene)[negStrand,switchCols2];
+      }
+   }
+
+   retVal <- list(
+      spliceStartExonEndD=spliceStartExonEndD1,
+      spliceEndExonStartD=spliceEndExonStartD1,
+      spliceGRgene=spliceGRgene);
+   return(retVal);
+}
+
+#' Splice junction data.frame summary
+#'
+#' Splice junction data.frame summary
+#'
+#' This function takes a GRanges object representing multiple splice
+#' junction ranges, with associated scores, and returns a data.frame
+#' summary of junctions with annotated boundaries using a set
+#' of gene exon models. Junctions whose ends are within `spliceBuffer`
+#' distance are combined, and the scores are summed.
+#'
+#' By default, junctions not within `spliceBuffer` of a compatible exon
+#' boundary are named by the nearest exon boundary, and the distance
+#' upstream or downstream from the boundary.
+#'
+#' Multiple samples can be processed together, and the results will
+#' be aggregated within each sample, using `sampleColname`. The results
+#' in that case may be cast to wide format using `nameFromTo` as the
+#' row identifier, `score` as the value column, and `sampleColname` as
+#' the new column headers.
+#'
+#' @family jam RNA-seq functions
+#' @family jam GRanges functions
+#'
+#' @param spliceGRgene GRanges object containing splice junctions, where
+#'    the `scoreColname` contains numeric scores.
+#' @param exonsGR GRanges object containing flattened exons by gene,
+#'    as is provided by `flattenExonsByGene()`.
+#' @param spliceBuffer integer distance allowed from a compatible exon
+#'    boundary, for a junction read to be snapped to that boundary.
+#' @param useOnlyValidEntries logical indicating whether to remove
+#'    junctions that do not align with a compatible exon boundary.
+#' @param renameTooFar logical indicating whether junctions are
+#'    named by the nearest exon boundary and the distance to that
+#'    boundary.
+#' @param scoreColname,sampleColname colnames in `values(spliceGRgene)`
+#'    to define the score, and `sample_id`.
+#' @param flipNegativeStrand logical indicating whether to flip the
+#'    orientation of negative strand features when matching exon
+#'    boundaries. This argument is passed to `closestExonToJunctions()`.
+#' @param returnGRanges logical indicating whether to return GRanges,
+#'    or by default, `data.frame`.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+spliceGR2junctionDF <- function
+(spliceGRgene,
+ exonsGR,
+ spliceBuffer=3,
+ geneExonSep="(:|_exon)",
+ useOnlyValidEntries=FALSE,
+ renameTooFar=TRUE,
+ scoreColname="score",
+ sampleColname="sample_id",
+ flipNegativeStrand=TRUE,
+ returnGRanges=FALSE,
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose is to take junctions as GRanges, and exons as GRanges, and
+   ## name the junctions by gene, then exonFrom, exonTo, for use in
+   ## downstream differential analyses.
+   ##
+   ## geneExonSep indicates the separater used to delimit the geneSymbol from the exon
+   ##    in exonsGR, so the geneSymbol can be compared for the junction start and end.
+   ##
+   ## useOnlyValidEntries=TRUE means that only entries whose junction start and end
+   ## are within spliceBuffer distance of an annotated exon, and where the two exons
+   ## are from the same gene.
+   ##
+   ## flipNegativeStrand=TRUE will flip the exonFrom, exonTo to follow the direction
+   ## of the transcript
+   ##
+   retVals <- list();
+   ##
+   ## TODO: confirm strandedness is used in edge cases where exons from two genes overlap on opposite
+   ## strands; confirm that the junction sites are not ambiguously assigned to these genes without regard
+   ## to the strandedness of the splice junction and the exons.
+   ##
+   ## TODO: snap coordinates to the exon in cases where it is within the spliceBuffer distance
+   ##
+   ## Quick method to review strandedness -- note that all entries had perfectly matched strandFrom and strandTo
+   #   values(spliceGRgene)[!eitherNA,"strandFrom"] <- as.vector(strand(exonsGR[spliceStartExonEnd]));
+   #   values(spliceGRgene)[!eitherNA,"strandTo"] <- as.vector(strand(exonsGR[(spliceEndExonStart)]));
+   #   table(strandFrom=values(spliceGRgene)[!eitherNA,"strandFrom"], strandTo=values(spliceGRgene)[!eitherNA,"strandTo"]);
+   #   table(strandSplice=as.vector(strand(spliceGRgene[!eitherNA])), strandTo=values(spliceGRgene)[!eitherNA,"strandTo"]);
+   sampleColname <- intersect(sampleColname, colnames(values(spliceGRgene)));
+
+   ## Vectorized logic:
+   ## - find closest start/end for each splice start/end
+   ## - subset for splice start/end having same gene
+   ##
+   ## Call a method which encapsulates distanceToNearest(), calculates stranded distance,
+   ## and knows to match splice start with exon end, etc.
+   #spliceGRgeneVals <- closestExonToJunctions(spliceGRgene=spliceGRgene[,scoreColname], exonsGR=exonsGR,
+   #   flipNegativeStrand=flipNegativeStrand, ...);
+   spliceGRgene <- closestExonToJunctions(spliceGRgene=spliceGRgene[,c(scoreColname,sampleColname)],
+      exonsGR=exonsGR,
+      flipNegativeStrand=flipNegativeStrand,
+      sampleColname=sampleColname,
+      verbose=verbose)$spliceGRgene;
+   #...)$spliceGRgene;
+   #spliceGRgene <- spliceGRgeneVals$spliceGRgene;
+
+   ## Check when genes match for the two junction sites
+   ## Note: we changed from genesDiffer, because in cases where no gene is returned, the two
+   ## sides of the junction would be equal, but still not represent the desired outcome.
+   genesMatch <- (!is.na(values(spliceGRgene)[,"nameFrom"]) & !is.na(values(spliceGRgene)[,"nameTo"]) &
+         (gsub(paste0(geneExonSep, ".*$"), "", values(spliceGRgene)[,"nameFrom"]) ==
+               gsub(paste0(geneExonSep, ".*$"), "", values(spliceGRgene)[,"nameTo"]) ) );
+   values(spliceGRgene)[,"genesMatch"] <- genesMatch;
+   numGenesMatch <- sum(values(spliceGRgene)[,"genesMatch"]);
+   numGenesDiffer <- (length(spliceGRgene) - numGenesMatch);
+   if (verbose && numGenesMatch > 0) {
+      printDebug("spliceGR2junctionDF(): ",
+         formatInt(numGenesMatch),
+         " entries out of ",
+         formatInt(length(spliceGRgene)),
+         " had the same gene for splice start and end, excepting ",
+         formatInt(numGenesDiffer),
+         " entries.");
+   }
+
+   ## Check when the junction is too far from the nearest exon
+   tooFarFrom <- (abs(values(spliceGRgene)[,"distFrom"]) > spliceBuffer |
+         is.na(values(spliceGRgene)[,"distFrom"]));
+   tooFarTo <- (abs(values(spliceGRgene)[,"distTo"]) > spliceBuffer |
+         is.na(values(spliceGRgene)[,"distTo"]));
+   tooFar <- (tooFarFrom | tooFarTo);
+   values(spliceGRgene)[,"tooFarFrom"] <- tooFarFrom;
+   values(spliceGRgene)[,"tooFarTo"] <- tooFarTo;
+   values(spliceGRgene)[,"tooFar"] <- tooFar;
+   numTooFar <- sum(values(spliceGRgene)[,"tooFar"]);
+   if (verbose && numTooFar > 0) {
+      printDebug("spliceGR2junctionDF(): ",
+         formatInt(numTooFar),
+         " entries were farther from the nearest exon than spliceBuffer:",
+         spliceBuffer);
+   }
+
+   ## Rename entries by the distance from the nearest exon.
+   ## Note that junctions within spliceBuffer get "snapped" to the exon and combined
+   ## with other junctions also within this splice buffer distance.
+   ## But entries outside the spliceBuffer of an exon are not "snapped" to other junctions
+   ## which might be within spliceBuffer of each other.
+   ## The potential negative is that novel splice sites would not have the benefit
+   ## of combined counts if junction reads are within spliceBuffer distance of each
+   ## other.
+   if (renameTooFar && numTooFar > 0) {
+      if (verbose) {
+         printDebug("spliceGR2junctionDF(): ",
+            "Renaming exon sites by distance for entries outside spliceBuffer.");
+      }
+      if (any(tooFarFrom)) {
+         values(spliceGRgene)[tooFarFrom,"nameFrom"] <- paste(
+            values(spliceGRgene)[tooFarFrom,"nameFrom"],
+            values(spliceGRgene)[tooFarFrom,"distFrom"],
+            sep=".");
+      }
+      if (any(tooFarTo)) {
+         values(spliceGRgene)[tooFarTo,"nameTo"] <- paste(
+            values(spliceGRgene)[tooFarTo,"nameTo"],
+            values(spliceGRgene)[tooFarTo,"distTo"],
+            sep=".");
+      }
+   }
+
+   ## TODO: rename entries which are "tooFar" so the exon number is distinctly different
+   ## from entries with are not "tooFar".
+   ##
+   ## I.e. entries within spliceBuffer for Apoe:003 would be called "Apoe:003" but entries
+   ##    farther away than spliceBuffer would be called something like "Apoe:003.1".
+   ## This would affect the downstream collapse of splice read counts by exon site, which itself
+   ## has the effect of combining read counts which are within spliceBuffer of an annotated
+   ## exon site.
+   ##
+   ## One idea is to run all samples to find the unique global set of start and end sites, then
+   ## use this set to define new "exons" which become a new exonsGRextended...
+   ## This exonsGRextended would include extra exons, named like this:
+   ##    "Apoe:003", "Apoe:003.1", "Apoe:003.2", "Apoe:004", etc.
+   ## Then when running this function, use exonsGR=exonsGRextended, and all entries should be
+   ## within spliceBuffer distance.
+   ##
+
+   ## Optionally return only entries where both ends of the junction snap to an annotated exon,
+   ## and where the exons are both from the same gene.
+   if (useOnlyValidEntries) {
+      if (verbose) {
+         printDebug("spliceGR2junctionDF(): ",
+            "Only entries whose genes match, and which are within spliceBuffer, will be used for the junction count matrix.");
+      }
+      toUse <- which(values(spliceGRgene)[,"genesMatch"] & !values(spliceGRgene)[,"tooFar"]);
+   } else {
+      ## Note that we still only return entries for which there is some nearby exon
+      ## TODO: allow for un-named entries to have a temporary name for the purpose of
+      ## returning the values.
+      if (verbose) {
+         printDebug("spliceGR2junctionDF(): ",
+            "All entries having any nearest gene will be used, without regard to matching genes or distance from exon.");
+      }
+      toUse <- which(!is.na(values(spliceGRgene)[,"nameFrom"]) & !is.na(values(spliceGRgene)[,"nameTo"]));
+   }
+   if (verbose) {
+      printDebug("spliceGR2junctionDF(): ",
+         "Using ", ifelse(length(toUse) == length(spliceGRgene), "all ", ""),
+         formatInt(length(toUse)),
+         " entries out of ",
+         formatInt(length(spliceGRgene)),
+         " to create a data.frame of junction counts by exon.");
+   }
+   if (verbose && length(toUse) != length(spliceGRgene)) {
+      printDebug("spliceGR2junctionDF(): ",
+         "Note: ",
+         formatInt(length(spliceGRgene) - length(toUse)),
+         " entries did not meet the criteria.");
+   }
+
+   spliceColnames <- c("seqnames", "start", "end", "nameFrom", "nameTo",
+      scoreColname, "strand", sampleColname);
+   spliceCountsDF <- as.data.frame(spliceGRgene[toUse])[,spliceColnames,drop=FALSE];
+   spliceCountsDF[,"nameFromTo"] <- pasteByRow(spliceCountsDF[,c("nameFrom","nameTo"),drop=FALSE],
+      sep=" ",
+      na.rm=TRUE);
+   spliceCountsDF[,"nameFromToSample"] <- pasteByRow(
+      spliceCountsDF[,c("nameFromTo", sampleColname),drop=FALSE],
+      sep=":!:");
+
+   if (verbose) {
+      printDebug("spliceGR2junctionDF(): ",
+         "Shrinking matrix to combine counts spanning the same junctions.");
+   }
+   spliceCountsDFshrunk <- renameColumn(
+      shrinkMatrix(spliceCountsDF[,scoreColname,drop=FALSE],
+         groupBy=spliceCountsDF[,"nameFromToSample"],
+         shrinkFunc=sum),
+      from="groupBy",
+      to="nameFromToSample");
+   if (length(sampleColname) > 0) {
+      spliceCountsDFshrunk[,c("nameFromTo",sampleColname)] <- rbindList(
+         strsplit(spliceCountsDFshrunk[,"nameFromToSample"], ":!:"));
+   } else {
+      spliceCountsDFshrunk[,"nameFromTo"] <- spliceCountsDFshrunk[,"nameFromToSample"];
+   }
+   spliceCountsDFshrunk[,c("nameFrom", "nameTo")] <- rbindList(
+      strsplit(spliceCountsDFshrunk[,"nameFromTo"], " "));
+   #spliceCountsDFshrunk <- cbind(spliceCountsDFshrunk,
+   #   rbindList(strsplit(spliceCountsDFshrunk[,"groupBy"], " ")));
+   #colnames(spliceCountsDFshrunk) <- c("nameFromTo", spliceGRname, "nameFrom", "nameTo");
+
+   ## Now add the start and end coordinates, so the results can be plotted
+   if (verbose) {
+      printDebug("spliceGR2junctionDF(): ",
+         "Adding ref, strand, start, end.");
+   }
+   matchFromTo <- match(spliceCountsDFshrunk[,"nameFromToSample"],
+      spliceCountsDF[,"nameFromToSample"]);
+   spliceCountsDFshrunk[,"ref"] <- as.vector(spliceCountsDF[matchFromTo,"seqnames"]);
+   spliceCountsDFshrunk[,"start"] <- as.vector(spliceCountsDF[matchFromTo,"start"]);
+   spliceCountsDFshrunk[,"end"] <- as.vector(spliceCountsDF[matchFromTo,"end"]);
+   spliceCountsDFshrunk[,"strand"] <- as.vector(spliceCountsDF[matchFromTo,"strand"]);
+   spliceCountsDFshrunk[,"width"] <- spliceCountsDFshrunk[,"end"] - spliceCountsDFshrunk[,"start"];
+   spliceCountsDFshrunk <- mixedSortDF(spliceCountsDFshrunk,
+      byCols=c("ref", "start", "end", "strand"));
+
+   ## geneGsub removes the geneExon separator, and everything after it
+   geneGsub <- paste0(geneExonSep, ".*$");
+   spliceCountsDFshrunk[,"geneSymbolFrom"] <- gsub(geneGsub, "",
+      spliceCountsDFshrunk[,"nameFrom"]);
+   spliceCountsDFshrunk[,"geneSymbolTo"] <- gsub(geneGsub, "",
+      spliceCountsDFshrunk[,"nameTo"]);
+   ## For visual ease, add exon numbers to their own columns
+   exonGsub <- paste0("^.+", geneExonSep);
+   spliceCountsDFshrunk[,"exonFrom"] <- gsub("^[0]+", "",
+      gsub(exonGsub, "",
+         spliceCountsDFshrunk[,"nameFrom"]));
+   ## Remove the padded zeros from the beginning of each exon number
+   spliceCountsDFshrunk[,"exonTo"] <- gsub("^[0]+", "",
+      gsub(exonGsub, "",
+         spliceCountsDFshrunk[,"nameTo"]));
+
+   ## Create junctionID only after we decided how to orient exonFrom and exonTo
+   ## for negative strand entries, avoiding re-creating the name for those rows
+   spliceCountsDFshrunk[,"junctionID"] <- pasteByRow(
+      spliceCountsDFshrunk[,c("exonFrom","exonTo",sampleColname),drop=FALSE],
+      sep="_",
+      na.rm=TRUE);
+
+   ## Prepare data to return
+   if (returnGRanges) {
+      retVals$spliceGRgene <- spliceGRgene;
+      retVals$spliceCountsDFshrunk <- spliceCountsDFshrunk;
+   } else {
+      retVals <- spliceCountsDFshrunk;
+   }
+   return(retVals);
 }

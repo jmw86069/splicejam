@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.15.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
       </span>
     </div>
 
@@ -87,6 +87,9 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/basic-rnaseq-workflow.html">Splicejam basic RNAseq workflow</a>
+    </li>
+    <li>
+      <a href="../articles/create-a-sashimi-plot.html">Create a Sashimi Plot</a>
     </li>
   </ul>
 </li>
@@ -126,8 +129,8 @@
     </div>
 
     <pre class="usage"><span class='fu'>annotateGRLfromGRL</span>(<span class='no'>GRL1</span>, <span class='no'>GRL2</span>, <span class='kw'>annoName1</span> <span class='kw'>=</span> <span class='st'>"name"</span>, <span class='kw'>annoName2</span> <span class='kw'>=</span> <span class='st'>"name"</span>,
-  <span class='kw'>grlOL</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>addGRLnames</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>returnType</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"GRL"</span>, <span class='st'>"GR"</span>),
-  <span class='kw'>splitColname</span> <span class='kw'>=</span> <span class='no'>annoName1</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='no'>verbose</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>grlOL</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>add_grl_name</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>returnType</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"GRL"</span>, <span class='st'>"GR"</span>),
+  <span class='kw'>splitColname</span> <span class='kw'>=</span> <span class='no'>annoName1</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -159,7 +162,7 @@ for these same GRangesList objects, used to save time by not re-running
 <code><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/findOverlaps-methods'>GenomicRanges::findOverlaps()</a></code> again.</p></td>
     </tr>
     <tr>
-      <th>addGRLnames</th>
+      <th>add_grl_name</th>
       <td><p>logical indicating whether to add the names of each
 GRangesList object to the output object, useful for tracking the
 annotations to the source data.</p></td>
@@ -172,7 +175,10 @@ GRangesList "GRL" or GRange "GR" object.</p></td>
     <tr>
       <th>splitColname</th>
       <td><p>character value used internally to indicate how
-to split the resulting GRanges annotated data back to GRangesList.</p></td>
+to split the resulting GRanges annotated data back to GRangesList.
+Almost always, this value should be identical to <code>annoName1</code> which
+will split the resulting GRanges back into the identical input
+GRangesList.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -210,11 +216,20 @@ it does not use <code>values(GRL2)</code> if they exist.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam GRanges functions: <code><a href='annotateGRfromGR.html'>annotateGRfromGR</a></code>,
+    <div class='dont-index'><p>Other jam GRanges functions: <code><a href='addGRLgaps.html'>addGRLgaps</a></code>,
+  <code><a href='addGRgaps.html'>addGRgaps</a></code>, <code><a href='annotateGRfromGR.html'>annotateGRfromGR</a></code>,
   <code><a href='assignGRLexonNames.html'>assignGRLexonNames</a></code>,
+  <code><a href='closestExonToJunctions.html'>closestExonToJunctions</a></code>,
+  <code><a href='combineGRcoverage.html'>combineGRcoverage</a></code>,
+  <code><a href='exoncov2polygon.html'>exoncov2polygon</a></code>,
   <code><a href='findOverlapsGRL.html'>findOverlapsGRL</a></code>,
   <code><a href='getFirstStrandedFromGRL.html'>getFirstStrandedFromGRL</a></code>,
-  <code><a href='sortGRL.html'>sortGRL</a></code></p></div>
+  <code><a href='getGRLgaps.html'>getGRLgaps</a></code>,
+  <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw</a></code>,
+  <code><a href='getGRgaps.html'>getGRgaps</a></code>, <code><a href='grl2df.html'>grl2df</a></code>,
+  <code><a href='make_ref2compressed.html'>make_ref2compressed</a></code>, <code><a href='sortGRL.html'>sortGRL</a></code>,
+  <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a></code>,
+  <code><a href='stackJunctions.html'>stackJunctions</a></code></p></div>
     
 
   </div>

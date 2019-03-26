@@ -125,11 +125,12 @@ aggregated at the ALE level, suitable for differential testing in
 \code{limma::diffSplice()} or \code{DEXSeq}.
 
 This function depends upon custom functions: \code{annotateGRLfromGRL()},
-\code{annotateGRfromGRnew()}, and \code{assignGRLexonNames()}.
+\code{annotateGRfromGR()}, and \code{assignGRLexonNames()}.
 }
 \seealso{
 Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
   \code{\link{codonUsage2df}},
   \code{\link{combineGRcoverage}},
   \code{\link{compressPolygonM}},
@@ -140,6 +141,7 @@ Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{groups2contrasts}}, \code{\link{jamCai}},
   \code{\link{makeTx2geneFromGtf}},
   \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{sortSamples}}
+  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
+  \code{\link{spliceGR2junctionDF}}
 }
 \concept{jam RNA-seq functions}

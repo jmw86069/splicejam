@@ -33,8 +33,8 @@
 #' @return data.frame with `x,y` coordinates, and `id` which is used
 #'    to group polygon coordinates when used with `ggplot2::geom_polygon()`
 #'    or `ggforce::geom_shape()`. When `shape="rectangle"` the colnames
-#'    include `grlNames` which are names of the input GRangesList
-#'    `names(grl)`; `grNames` which are names of the GRanges entries; and
+#'    include `grl_name` which are names of the input GRangesList
+#'    `names(grl)`; `gr_name` which are names of the GRanges entries; and
 #'    other columns from the input GRanges entries. When `shape="junction"`
 #'    the data includes two polygons per junction, intended to be used
 #'    with `ggforce::geom_diagonal_wide()` for each side in order to
@@ -115,12 +115,12 @@ grl2df <- function
  keepGRLvalues=FALSE,
  addGaps=TRUE,
  width=0.6,
- widthV=c(exon=0.6, cds=0.6, noncds=0.3, intron=0.01, gap=0.01),
+ widthV=c(exon=0.6, cds=0.6, noncds=0.3, intron=0.01, gap=0.01, `NA`=0.01),
  width_colname=c("subclass", "feature_type"),
  shape=c("rectangle", "junction"),
  baseline=NULL,
  scoreColname="score",
- scoreMinimum=200,
+ scoreMinimum=100,
  scoreFactor=1,
  scoreArcFactor=0.5,
  doStackJunctions=TRUE,
@@ -136,6 +136,7 @@ grl2df <- function
    }
    if (addGaps && !"junction" %in% shape) {
       grl <- addGRLgaps(grl,
+         verbose=verbose,
          ...);
    }
    ## TODO: handle gaps, perhaps by calling this function with
@@ -144,6 +145,10 @@ grl2df <- function
    ## TODO: draw arrows on gap regions, optionally at the end of
    ## multi-rectangle features, to indicate strandedness.
    if ("rectangle" %in% shape) {
+      if (verbose) {
+         printDebug("grl2df(): ",
+            "rectangle processing");
+      }
       xCoords <- as.vector(rbind(
          start(grl@unlistData),
          end(grl@unlistData),
@@ -156,19 +161,35 @@ grl2df <- function
             colnames(values(grl@unlistData))),
          1);
       if (length(width_colname_use) > 0) {
-         for (wName in names(widthV)) {
-            wFound <- (values(grl@unlistData)[[width_colname_use]] %in% wName);
-            if (any(wFound)) {
-               printDebug("wName:", wName);
-               width[values(grl@unlistData)[[width_colname_use]] %in% wName] <- widthV[wName];
-            }
+         if (verbose) {
+            printDebug("grl2df(): ",
+               "width_colname_use:",
+               width_colname_use);
          }
+         wFound <- match(rmNA(naValue="NA",
+            values(grl@unlistData)[[width_colname_use]]),
+            names(widthV));
+         width[!is.na(wFound)] <- widthV[wFound[!is.na(wFound)]];
       }
       offset <- rep(width, each=4) / 2;
-      yBaseline <- rep(
-         rep(seq_along(grl) - 1,
-            elementNROWS(grl)),
-         each=4);
+      if (length(baseline) > 0) {
+         if (length(baseline) == length(grl)) {
+            yBaseline <- rep(
+               rep(baseline,
+                  elementNROWS(grl)),
+               each=4);
+         } else {
+            yBaseline <- rep(
+               rep(baseline,
+                  length.out=length(grl@unlistData)),
+               each=4);
+         }
+      } else {
+         yBaseline <- rep(
+            rep(seq_along(grl) - 1,
+               elementNROWS(grl)),
+            each=4);
+      }
       yCoords <- rep(c(-1, -1, 1, 1) * offset,
          length.out=length(xCoords)) +
          yBaseline;
@@ -184,15 +205,19 @@ grl2df <- function
                   elementNROWS(grl)),
                each=4),
             levels=names(grl));
-         df$grlNames <- grlNames;
+         df$grl_name <- grlNames;
       }
       if (length(names(grl@unlistData)) > 0) {
+         if (any(duplicated(names(grl@unlistData)))) {
+            names(grl@unlistData) <- makeNames(rmNA(naValue="",
+               names(grl@unlistData)));
+         }
          grNames <- factor(
             rep(
                names(grl@unlistData),
                each=4),
             levels=names(grl@unlistData));
-         df$grNames <- grNames;
+         df$gr_name <- grNames;
       }
       if (keepGRvalues) {
          for (iCol in colnames(values(grl@unlistData))) {
@@ -201,10 +226,12 @@ grl2df <- function
       }
       if (keepGRLvalues) {
          for (iCol in colnames(values(grl))) {
-            df[,iCol] <- rep(
-               rep(values(grl)[,iCol],
-                  elementNROWS(grl)),
-               each=4);
+            if (!iCol %in% colnames(df)) {
+               df[,iCol] <- rep(
+                  rep(values(grl)[,iCol],
+                     elementNROWS(grl)),
+                  each=4);
+            }
          }
       }
    } else if ("junction" %in% shape) {
@@ -243,7 +270,7 @@ grl2df <- function
       if (length(ref2c) > 0) {
          xMid <- ref2c$inverse((ref2c$transform(xStart) + ref2c$transform(xEnd)) / 2);
       } else {
-         xMid <- (xStart + xMid) / 2;
+         xMid <- (xStart + xEnd) / 2;
       }
       xCoords <- as.vector(rbind(
          xStart,
@@ -295,7 +322,7 @@ grl2df <- function
                   elementNROWS(grl)),
                each=8),
             levels=names(grl));
-         df$grlNames <- grlNames;
+         df$grl_name <- grlNames;
       }
       if (length(names(grl@unlistData)) > 0) {
          grNames <- factor(
@@ -303,7 +330,7 @@ grl2df <- function
                names(grl@unlistData),
                each=8),
             levels=names(grl@unlistData));
-         df$grNames <- grNames;
+         df$gr_name <- grNames;
       }
       if (keepGRvalues) {
          for (iCol in colnames(values(grl@unlistData))) {
@@ -339,6 +366,7 @@ grl2df <- function
 #' for more customization.
 #'
 #' @family jam plot functions
+#' @family jam ggplot2 functions
 #'
 #' @param gene character string of the gene to plot, compared
 #'    with `names(flatExonsByGene)` and `values(flatExonsByTx)$gene_name`.
@@ -362,6 +390,9 @@ grl2df <- function
 #' @param exonLabelAngle numeric angle in degrees (0 to 360)
 #'    indicating how to rotate exon labels, where `90` is
 #'    vertical, and `0` is horizontal.
+#' @param exonLabelSize numeric value, compatible with
+#'    argument `size` in `ggrepel::geom_text_repel()`, used
+#'    to size exon labels when `labelExons=TRUE`.
 #' @param newValues argument passed to `addGRLgaps()` to fill
 #'    column values for newly created gap entries. It is useful
 #'    to have `feature_type="gap"` so gaps have a different value
@@ -384,6 +415,9 @@ grl2df <- function
 #' @param compressGaps logical indicating whether to compress gaps
 #'    between exons. When `ref2c` is supplied, this argument is
 #'    ignored and the supplied `ref2c` is used directly.
+#' @param tx2geneDF data.frame or NULL, optionally used to help
+#'    identify matching transcripts for the requested `gene` value,
+#'    used when `"gene_name"` is not present in `values(flatExonsByTx)`.
 #' @param ... additional arguments are passed to relevant functions
 #'    as needed, including `make_ref2compressed()`.
 #'
@@ -411,6 +445,7 @@ gene2gg <- function
  geneColor="dodgerblue",
  labelExons=TRUE,
  exonLabelAngle=90,
+ exonLabelSize=3,
  newValues=list(feature_type="gap", subclass="gap", gene_nameExon="gap"),
  gene_order=c("first","last"),
  return_type=c("grob", "df"),
@@ -418,6 +453,7 @@ gene2gg <- function
  hjust=1.2,
  vjust=0,
  compressGaps=TRUE,
+ tx2geneDF=NULL,
  verbose=FALSE,
  ...)
 {
@@ -435,18 +471,43 @@ gene2gg <- function
       if (!any(gene %in% names(flatExonsByGene))) {
          stop("gene was not found in names(flatExonsByGene)");
       }
-      grl1a <- flatExonsByGene[gene];
+      if (verbose) {
+         printDebug("gene2gg(): ",
+            "flatExonsByGene[gene]");
+      }
+      grl1a <- flatExonsByGene[names(flatExonsByGene) %in% gene];
    } else {
       grl1a <- NULL;
    }
-   if (length(flatExonsByTx) > 0) {
+   if (length(flatExonsByTx) > 0 && igrepHas("GRanges", class(flatExonsByTx))) {
       grl1 <- NULL;
       if (length(gene) > 0) {
-         grl1 <- subset(flatExonsByTx, gene_name %in% gene);
+         if ("gene_name" %in% colnames(values(flatExonsByTx))) {
+            if (verbose) {
+               printDebug("gene2gg(): ",
+                  "values(flatExonsByTx)$gene_name %in% gene");
+            }
+            grl1 <- subset(flatExonsByTx, gene_name %in% gene);
+         } else if (length(tx2geneDF) > 0 &&
+            "gene_name" %in% colnames(tx2geneDF)) {
+            if (verbose) {
+               printDebug("gene2gg(): ",
+                  "subset(tx2geneDF, gene_name %in% gene)$transcript_id");
+            }
+            tx <- unique(c(tx,
+               subset(tx2geneDF, gene_name %in% gene)$transcript_id));
+         }
       }
       if (length(tx) > 0) {
-         grl1 <- c(grl1,
-            flatExonsByTx[names(flatExonsByTx) %in% tx]);
+         grl1 <- GRangesList(c(grl1,
+            flatExonsByTx[names(flatExonsByTx) %in% tx]))
+         values(grl1)$gene_name <- tx2geneDF[match(names(grl1),
+            tx2geneDF$transcript_id),"gene_name"];
+         values(grl1@unlistData)$gene_name <- rep(values(grl1)$gene_name,
+            elementNROWS(grl1));
+         values(grl1)$transcript_id <- names(grl1);
+         values(grl1@unlistData)$transcript_id <- rep(values(grl1)$transcript_id,
+            elementNROWS(grl1));
       }
    } else {
       grl1 <- NULL;
@@ -456,7 +517,9 @@ gene2gg <- function
    } else {
       grl1a1 <- GRangesList(c(grl1a, grl1));
    }
-   printDebug("class(grl1a1):", class(grl1a1));
+   if (verbose) {
+      printDebug("class(grl1a1):", class(grl1a1));
+   }
    if (length(grl1a1) == 0) {
       stop("no exon models found for the gene and tx arguments given.");
    }
@@ -501,17 +564,27 @@ gene2gg <- function
          ref2c <- NULL;
       }
    }
+   ## Calculate a reasonable y-axis minimum to allow for exon labels,
+   ## based upon the number of transcripts being displayed
+   ymin <- (-0.1 +
+         -1 * (exonLabelSize/10) +
+         -1 * ((labelExons*1) * length(grl1a1))/6);
    ## Put it together
    grl1a1gg <- ggplot(grl1a1df,
-         aes(x=x, y=y, group=id)) +
+         aes(x=x,
+            y=y,
+            group=id)) +
       geom_shape(show.legend=FALSE,
-         aes(fill=subclass, color=subclass)) +
-      theme_jam() +
+         aes(fill=subclass,
+            color=subclass)) +
+      colorjam::theme_jam() +
       ylab("") +
-      scale_color_manual(values=makeColorDarker(colorSubV, darkFactor=1.3)) +
-      scale_fill_manual(values=alpha2col(colorSubV, alpha=1)) +
+      scale_color_manual(values=makeColorDarker(colorSubV,
+         darkFactor=1.3)) +
+      scale_fill_manual(values=alpha2col(colorSubV,
+         alpha=1)) +
       scale_y_continuous(breaks=seq_along(grl1a1)-1,
-         limits=c(-0.7, length(grl1a1)-0.5),
+         limits=c(ymin, length(grl1a1)-0.5),
          labels=names(grl1a1));
    if (length(ref2c) > 0) {
       grl1a1gg <- grl1a1gg +
@@ -531,7 +604,7 @@ gene2gg <- function
                vjust=hjust,
                segment.color="grey35",
                fill="white",
-               size=3,
+               size=exonLabelSize,
                direction="x");
       } else {
          grl1a1gg <- grl1a1gg +
@@ -561,6 +634,84 @@ gene2gg <- function
 #' Stack the y-axis position of junctions
 #'
 #' Stack the y-axis position of junctions
+#'
+#' This function is intended to help visualize splice junctions
+#' specifically when plotted using `ggforce::geom_diagonal_wide()`,
+#' where the height of the junction arc is defined by the `score`.
+#' When two junctions have the same start position, their y-positions
+#' are stacked, such that the shorter junction width is placed before
+#' longer junction widths. The intention is to reduce visible overlaps.
+#'
+#' The input data is expected to have annotations similar to
+#' those provided by `closestExonToJunctions()`, specifically
+#' the columns `"nameFrom"` and `"nameTo"`, see examples below.
+#'
+#' @family jam plot functions
+#' @family jam GRanges functions
+#'
+#' @param gr GRanges object representing splice junctions.
+#' @param scoreColname character string matching one of `colnames(values(gr))`
+#'    that contains a numeric value representing the abundance of
+#'    each splice junction observed.
+#' @param scoreFactor numeric value multiplied by the value in `scoreColname`
+#'    to allow scaling the junctions across samples.
+#' @param baseline numeric vector of length 0, 1 or `length(gr)`, with values
+#'    added to the y-axis value for junctions.
+#'    If `baseline` has names matching `names(gr)` they will be used for
+#'    each `gr` entry; if `baseline` is not named, values are recycled
+#'    to `length(gr)`. The purpose is to allow exons to be shifted up
+#'    or down on the y-axis, along with associated junctions and
+#'    coverage data (see `exoncov2polygon()` for another example.)
+#' @param ... additional arguments are ignored.
+#'
+#' @examples
+#' require(GenomicRanges)
+#' grExons <- GRanges(seqnames=rep("chr1", 4),
+#'    ranges=IRanges(start=c(100, 300, 500, 900),
+#'       end=c(200, 400, 750, 1000)),
+#'    strand=rep("+", 4));
+#' names(grExons) <- makeNames(rep("exon", length(grExons)),
+#'    suffix="");
+#'
+#' grJunc <- GRanges(seqnames=rep("chr1", 5),
+#'    ranges=IRanges(start=c(200, 200, 400, 400, 750),
+#'       end=c(300, 500, 500, 900, 900)),
+#'    strand=rep("+", 5),
+#'    score=c(200, 50, 160, 40, 210));
+#' names(grJunc) <- makeNames(rep("junc", length(grJunc)));
+#'
+#' # quick plot showing exons and junctions using rectangles
+#' ggplot(grl2df(grl), aes(x=x, y=y, group=id, fill=feature_type)) +
+#'    ggforce::geom_shape() +
+#'    scale_y_continuous(breaks=seq_along(grl)-1, labels=names(grl)) +
+#'    colorjam::theme_jam() +
+#'    colorjam::scale_fill_jam() +
+#'    ggtitle("Schematic of exons and junctions GRanges");
+#'
+#' # add annotation for closest known exon
+#' grJunc <- closestExonToJunctions(grJunc, grExons)$spliceGRgene;
+#'
+#' # The un-stacked junctions
+#' grlJunc2df1 <- grl2df(grJunc,
+#'    shape="junction",
+#'    doStackJunctions=FALSE);
+#' ggplot(grlJunc2df1, aes(x=x, y=y, group=id, fill=gr_name)) +
+#'    ggforce::geom_diagonal_wide(alpha=0.7) +
+#'    colorjam::scale_fill_jam() +
+#'    colorjam::theme_jam() +
+#'    ggtitle("Junctions not stacked at boundaries")
+#'
+#' # The stacked junctions
+#' grJunc2 <- stackJunctions(grJunc2);
+#' grlJunc2df2 <- grl2df(grJunc2,
+#'    scoreMinimum=20,
+#'    shape="junction");
+#' ggplot(grlJunc2df2, aes(x=x, y=y, group=id, fill=gr_name)) +
+#'    ggforce::geom_diagonal_wide(alpha=0.7) +
+#'    colorjam::scale_fill_jam() +
+#'    colorjam::theme_jam() +
+#'    ggtitle("Junctions stacked at boundaries")
+#'
 #'
 #' @export
 stackJunctions <- function
@@ -633,6 +784,9 @@ stackJunctions <- function
 #' and creates a ggplot graphical object ready for visualization.
 #' As a result, this function provides several arguments to
 #' customize the visualization.
+#'
+#' @family jam plot functions
+#' @family jam ggplot2 functions
 #'
 #' @param sashimi Sashimi data prepared by `prepareSashimi()` which
 #'    is a `list` with `covDF` coverage data in data.frame format,
@@ -779,9 +933,9 @@ plotSashimi <- function
    }
    if (use_jam_themes) {
       ggSashimi <- ggSashimi +
-         theme_jam(panel.grid.major.colour="grey80",
+         colorjam::theme_jam(panel.grid.major.colour="grey80",
             panel.grid.minor.colour="grey90") +
-         scale_fill_jam();
+         colorjam::scale_fill_jam();
    }
    if (apply_facet) {
       ggSashimi <- ggSashimi +

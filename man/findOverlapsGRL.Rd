@@ -5,7 +5,7 @@
 \title{Find overlaps between two GRangesList objects}
 \usage{
 findOverlapsGRL(GRL1, GRL2, annoName1 = "name", annoName2 = "name",
-  ...)
+  check_names = TRUE, ...)
 }
 \arguments{
 \item{GRL1}{GRangesList query}
@@ -20,13 +20,22 @@ findOverlapsGRL(GRL1, GRL2, annoName1 = "name", annoName2 = "name",
 \code{values(GRL2)} to use as the name, or if \code{"name"} then it uses
 \code{names(GRL2)}.}
 
+\item{check_names}{logical indicating whether the values defined
+by \code{annoName1} should match the values defined by \code{annoName2}.
+Note that when \code{check_names=FALSE} the overlaps returned will
+depend upon GRL1 and GRL2 being in identical order. Otherwise,
+the values in \code{annoName1} and \code{annoName2} are used, which means
+GRL1 and GRL2 do not have to be in identical order.}
+
 \item{...}{additional arguments are passed to
 \code{GenomicRanges::findOverlaps()}, useful for customizing the overlap
 criteria.}
 }
 \value{
 Hits object, or the natural output from
-\code{GenomicRanges::findOverlaps()} dependent upon the \code{...} arguments.
+\code{GenomicRanges::findOverlaps()} dependent upon the \code{...} arguments,
+subsetted for only entries with matching values defined
+by \code{annoName1} and \code{annoName2}.
 }
 \description{
 Find overlaps between two GRangesList objects
@@ -42,12 +51,31 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{annotateGRLfromGRL}},
   \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
   \code{\link{combineGRcoverage}},
   \code{\link{exoncov2polygon}},
   \code{\link{getFirstStrandedFromGRL}},
   \code{\link{getGRLgaps}},
   \code{\link{getGRcoverageFromBw}},
   \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
+  \code{\link{spliceGR2junctionDF}},
+  \code{\link{stackJunctions}}
+
+Other jam GRanges functions: \code{\link{addGRLgaps}},
+  \code{\link{addGRgaps}},
+  \code{\link{annotateGRLfromGRL}},
+  \code{\link{annotateGRfromGR}},
+  \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
+  \code{\link{combineGRcoverage}},
+  \code{\link{exoncov2polygon}},
+  \code{\link{getFirstStrandedFromGRL}},
+  \code{\link{getGRLgaps}},
+  \code{\link{getGRcoverageFromBw}},
+  \code{\link{getGRgaps}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
+  \code{\link{spliceGR2junctionDF}},
+  \code{\link{stackJunctions}}
 }
 \concept{jam GRanges functions}

@@ -1,3 +1,18 @@
+# splicejam version 0.0.19.900
+
+## additions
+
+* Added `create-a-sashimi-plot.Rmd` which walks through a full example
+showing how to create a Sashimi plot.
+* Added examples to `stackJunctions()` with schematics, including
+example on plotting junctions by themselves.
+
+## changes to existing functions
+
+* Removed `compressGRgaps()` for now, since the methods now try to
+keep GRanges intact, and instead transform the x-axis scale to compress
+visible gaps.
+
 # splicejam version 0.0.18.900
 
 ## changes to existing functions
@@ -11,6 +26,7 @@ Otherwise, data can have position and negative values and will
 be considered positive stranded.
 * `plotSashimi()` replaces `jamSashimi()` because it is just more
 intuitive... Ah well.
+* Fixed small typo in plotSashimi.Rd help that included an unmatched quote.
 
 # splicejam version 0.0.17.900
 

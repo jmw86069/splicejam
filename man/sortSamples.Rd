@@ -70,6 +70,7 @@ Other jam string functions: \code{\link{escapeWhitespaceRegexp}},
 
 Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
   \code{\link{codonUsage2df}},
   \code{\link{combineGRcoverage}},
   \code{\link{compressPolygonM}},
@@ -80,7 +81,8 @@ Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{groups2contrasts}}, \code{\link{jamCai}},
   \code{\link{makeTx2geneFromGtf}},
   \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{tx2ale}}
+  \code{\link{runDiffSplice}},
+  \code{\link{spliceGR2junctionDF}}, \code{\link{tx2ale}}
 }
 \concept{jam RNA-seq functions}
 \concept{jam string functions}

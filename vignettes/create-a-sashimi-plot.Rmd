@@ -5,6 +5,8 @@ date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     fig_caption: yes
+    toc: true
+    df_print: kable
 vignette: >
   %\VignetteIndexEntry{Create a Sashimi Plot}
   %\VignetteEngine{knitr::rmarkdown}
@@ -77,53 +79,245 @@ either just wrong, or were derived from conditions vastly different
 from those observed. Since tools like Salmon or Kallisto have the
 capability to determine detected and undetected transcripts based
 upon observing experimental data, we found it effective to use that
-information to develop directed gene-exon models.
+information to define data-driven gene-exon models.
 
+The example uses Bioconductor data package
+`TxDb.Mmusculus.UCSC.mm10.knownGene` using UCSC known genes
+for the mouse `mm10` genome assembly.
 
-```{r, hg19_txdb}
+The `TxDb` objects do not permit assigning gene names nor gene symbols,
+so the example uses the Bioconductor annotation package `org.Mm.eg.db`
+to assign `gene_name` values. For any missing values, we use the
+format `LOC#` to indicate the Entrez gene ID, for example
+Entrez gene ID `1234` would be represented `LOC1234`.
+
+```{r, mm10_txdb, fig.height=7, fig.width=7}
+library(splicejam);
+library(jamba);
+library(kableExtra)
 if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
 
    # First obtain exons by transcript
    exonsByTxMm10 <- exonsBy(TxDb.Mmusculus.UCSC.mm10.knownGene,
       by="tx",
       use.names=TRUE);
+   values(exonsByTxMm10@unlistData)$feature_type <- "exon";
+   values(exonsByTxMm10@unlistData)$subclass <- "exon";
    
-   # For added insights, also obtain CDS exons by transcript
+   # For added insight, obtain CDS exons by transcript (optional)
    cdsByTxMm10 <- cdsBy(TxDb.Mmusculus.UCSC.mm10.knownGene,
       by="tx",
       use.names=TRUE);
+   values(cdsByTxMm10@unlistData)$feature_type <- "cds";
    
-   #cols <- c("tx_id", "tx_chrom", "tx_strand",
-   #   "exon_id", "exon_chrom", "exon_strand");
-   #genes(TxDb.Mmusculus.UCSC.mm10.knownGene, columns=cols)
-   #transcripts(TxDb.Mmusculus.UCSC.mm10.knownGene, columns=c("tx_id", "gene_id", "gene_name"))
-   tx2geneMm10 <- select(TxDb.Mmusculus.UCSC.mm10.knownGene,
-      keys(TxDb.Mmusculus.UCSC.mm10.knownGene, "GENEID"),
-      columns=c("GENEID","TXNAME"),
-      keytype="GENEID");
-   colnames(tx2geneMm10) <- c("gene_id", "transcript_id");
+   # Now prepare tx_name, gene_id, gene_name data.frame,
+   # surprisingly difficult
+   tx2geneMm10 <- suppressMessages(
+      AnnotationDbi::select(TxDb.Mmusculus.UCSC.mm10.knownGene,
+         keys(TxDb.Mmusculus.UCSC.mm10.knownGene, "GENEID"),
+         columns=c("GENEID","TXNAME"),
+         keytype="GENEID"
+      )
+   );
+   tx2geneMm10 <- renameColumn(tx2geneMm10,
+      from=c("GENEID", "TXNAME", "TXTYPE"),
+      to=c("gene_id", "transcript_id", "transcript_type"));
+
+   # add gene_name using org.Mm.eg.db
    if (require(org.Mm.eg.db)) {
-      tx2geneMm10$gene_name <- mget(tx2geneMm10$gene_id,
+      gene_ids <- values(genes(TxDb.Mmusculus.UCSC.mm10.knownGene))$gene_id;
+      gene_namesL <- mget(gene_ids,
          org.Mm.egSYMBOL,
          ifnotfound=NA);
-      if (any(is.na(tx2geneMm10$gene_name))) {
-         xNA <- is.na(tx2geneMm10$gene_name);
-         tx2geneMm10$gene_name[xNA] <-
-            paste0("LOC", tx2geneMm10$gene_id[xNA]);
+      ## Convert list to vector taking the first gene_name each
+      gene_names <- unlist(heads(S4Vectors::List(gene_namesL), 1));
+      ## Replace NA with LOC# format
+      if (any(is.na(gene_names))) {
+         gene_na <- which(is.na(gene_names));
+         gene_names[gene_na] <- paste0("LOC",
+            names(gene_names[gene_na]));
       }
+      tx2geneMm10$gene_name <- gene_names[as.character(tx2geneMm10$gene_id)];
    } else {
-      tx2geneMm10$gene_name <- tx2geneMm10$gene_id;
+      tx2geneMm10$gene_name <- as.character(tx2geneMm10$gene_id);
    }
-   
+   # print the first 20 rows to show the content
+   print(head(tx2geneMm10, 20));
    
    # flatten exons to the gene level
-   flatExonsByGene <- flattenExonsByGene(exonsByTx=exonsByTxMm10,
-#      cdsByTx=cdsByTxMm10,
-      genes=c("Gria1"),
+   # for speed, we will only process "Gria1", and "Ntrk2"
+   flatExonsByGeneMm10 <- flattenExonsByGene(exonsByTx=exonsByTxMm10,
+      cdsByTx=cdsByTxMm10,
+      genes=c("Gria1", "Ntrk2"),
       tx2geneDF=tx2geneMm10,
-      verbose=TRUE);
+      verbose=FALSE);
+
+   # to be fancy, also flatten transcripts, to include CDS ranges   
+   flatExonsByTxMm10 <- flattenExonsByGene(exonsByTx=exonsByTxMm10,
+      cdsByTx=cdsByTxMm10,
+      tx2geneDF=tx2geneMm10,
+      by="tx",
+      genes=c("Gria1", "Ntrk2"));
+}
+```
+
+Once the gene-transcript-exon data is prepared, the process of
+plotting data for one gene is demonstrated below.
+
+```{r, gene_plot, fig.height=7, fig.width=7}
+if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
+   # Pull out Gria1
+   grlGria1 <- flatExonsByGeneMm10[["Gria1"]];
+
+   ## Plot a basic gene-exon structure
+   ggGria1exons <- gene2gg(gene="Gria1",
+      flatExonsByGene=flatExonsByGeneMm10,
+      exonLabelSize=6);
+   print(ggGria1exons);
+
+   ## Compare to the gene structure without compressing introns
+   gg1full <- gene2gg(gene="Gria1",
+      flatExonsByGene=flatExonsByGeneMm10,
+      compressGaps=FALSE)
+   print(gg1full);
+   
+   ## Plot a slightly more detailed gene-transcript-exon structure
+   ggGria1exonsTx <- gene2gg(gene="Gria1",
+      flatExonsByGene=flatExonsByGeneMm10,
+      flatExonsByTx=flatExonsByTxMm10,
+      tx2geneDF=tx2geneMm10);
+   print(ggGria1exonsTx);
+   
+   ## Notice how difficult it is to see exon15 and exon16 are
+   ## mutually exclusive exons
+   gg2full <- gene2gg(gene="Gria1",
+      flatExonsByGene=flatExonsByGeneMm10,
+      flatExonsByTx=flatExonsByTxMm10,
+      tx2geneDF=tx2geneMm10,
+      compressGaps=FALSE);
+   print(gg2full);
 
 }
 ```
 
 
+### Coverage and Junction data
+
+The current workflow is intended to use bigWig files as the primary
+source for RNA-seq coverage data.
+
+To provide bigWig coverage files to the `prepareSashimi()` function,
+requires a `data.frame` with column names:
+
+* `"url"` - the path to a local file, or a valid web URL.
+* `"type"` - the type of file, currently allowing `"bw"` for bigWig
+data, or `"junction"` for a BED12 formatted file containing
+splice junction reads.
+* `"sample_id"` - a unique biological sample identifier, which
+can be repeated for replicate files as needed.
+* `"scale_factor"` - optional column with numeric values which are
+multiplied by the coverage (or junction read counts), in order
+to define normalized values for plotting purposes.
+
+A bigWig coverage file can only store coverage for one strand,
+when using strand-specific RNA-seq. To provide negative strand data,
+either provide bigWig coverage scores which are negative values
+(never above zero, and containing at least one negative value),
+or supply a negative value for the `"scale_factor"` field as
+described above.
+
+The example below defines a `data.frame` named  `filesDF`
+which contains bigWig coverage, and splice junction data.
+
+```{r, files_df}
+## assemble a data.frame
+baseurl <- "https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/";
+
+# BED files with junction reads
+bedext <- ".STAR_mm10.combinedJunctions.bed";
+bwext <- c("492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw",
+   "492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw");
+c1 <- c("CA1", "CA2");
+r1 <- c("CB", "DE");
+bedsamples <- paste0(rep(c1, each=2), "_", r1);
+bedurls <- paste0(baseurl,
+   bedsamples,
+   bedext);
+
+# bigWig files with strand-specific read coverage
+bwsamples <- paste0(rep(c1, each=4),
+   rep(r1, each=2));
+bwsamples1 <- paste0(rep(c1, each=4),
+   "_",
+   rep(r1, each=2));
+bwurls <- paste0(baseurl, "NS50211",
+   bwsamples,
+   bwext);
+
+# Assemble into a data.frame
+filesDF <- data.frame(stringsAsFactors=FALSE,
+   check.names=FALSE,
+   url=c(bedurls, bwurls),
+   type=rep(c("junction", "bw"), c(4,8)),
+   sample_id=c(bedsamples, bwsamples1),
+   scale_factor=rep(c(1,3), c(length(bedurls), length(bwurls))));
+filesDF;
+
+```
+
+### Prepare Sashimi Data
+
+The main function `prepareSashimi()` is intended to assemble the
+sources of data together into one list of `data.frame` results
+which can be used to produce ggplot2 visualizations.
+
+For this example, we use the Gria1 gene in mouse mm10.
+
+
+```{r, prepare_sashimi, fig.height=10, fig.width=8}
+shGria1 <- prepareSashimi(gene="Gria1",
+   flatExonsByGene=flatExonsByGeneMm10,
+   minJunctionScore=100,
+   sample_id=c("CA1_CB", "CA2_CB"),
+   filesDF=filesDF)
+```
+
+### Plot Sashimi Data
+
+Once the data is prepared, the plot function can be called
+and customized to fit the particular visualization.
+
+
+```{r, plot_sashimi, fig.height=10, fig.width=8}
+ggGria1 <- plotSashimi(shGria1,
+   junc_color=alpha2col("goldenrod1", 0.4),
+   junc_fill=alpha2col("goldenrod1", 0.4),
+   show=c("coverage", "junction", "junctionLabels"),
+   fill_scheme="sample_id");
+print(ggGria1);
+```
+
+#### Adding gene-exon model
+
+To add the gene-exon model, currently the best method is to use
+something like the `cowplot` package to assemble multiple ggplot
+visualizations together. It also helps in this context to force
+the `facet_wrap` to have one column, using the `ncol=1` argument.
+
+An example is shown below.
+
+Note for the Sashimi plots, the x-axis labels are hidden, since
+the gene-exon plot shares the same range and values.
+
+```{r, plot_sashimi_exons, fig.height=10, fig.width=8}
+if (require(cowplot)) {
+   cpGria1 <- cowplot::plot_grid(
+      ggGria1 + theme(axis.text.x=element_blank()) + xlab(NULL),
+      ggGria1exons + ggtitle(NULL) + expand_limits(y=-2),
+      ncol=1,
+      align="v", 
+      axis="lr",
+      rel_heights=c(4,4));
+   print(cpGria1);
+}
+```

@@ -5,7 +5,7 @@
 \title{Annotate GRangesList from GRangesList objects}
 \usage{
 annotateGRLfromGRL(GRL1, GRL2, annoName1 = "name", annoName2 = "name",
-  grlOL = NULL, addGRLnames = FALSE, returnType = c("GRL", "GR"),
+  grlOL = NULL, add_grl_name = FALSE, returnType = c("GRL", "GR"),
   splitColname = annoName1, verbose = FALSE, ...)
 }
 \arguments{
@@ -25,7 +25,7 @@ annotateGRLfromGRL(GRL1, GRL2, annoName1 = "name", annoName2 = "name",
 for these same GRangesList objects, used to save time by not re-running
 \code{GenomicRanges::findOverlaps()} again.}
 
-\item{addGRLnames}{logical indicating whether to add the names of each
+\item{add_grl_name}{logical indicating whether to add the names of each
 GRangesList object to the output object, useful for tracking the
 annotations to the source data.}
 
@@ -33,7 +33,10 @@ annotations to the source data.}
 GRangesList "GRL" or GRange "GR" object.}
 
 \item{splitColname}{character value used internally to indicate how
-to split the resulting GRanges annotated data back to GRangesList.}
+to split the resulting GRanges annotated data back to GRangesList.
+Almost always, this value should be identical to \code{annoName1} which
+will split the resulting GRanges back into the identical input
+GRangesList.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 
@@ -70,6 +73,7 @@ it does not use \code{values(GRL2)} if they exist.
 Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{addGRgaps}}, \code{\link{annotateGRfromGR}},
   \code{\link{assignGRLexonNames}},
+  \code{\link{closestExonToJunctions}},
   \code{\link{combineGRcoverage}},
   \code{\link{exoncov2polygon}},
   \code{\link{findOverlapsGRL}},
@@ -77,6 +81,8 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{getGRLgaps}},
   \code{\link{getGRcoverageFromBw}},
   \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}}
+  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
+  \code{\link{spliceGR2junctionDF}},
+  \code{\link{stackJunctions}}
 }
 \concept{jam GRanges functions}

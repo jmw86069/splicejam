@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.15.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
       </span>
     </div>
 
@@ -87,6 +87,9 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/basic-rnaseq-workflow.html">Splicejam basic RNAseq workflow</a>
+    </li>
+    <li>
+      <a href="../articles/create-a-sashimi-plot.html">Create a Sashimi Plot</a>
     </li>
   </ul>
 </li>
@@ -130,12 +133,12 @@
   <span class='kw'>colorSub</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>drawVectors</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"none"</span>, <span class='st'>"centroids"</span>, <span class='st'>"genes"</span>),
   <span class='kw'>highlightGenes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>drawSampleLabels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>ellipseType</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"ellipsoid"</span>, <span class='st'>"alphahull"</span>, <span class='st'>"none"</span>),
-  <span class='kw'>useScaledCoords</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>geneColor</span> <span class='kw'>=</span> <span class='st'>"#555555"</span>,
-  <span class='kw'>geneScaleFactor</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>geneLwd</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>geneAlpha</span> <span class='kw'>=</span> <span class='fl'>0.7</span>, <span class='kw'>maxGenes</span> <span class='kw'>=</span> <span class='fl'>50</span>,
-  <span class='kw'>centroidLwd</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>centroidAlpha</span> <span class='kw'>=</span> <span class='fl'>0.3</span>, <span class='kw'>sceneX</span> <span class='kw'>=</span> -<span class='fl'>1.25</span>,
-  <span class='kw'>sceneY</span> <span class='kw'>=</span> <span class='fl'>1.25</span>, <span class='kw'>sceneZ</span> <span class='kw'>=</span> <span class='fl'>1.25</span>, <span class='kw'>main</span> <span class='kw'>=</span> <span class='st'>""</span>,
-  <span class='kw'>plot_bgcolor</span> <span class='kw'>=</span> <span class='st'>"#eeeeee"</span>, <span class='kw'>paper_bgcolor</span> <span class='kw'>=</span> <span class='st'>"#dddddd"</span>, <span class='kw'>debug</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>ellipseOpacity</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>useScaledCoords</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>geneColor</span> <span class='kw'>=</span> <span class='st'>"#555555"</span>, <span class='kw'>geneScaleFactor</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>geneLwd</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>geneAlpha</span> <span class='kw'>=</span> <span class='fl'>0.7</span>, <span class='kw'>maxGenes</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>centroidLwd</span> <span class='kw'>=</span> <span class='fl'>15</span>,
+  <span class='kw'>centroidAlpha</span> <span class='kw'>=</span> <span class='fl'>0.3</span>, <span class='kw'>sceneX</span> <span class='kw'>=</span> -<span class='fl'>1.25</span>, <span class='kw'>sceneY</span> <span class='kw'>=</span> <span class='fl'>1.25</span>,
+  <span class='kw'>sceneZ</span> <span class='kw'>=</span> <span class='fl'>1.25</span>, <span class='kw'>main</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>plot_bgcolor</span> <span class='kw'>=</span> <span class='st'>"#eeeeee"</span>,
+  <span class='kw'>paper_bgcolor</span> <span class='kw'>=</span> <span class='st'>"#dddddd"</span>, <span class='kw'>debug</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -200,6 +203,12 @@ gene.</p></td>
       <td><p>logical indicating whether to label each
 individual sample point, as opposed to labeling only the
 sample group centroid.</p></td>
+    </tr>
+    <tr>
+      <th>ellipseOpacity</th>
+      <td><p>numeric value between 0 and 1 indicating the
+transparency of the ellipse, when <code>ellipseType</code> is not <code>"none"</code>;
+0 is fully transparent, and 1 is non-transparent.</p></td>
     </tr>
     <tr>
       <th>useScaledCoords</th>
@@ -280,8 +289,12 @@ BGA component space.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam plot functions: <code><a href='factor2label.html'>factor2label</a></code></p>
-<p>Other jam spatial functions: <code><a href='dfWide2segments.html'>dfWide2segments</a></code>,
+    <div class='dont-index'><p>Other jam plot functions: <code><a href='factor2label.html'>factor2label</a></code>,
+  <code><a href='gene2gg.html'>gene2gg</a></code>, <code><a href='grl2df.html'>grl2df</a></code>,
+  <code><a href='plotSashimi.html'>plotSashimi</a></code>, <code><a href='prepareSashimi.html'>prepareSashimi</a></code>,
+  <code><a href='stackJunctions.html'>stackJunctions</a></code></p>
+<p>Other jam spatial functions: <code><a href='compressPolygonM.html'>compressPolygonM</a></code>,
+  <code><a href='dfWide2segments.html'>dfWide2segments</a></code>, <code><a href='simplifyXY.html'>simplifyXY</a></code>,
   <code><a href='spline3d.html'>spline3d</a></code></p></div>
     
 
