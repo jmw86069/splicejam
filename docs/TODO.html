@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
       </span>
     </div>
 
@@ -120,6 +120,14 @@
 <div id="todo-for-jambio" class="section level2">
 <h2 class="hasAnchor">
 <a href="#todo-for-jambio" class="anchor"></a>TODO for jambio</h2>
+<div id="sashimi-plot-functionality" class="section level3">
+<h3 class="hasAnchor">
+<a href="#sashimi-plot-functionality" class="anchor"></a>Sashimi plot functionality</h3>
+<ul>
+<li>Needs ability to zoom without polygon clipping issues in ggplot2. Suggestions: prepare only subset of exons or a fixed chromosome region during <code>prepSashimi()</code>; however it still displays any junction whose ends are in this range, sometimes extending far outside of the intended range.</li>
+<li>Customize the transformed axis breaks, minor_breaks, and labels functions so ggplot2 labels include as many non-overlapping x-axis labels at exon boundaries as possible. Make minor_breaks include tick marks and optional smaller labels when zoomed in, or when an exon is wide enough to have an intermediate label.</li>
+</ul>
+</div>
 <div id="portability" class="section level3">
 <h3 class="hasAnchor">
 <a href="#portability" class="anchor"></a>Portability</h3>

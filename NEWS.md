@@ -1,3 +1,23 @@
+# splicejam version 0.0.20.900
+
+## changes
+
+* Minor fixes to examples.
+
+## additions
+
+* Added data `test_exon_gr`, `test_junc_gr`, `test_cov_gr` for
+easy example data for exons, junctions, and coverage, respectively.
+* Added "wide" variants of the above test data, with introns
+about 100x larger than exons, consistent with mammalian gene
+structures.
+* Added examples to each data, showing how one would use the
+raw data to generate different visualizations used in
+Sashimi plots.
+* Added sample data to the vignettes and some examples.
+* Renamed `flattenExonsByGene()` to `flattenExonsBy()` to reflect
+that the function handles `by="gene"` and `by="tx"`.
+
 # splicejam version 0.0.19.900
 
 ## additions

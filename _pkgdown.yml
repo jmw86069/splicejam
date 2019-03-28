@@ -2,6 +2,10 @@ template:
   params:
     bootswatch: cosmo
 reference:
+- title: Splicejam core functions
+  desc: These functions are the heart of the splicejam package
+  contents:
+  - has_concept("splicejam core functions")
 - title: RNA-seq functions
   desc: Functions aimed at RNA-seq analysis
   contents:

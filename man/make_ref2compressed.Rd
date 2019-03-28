@@ -57,8 +57,32 @@ This function takes a set of GRanges which are to be maintained
 with fixed aspect ratio, and it defines a function to compress
 coordinates of the gaps between GRanges features.
 }
+\examples{
+library(GenomicRanges);
+library(ggplot2);
+data(test_exon_wide_gr);
+# To plot a simple GRanges object
+widedf <- grl2df(test_exon_wide_gr);
+ggWide <- ggplot(widedf, aes(x=x, y=y, group=id, fill=feature_type)) +
+   geom_polygon() +
+   colorjam::theme_jam() +
+   colorjam::scale_fill_jam() +
+   xlab("chr1") +
+   ggtitle("exons (introns as-is)")
+print(ggWide);
+
+# Now compress the introns keeping axis labels
+ref2c <- make_ref2compressed(test_exon_wide_gr,
+   nBreaks=10);
+ggWide2 <- ggWide +
+   scale_x_continuous(trans=ref2c$trans_grc) +
+   xlab("chr1 (compressed introns)") +
+   ggtitle("exons (compressed introns)")
+print(ggWide2);
+
+}
 \seealso{
-\code{grl2df()}
+\code{grl2df()}, \code{test_junc_wide_gr}
 
 Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{addGRgaps}},
@@ -85,7 +109,7 @@ Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{defineDetectedTx}},
   \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
   \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsByGene}},
+  \code{\link{flattenExonsBy}},
   \code{\link{groups2contrasts}}, \code{\link{jamCai}},
   \code{\link{makeTx2geneFromGtf}},
   \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
@@ -106,6 +130,11 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{getGRgaps}}, \code{\link{grl2df}},
   \code{\link{sortGRL}}, \code{\link{spliceGR2junctionDF}},
   \code{\link{stackJunctions}}
+
+Other splicejam core functions: \code{\link{exoncov2polygon}},
+  \code{\link{gene2gg}}, \code{\link{grl2df}},
+  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}}
 }
 \concept{jam GRanges functions}
 \concept{jam RNA-seq functions}
+\concept{splicejam core functions}

@@ -3460,47 +3460,94 @@ getGRLgaps <- function
    return(grlNew);
 }
 
-#' Flatten transcript exons by gene
+#' Flatten exons by gene or transcript
 #'
-#' Flatten transcript exons by gene
+#' Flatten exons by gene or transcript
 #'
-#' This function takes `exonsByTx` which is a `GRangesList` object
-#' of transcript exons, named by the `transcript_id`. It groups transcripts
-#' together by gene, produces a flattened unique set of disjoint exons
-#' which do not overlap. Finally, it labels each exon using a defined
-#' naming scheme:
+#' This function takes as input:
+#'
+#'  * `exonsByTx` as a `GRangesList` object
+#' of transcript exons named by the `transcript_id`,
+#' * `tx2geneDF` a `data.frame` with transcript-gene cross-reference,
+#' * `detectedTx` an optional character vector of `transcript_id`
+#' values, used to subset the overall transcripts
+#' * `cdsByTx` an optional `GRangesList` object, similar to `exonsByTx`
+#' except that it only contains the CDS portion of exons
+#'
+#' This function groups exons together by gene, producing a flattened,
+#' disjoint (non-overlapping) set of exons, where exons are subdivided
+#' when there are multiple boundaries.
+#'
+#' Finally, it labels each exon using a defined naming scheme:
 #'
 #' * Each contiguous exon is numbered in order, starting at `1` for the
 #' first stranded exon for the gene, for example `exon1`, `exon2`,
 #' `exon3`.
-#' * Adjacent exons (within a contiguous exon and no gap between them)
-#' are additionally labeled with a letter suffix to indicate the order
-#' within that exon, for example `exon1a`, `exon1b`, `exon1c`.
+#' * When an exon is sub-divided, each section is labeled with
+#' an alphabetic suffix to indicate the order within that exon,
+#' for example `exon1a`, `exon1b`, `exon1c`.
 #'
-#' This function is also useful for generating gene exon models using
-#' only detected transcripts, which can be very helpful in simplifying
-#' gene models composed of a large number of predicted alternative
-#' transcripts. If the method for defining detected transcript isoforms
-#' is relatively effective, the resulting gene models are typically
-#' much improved and easier to interpret visually.
+#' A text schematic is shown below:
+#'
+#' `|=======|======|......|=======|.....|=======|=======|=======|`
+#'
+#' `|.exon1a|exon1b|......|.exon2.|.....|.exon3a|.exon3b|.exon3c|`
+#'
+#' Where
+#'
+#' * `|====|` represents an exon,
+#' * `|====|====|` represents one contiguous exon with two
+#' sub-divided parts, and
+#' * `.....` represents an intron.
+#'
+#' It is recommended but not required to supply `detectedTx`,
+#' since it can greatly reduce the total number of transcripts.
+#' This step has two benefits: It can greatly simplify the
+#' resulting exon model based upon observed data, and it
+#' has the by-product of removing potentially erroneous
+#' transcripts which often has no supporting observed data.
 #'
 #' @family jam RNA-seq functions
 #' @family GRanges functions
 #'
-#' @return GRangesList named by gene, containing non-overlapping GRanges
-#' with exon names as described above.
+#' @return GRangesList named by gene when `by="gene"` or transcript when
+#'    `by="tx"`, containing non-overlapping GRanges with exon names
+#'    as described above.
 #'
 #' @param exonsByTx GRangesList named by transcript, containing one or
-#'    more GRanges representing exons.
+#'    more GRanges representing exons. This data is often produced
+#'    from `TxDb` data using `GenomicFeatures::exonsBy(...,by="tx")`.
 #' @param tx2geneDF data.frame containing at least two columns with
 #'    transcript and gene annotation, whose colnames are defined by
-#'    arguments `txColname` and `geneColname` respectively.
+#'    arguments `txColname` and `geneColname` respectively. When
+#'    using a GTF file, `makeTx2geneFromGtf()` can be used to
+#'    create a `tx2geneDF` in `data.frame` format.
+#' @param by character string to group exons, `"gene"` groups multiple
+#'    transcripts per gene, and `"tx"` groups exons per transcript.
+#'    Note that in both cases, it combines `exonsByTx` and `cdsByTx`
+#'    when `cdsByTx` is also supplied.
 #' @param detectedTx character vector of detected transcripts, used to
 #'    subset the overall transcripts prior to producing a flattened gene
 #'    exon model.
+#' @param genes optional character vector, representing a subset of
+#'    genes for which flattened exons will be prepared. This argument
+#'    is useful when focusing on only one or a subset of genes.
+#' @param txColname character string indicating a column from
+#'    `colnames(tx2geneDF)` used to identify transcripts.
+#' @param geneColname character string indicating a column from
+#'    `colnames(tx2geneDF)` used to identify gene name, or gene symbol.
+#' @param cdsByTx `GRangesList` named by transcript, containing `GRanges`
+#'    exons that only include CDS regions. This data is often produced
+#'    from `TxDb` data using `GenomicFeatures::cdsBy(...,by="tx")`.
+#' @param cdsByGene `GRangesList` named by gene, containing `GRanges`
+#'    exons that only include CDS regions. This data is often produced
+#'    from `TxDb` data using `GenomicFeatures::cdsBy(...,by="gene")`.
+#'    Note this input is only used when `by="gene"`.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
 #'
 #' @export
-flattenExonsByGene <- function
+flattenExonsBy <- function
 (exonsByTx,
  tx2geneDF,
  by=c("gene", "tx"),
@@ -3556,7 +3603,7 @@ flattenExonsByGene <- function
       cdsByTx <- cdsByTx[names(cdsByTx) %in% tx2geneDF[[txColname]]];
    }
    if (verbose) {
-      printDebug("flattenExonsByGene(): ",
+      printDebug("flattenExonsBy(): ",
          "Flattening ", length(iTxs), " transcripts from ",
          length(unique(tx2geneDF[[geneColname]])),
          " unique genes.");
@@ -3572,7 +3619,7 @@ flattenExonsByGene <- function
 
    ## split exons by gene
    if (verbose) {
-      printDebug("flattenExonsByGene(): ",
+      printDebug("flattenExonsBy(): ",
          "Splitting tx exons by gene.");
    }
    if ("gene" %in% by) {
@@ -3592,7 +3639,7 @@ flattenExonsByGene <- function
    ## Disjoin exons within each gene GRL
    if ("gene" %in% by) {
       if (verbose) {
-         printDebug("flattenExonsByGene(): ",
+         printDebug("flattenExonsBy(): ",
             "Preparing disjoint gene exons.");
       }
       iGeneExonsDisGRL <- disjoin(exonsByGene);
@@ -3600,7 +3647,7 @@ flattenExonsByGene <- function
       iGeneExonsDisGRL <- exonsByGene;
    }
    if (verbose) {
-      printDebug("flattenExonsByGene(): ",
+      printDebug("flattenExonsBy(): ",
          "Completed disjoint gene exons.");
    }
    ## Add gene annotation to each entry
@@ -3620,7 +3667,7 @@ flattenExonsByGene <- function
    ## Optionally subdivide by CDS boundary if supplied
    if (length(cdsByTx) > 0) {
       if (verbose) {
-         printDebug("flattenExonsByGene(): ",
+         printDebug("flattenExonsBy(): ",
             "Creating cdsByGene from cdsByTx.");
       }
       cdsByTx <- cdsByTx[names(cdsByTx) %in% iTxs];
@@ -3643,7 +3690,7 @@ flattenExonsByGene <- function
             );
          }
          if (verbose) {
-            printDebug("flattenExonsByGene(): ",
+            printDebug("flattenExonsBy(): ",
                "length(cdsByGene):",
                length(cdsByGene));
          }
@@ -3651,7 +3698,7 @@ flattenExonsByGene <- function
    }
    if (length(cdsByGene) > 0 && any(names(iGeneExonsDisGRL) %in% names(cdsByGene))) {
       if (verbose) {
-         printDebug("flattenExonsByGene(): ",
+         printDebug("flattenExonsBy(): ",
             "Adding CDS exon boundary information.");
       }
       cdsByGene <- cdsByGene[names(cdsByGene) %in% names(iGeneExonsDisGRL)];
@@ -3683,7 +3730,7 @@ flattenExonsByGene <- function
          #   elementNROWS(exonsByGeneSubCds)
          #);
          if (verbose) {
-            printDebug("flattenExonsByGene(): ",
+            printDebug("flattenExonsBy(): ",
                "split()");
          }
          exonsByGeneCds <- GenomicRanges::split(
@@ -3692,17 +3739,17 @@ flattenExonsByGene <- function
                c(values(exonsByGeneSub@unlistData)[,txColname],
                   values(exonsByGeneSubCds@unlistData)[,txColname]));
          if (verbose) {
-            printDebug("flattenExonsByGene(): ",
+            printDebug("flattenExonsBy(): ",
                "disjoin()");
          }
          exonsByGeneCds <- GenomicRanges::disjoin(exonsByGeneCds);
          if (verbose) {
-            printDebug("flattenExonsByGene(): ",
+            printDebug("flattenExonsBy(): ",
                "Sorting.");
          }
          exonsByGeneCds <- sort(exonsByGeneCds);
          if (verbose) {
-            printDebug("flattenExonsByGene(): ",
+            printDebug("flattenExonsBy(): ",
                "Adding txColname,geneColname to disjoint tx exons.");
          }
          values(exonsByGeneCds@unlistData)[,txColname] <- rep(
@@ -3716,7 +3763,7 @@ flattenExonsByGene <- function
          );
       }
       if (verbose) {
-         printDebug("flattenExonsByGene(): ",
+         printDebug("flattenExonsBy(): ",
             "Running annotateGRLfromGRL on CDS disjoint exons.");
       }
       exonsByGeneCds <- annotateGRLfromGRL(exonsByGeneCds,
@@ -3724,7 +3771,7 @@ flattenExonsByGene <- function
       naClass <- is.na(values(exonsByGeneCds@unlistData)[,"subclass"]);
       values(exonsByGeneCds@unlistData)[naClass,"subclass"] <- "noncds";
       if (verbose) {
-         #printDebug("flattenExonsByGene(): ",
+         #printDebug("flattenExonsBy(): ",
          #   "head(exonsByGeneCds):");
          #print(head(exonsByGeneCds));
       }
@@ -3734,7 +3781,7 @@ flattenExonsByGene <- function
 
    ## Assign exon names and numbers
    if (verbose) {
-      printDebug("flattenExonsByGene(): ",
+      printDebug("flattenExonsBy(): ",
          "Assigning exon labels to disjoint gene exons.");
    }
    if ("gene" %in% by) {
@@ -3911,6 +3958,7 @@ addGRgaps <- function
 #'    of each input `grl` GRanges object. Note that the GrangesList object
 #'    is not sorted, only the GRanges objects within the GRangesList
 #'    are sorted.
+#' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are passed to `getGRLgaps()`.
 #'
 #' @examples
@@ -3938,6 +3986,7 @@ addGRLgaps <- function
  default_feature_type="exon",
  feature_type_colname="feature_type",
  doSort=TRUE,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to add gaps as GRanges elements between the
@@ -3952,9 +4001,16 @@ addGRLgaps <- function
       }
       values(grl@unlistData)[[feature_type_colname]] <- default_feature_type;
    }
+   if (verbose) {
+      printDebug("addGRLgaps(): ",
+         "calling getGRLgaps().");
+   }
    grlGaps <- getGRLgaps(grl,
       strandSpecific=strandSpecific,
       ...);
+   if (length(grlGaps) == 0) {
+      return(grl);
+   }
    if (length(gapname) > 0) {
       gapnames <- makeNames(
          rep(gapname,
@@ -3992,7 +4048,7 @@ addGRLgaps <- function
 #'
 #' @param spliceGRgene GRanges representing splice junctions
 #' @param exonsGR GRanges representing flattened exons per gene, as
-#'    is produced by `flattenExonsByGene()`.
+#'    is produced by `flattenExonsBy()`.
 #' @param flipNegativeStrand logical indicating whether to flip
 #'    the orientation of features on the negative strand.
 #' @param sampleColname character value matching the colname that
@@ -4220,7 +4276,7 @@ closestExonToJunctions <- function
 #' @param spliceGRgene GRanges object containing splice junctions, where
 #'    the `scoreColname` contains numeric scores.
 #' @param exonsGR GRanges object containing flattened exons by gene,
-#'    as is provided by `flattenExonsByGene()`.
+#'    as is provided by `flattenExonsBy()`.
 #' @param spliceBuffer integer distance allowed from a compatible exon
 #'    boundary, for a junction read to be snapped to that boundary.
 #' @param useOnlyValidEntries logical indicating whether to remove

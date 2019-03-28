@@ -5,7 +5,8 @@
 \title{Stack the y-axis position of junctions}
 \usage{
 stackJunctions(gr, scoreColname = "score", scoreFactor = 1,
-  baseline = NULL, ...)
+  matchFrom = NULL, matchTo = NULL, strandedScore = TRUE,
+  baseline = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{gr}{GRanges object representing splice junctions.}
@@ -15,7 +16,26 @@ that contains a numeric value representing the abundance of
 each splice junction observed.}
 
 \item{scoreFactor}{numeric value multiplied by the value in \code{scoreColname}
-to allow scaling the junctions across samples.}
+to allow scaling the junctions across samples. Note that
+\code{scoreFactor} can be a vector, which would be applied to the
+vector of scores.}
+
+\item{matchFrom, matchTo}{optional colnames to use when grouping
+junctions at the start and end positions. By default \code{"nameFrom"}
+and \code{"nameTo"} are used, as output from \code{closestExonToJunctions()},
+which has the benefit of grouping junctions within the
+\code{spliceBuffer} distance from exon boundaries. If those values
+are not present \code{colnames(values(gr))} then the new
+default \code{c("seqnames", "start", "strand")} is used for
+\code{matchFrom}, and \code{c("seqnames", "end", "strand")} is used
+for \code{matchTo}. That said, if \code{matchFrom} or \code{matchTo} are supplied,
+those colnames are used from \code{as.data.frame(gr)}. Multiple colnames
+are allowed.}
+
+\item{strandedScore}{logical indicating whether to enforce negative
+scores for junctions on the \code{"-"} strand. Note that when \code{strandedScore}
+is true, all \code{"-"} strand scores will be negative, and all other
+scores with be positive.}
 
 \item{baseline}{numeric vector of length 0, 1 or \code{length(gr)}, with values
 added to the y-axis value for junctions.
@@ -25,7 +45,18 @@ to \code{length(gr)}. The purpose is to allow exons to be shifted up
 or down on the y-axis, along with associated junctions and
 coverage data (see \code{exoncov2polygon()} for another example.)}
 
+\item{verbose}{logical indicating whether to print verbose output.}
+
 \item{...}{additional arguments are ignored.}
+}
+\value{
+GRanges with colnames \code{c("yStart", "yEnd")} added
+to \code{values(gr)}, indicating the baseline y-axis position
+for the start and end of the junction arc. The score
+\code{values(gr)[[scoreColname]]} will reflect the adjustments
+by \code{scoreFactor}, and if \code{strandedScore=TRUE} then all
+strand \code{"-"} scores will be negative, all other scores
+will be positive.
 }
 \description{
 Stack the y-axis position of junctions
@@ -43,10 +74,15 @@ those provided by \code{closestExonToJunctions()}, specifically
 the columns \code{"nameFrom"} and \code{"nameTo"}, see examples below.
 }
 \examples{
-require(GenomicRanges)
+library(GenomicRanges);
+library(ggplot2);
+library(ggforce);
+library(colorjam);
+library(jamba);
 grExons <- GRanges(seqnames=rep("chr1", 4),
-   ranges=IRanges(start=c(100, 300, 500, 900),
-      end=c(200, 400, 750, 1000)),
+   ranges=IRanges(
+      start=c(100, 300, 500,  900),
+        end=c(200, 400, 750, 1000)),
    strand=rep("+", 4));
 names(grExons) <- makeNames(rep("exon", length(grExons)),
    suffix="");
@@ -59,6 +95,10 @@ grJunc <- GRanges(seqnames=rep("chr1", 5),
 names(grJunc) <- makeNames(rep("junc", length(grJunc)));
 
 # quick plot showing exons and junctions using rectangles
+grl <- c(
+   GRangesList(exons=grExons),
+   split(grJunc, names(grJunc))
+   );
 ggplot(grl2df(grl), aes(x=x, y=y, group=id, fill=feature_type)) +
    ggforce::geom_shape() +
    scale_y_continuous(breaks=seq_along(grl)-1, labels=names(grl)) +
@@ -80,9 +120,9 @@ ggplot(grlJunc2df1, aes(x=x, y=y, group=id, fill=gr_name)) +
    ggtitle("Junctions not stacked at boundaries")
 
 # The stacked junctions
-grJunc2 <- stackJunctions(grJunc2);
+grJunc2 <- stackJunctions(grJunc);
 grlJunc2df2 <- grl2df(grJunc2,
-   scoreMinimum=20,
+   scoreArcMinimum=20,
    shape="junction");
 ggplot(grlJunc2df2, aes(x=x, y=y, group=id, fill=gr_name)) +
    ggforce::geom_diagonal_wide(alpha=0.7) +

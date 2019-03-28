@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <h1>Create a Sashimi Plot</h1>
                         <h4 class="author">James M. Ward</h4>
             
-            <h4 class="date">2019-03-26</h4>
+            <h4 class="date">2019-03-28</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jmw86069/splicejam/blob/master/vignettes/create-a-sashimi-plot.Rmd"><code>vignettes/create-a-sashimi-plot.Rmd</code></a></small>
       <div class="hidden name"><code>create-a-sashimi-plot.Rmd</code></div>
@@ -109,37 +109,53 @@
 <li>exon-exon splice junction data</li>
 </ol>
 </div>
-<div id="gene-exon-structure" class="section level3">
-<h3 class="hasAnchor">
-<a href="#gene-exon-structure" class="anchor"></a>Gene-exon structure</h3>
+</div>
+<div id="gene-exon-structure" class="section level2">
+<h2 class="hasAnchor">
+<a href="#gene-exon-structure" class="anchor"></a>Gene-exon structure</h2>
 <p>There are several sources of gene-exon structures:</p>
 <ul>
 <li>
+<p>GTF or GFF file, for example Gencode GTF (<a href="https://www.gencodegenes.com" class="uri">https://www.gencodegenes.com</a>).</p>
+<ul>
+<li>If a GTF file is used in upstream processing, it is recommended to use that same GTF or GFF file to create a <code><a href="https://www.rdocumentation.org/packages/GenomicFeatures/topics/TxDb-class">GenomicFeatures::TxDb</a></code> object with <code><a href="https://www.rdocumentation.org/packages/GenomicFeatures/topics/makeTxDbFromGFF">GenomicFeatures::makeTxDbFromGFF()</a></code>.</li>
+<li>The function <code><a href="../reference/makeTx2geneFromGtf.html">splicejam::makeTx2geneFromGtf()</a></code> creates a <code>data.frame</code> with cross-reference data for <code>"transcript_id"</code> and <code>"gene_name"</code>. This step makes GTF a more reliable workflow than the <code>TxDb</code> workflow, since the <code>TxDb</code> workflow relies upon Bioconductor annotations to obtain <code>"gene_name"</code>, and is sometimes lacking.</li>
+</ul>
+</li>
+<li>
 <p>Txdb transcript database, provided by <code><a href="https://www.rdocumentation.org/packages/GenomicFeatures/topics/TxDb-class">GenomicFeatures::TxDb</a></code></p>
 <ul>
-<li>It is convenient and recommended to use the same GTF or GFF file used in upstream RNA-seq processing steps as the source of exon data. In this case, you would use <code><a href="https://www.rdocumentation.org/packages/GenomicFeatures/topics/makeTxDbFromGFF">GenomicFeatures::makeTxDbFromGFF()</a></code> to create a <code>TxDb</code> object, then follow the steps starting with <code>TxDb</code>.</li>
-<li>Bioconductor provides several Txdb data packages (see BiocView <a href="https://bioconductor.org/packages/release/BiocViews.html#___TxDb" class="uri">https://bioconductor.org/packages/release/BiocViews.html#___TxDb</a>) this they do not currently provide Gencode in TxDb format. For example, to install the package for hg19 UCSC knownGenes as a TxDb, use <code><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene")</a></code>.</li>
+<li>Bioconductor provides several Txdb data packages (see BiocView <a href="https://bioconductor.org/packages/release/BiocViews.html#___TxDb" class="uri">https://bioconductor.org/packages/release/BiocViews.html#___TxDb</a>). For example, to install the package for hg19 UCSC knownGenes TxDb, <code><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene")</a></code>.</li>
+<li>The <code>TxDb</code> specification does not include <code>"gene_name"</code> which therefore needs to be added using Bioconductor annotation packages, such as <code>org.Hs.eg.db</code> (Human, Homo sapiens) or <code>org.Mm.eg.db</code> (Mouse, Mus musculus). This step is almost always a little lossy, seen as <code>TxDb</code> entries whose <code>"transcript_id"</code> do not have corresponding<code>"gene_id"</code> nor <code>"gene_name"</code> entries. Ability to fetch annotation directly from UCSC is currently not straightforward.</li>
 </ul>
 </li>
 <li>
 <p>GRanges or GRangesList objects, already assembled by other methods.</p>
 <ul>
-<li>For example <code><a href="https://www.rdocumentation.org/packages/rtracklayer/topics/export">rtracklayer::import()</a></code> has several methods that can import BED files, or GTF files.</li>
+<li>For example <code><a href="https://www.rdocumentation.org/packages/rtracklayer/topics/export">rtracklayer::import()</a></code> has several methods that can import BED files, or GTF files. Typically, BED format Ultimately the requirement is a disjoint (non-overlapping) set of exon GRanges, pulled into a GRangesList whose names are <code>"gene_name"</code>. This <code>"gene_name"</code> is mainly used as a figure caption, though it can be integrated with transcript exons.</li>
 </ul>
 </li>
 </ul>
-<p>The goal for Sashimi plots is to flatten exons to disjoint (non-overlapping) exons across the gene region of interest. The exons are used to determine the genomic regions to use for sequence coverage, and splice junction reads. The exons are also used to define intron region compression, in order to make the Sashimi plot more transcript-focused.</p>
-<div id="starting-with-txdb" class="section level4">
-<h4 class="hasAnchor">
-<a href="#starting-with-txdb" class="anchor"></a>Starting with TxDb</h4>
-<p>The recommended workflow involves assembling transcript exons, then aggregating detected transcripts into gene-exon models. The driving reason is that transcriptome data is increasingly comprehensive, and is derived from numerous tissue samples and cell types, many of which are not relevant nor representative of the transcriptome observed in a particular experimental condition. While it is not problematic to visualize a gene model whose exons are derived from all possible conditions, we found many gene models to be unnecessarily complex, therefore overshadowing the actual observed structure.</p>
-<p>Said another way, many of the automated transcript structures are either just wrong, or were derived from conditions vastly different from those observed. Since tools like Salmon or Kallisto have the capability to determine detected and undetected transcripts based upon observing experimental data, we found it effective to use that information to define data-driven gene-exon models.</p>
-<p>The example uses Bioconductor data package <code>TxDb.Mmusculus.UCSC.mm10.knownGene</code> using UCSC known genes for the mouse <code>mm10</code> genome assembly.</p>
-<p>The <code>TxDb</code> objects do not permit assigning gene names nor gene symbols, so the example uses the Bioconductor annotation package <code>org.Mm.eg.db</code> to assign <code>gene_name</code> values. For any missing values, we use the format <code>LOC#</code> to indicate the Entrez gene ID, for example Entrez gene ID <code>1234</code> would be represented <code>LOC1234</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(splicejam);
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(jamba);
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(kableExtra)
-<span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
+<p>The requirement for Sashimi plots is to flatten exons to disjoint (non-overlapping) exons across the gene region of interest. The exons are used to determine the genomic regions to use for sequence coverage, and splice junction reads.</p>
+<p>The exons are also used to define the genome coordinate transformation function used to compress introns to more manageable (smaller) size.</p>
+<div id="use-of-detected-transcripts" class="section level3">
+<h3 class="hasAnchor">
+<a href="#use-of-detected-transcripts" class="anchor"></a>Use of detected transcripts</h3>
+<p>The recommended workflow is to use detected transcripts derived from <code><a href="../reference/defineDetectedTx.html">splicejam::defineDetectedTx()</a></code> or some other means. This step typically reduces the total transcripts by 60%, which greatly simplifies the resulting gene structure, and focuses the gene structure on the experimental data.</p>
+<p>Gene transcriptome data resources are increasingly comprehensive, as they are derived from numerous tissue samples and cell types. In ideal cases, the data should represent the superset of possible gene transcripts, of which only a fraction are experimentally observed.</p>
+<p>In addition, we observed questionable transcript annotations, with no apparent supporting data – possible artifacts of an automated annotation pipeline. While these apparent errors are found in low percentage, their presence can completely disrupt a gene structure, sometimes combining several genes (70+) into one extremely long gene locus longer than 5 megabases.</p>
+<p>As a practical matter, we found it beneficial that many of these transcripts get removed during the <code><a href="../reference/defineDetectedTx.html">splicejam::defineDetectedTx()</a></code> process, conveniently simplifying the resulting gene-exon models. Note this process currently uses data from an analysis tool such as Kallisto (Bray et al 2016, <a href="https://pachterlab.github.io/kallisto/about" class="uri">https://pachterlab.github.io/kallisto/about</a>) or Salmon (Patro et al 2017, <a href="https://combine-lab.github.io/salmon/" class="uri">https://combine-lab.github.io/salmon/</a>) since these tools estimate transcript isoform abundance.</p>
+</div>
+<div id="starting-with-txdb" class="section level3">
+<h3 class="hasAnchor">
+<a href="#starting-with-txdb" class="anchor"></a>Starting with TxDb</h3>
+<p>This example uses Bioconductor data package <code>TxDb.Mmusculus.UCSC.mm10.knownGene</code> which represents UCSC known genes for the mouse <code>mm10</code> genome assembly.</p>
+<p>First we assemble all exons by transcript, then all CDS exons by transcript. We will use these exons to assemble annotated gene models.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="st">"warn"</span>=<span class="op">-</span><span class="dv">1</span>);
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(splicejam));
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(jamba));
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(kableExtra));
+<span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(TxDb.Mmusculus.UCSC.mm10.knownGene))) {
 
    <span class="co"># First obtain exons by transcript</span>
    exonsByTxMm10 &lt;-<span class="st"> </span><span class="kw">exonsBy</span>(TxDb.Mmusculus.UCSC.mm10.knownGene,
@@ -153,7 +169,11 @@
       <span class="dt">by=</span><span class="st">"tx"</span>,
       <span class="dt">use.names=</span><span class="ot">TRUE</span>);
    <span class="kw">values</span>(cdsByTxMm10<span class="op">@</span>unlistData)<span class="op">$</span>feature_type &lt;-<span class="st"> "cds"</span>;
-   
+   <span class="kw">values</span>(cdsByTxMm10<span class="op">@</span>unlistData)<span class="op">$</span>subclass &lt;-<span class="st"> "cds"</span>;
+}</code></pre></div>
+<p>The <code>TxDb</code> objects do not permit storing gene symbols, so the example uses the Bioconductor annotation package <code>org.Mm.eg.db</code> to assign <code>gene_name</code> values. For values not found in <code>org.Mm.eg.db</code>, we use the format <code>LOC#</code> to indicate the Entrez gene ID, for example Entrez gene ID <code>1234</code> would be represented <code>LOC1234</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
+
    <span class="co"># Now prepare tx_name, gene_id, gene_name data.frame,</span>
    <span class="co"># surprisingly difficult</span>
    tx2geneMm10 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressMessages</a></span>(
@@ -168,84 +188,31 @@
       <span class="dt">to=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"gene_id"</span>, <span class="st">"transcript_id"</span>, <span class="st">"transcript_type"</span>));
 
    <span class="co"># add gene_name using org.Mm.eg.db</span>
-   <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(org.Mm.eg.db)) {
+   <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(org.Mm.eg.db))) {
       gene_ids &lt;-<span class="st"> </span><span class="kw">values</span>(<span class="kw">genes</span>(TxDb.Mmusculus.UCSC.mm10.knownGene))<span class="op">$</span>gene_id;
       gene_namesL &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/get">mget</a></span>(gene_ids,
          org.Mm.egSYMBOL,
          <span class="dt">ifnotfound=</span><span class="ot">NA</span>);
       ## Convert list to vector taking the first gene_name each
+      ## (All genes should only have one SYMBOL but there is no
+      ## hard constraint so we should make absolutely sure to
+      ## use only one value per gene.)
       gene_names &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unlist">unlist</a></span>(<span class="kw">heads</span>(S4Vectors<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/S4Vectors/topics/List-class">List</a></span>(gene_namesL), <span class="dv">1</span>));
       ## Replace NA with LOC# format
+      ## Note we use gsub() to ensure the data fits the expected format
       <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/any">any</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(gene_names))) {
          gene_na &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(gene_names));
-         gene_names[gene_na] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"LOC"</span>,
+         gene_names[gene_na] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">gsub</a></span>(<span class="st">"^([0-9]+)$"</span>, <span class="st">"LOC</span><span class="ch">\\</span><span class="st">1"</span>,
             <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(gene_names[gene_na]));
       }
       tx2geneMm10<span class="op">$</span>gene_name &lt;-<span class="st"> </span>gene_names[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(tx2geneMm10<span class="op">$</span>gene_id)];
    } <span class="cf">else</span> {
+      ## If we have no gene annotations, use the gene_id values
       tx2geneMm10<span class="op">$</span>gene_name &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(tx2geneMm10<span class="op">$</span>gene_id);
    }
    <span class="co"># print the first 20 rows to show the content</span>
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(tx2geneMm10, <span class="dv">20</span>));
-   
-   <span class="co"># flatten exons to the gene level</span>
-   <span class="co"># for speed, we will only process "Gria1", and "Ntrk2"</span>
-   flatExonsByGeneMm10 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/flattenExonsByGene.html">flattenExonsByGene</a></span>(<span class="dt">exonsByTx=</span>exonsByTxMm10,
-      <span class="dt">cdsByTx=</span>cdsByTxMm10,
-      <span class="dt">genes=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Gria1"</span>, <span class="st">"Ntrk2"</span>),
-      <span class="dt">tx2geneDF=</span>tx2geneMm10,
-      <span class="dt">verbose=</span><span class="ot">FALSE</span>);
-
-   <span class="co"># to be fancy, also flatten transcripts, to include CDS ranges   </span>
-   flatExonsByTxMm10 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/flattenExonsByGene.html">flattenExonsByGene</a></span>(<span class="dt">exonsByTx=</span>exonsByTxMm10,
-      <span class="dt">cdsByTx=</span>cdsByTxMm10,
-      <span class="dt">tx2geneDF=</span>tx2geneMm10,
-      <span class="dt">by=</span><span class="st">"tx"</span>,
-      <span class="dt">genes=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Gria1"</span>, <span class="st">"Ntrk2"</span>));
 }
-<span class="co">#&gt; Loading required package: TxDb.Mmusculus.UCSC.mm10.knownGene</span>
-<span class="co">#&gt; Loading required package: GenomicFeatures</span>
-<span class="co">#&gt; Warning: package 'GenomicFeatures' was built under R version 3.5.2</span>
-<span class="co">#&gt; Loading required package: BiocGenerics</span>
-<span class="co">#&gt; Loading required package: parallel</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'BiocGenerics'</span>
-<span class="co">#&gt; The following objects are masked from 'package:parallel':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,</span>
-<span class="co">#&gt;     clusterExport, clusterMap, parApply, parCapply, parLapply,</span>
-<span class="co">#&gt;     parLapplyLB, parRapply, parSapply, parSapplyLB</span>
-<span class="co">#&gt; The following objects are masked from 'package:stats':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     IQR, mad, sd, var, xtabs</span>
-<span class="co">#&gt; The following objects are masked from 'package:base':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     Filter, Find, Map, Position, Reduce, anyDuplicated, append,</span>
-<span class="co">#&gt;     as.data.frame, basename, cbind, colMeans, colSums, colnames,</span>
-<span class="co">#&gt;     dirname, do.call, duplicated, eval, evalq, get, grep, grepl,</span>
-<span class="co">#&gt;     intersect, is.unsorted, lapply, lengths, mapply, match, mget,</span>
-<span class="co">#&gt;     order, paste, pmax, pmax.int, pmin, pmin.int, rank, rbind,</span>
-<span class="co">#&gt;     rowMeans, rowSums, rownames, sapply, setdiff, sort, table,</span>
-<span class="co">#&gt;     tapply, union, unique, unsplit, which, which.max, which.min</span>
-<span class="co">#&gt; Loading required package: S4Vectors</span>
-<span class="co">#&gt; Loading required package: stats4</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'S4Vectors'</span>
-<span class="co">#&gt; The following object is masked from 'package:base':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     expand.grid</span>
-<span class="co">#&gt; Loading required package: IRanges</span>
-<span class="co">#&gt; Loading required package: GenomeInfoDb</span>
-<span class="co">#&gt; Loading required package: GenomicRanges</span>
-<span class="co">#&gt; Loading required package: AnnotationDbi</span>
-<span class="co">#&gt; Loading required package: Biobase</span>
-<span class="co">#&gt; Welcome to Bioconductor</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     Vignettes contain introductory material; view with</span>
-<span class="co">#&gt;     'browseVignettes()'. To cite Bioconductor, see</span>
-<span class="co">#&gt;     'citation("Biobase")', and for packages 'citation("pkgname")'.</span>
-<span class="co">#&gt; Loading required package: org.Mm.eg.db</span>
-<span class="co">#&gt; </span>
 <span class="co">#&gt;      gene_id transcript_id     gene_name</span>
 <span class="co">#&gt; 1  100009600    uc009veu.1         Zglp1</span>
 <span class="co">#&gt; 2  100009600    uc033jjg.1         Zglp1</span>
@@ -267,7 +234,33 @@
 <span class="co">#&gt; 18 100034361    uc008lzg.1        Mfap1b</span>
 <span class="co">#&gt; 19 100034363    uc009ujg.2      Tmsb15b2</span>
 <span class="co">#&gt; 20 100034684    uc007zcm.1      BC100530</span></code></pre></div>
-<p>Once the gene-transcript-exon data is prepared, the process of plotting data for one gene is demonstrated below.</p>
+<p>Next we flatten transcript exons to the gene level using the function <code><a href="../reference/flattenExonsBy.html">splicejam::flattenExonsBy()</a></code>.</p>
+<p>We also flatten exons to the transcript level, which has the effect of combining CDS exons alongside non-CDS exons. The result is used when plotting transcript exon structures.</p>
+<p>In both cases, the argument <code>genes=c("Gria1", "Ntrk2")</code> is used as a convenience to produce data for only these two genes.</p>
+<blockquote>
+<p>We recommend using detected transcripts here, with the argument <code>detectedTx</code>.</p>
+</blockquote>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
+   <span class="co"># flatten exons to the gene level</span>
+   <span class="co"># for speed, we will only process "Gria1", and "Ntrk2"</span>
+   flatExonsByGeneMm10 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/flattenExonsBy.html">flattenExonsBy</a></span>(<span class="dt">exonsByTx=</span>exonsByTxMm10,
+      <span class="dt">cdsByTx=</span>cdsByTxMm10,
+      <span class="dt">by=</span><span class="st">"gene"</span>,
+      <span class="dt">genes=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Gria1"</span>, <span class="st">"Ntrk2"</span>),
+      <span class="dt">tx2geneDF=</span>tx2geneMm10,
+      <span class="dt">verbose=</span><span class="ot">FALSE</span>);
+
+   <span class="co"># to be fancy, also flatten transcripts, to include CDS ranges   </span>
+   flatExonsByTxMm10 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/flattenExonsBy.html">flattenExonsBy</a></span>(<span class="dt">exonsByTx=</span>exonsByTxMm10,
+      <span class="dt">cdsByTx=</span>cdsByTxMm10,
+      <span class="dt">tx2geneDF=</span>tx2geneMm10,
+      <span class="dt">by=</span><span class="st">"tx"</span>,
+      <span class="dt">genes=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Gria1"</span>, <span class="st">"Ntrk2"</span>));
+}</code></pre></div>
+<div id="plot-gene-exon-models-using-gene2gg" class="section level4">
+<h4 class="hasAnchor">
+<a href="#plot-gene-exon-models-using-gene2gg" class="anchor"></a>Plot gene-exon models using gene2gg()</h4>
+<p>Once the gene-transcript-exon data is prepared, the exon structure can be plotted using the function <code><a href="../reference/gene2gg.html">splicejam::gene2gg()</a></code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
    <span class="co"># Pull out Gria1</span>
    grlGria1 &lt;-<span class="st"> </span>flatExonsByGeneMm10[[<span class="st">"Gria1"</span>]];
@@ -276,7 +269,7 @@
    ggGria1exons &lt;-<span class="st"> </span><span class="kw"><a href="../reference/gene2gg.html">gene2gg</a></span>(<span class="dt">gene=</span><span class="st">"Gria1"</span>,
       <span class="dt">flatExonsByGene=</span>flatExonsByGeneMm10,
       <span class="dt">exonLabelSize=</span><span class="dv">6</span>);
-   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggGria1exons);
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggGria1exons <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">"Gria1 exons"</span>));
 
    ## Compare to the gene structure without compressing introns
    gg1full &lt;-<span class="st"> </span><span class="kw"><a href="../reference/gene2gg.html">gene2gg</a></span>(<span class="dt">gene=</span><span class="st">"Gria1"</span>,
@@ -289,7 +282,7 @@
       <span class="dt">flatExonsByGene=</span>flatExonsByGeneMm10,
       <span class="dt">flatExonsByTx=</span>flatExonsByTxMm10,
       <span class="dt">tx2geneDF=</span>tx2geneMm10);
-   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggGria1exonsTx);
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggGria1exonsTx <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">"Gria1 (compressed introns)"</span>));
    
    ## Notice how difficult it is to see exon15 and exon16 are
    ## mutually exclusive exons
@@ -298,157 +291,52 @@
       <span class="dt">flatExonsByTx=</span>flatExonsByTxMm10,
       <span class="dt">tx2geneDF=</span>tx2geneMm10,
       <span class="dt">compressGaps=</span><span class="ot">FALSE</span>);
-   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(gg2full);
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(gg2full <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">"Gria1 (uncompressed introns)"</span>));
 
-}
-<span class="co">#&gt; Warning: package 'colorspace' was built under R version 3.5.2</span>
-<span class="co">#&gt; ##  (15:36:54) 26Mar2019:  head(df): </span>
-<span class="co">#&gt;          x     y id grl_name      gr_name gene_name subclass gene_nameExon</span>
-<span class="co">#&gt; 1 57011618 -0.15  1    Gria1 Gria1_exon1a     Gria1   noncds  Gria1_exon1a</span>
-<span class="co">#&gt; 2 57012033 -0.15  1    Gria1 Gria1_exon1a     Gria1   noncds  Gria1_exon1a</span>
-<span class="co">#&gt; 3 57012033  0.15  1    Gria1 Gria1_exon1a     Gria1   noncds  Gria1_exon1a</span>
-<span class="co">#&gt; 4 57011618  0.15  1    Gria1 Gria1_exon1a     Gria1   noncds  Gria1_exon1a</span>
-<span class="co">#&gt; 5 57012034 -0.30  2    Gria1 Gria1_exon1b     Gria1      cds  Gria1_exon1b</span>
-<span class="co">#&gt; 6 57012115 -0.30  2    Gria1 Gria1_exon1b     Gria1      cds  Gria1_exon1b</span>
-<span class="co">#&gt;   feature_type</span>
-<span class="co">#&gt; 1         exon</span>
-<span class="co">#&gt; 2         exon</span>
-<span class="co">#&gt; 3         exon</span>
-<span class="co">#&gt; 4         exon</span>
-<span class="co">#&gt; 5         exon</span>
-<span class="co">#&gt; 6         exon</span>
-<span class="co">#&gt;            x     y id grl_name       gr_name gene_name subclass</span>
-<span class="co">#&gt; 143 57327646  0.30 36    Gria1 Gria1_exon18a     Gria1      cds</span>
-<span class="co">#&gt; 144 57327443  0.30 36    Gria1 Gria1_exon18a     Gria1      cds</span>
-<span class="co">#&gt; 145 57327647 -0.15 37    Gria1 Gria1_exon18b     Gria1   noncds</span>
-<span class="co">#&gt; 146 57330244 -0.15 37    Gria1 Gria1_exon18b     Gria1   noncds</span>
-<span class="co">#&gt; 147 57330244  0.15 37    Gria1 Gria1_exon18b     Gria1   noncds</span>
-<span class="co">#&gt; 148 57327647  0.15 37    Gria1 Gria1_exon18b     Gria1   noncds</span>
-<span class="co">#&gt;     gene_nameExon feature_type</span>
-<span class="co">#&gt; 143 Gria1_exon18a         exon</span>
-<span class="co">#&gt; 144 Gria1_exon18a         exon</span>
-<span class="co">#&gt; 145 Gria1_exon18b         exon</span>
-<span class="co">#&gt; 146 Gria1_exon18b         exon</span>
-<span class="co">#&gt; 147 Gria1_exon18b         exon</span>
-<span class="co">#&gt; 148 Gria1_exon18b         exon</span>
-<span class="co">#&gt; Warning: package 'data.table' was built under R version 3.5.2</span>
-<span class="co">#&gt; Warning: Ignoring unknown parameters: fill</span>
-<span class="co">#&gt; ##  (15:36:55) 26Mar2019:  head(df): </span>
-<span class="co">#&gt;          x     y id grl_name      gr_name gene_name subclass gene_nameExon</span>
-<span class="co">#&gt; 1 57011618 -0.15  1    Gria1 Gria1_exon1a     Gria1   noncds  Gria1_exon1a</span>
-<span class="co">#&gt; 2 57012033 -0.15  1    Gria1 Gria1_exon1a     Gria1   noncds  Gria1_exon1a</span>
-<span class="co">#&gt; 3 57012033  0.15  1    Gria1 Gria1_exon1a     Gria1   noncds  Gria1_exon1a</span>
-<span class="co">#&gt; 4 57011618  0.15  1    Gria1 Gria1_exon1a     Gria1   noncds  Gria1_exon1a</span>
-<span class="co">#&gt; 5 57012034 -0.30  2    Gria1 Gria1_exon1b     Gria1      cds  Gria1_exon1b</span>
-<span class="co">#&gt; 6 57012115 -0.30  2    Gria1 Gria1_exon1b     Gria1      cds  Gria1_exon1b</span>
-<span class="co">#&gt;   feature_type</span>
-<span class="co">#&gt; 1         exon</span>
-<span class="co">#&gt; 2         exon</span>
-<span class="co">#&gt; 3         exon</span>
-<span class="co">#&gt; 4         exon</span>
-<span class="co">#&gt; 5         exon</span>
-<span class="co">#&gt; 6         exon</span>
-<span class="co">#&gt;            x     y id grl_name       gr_name gene_name subclass</span>
-<span class="co">#&gt; 143 57327646  0.30 36    Gria1 Gria1_exon18a     Gria1      cds</span>
-<span class="co">#&gt; 144 57327443  0.30 36    Gria1 Gria1_exon18a     Gria1      cds</span>
-<span class="co">#&gt; 145 57327647 -0.15 37    Gria1 Gria1_exon18b     Gria1   noncds</span>
-<span class="co">#&gt; 146 57330244 -0.15 37    Gria1 Gria1_exon18b     Gria1   noncds</span>
-<span class="co">#&gt; 147 57330244  0.15 37    Gria1 Gria1_exon18b     Gria1   noncds</span>
-<span class="co">#&gt; 148 57327647  0.15 37    Gria1 Gria1_exon18b     Gria1   noncds</span>
-<span class="co">#&gt;     gene_nameExon feature_type</span>
-<span class="co">#&gt; 143 Gria1_exon18a         exon</span>
-<span class="co">#&gt; 144 Gria1_exon18a         exon</span>
-<span class="co">#&gt; 145 Gria1_exon18b         exon</span>
-<span class="co">#&gt; 146 Gria1_exon18b         exon</span>
-<span class="co">#&gt; 147 Gria1_exon18b         exon</span>
-<span class="co">#&gt; 148 Gria1_exon18b         exon</span>
-<span class="co">#&gt; Warning: Ignoring unknown parameters: fill</span></code></pre></div>
-<p><img src="create-a-sashimi-plot_files/figure-html/gene_plot-1.png" width="672"></p>
-<pre><code>#&gt; ##  (15:36:56) 26Mar2019:  Checking flatExonsByTx. 
-#&gt; ##  (15:36:56) 26Mar2019:  head(df): 
-#&gt;          x     y id   grl_name           gr_name transcript_id gene_name
-#&gt; 1 57011618 -0.15  1 uc007izr.3 uc007izr.3_exon1a    uc007izr.3     Gria1
-#&gt; 2 57012033 -0.15  1 uc007izr.3 uc007izr.3_exon1a    uc007izr.3     Gria1
-#&gt; 3 57012033  0.15  1 uc007izr.3 uc007izr.3_exon1a    uc007izr.3     Gria1
-#&gt; 4 57011618  0.15  1 uc007izr.3 uc007izr.3_exon1a    uc007izr.3     Gria1
-#&gt; 5 57012034 -0.30  2 uc007izr.3 uc007izr.3_exon1b    uc007izr.3     Gria1
-#&gt; 6 57012115 -0.30  2 uc007izr.3 uc007izr.3_exon1b    uc007izr.3     Gria1
-#&gt;   subclass transcript_idExon feature_type gene_nameExon
-#&gt; 1   noncds uc007izr.3_exon1a         exon          &lt;NA&gt;
-#&gt; 2   noncds uc007izr.3_exon1a         exon          &lt;NA&gt;
-#&gt; 3   noncds uc007izr.3_exon1a         exon          &lt;NA&gt;
-#&gt; 4   noncds uc007izr.3_exon1a         exon          &lt;NA&gt;
-#&gt; 5      cds uc007izr.3_exon1b         exon          &lt;NA&gt;
-#&gt; 6      cds uc007izr.3_exon1b         exon          &lt;NA&gt;
-#&gt;            x    y  id grl_name       gr_name transcript_id gene_name
-#&gt; 575 57327646 4.30 144    Gria1 Gria1_exon18a          &lt;NA&gt;     Gria1
-#&gt; 576 57327443 4.30 144    Gria1 Gria1_exon18a          &lt;NA&gt;     Gria1
-#&gt; 577 57327647 3.85 145    Gria1 Gria1_exon18b          &lt;NA&gt;     Gria1
-#&gt; 578 57330244 3.85 145    Gria1 Gria1_exon18b          &lt;NA&gt;     Gria1
-#&gt; 579 57330244 4.15 145    Gria1 Gria1_exon18b          &lt;NA&gt;     Gria1
-#&gt; 580 57327647 4.15 145    Gria1 Gria1_exon18b          &lt;NA&gt;     Gria1
-#&gt;     subclass transcript_idExon feature_type gene_nameExon
-#&gt; 575      cds              &lt;NA&gt;         exon Gria1_exon18a
-#&gt; 576      cds              &lt;NA&gt;         exon Gria1_exon18a
-#&gt; 577   noncds              &lt;NA&gt;         exon Gria1_exon18b
-#&gt; 578   noncds              &lt;NA&gt;         exon Gria1_exon18b
-#&gt; 579   noncds              &lt;NA&gt;         exon Gria1_exon18b
-#&gt; 580   noncds              &lt;NA&gt;         exon Gria1_exon18b
-#&gt; Warning: Ignoring unknown parameters: fill</code></pre>
-<p><img src="create-a-sashimi-plot_files/figure-html/gene_plot-2.png" width="672"></p>
-<pre><code>#&gt; Warning: Removed 1 rows containing missing values (geom_text_repel).
-#&gt; ##  (15:36:57) 26Mar2019:  Checking flatExonsByTx. 
-#&gt; ##  (15:36:57) 26Mar2019:  head(df): 
-#&gt;          x     y id   grl_name           gr_name transcript_id gene_name
-#&gt; 1 57011618 -0.15  1 uc007izr.3 uc007izr.3_exon1a    uc007izr.3     Gria1
-#&gt; 2 57012033 -0.15  1 uc007izr.3 uc007izr.3_exon1a    uc007izr.3     Gria1
-#&gt; 3 57012033  0.15  1 uc007izr.3 uc007izr.3_exon1a    uc007izr.3     Gria1
-#&gt; 4 57011618  0.15  1 uc007izr.3 uc007izr.3_exon1a    uc007izr.3     Gria1
-#&gt; 5 57012034 -0.30  2 uc007izr.3 uc007izr.3_exon1b    uc007izr.3     Gria1
-#&gt; 6 57012115 -0.30  2 uc007izr.3 uc007izr.3_exon1b    uc007izr.3     Gria1
-#&gt;   subclass transcript_idExon feature_type gene_nameExon
-#&gt; 1   noncds uc007izr.3_exon1a         exon          &lt;NA&gt;
-#&gt; 2   noncds uc007izr.3_exon1a         exon          &lt;NA&gt;
-#&gt; 3   noncds uc007izr.3_exon1a         exon          &lt;NA&gt;
-#&gt; 4   noncds uc007izr.3_exon1a         exon          &lt;NA&gt;
-#&gt; 5      cds uc007izr.3_exon1b         exon          &lt;NA&gt;
-#&gt; 6      cds uc007izr.3_exon1b         exon          &lt;NA&gt;
-#&gt;            x    y  id grl_name       gr_name transcript_id gene_name
-#&gt; 575 57327646 4.30 144    Gria1 Gria1_exon18a          &lt;NA&gt;     Gria1
-#&gt; 576 57327443 4.30 144    Gria1 Gria1_exon18a          &lt;NA&gt;     Gria1
-#&gt; 577 57327647 3.85 145    Gria1 Gria1_exon18b          &lt;NA&gt;     Gria1
-#&gt; 578 57330244 3.85 145    Gria1 Gria1_exon18b          &lt;NA&gt;     Gria1
-#&gt; 579 57330244 4.15 145    Gria1 Gria1_exon18b          &lt;NA&gt;     Gria1
-#&gt; 580 57327647 4.15 145    Gria1 Gria1_exon18b          &lt;NA&gt;     Gria1
-#&gt;     subclass transcript_idExon feature_type gene_nameExon
-#&gt; 575      cds              &lt;NA&gt;         exon Gria1_exon18a
-#&gt; 576      cds              &lt;NA&gt;         exon Gria1_exon18a
-#&gt; 577   noncds              &lt;NA&gt;         exon Gria1_exon18b
-#&gt; 578   noncds              &lt;NA&gt;         exon Gria1_exon18b
-#&gt; 579   noncds              &lt;NA&gt;         exon Gria1_exon18b
-#&gt; 580   noncds              &lt;NA&gt;         exon Gria1_exon18b
-#&gt; Warning: Ignoring unknown parameters: fill</code></pre>
-<p><img src="create-a-sashimi-plot_files/figure-html/gene_plot-3.png" width="672"></p>
-<pre><code>#&gt; Warning: Removed 1 rows containing missing values (geom_text_repel).</code></pre>
-<p><img src="create-a-sashimi-plot_files/figure-html/gene_plot-4.png" width="672"></p>
+}</code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/gene_plot-1.png" width="672"><img src="create-a-sashimi-plot_files/figure-html/gene_plot-2.png" width="672"><img src="create-a-sashimi-plot_files/figure-html/gene_plot-3.png" width="672"><img src="create-a-sashimi-plot_files/figure-html/gene_plot-4.png" width="672"></p>
 </div>
 </div>
-<div id="coverage-and-junction-data" class="section level3">
-<h3 class="hasAnchor">
-<a href="#coverage-and-junction-data" class="anchor"></a>Coverage and Junction data</h3>
-<p>The current workflow is intended to use bigWig files as the primary source for RNA-seq coverage data.</p>
-<p>To provide bigWig coverage files to the <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> function, requires a <code>data.frame</code> with column names:</p>
+</div>
+<div id="coverage-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#coverage-data" class="anchor"></a>Coverage data</h2>
+<p>There are currently two main sources of coverage data:</p>
+<ul>
+<li>Files in <code>bigWig</code> format, accessible either as a file or web URL.</li>
+<li>GRanges objects, with one or more columns containing numeric coverage data in the form of <code>NumericList</code>. This data is generated using <code><a href="https://www.rdocumentation.org/packages/rtracklayer/topics/export">rtracklayer::import(...,type="bigWig")</a></code> but it is recommended to use the function <code><a href="../reference/getGRcoverageFromBw.html">splicejam::getGRcoverageFromBw()</a></code>.</li>
+</ul>
+<p>The next step is to define biological samples for each set of coverage data. For this step, we use a <code>data.frame</code> called <code>"filesDF"</code>, with these colnames:</p>
 <ul>
 <li>
-<code>"url"</code> - the path to a local file, or a valid web URL.</li>
-<li>
-<code>"type"</code> - the type of file, currently allowing <code>"bw"</code> for bigWig data, or <code>"junction"</code> for a BED12 formatted file containing splice junction reads.</li>
-<li>
-<code>"sample_id"</code> - a unique biological sample identifier, which can be repeated for replicate files as needed.</li>
-<li>
-<code>"scale_factor"</code> - optional column with numeric values which are multiplied by the coverage (or junction read counts), in order to define normalized values for plotting purposes.</li>
+<code>"url"</code> - one of the following:
+<ul>
+<li>path to a local file</li>
+<li>valid web URL</li>
+<li>value from <code><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames(values(covGR))</a></code> when <code>covGR</code> is supplied as a <code>GRanges</code> object containing coverage data.</li>
 </ul>
-<p>A bigWig coverage file can only store coverage for one strand, when using strand-specific RNA-seq. To provide negative strand data, either provide bigWig coverage scores which are negative values (never above zero, and containing at least one negative value), or supply a negative value for the <code>"scale_factor"</code> field as described above.</p>
+</li>
+<li>
+<code>"type"</code> - the type of file
+<ul>
+<li>
+<code>"bw"</code> for bigWig data</li>
+<li>
+<code>"junction"</code> for a BED12 file containing splice junction reads</li>
+<li>
+<code>"coverage_gr"</code> for coverage data provided in <code>covGR</code>
+</li>
+</ul>
+</li>
+<li>
+<code>"sample_id"</code> - biological sample identifier, used to aggregate files into the same plot panel.</li>
+<li>
+<code>"scale_factor"</code> - (optional) column with numeric values which are multiplied by the score of the file. These values can help normalize scores across samples.</li>
+</ul>
+<div id="coverage-in-bigwig-format" class="section level3">
+<h3 class="hasAnchor">
+<a href="#coverage-in-bigwig-format" class="anchor"></a>Coverage in bigWig format</h3>
+<p>A bigWig coverage file can only store coverage for one strand, when using strand-specific RNA-seq. To provide negative strand data, either provide bigWig coverage scores which are negative values (never above zero, and containing at least one negative value), or supply a negative value for the <code>"scale_factor"</code> field in <code>filesDF</code>.</p>
 <p>The example below defines a <code>data.frame</code> named <code>filesDF</code> which contains bigWig coverage, and splice junction data.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## assemble a data.frame
 baseurl &lt;-<span class="st"> "https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/"</span>;
@@ -509,114 +397,270 @@ filesDF;
 <span class="co">#&gt; 11       bw    CA2_DE            3</span>
 <span class="co">#&gt; 12       bw    CA2_DE            3</span></code></pre></div>
 </div>
-<div id="prepare-sashimi-data" class="section level3">
+<div id="coverage-in-granges-format" class="section level3">
 <h3 class="hasAnchor">
-<a href="#prepare-sashimi-data" class="anchor"></a>Prepare Sashimi Data</h3>
+<a href="#coverage-in-granges-format" class="anchor"></a>Coverage in GRanges format</h3>
+<p>Example coverage data is provided as data, to demonstrate the format expected. Note that in this case, there is no coverage defined for introns. The bigWig workflow by default adds gaps between exons, and retrieves coverage data for introns as well.</p>
+<p>The <code>GRanges</code> object below uses an example set of exons, <code>test_exon_wide_gr</code>, and corresponding coverage <code>GRanges</code> is <code>test_exon_wide_gr</code>. Note that both share the same names and genomic coordinates.</p>
+<p>Ultimately, coverage data should be split by the same <code>GRanges</code> used to define exons (and introns) for the Sashimi plot.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(test_exon_wide_gr);
+test_exon_wide_gr;
+<span class="co">#&gt; GRanges object with 4 ranges and 1 metadata column:</span>
+<span class="co">#&gt;         seqnames      ranges strand |   gene_name</span>
+<span class="co">#&gt;            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;</span>
+<span class="co">#&gt;   wide1     chr1     100-200      + |   TestGene1</span>
+<span class="co">#&gt;   wide2     chr1 10300-10400      + |   TestGene1</span>
+<span class="co">#&gt;   wide3     chr1 20500-20750      + |   TestGene1</span>
+<span class="co">#&gt;   wide4     chr1 39900-40000      + |   TestGene1</span>
+<span class="co">#&gt;   -------</span>
+<span class="co">#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(test_cov_wide_gr);
+test_cov_wide_gr;
+<span class="co">#&gt; GRanges object with 4 ranges and 1 metadata column:</span>
+<span class="co">#&gt;         seqnames      ranges strand |        sample_A</span>
+<span class="co">#&gt;            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; |   &lt;NumericList&gt;</span>
+<span class="co">#&gt;   wide1     chr1     100-200      + | 246,248,261,...</span>
+<span class="co">#&gt;   wide2     chr1 10300-10400      + | 195,202,198,...</span>
+<span class="co">#&gt;   wide3     chr1 20500-20750      + | 195,189,178,...</span>
+<span class="co">#&gt;   wide4     chr1 39900-40000      + | 260,257,253,...</span>
+<span class="co">#&gt;   -------</span>
+<span class="co">#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></code></pre></div>
+</div>
+<div id="plotting-exon-coverage-data" class="section level3">
+<h3 class="hasAnchor">
+<a href="#plotting-exon-coverage-data" class="anchor"></a>Plotting exon coverage data</h3>
+<p>Some basic plotting functions are provided, in fact they are rolled into the Sashimi plot itself. They can help visualize the coverage by itself.</p>
+<p>The function <code><a href="../reference/exoncov2polygon.html">splicejam::exoncov2polygon()</a></code> converts coverage to polygons, by default it returns a format convenient for <code>geom_polygon()</code> or <code><a href="https://ggforce.data-imaginist.com/reference/geom_shape.html">ggforce::geom_shape()</a></code>, but if <code>coord_style="base"</code> then it returns a matrix with blank rows separating each polygon, suitable for R base graphics using <code><a href="https://www.rdocumentation.org/packages/graphics/topics/polygon">graphics::polygon()</a></code>.</p>
+<p>The argument <code>covNames</code> must contain one of more columns in <code><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames(values(test_cov_wide_gr))</a></code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># To plot a simple GRanges object</span>
+widecovdf &lt;-<span class="st"> </span><span class="kw"><a href="../reference/exoncov2polygon.html">exoncov2polygon</a></span>(test_cov_wide_gr, <span class="dt">covNames=</span><span class="st">"sample_A"</span>);
+
+ggWide3 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(widecovdf,
+      <span class="kw">aes</span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">group=</span>gr, <span class="dt">fill=</span>gr, <span class="dt">color=</span>gr)) <span class="op">+</span>
+<span class="st">   </span>ggforce<span class="op">::</span><span class="kw"><a href="https://ggforce.data-imaginist.com/reference/geom_shape.html">geom_shape</a></span>(<span class="dt">alpha=</span><span class="fl">0.7</span>) <span class="op">+</span>
+<span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/theme_jam">theme_jam</a></span>() <span class="op">+</span>
+<span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam">scale_fill_jam</a></span>() <span class="op">+</span>
+<span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/scale_color_jam">scale_color_jam</a></span>();
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggWide3);</code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/cov_plots-1.png" width="672"></p>
+<div id="compressing-intron-coordinates" class="section level4">
+<h4 class="hasAnchor">
+<a href="#compressing-intron-coordinates" class="anchor"></a>Compressing intron coordinates</h4>
+<p>The plot above demonstrates default genomic coordinates, and shows how large intron regions are compared to typical exons (in mammals anyway.) For better visualization of the transcript exons, we compress introns using the function <code>splicejam::make_ref2compresssed()</code>. This function returns a list with several useful components, one of which is <code>trans_grc</code> which is a ggplot2 transformation function.</p>
+<p>The argument <code>nBreaks=10</code> defines 10 fixed x-axis label positions, which by default use exon boundaries. To label every exon boundary, use <code>nBreaks=Inf</code>.</p>
+<p>The key step when using ggplot2 is to use the function <code><a href="https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous">ggplot2::scale_x_continuous()</a></code>, using argument <code>trans=ref2c$trans_grc</code>. This argument defines the x-axis compression, x-axis breaks, x-axis minor breaks, and x-axis labels.</p>
+<p>Alternatively, you can use <code><a href="https://www.rdocumentation.org/packages/ggplot2/topics/coord_trans">ggplot2::coord_trans(x=ref2c$trans_grc)</a></code> however, that function only compresses the x-axis coordinates and does not define breaks or labels.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Now compress the introns keeping axis labels</span>
+ref2c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/make_ref2compressed.html">make_ref2compressed</a></span>(test_cov_wide_gr,
+   <span class="dt">nBreaks=</span><span class="dv">10</span>);
+
+<span class="co"># Repeat ggplot using ref2c$trans_grc</span>
+ggWide3c &lt;-<span class="st"> </span>ggWide3 <span class="op">+</span>
+<span class="st">   </span><span class="kw">scale_x_continuous</span>(<span class="dt">trans=</span>ref2c<span class="op">$</span>trans_grc) <span class="op">+</span>
+<span class="st">   </span><span class="kw">xlab</span>(<span class="st">"chr1 (compressed introns)"</span>) <span class="op">+</span>
+<span class="st">   </span><span class="kw">ggtitle</span>(<span class="st">"exons (compressed introns)"</span>);
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggWide3c);</code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/compress_intron_cov-1.png" width="672"></p>
+</div>
+</div>
+</div>
+<div id="splice-junction-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#splice-junction-data" class="anchor"></a>Splice junction data</h2>
+<p>Splice junction data can be provided in two forms:</p>
+<ul>
+<li>Files in <code>BED6</code> or <code>BED12</code> format, accessible either as a file or web URL. The <code>BED6</code> format uses the score column to count reads, and uses the genomic coordinates to indicate the splice junction span. The <code>BED12</code> format is inverted, so there is one base on each side, and the junction region is in the middle. In this case, the one base is trimmed off each side, and the internal region is used to indicate the junction spanning region.</li>
+<li>GRanges objects, where the <code>"score"</code> column indicates the number of splice junction reads, and the <code>"sample_id"</code> column indicates the biological sample. Therefore all splice junctions for all samples should be condensed into one <code>GRanges</code> object.</li>
+</ul>
+<p>Currently, the <code><a href="https://www.rdocumentation.org/packages/rtracklayer/topics/export">rtracklayer::import()</a></code> function does not support <code>bigBed</code> format, and there is no apparent plan to provide that capability. It is recommended to use the UCSC tool <code>bigBedToBed</code> to convert <code>bigBed</code> files to BED format.</p>
+<p>A set of sample splice junction data is provided to show the expected format of junction data. Note it has two columns <code>"score"</code> and <code>"sample_id"</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(test_junc_wide_gr);
+test_junc_wide_gr;
+<span class="co">#&gt; GRanges object with 5 ranges and 2 metadata columns:</span>
+<span class="co">#&gt;             seqnames      ranges strand |     score   sample_id</span>
+<span class="co">#&gt;                &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;numeric&gt; &lt;character&gt;</span>
+<span class="co">#&gt;   juncwide1     chr1   200-10299      + |       200    sample_A</span>
+<span class="co">#&gt;   juncwide2     chr1   200-20499      + |        50    sample_A</span>
+<span class="co">#&gt;   juncwide3     chr1 10400-20499      + |       120    sample_A</span>
+<span class="co">#&gt;   juncwide4     chr1 10400-39899      + |        80    sample_A</span>
+<span class="co">#&gt;   juncwide5     chr1 20750-39899      + |       170    sample_A</span>
+<span class="co">#&gt;   -------</span>
+<span class="co">#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></code></pre></div>
+<div id="plotting-splice-junction-data" class="section level3">
+<h3 class="hasAnchor">
+<a href="#plotting-splice-junction-data" class="anchor"></a>Plotting splice junction data</h3>
+<p>Some basic plotting functions are provided, which are rolled into the Sashimi plot. They can help visualize splice junction data directly, as needed.</p>
+<p>The key function here is <code><a href="../reference/grl2df.html">splicejam::grl2df(...,shape="junction")</a></code> which configures wide junction arcs suitable for <code><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">ggforce::geom_diagonal_wide()</a></code>. (Note that <code><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_polygon">ggplot2::geom_polygon()</a></code> would also work.)</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># To plot junctions, use grl2df(..., shape="junction")</span>
+junc_wide_df &lt;-<span class="kw"><a href="../reference/grl2df.html">grl2df</a></span>(test_junc_wide_gr,
+   <span class="dt">shape=</span><span class="st">"junction"</span>);
+
+ggWide1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(junc_wide_df,
+      <span class="kw">aes</span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">group=</span>id, <span class="dt">fill=</span>gr_name)) <span class="op">+</span>
+<span class="st">   </span>ggforce<span class="op">::</span><span class="kw"><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">geom_diagonal_wide</a></span>(<span class="dt">alpha=</span><span class="fl">0.7</span>) <span class="op">+</span>
+<span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/theme_jam">theme_jam</a></span>() <span class="op">+</span>
+<span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam">scale_fill_jam</a></span>() <span class="op">+</span>
+<span class="st">   </span><span class="kw">xlab</span>(<span class="st">"chr1"</span>) <span class="op">+</span>
+<span class="st">   </span><span class="kw">ggtitle</span>(<span class="st">"junctions (full intron width)"</span>)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggWide1);</code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/plot_test_junc-1.png" width="672"></p>
+<p>For more insight into creating a Sashimi plot manually, see the help for data <code><a href="../reference/test_junc_wide_gr.html">splicejam::test_junc_wide_gr</a></code>.</p>
+</div>
+</div>
+<div id="prepare-sashimi-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#prepare-sashimi-data" class="anchor"></a>Prepare Sashimi Data</h2>
 <p>The main function <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> is intended to assemble the sources of data together into one list of <code>data.frame</code> results which can be used to produce ggplot2 visualizations.</p>
-<p>For this example, we use the Gria1 gene in mouse mm10.</p>
+<div id="data-obtained-from-external-files" class="section level3">
+<h3 class="hasAnchor">
+<a href="#data-obtained-from-external-files" class="anchor"></a>Data obtained from external files</h3>
+<p>For this example, we use the Gria1 gene in mouse mm10, pulling from a web-accessible track hub. Note that the <code>bigBed</code> files were already converted to <code>BED12</code> format using the UCSC tool <code>bigBedToBed</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">shGria1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepareSashimi.html">prepareSashimi</a></span>(<span class="dt">gene=</span><span class="st">"Gria1"</span>,
    <span class="dt">flatExonsByGene=</span>flatExonsByGeneMm10,
    <span class="dt">minJunctionScore=</span><span class="dv">100</span>,
    <span class="dt">sample_id=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"CA1_CB"</span>, <span class="st">"CA2_CB"</span>),
-   <span class="dt">filesDF=</span>filesDF)
-<span class="co">#&gt; Warning in .local(con, format, text, ...): 'which' contains seqlevels</span>
-<span class="co">#&gt; not known to BigWig file: chr1_GL456210_random, chr1_GL456211_random,</span>
-<span class="co">#&gt; chr1_GL456212_random, chr1_GL456213_random, chr1_GL456221_random,</span>
-<span class="co">#&gt; chr4_GL456216_random, chr4_GL456350_random, chr4_JH584292_random,</span>
-<span class="co">#&gt; chr4_JH584293_random, chr4_JH584294_random, chr4_JH584295_random,</span>
-<span class="co">#&gt; chr5_GL456354_random, chr5_JH584296_random, chr5_JH584297_random,</span>
-<span class="co">#&gt; chr5_JH584298_random, chr5_JH584299_random, chr7_GL456219_random,</span>
-<span class="co">#&gt; chrX_GL456233_random, chrY_JH584300_random, chrY_JH584301_random,</span>
-<span class="co">#&gt; chrY_JH584302_random, chrY_JH584303_random, chrUn_GL456239, chrUn_GL456359,</span>
-<span class="co">#&gt; chrUn_GL456360, chrUn_GL456366, chrUn_GL456367, chrUn_GL456368,</span>
-<span class="co">#&gt; chrUn_GL456370, chrUn_GL456372, chrUn_GL456378, chrUn_GL456379,</span>
-<span class="co">#&gt; chrUn_GL456381, chrUn_GL456382, chrUn_GL456383, chrUn_GL456385,</span>
-<span class="co">#&gt; chrUn_GL456387, chrUn_GL456389, chrUn_GL456390, chrUn_GL456392,</span>
-<span class="co">#&gt; chrUn_GL456393, chrUn_GL456394, chrUn_GL456396, chrUn_JH584304</span>
-
-<span class="co">#&gt; Warning in .local(con, format, text, ...): 'which' contains seqlevels</span>
-<span class="co">#&gt; not known to BigWig file: chr1_GL456210_random, chr1_GL456211_random,</span>
-<span class="co">#&gt; chr1_GL456212_random, chr1_GL456213_random, chr1_GL456221_random,</span>
-<span class="co">#&gt; chr4_GL456216_random, chr4_GL456350_random, chr4_JH584292_random,</span>
-<span class="co">#&gt; chr4_JH584293_random, chr4_JH584294_random, chr4_JH584295_random,</span>
-<span class="co">#&gt; chr5_GL456354_random, chr5_JH584296_random, chr5_JH584297_random,</span>
-<span class="co">#&gt; chr5_JH584298_random, chr5_JH584299_random, chr7_GL456219_random,</span>
-<span class="co">#&gt; chrX_GL456233_random, chrY_JH584300_random, chrY_JH584301_random,</span>
-<span class="co">#&gt; chrY_JH584302_random, chrY_JH584303_random, chrUn_GL456239, chrUn_GL456359,</span>
-<span class="co">#&gt; chrUn_GL456360, chrUn_GL456366, chrUn_GL456367, chrUn_GL456368,</span>
-<span class="co">#&gt; chrUn_GL456370, chrUn_GL456372, chrUn_GL456378, chrUn_GL456379,</span>
-<span class="co">#&gt; chrUn_GL456381, chrUn_GL456382, chrUn_GL456383, chrUn_GL456385,</span>
-<span class="co">#&gt; chrUn_GL456387, chrUn_GL456389, chrUn_GL456390, chrUn_GL456392,</span>
-<span class="co">#&gt; chrUn_GL456393, chrUn_GL456394, chrUn_GL456396, chrUn_JH584304</span>
-
-<span class="co">#&gt; Warning in .local(con, format, text, ...): 'which' contains seqlevels</span>
-<span class="co">#&gt; not known to BigWig file: chr1_GL456210_random, chr1_GL456211_random,</span>
-<span class="co">#&gt; chr1_GL456212_random, chr1_GL456213_random, chr1_GL456221_random,</span>
-<span class="co">#&gt; chr4_GL456216_random, chr4_GL456350_random, chr4_JH584292_random,</span>
-<span class="co">#&gt; chr4_JH584293_random, chr4_JH584294_random, chr4_JH584295_random,</span>
-<span class="co">#&gt; chr5_GL456354_random, chr5_JH584296_random, chr5_JH584297_random,</span>
-<span class="co">#&gt; chr5_JH584298_random, chr5_JH584299_random, chr7_GL456219_random,</span>
-<span class="co">#&gt; chrX_GL456233_random, chrY_JH584300_random, chrY_JH584301_random,</span>
-<span class="co">#&gt; chrY_JH584302_random, chrY_JH584303_random, chrUn_GL456239, chrUn_GL456359,</span>
-<span class="co">#&gt; chrUn_GL456360, chrUn_GL456366, chrUn_GL456367, chrUn_GL456368,</span>
-<span class="co">#&gt; chrUn_GL456370, chrUn_GL456372, chrUn_GL456378, chrUn_GL456379,</span>
-<span class="co">#&gt; chrUn_GL456381, chrUn_GL456382, chrUn_GL456383, chrUn_GL456385,</span>
-<span class="co">#&gt; chrUn_GL456387, chrUn_GL456389, chrUn_GL456390, chrUn_GL456392,</span>
-<span class="co">#&gt; chrUn_GL456393, chrUn_GL456394, chrUn_GL456396, chrUn_JH584304</span>
-
-<span class="co">#&gt; Warning in .local(con, format, text, ...): 'which' contains seqlevels</span>
-<span class="co">#&gt; not known to BigWig file: chr1_GL456210_random, chr1_GL456211_random,</span>
-<span class="co">#&gt; chr1_GL456212_random, chr1_GL456213_random, chr1_GL456221_random,</span>
-<span class="co">#&gt; chr4_GL456216_random, chr4_GL456350_random, chr4_JH584292_random,</span>
-<span class="co">#&gt; chr4_JH584293_random, chr4_JH584294_random, chr4_JH584295_random,</span>
-<span class="co">#&gt; chr5_GL456354_random, chr5_JH584296_random, chr5_JH584297_random,</span>
-<span class="co">#&gt; chr5_JH584298_random, chr5_JH584299_random, chr7_GL456219_random,</span>
-<span class="co">#&gt; chrX_GL456233_random, chrY_JH584300_random, chrY_JH584301_random,</span>
-<span class="co">#&gt; chrY_JH584302_random, chrY_JH584303_random, chrUn_GL456239, chrUn_GL456359,</span>
-<span class="co">#&gt; chrUn_GL456360, chrUn_GL456366, chrUn_GL456367, chrUn_GL456368,</span>
-<span class="co">#&gt; chrUn_GL456370, chrUn_GL456372, chrUn_GL456378, chrUn_GL456379,</span>
-<span class="co">#&gt; chrUn_GL456381, chrUn_GL456382, chrUn_GL456383, chrUn_GL456385,</span>
-<span class="co">#&gt; chrUn_GL456387, chrUn_GL456389, chrUn_GL456390, chrUn_GL456392,</span>
-<span class="co">#&gt; chrUn_GL456393, chrUn_GL456394, chrUn_GL456396, chrUn_JH584304</span></code></pre></div>
+   <span class="dt">filesDF=</span>filesDF)</code></pre></div>
 </div>
-<div id="plot-sashimi-data" class="section level3">
+<div id="data-provided-using-granges-objects" class="section level3">
 <h3 class="hasAnchor">
-<a href="#plot-sashimi-data" class="anchor"></a>Plot Sashimi Data</h3>
-<p>Once the data is prepared, the plot function can be called and customized to fit the particular visualization.</p>
+<a href="#data-provided-using-granges-objects" class="anchor"></a>Data provided using GRanges objects</h3>
+<p>Alternatively, you can provide data in the form of <code>GRanges</code> objects, and not point to specific files.</p>
+<p>Note that <code>filesDF</code> is still required for coverage in <code>GRanges</code> format, in order to define the <code>"sample_id"</code> for each coverage.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(test_exon_wide_gr);
+<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(test_junc_wide_gr);
+<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(test_cov_wide_gr);
+testfilesDF &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">url=</span><span class="st">"sample_A"</span>,
+   <span class="dt">type=</span><span class="st">"coverage_gr"</span>,
+   <span class="dt">sample_id=</span><span class="st">"sample_A"</span>);
+testfilesDF;
+<span class="co">#&gt;        url        type sample_id</span>
+<span class="co">#&gt; 1 sample_A coverage_gr  sample_A</span>
+
+<span class="co"># Now prepare sashimi data</span>
+sh1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepareSashimi.html">prepareSashimi</a></span>(<span class="kw">GRangesList</span>(<span class="dt">TestGene1=</span>test_exon_gr),
+   <span class="dt">filesDF=</span>testfilesDF,
+   <span class="dt">gene=</span><span class="st">"TestGene1"</span>,
+   <span class="dt">sample_id=</span><span class="st">"sample_A"</span>,
+   <span class="dt">covGR=</span>test_cov_gr,
+   <span class="dt">juncGR=</span>test_junc_gr);</code></pre></div>
+<p>At this point, we can just plot the result.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Plot sample Sashimi data</span>
+<span class="kw"><a href="../reference/plotSashimi.html">plotSashimi</a></span>(sh1);
+<span class="co">#&gt; Scale for 'fill' is already present. Adding another scale for 'fill',</span>
+<span class="co">#&gt; which will replace the existing scale.</span></code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/plot_sashimi_gr-1.png" width="672"></p>
+</div>
+</div>
+<div id="plot-sashimi-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#plot-sashimi-data" class="anchor"></a>Plot Sashimi Data</h2>
+<p>Once the Sashimi data is prepared, the <code><a href="../reference/plotSashimi.html">splicejam::plotSashimi()</a></code> function is used to create a visualization that can be customized in several ways.</p>
+<p>The output of <code><a href="../reference/plotSashimi.html">splicejam::plotSashimi()</a></code> is a <code>ggplot</code> object, which can be printed to create a plot, or can be modified as needed.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ggGria1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/plotSashimi.html">plotSashimi</a></span>(shGria1,
    <span class="dt">junc_color=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/alpha2col">alpha2col</a></span>(<span class="st">"goldenrod1"</span>, <span class="fl">0.4</span>),
    <span class="dt">junc_fill=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/alpha2col">alpha2col</a></span>(<span class="st">"goldenrod1"</span>, <span class="fl">0.4</span>),
    <span class="dt">show=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"coverage"</span>, <span class="st">"junction"</span>, <span class="st">"junctionLabels"</span>),
    <span class="dt">fill_scheme=</span><span class="st">"sample_id"</span>);
-<span class="co">#&gt; Warning: Ignoring unknown aesthetics: fill</span>
 <span class="co">#&gt; Scale for 'fill' is already present. Adding another scale for 'fill',</span>
 <span class="co">#&gt; which will replace the existing scale.</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggGria1);</code></pre></div>
 <p><img src="create-a-sashimi-plot_files/figure-html/plot_sashimi-1.png" width="768"></p>
-<div id="adding-gene-exon-model" class="section level4">
-<h4 class="hasAnchor">
-<a href="#adding-gene-exon-model" class="anchor"></a>Adding gene-exon model</h4>
-<p>To add the gene-exon model, currently the best method is to use something like the <code>cowplot</code> package to assemble multiple ggplot visualizations together. It also helps in this context to force the <code>facet_wrap</code> to have one column, using the <code>ncol=1</code> argument.</p>
-<p>An example is shown below.</p>
-<p>Note for the Sashimi plots, the x-axis labels are hidden, since the gene-exon plot shares the same range and values.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot)) {
+<div id="adding-gene-exon-model-to-a-sashimi-plot" class="section level3">
+<h3 class="hasAnchor">
+<a href="#adding-gene-exon-model-to-a-sashimi-plot" class="anchor"></a>Adding gene-exon model to a Sashimi plot</h3>
+<p>To add a gene-exon model, and even transcript-exon models, we will use the <code>cowplot</code> package to arrange multiple <code>ggplot</code> objects together.</p>
+<p>Some guidelines:</p>
+<ul>
+<li>This step requires the <code>cowplot</code> package.</li>
+<li>Sashimi plots should have facets with one column, for example <code>+ facet_wrap(~sample_id, ncol=1)</code>.</li>
+<li>The Sashimi plot and the gene-exon plot should share identical x-axis range and axis breaks.</li>
+<li>The x-axis labels of Sashimi plot panels should be hidden, since the gene-exon plot will display the genomic coordinates.</li>
+</ul>
+<p>The example below demonstrates combining a gene-exon plot with a Sashimi plot, meeting the required guidelines.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot))) {
    cpGria1 &lt;-<span class="st"> </span>cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(
       ggGria1 <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">axis.text.x=</span><span class="kw">element_blank</span>()) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="ot">NULL</span>),
-      ggGria1exons <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="ot">NULL</span>) <span class="op">+</span><span class="st"> </span><span class="kw">expand_limits</span>(<span class="dt">y=</span><span class="op">-</span><span class="dv">2</span>),
+      ggGria1exonsTx <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="ot">NULL</span>) <span class="op">+</span><span class="st"> </span><span class="kw">expand_limits</span>(<span class="dt">y=</span><span class="op">-</span><span class="dv">2</span>),
       <span class="dt">ncol=</span><span class="dv">1</span>,
       <span class="dt">align=</span><span class="st">"v"</span>, 
       <span class="dt">axis=</span><span class="st">"lr"</span>,
       <span class="dt">rel_heights=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">4</span>,<span class="dv">4</span>));
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(cpGria1);
+}</code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/plot_sashimi_exons-1.png" width="672"></p>
+</div>
+<div id="sashimi-plot-with-unscaled-introns" class="section level3">
+<h3 class="hasAnchor">
+<a href="#sashimi-plot-with-unscaled-introns" class="anchor"></a>Sashimi plot with unscaled introns</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot)) {
+   cpWide &lt;-<span class="st"> </span>cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(<span class="dt">ncol=</span><span class="dv">1</span>,
+      ggGria1 <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_continuous</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">axis.text.x=</span><span class="kw">element_blank</span>()) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="ot">NULL</span>),
+      gg2full,
+      <span class="dt">axis=</span><span class="st">"lr"</span>,
+      <span class="dt">align=</span><span class="st">"v"</span>);
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(cpWide);
 }
-<span class="co">#&gt; Loading required package: cowplot</span>
-<span class="co">#&gt; Warning: package 'cowplot' was built under R version 3.5.2</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'cowplot'</span>
-<span class="co">#&gt; The following object is masked from 'package:ggplot2':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     ggsave</span></code></pre></div>
-<p><img src="create-a-sashimi-plot_files/figure-html/plot_sashimi_exons-1.png" width="768"></p>
+<span class="co">#&gt; Scale for 'x' is already present. Adding another scale for 'x', which</span>
+<span class="co">#&gt; will replace the existing scale.</span></code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/plot_sashimi_wide-1.png" width="672"></p>
+</div>
+<div id="zoom-into-specific-exons" class="section level3">
+<h3 class="hasAnchor">
+<a href="#zoom-into-specific-exons" class="anchor"></a>Zoom into specific exons</h3>
+<p>There are two ways to zoom into a region of interest:</p>
+<ol style="list-style-type: decimal">
+<li>Prepare one Sashimi panel, and use <code><a href="https://ggforce.data-imaginist.com/reference/facet_zoom.html">ggforce::facet_zoom()</a></code>
+</li>
+<li>Prepare Sashimi data for a specific set of exons.</li>
+</ol>
+<div id="zoom-one-panel-using-facet_zoom" class="section level4">
+<h4 class="hasAnchor">
+<a href="#zoom-one-panel-using-facet_zoom" class="anchor"></a>Zoom one panel using facet_zoom</h4>
+<p>The example below shows the <code><a href="https://ggforce.data-imaginist.com/reference/facet_zoom.html">ggforce::facet_zoom()</a></code> capability.</p>
+<p>Note the most important step is to transform the x-axis values when using <code>xlim</code> to subset the range. The <code><a href="../reference/prepareSashimi.html">splicejam::prepareSashimi()</a></code> function returns <code>x$ref2c$transform()</code> which transforms genomic coordinates into compressed coordinates.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plotSashimi.html">plotSashimi</a></span>(sh1) <span class="op">+</span><span class="st"> </span>
+<span class="st">   </span><span class="kw">facet_zoom</span>(<span class="dt">xlim=</span>sh1<span class="op">$</span>ref2c<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/transform">transform</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">370</span>, <span class="dv">410</span>)));
+<span class="co">#&gt; Scale for 'fill' is already present. Adding another scale for 'fill',</span>
+<span class="co">#&gt; which will replace the existing scale.</span></code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/zoom_sashimi-1.png" width="672"></p>
+</div>
+<div id="zoom-multiple-panels" class="section level4">
+<h4 class="hasAnchor">
+<a href="#zoom-multiple-panels" class="anchor"></a>Zoom multiple panels</h4>
+<p>In order to zoom multiple panels, a few steps must be followed:</p>
+<ul>
+<li>the data for each panel must be prepared separately,</li>
+<li>the <code><a href="https://ggforce.data-imaginist.com/reference/facet_zoom.html">ggforce::facet_zoom()</a></code> method above is applied to each plot</li>
+<li>the plots are arranged together using <code><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">cowplot::plot_grid()</a></code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">zoomStart &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/start">start</a></span>(flatExonsByGeneMm10[[<span class="st">"Gria1"</span>]][<span class="st">"Gria1_exon14"</span>]);
+zoomEnd &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/start">end</a></span>(flatExonsByGeneMm10[[<span class="st">"Gria1"</span>]][<span class="st">"Gria1_exon18a"</span>]);
+
+<span class="co"># Now prepare sashimi data</span>
+shGria1L &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"CA1_CB"</span>, <span class="st">"CA2_CB"</span>), <span class="cf">function</span>(iSample){
+   <span class="co"># devtools::load_all("/Users/wardjm/Projects/Ward/splicejam")</span>
+   shX &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepareSashimi.html">prepareSashimi</a></span>(<span class="dt">gene=</span><span class="st">"Gria1"</span>,
+      <span class="dt">flatExonsByGene=</span>flatExonsByGeneMm10,
+      <span class="dt">minJunctionScore=</span><span class="dv">100</span>,
+      <span class="dt">sample_id=</span>iSample,
+      <span class="dt">doStackJunctions=</span><span class="ot">FALSE</span>,
+      <span class="dt">filesDF=</span>filesDF);
+});
+ggGriaL &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(shGria1L, <span class="cf">function</span>(shX){
+      ggX &lt;-<span class="st"> </span><span class="kw"><a href="../reference/plotSashimi.html">plotSashimi</a></span>(shX) <span class="op">+</span>
+<span class="st">         </span><span class="kw">facet_zoom</span>(<span class="dt">xlim=</span>shX<span class="op">$</span>ref2c<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/transform">transform</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(zoomStart, zoomEnd)));
+});
+<span class="co">#&gt; Scale for 'fill' is already present. Adding another scale for 'fill',</span>
+<span class="co">#&gt; which will replace the existing scale.</span>
+<span class="co">#&gt; Scale for 'fill' is already present. Adding another scale for 'fill',</span>
+<span class="co">#&gt; which will replace the existing scale.</span>
+
+<span class="co"># now use cowplot</span>
+<span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot)) {
+   cpMulti &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/do.call">do.call</a></span>(cowplot<span class="op">::</span>plot_grid, ggGriaL);
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(cpMulti);
+}</code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/zoom_gria1-1.png" width="1152"></p>
 </div>
 </div>
 </div>
@@ -628,6 +672,11 @@ filesDF;
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#overview">Overview</a></li>
+      <li><a href="#gene-exon-structure">Gene-exon structure</a></li>
+      <li><a href="#coverage-data">Coverage data</a></li>
+      <li><a href="#splice-junction-data">Splice junction data</a></li>
+      <li><a href="#prepare-sashimi-data">Prepare Sashimi Data</a></li>
+      <li><a href="#plot-sashimi-data">Plot Sashimi Data</a></li>
       </ul>
 </div>
       </div>

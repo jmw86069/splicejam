@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
       </span>
     </div>
 
@@ -129,7 +129,8 @@
     </div>
 
     <pre class="usage"><span class='fu'>stackJunctions</span>(<span class='no'>gr</span>, <span class='kw'>scoreColname</span> <span class='kw'>=</span> <span class='st'>"score"</span>, <span class='kw'>scoreFactor</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>baseline</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>matchFrom</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>matchTo</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strandedScore</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>baseline</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -147,7 +148,30 @@ each splice junction observed.</p></td>
     <tr>
       <th>scoreFactor</th>
       <td><p>numeric value multiplied by the value in <code>scoreColname</code>
-to allow scaling the junctions across samples.</p></td>
+to allow scaling the junctions across samples. Note that
+<code>scoreFactor</code> can be a vector, which would be applied to the
+vector of scores.</p></td>
+    </tr>
+    <tr>
+      <th>matchFrom, matchTo</th>
+      <td><p>optional colnames to use when grouping
+junctions at the start and end positions. By default <code>"nameFrom"</code>
+and <code>"nameTo"</code> are used, as output from <code><a href='closestExonToJunctions.html'>closestExonToJunctions()</a></code>,
+which has the benefit of grouping junctions within the
+<code>spliceBuffer</code> distance from exon boundaries. If those values
+are not present <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(values(gr))</a></code> then the new
+default <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c("seqnames", "start", "strand")</a></code> is used for
+<code>matchFrom</code>, and <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c("seqnames", "end", "strand")</a></code> is used
+for <code>matchTo</code>. That said, if <code>matchFrom</code> or <code>matchTo</code> are supplied,
+those colnames are used from <code><a href='https://www.rdocumentation.org/packages/base/topics/as.data.frame'>as.data.frame(gr)</a></code>. Multiple colnames
+are allowed.</p></td>
+    </tr>
+    <tr>
+      <th>strandedScore</th>
+      <td><p>logical indicating whether to enforce negative
+scores for junctions on the <code>"-"</code> strand. Note that when <code>strandedScore</code>
+is true, all <code>"-"</code> strand scores will be negative, and all other
+scores with be positive.</p></td>
     </tr>
     <tr>
       <th>baseline</th>
@@ -160,10 +184,24 @@ or down on the y-axis, along with associated junctions and
 coverage data (see <code><a href='exoncov2polygon.html'>exoncov2polygon()</a></code> for another example.)</p></td>
     </tr>
     <tr>
+      <th>verbose</th>
+      <td><p>logical indicating whether to print verbose output.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>additional arguments are ignored.</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>GRanges with colnames <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c("yStart", "yEnd")</a></code> added
+to <code>values(gr)</code>, indicating the baseline y-axis position
+for the start and end of the junction arc. The score
+<code>values(gr)[[scoreColname]]</code> will reflect the adjustments
+by <code>scoreFactor</code>, and if <code>strandedScore=TRUE</code> then all
+strand <code>"-"</code> scores will be negative, all other scores
+will be positive.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -201,44 +239,57 @@ the columns <code>"nameFrom"</code> and <code>"nameTo"</code>, see examples belo
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>require</a></span>(<span class='no'>GenomicRanges</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: GenomicRanges</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: GenomeInfoDb</span></div><div class='input'><span class='no'>grExons</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRanges-class'>GRanges</a></span>(<span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"chr1"</span>, <span class='fl'>4</span>),
-   <span class='kw'>ranges</span><span class='kw'>=</span><span class='fu'>IRanges</span>(<span class='kw'>start</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>100</span>, <span class='fl'>300</span>, <span class='fl'>500</span>, <span class='fl'>900</span>),
-      <span class='kw'>end</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>200</span>, <span class='fl'>400</span>, <span class='fl'>750</span>, <span class='fl'>1000</span>)),
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>GenomicRanges</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggplot2</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggforce</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>colorjam</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>jamba</span>);
+<span class='no'>grExons</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRanges-class'>GRanges</a></span>(<span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"chr1"</span>, <span class='fl'>4</span>),
+   <span class='kw'>ranges</span><span class='kw'>=</span><span class='fu'>IRanges</span>(
+      <span class='kw'>start</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>100</span>, <span class='fl'>300</span>, <span class='fl'>500</span>,  <span class='fl'>900</span>),
+        <span class='kw'>end</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>200</span>, <span class='fl'>400</span>, <span class='fl'>750</span>, <span class='fl'>1000</span>)),
    <span class='kw'>strand</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"+"</span>, <span class='fl'>4</span>));
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grExons</span>) <span class='kw'>&lt;-</span> <span class='fu'>makeNames</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"exon"</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/length'>length</a></span>(<span class='no'>grExons</span>)),
-   <span class='kw'>suffix</span><span class='kw'>=</span><span class='st'>""</span>);</div><div class='output co'>#&gt; <span class='error'>Error in makeNames(rep("exon", length(grExons)), suffix = ""): could not find function "makeNames"</span></div><div class='input'>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grExons</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/jamba/topics/makeNames'>makeNames</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"exon"</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/length'>length</a></span>(<span class='no'>grExons</span>)),
+   <span class='kw'>suffix</span><span class='kw'>=</span><span class='st'>""</span>);
+
 <span class='no'>grJunc</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRanges-class'>GRanges</a></span>(<span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"chr1"</span>, <span class='fl'>5</span>),
    <span class='kw'>ranges</span><span class='kw'>=</span><span class='fu'>IRanges</span>(<span class='kw'>start</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>200</span>, <span class='fl'>200</span>, <span class='fl'>400</span>, <span class='fl'>400</span>, <span class='fl'>750</span>),
       <span class='kw'>end</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>300</span>, <span class='fl'>500</span>, <span class='fl'>500</span>, <span class='fl'>900</span>, <span class='fl'>900</span>)),
    <span class='kw'>strand</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"+"</span>, <span class='fl'>5</span>),
    <span class='kw'>score</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>200</span>, <span class='fl'>50</span>, <span class='fl'>160</span>, <span class='fl'>40</span>, <span class='fl'>210</span>));
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grJunc</span>) <span class='kw'>&lt;-</span> <span class='fu'>makeNames</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"junc"</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/length'>length</a></span>(<span class='no'>grJunc</span>)));</div><div class='output co'>#&gt; <span class='error'>Error in makeNames(rep("junc", length(grJunc))): could not find function "makeNames"</span></div><div class='input'>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grJunc</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/jamba/topics/makeNames'>makeNames</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"junc"</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/length'>length</a></span>(<span class='no'>grJunc</span>)));
+
 <span class='co'># quick plot showing exons and junctions using rectangles</span>
-<span class='fu'>ggplot</span>(<span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grl</span>), <span class='fu'>aes</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
+<span class='no'>grl</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRangesList-class'>GRangesList</a></span>(<span class='kw'>exons</span><span class='kw'>=</span><span class='no'>grExons</span>),
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/split'>split</a></span>(<span class='no'>grJunc</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grJunc</span>))
+   );
+<span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grl</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
    <span class='kw pkg'>ggforce</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggforce.data-imaginist.com/reference/geom_shape.html'>geom_shape</a></span>() +
-   <span class='fu'>scale_y_continuous</span>(<span class='kw'>breaks</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_along</a></span>(<span class='no'>grl</span>)-<span class='fl'>1</span>, <span class='kw'>labels</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grl</span>)) +
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous'>scale_y_continuous</a></span>(<span class='kw'>breaks</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_along</a></span>(<span class='no'>grl</span>)-<span class='fl'>1</span>, <span class='kw'>labels</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grl</span>)) +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
-   <span class='fu'>ggtitle</span>(<span class='st'>"Schematic of exons and junctions GRanges"</span>);</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grl2df(grl), aes(x = x, y = y, group = id, fill = feature_type)): could not find function "ggplot"</span></div><div class='input'>
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Schematic of exons and junctions GRanges"</span>);</div><div class='img'><img src='stackJunctions-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># add annotation for closest known exon</span>
-<span class='no'>grJunc</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='closestExonToJunctions.html'>closestExonToJunctions</a></span>(<span class='no'>grJunc</span>, <span class='no'>grExons</span>)$<span class='no'>spliceGRgene</span>;</div><div class='output co'>#&gt; <span class='error'>Error in y[i] &lt;- value: replacement has length zero</span></div><div class='input'>
+<span class='no'>grJunc</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='closestExonToJunctions.html'>closestExonToJunctions</a></span>(<span class='no'>grJunc</span>, <span class='no'>grExons</span>)$<span class='no'>spliceGRgene</span>;
+
 <span class='co'># The un-stacked junctions</span>
 <span class='no'>grlJunc2df1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grJunc</span>,
    <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>,
-   <span class='kw'>doStackJunctions</span><span class='kw'>=</span><span class='fl'>FALSE</span>);
-<span class='fu'>ggplot</span>(<span class='no'>grlJunc2df1</span>, <span class='fu'>aes</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
+   <span class='kw'>doStackJunctions</span><span class='kw'>=</span><span class='fl'>FALSE</span>);</div><div class='output co'>#&gt; <span class='error'>Error: subscript contains invalid names</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>grlJunc2df1</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
    <span class='kw pkg'>ggforce</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html'>geom_diagonal_wide</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.7</span>) +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
-   <span class='fu'>ggtitle</span>(<span class='st'>"Junctions not stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df1, aes(x = x, y = y, group = id, fill = gr_name)): could not find function "ggplot"</span></div><div class='input'>
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Junctions not stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df1, aes(x = x, y = y, group = id, fill = gr_name)): object 'grlJunc2df1' not found</span></div><div class='input'>
 <span class='co'># The stacked junctions</span>
-<span class='no'>grJunc2</span> <span class='kw'>&lt;-</span> <span class='fu'>stackJunctions</span>(<span class='no'>grJunc2</span>);</div><div class='output co'>#&gt; <span class='error'>Error in values(gr): object 'grJunc2' not found</span></div><div class='input'><span class='no'>grlJunc2df2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grJunc2</span>,
-   <span class='kw'>scoreMinimum</span><span class='kw'>=</span><span class='fl'>20</span>,
-   <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>);</div><div class='output co'>#&gt; <span class='error'>Error in "GRanges" %in% class(grl): object 'grJunc2' not found</span></div><div class='input'><span class='fu'>ggplot</span>(<span class='no'>grlJunc2df2</span>, <span class='fu'>aes</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
+<span class='no'>grJunc2</span> <span class='kw'>&lt;-</span> <span class='fu'>stackJunctions</span>(<span class='no'>grJunc</span>);
+<span class='no'>grlJunc2df2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grJunc2</span>,
+   <span class='kw'>scoreArcMinimum</span><span class='kw'>=</span><span class='fl'>20</span>,
+   <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>);</div><div class='output co'>#&gt; <span class='error'>Error: subscript contains invalid names</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>grlJunc2df2</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
    <span class='kw pkg'>ggforce</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html'>geom_diagonal_wide</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.7</span>) +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
-   <span class='fu'>ggtitle</span>(<span class='st'>"Junctions stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df2, aes(x = x, y = y, group = id, fill = gr_name)): could not find function "ggplot"</span></div><div class='input'>
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Junctions stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df2, aes(x = x, y = y, group = id, fill = gr_name)): object 'grlJunc2df2' not found</span></div><div class='input'>
 
 </div></pre>
   </div>
@@ -247,6 +298,8 @@ the columns <code>"nameFrom"</code> and <code>"nameTo"</code>, see examples belo
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
+      <li><a href="#value">Value</a></li>
+
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>

@@ -61,7 +61,25 @@ The function \code{getGRcoverageFromBw()} takes a set of bigWig files
 and returns a GRanges object whose columns contain NumericList data,
 which is the intended input for \code{exoncov2polygon()}.
 }
+\examples{
+# use some test data
+suppressPackageStartupMessages(library(GenomicRanges));
+data(test_cov_gr);
+# prepare polygon coordinates
+exondf <- exoncov2polygon(test_cov_gr, covNames="sample_A");
+# create a ggplot
+gg3 <- ggplot(exondf,
+      aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
+   ggforce::geom_shape(alpha=0.8) +
+   colorjam::theme_jam() +
+   colorjam::scale_fill_jam() +
+   colorjam::scale_color_jam();
+print(gg3);
+
+}
 \seealso{
+\code{test_cov_wide_gr()} for examples
+
 Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{addGRgaps}},
   \code{\link{annotateGRLfromGRL}},
@@ -86,12 +104,17 @@ Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{compressPolygonM}},
   \code{\link{defineDetectedTx}},
   \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
-  \code{\link{flattenExonsByGene}},
+  \code{\link{flattenExonsBy}},
   \code{\link{groups2contrasts}}, \code{\link{jamCai}},
   \code{\link{makeTx2geneFromGtf}},
   \code{\link{make_ref2compressed}},
   \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
   \code{\link{spliceGR2junctionDF}}, \code{\link{tx2ale}}
+
+Other splicejam core functions: \code{\link{gene2gg}},
+  \code{\link{grl2df}}, \code{\link{make_ref2compressed}},
+  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}}
 }
 \concept{jam GRanges functions}
 \concept{jam RNA-seq functions}
+\concept{splicejam core functions}

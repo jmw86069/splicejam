@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
       </span>
     </div>
 
@@ -131,7 +131,7 @@
     <pre class="usage"><span class='fu'>addGRLgaps</span>(<span class='no'>grl</span>, <span class='kw'>strandSpecific</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>gapname</span> <span class='kw'>=</span> <span class='st'>"gap"</span>,
   <span class='kw'>suffix</span> <span class='kw'>=</span> <span class='st'>"_v"</span>, <span class='kw'>newValues</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>feature_type</span> <span class='kw'>=</span> <span class='st'>"gap"</span>),
   <span class='kw'>default_feature_type</span> <span class='kw'>=</span> <span class='st'>"exon"</span>, <span class='kw'>feature_type_colname</span> <span class='kw'>=</span> <span class='st'>"feature_type"</span>,
-  <span class='kw'>doSort</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>doSort</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -170,6 +170,10 @@ GRanges objects. When <code>doSort=FALSE</code> the gaps are added to the end
 of each input <code>grl</code> GRanges object. Note that the GrangesList object
 is not sorted, only the GRanges objects within the GRangesList
 are sorted.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>logical indicating whether to print verbose output.</p></td>
     </tr>
     <tr>
       <th>...</th>

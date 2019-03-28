@@ -12,8 +12,10 @@ prepareSashimi(flatExonsByGene = NULL, filesDF = NULL, gene,
   "repel", "mark"), junc_label_type = c("repel", "mark", "none"),
   return_data = c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF",
   "ref2c", "all"), junc_color = alpha2col("goldenrod3", 0.7),
-  junc_fill = alpha2col("goldenrod1", 0.4), coord_method = c("coord",
-  "scale", "none"), scoreFactor = 1, verbose = FALSE, ...)
+  junc_fill = alpha2col("goldenrod1", 0.4), doStackJunctions = TRUE,
+  coord_method = c("coord", "scale", "none"), scoreFactor = 1,
+  scoreArcFactor = 0.2, scoreArcMinimum = 100, covGR = NULL,
+  juncGR = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{flatExonsByGene}{GRangesList named by gene, whose GRanges
@@ -56,13 +58,25 @@ to compress axis coordinates, to compress polygon coverage
 data in compressed regions, and to adjust splice junction arcs
 using compressed coordinates.}
 
+\item{gap_feature_type}{the default feature_type value to use for
+gaps when \code{addGaps=TRUE}.}
+
+\item{doStackJunctions}{logical indicating whether to stack
+junction arcs at each end, this argument is passed to
+\code{grl2df()} which calls \code{stackJunctions()}.}
+
+\item{covGR}{GRanges object containing coverage data in columns
+stored as NumericList class, where \code{colnames(values(covGR))}
+are present in \code{filesDF$url} when \code{files$type \%in\% "coverage_gr"}.}
+
+\item{juncGR}{GRanges object containing splice junctions, where
+\code{"score"} is used for the abundance of splice junction reads,
+and \code{"sample_id"} is used to define the biological \code{sample_id}.}
+
 \item{verbose}{logical indicating whether to print verbose output.}
 
 \item{...}{additional arguments are passed to \code{make_ref2compressed()},
 \code{getGRcoverageFromBw()}, \code{exoncov2polygon()}.}
-
-\item{gapname}{the default feature_type value to use for gaps when
-\code{addGaps=TRUE}.}
 }
 \value{
 list containing \code{ggSashimi} a ggplot2 graphical object
@@ -88,7 +102,7 @@ function for several other individual functions.
 
 At a minimum, a Sashimi plot requires three things:
 \enumerate{
-\item The gene of interest, with corresponding exon model.
+\item Exons, usually from a gene of interest.
 \item RNA-seq coverage data.
 \item Splice junction data.
 }
@@ -121,97 +135,19 @@ you may need to use \code{"https://"} format to force the use
 of secure web requests, but this requirement varies by country.
 }
 \examples{
-# First assemble a data.frame of coverage bigWig and junction BED files
-if (1 == 2) {
-## Steps below will capture all replicate coverage and junction
-## files for the Farris et all dataset, and although are relatively
-## efficient (5-10 seconds per gene figure for 8 samples), are
-## too slow to be allowed in CRAN package docs.
-##
-baseurl <- "https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/";
-bedext <- ".STAR_mm10.combinedJunctions.bed";
-bwext <- c("492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw",
-   "492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw");
-c1 <- c("CA1", "CA2");
-r1 <- c("CB", "DE");
-bedsamples <- paste0(rep(c1, each=2), "_", r1);
-bedurls <- paste0(baseurl,
-   bedsamples,
-   bedext);
-bedurls;
-bwsamples <- paste0(rep(c1, each=4), rep(r1, each=2));
-bwurls <- paste0(baseurl,
-   bwsamples,
-   bwext);
-bwurls;
-filesDF <- data.frame(url=c(bedurls, bwurls),
-   type=rep(c("junction", "bw"), c(4,8)),
-   sample_id=gsub("_", "", c(bedsamples, bwsamples)));
-filesDF;
-
-## Next assemble exons by gene from a GTF file
-if (!require(rtracklater)) {
-   stop("rtracklayer is required.");
-}
-vM12gtf <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz";
-vM12gtfBase <- basename(vM12gtf);
-if (!file.exists(vM12gtfBase)) {
-   curl::curl_download(url=vM12gtf,
-      destfile=vM12gtfBase);
-}
-localDb <- file.path(".", "vM12gtf.txdb");
-if (!file.exists(localDb)) {
-   vM12txdb <- GenomicFeatures::makeTxDbFromGFF(vM12gtfBase);
-   AnnotationDbi::saveDb(x=vM12txdb, file=localDb);
-} else {
-   vM12txdb <- AnnotationDbi::loadDb(file=localDb);
-}
-exonsByTx <- GenomicFeatures::exonsBy(vM12txdb,
-   by="tx",
-   use.names=TRUE);
-values(exonsByTx@unlistData)[,"transcript_id"] <- rep(names(exonsByTx),
-   elementNROWS(exonsByTx));
-
-## Use the GTF file to define a tx2geneDF data.frame
-tx2geneDF <- makeTx2geneFromGtf(GTF=vM12gtfBase);
-
-## Next flatten exons per gene, optionally using detectedTx
-## to limit the exon models to observed transcripts.
-flatExonsByGene <- flattenExonsByGene(exonsByTx=exonsByTx,
-#   detectedTx=detectedTx,
-   tx2geneDF=tx2geneDF);
-
-## Finally, you can choose a gene, and any sample_id from
-## filesDF$sample_id to prepare Sashimi plot data
-shGria1 <- prepareSashimi(flatExonsByGene=flatExonsByGene,
-   gene="Gria1",
-   sample_id=c("CA2CB", "CA2DE"),
-   filesDF=filesDF);
-
-## Print the structure of data returned
-jamba::sdim(shGria1);
-
-## Of initial interest is the ggplot2 sashimi plot
-print(shGria1$ggSashimi);
-
-## You can just plot coverage
-print(shGria1$ggCov);
-
-## You can just plot junction reads
-print(shGria1$ggJunc);
-
-## For more intricate manipulations, use the data.frames
-head(shGria1$covDF);
-head(shGria1$juncDF);
-
-## For kicks, the ref2c data
-sdim(shGria1$ref2c)
-## the shGria1$ref2c$trans_grc is usable in ggplot like this
-## + trans_new(x=shGria1$ref2c$trans_grc)
-## or
-## + scale_x_continuous(trans=shGria1$ref2c$trans_grc)
-
-}
+# The active example below uses sample data
+data(test_exon_gr);
+data(test_junc_gr);
+data(test_cov_gr);
+filesDF <- data.frame(url="sample_A",
+   type="coverage_gr",
+   sample_id="sample_A");
+sh1 <- prepareSashimi(GRangesList(TestGene1=test_exon_gr),
+   filesDF=filesDF,
+   gene="TestGene1",
+   covGR=test_cov_gr,
+   juncGR=test_junc_gr);
+plotSashimi(sh1);
 
 }
 \seealso{
@@ -221,6 +157,12 @@ Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},
   \code{\link{grl2df}}, \code{\link{plotSashimi}},
   \code{\link{stackJunctions}}
+
+Other splicejam core functions: \code{\link{exoncov2polygon}},
+  \code{\link{gene2gg}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}},
+  \code{\link{plotSashimi}}
 }
 \concept{RNA-seq functions}
 \concept{jam plot functions}
+\concept{splicejam core functions}

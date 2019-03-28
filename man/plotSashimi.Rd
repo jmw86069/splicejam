@@ -61,6 +61,21 @@ and creates a ggplot graphical object ready for visualization.
 As a result, this function provides several arguments to
 customize the visualization.
 }
+\examples{
+data(test_exon_gr);
+data(test_junc_gr);
+data(test_cov_gr);
+filesDF <- data.frame(url="sample_A",
+   type="coverage_gr",
+   sample_id="sample_A");
+sh1 <- prepareSashimi(GRangesList(TestGene1=test_exon_gr),
+   filesDF=filesDF,
+   gene="TestGene1",
+   covGR=test_cov_gr,
+   juncGR=test_junc_gr);
+plotSashimi(sh1);
+
+}
 \seealso{
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},
@@ -68,6 +83,12 @@ Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{stackJunctions}}
 
 Other jam ggplot2 functions: \code{\link{gene2gg}}
+
+Other splicejam core functions: \code{\link{exoncov2polygon}},
+  \code{\link{gene2gg}}, \code{\link{grl2df}},
+  \code{\link{make_ref2compressed}},
+  \code{\link{prepareSashimi}}
 }
 \concept{jam ggplot2 functions}
 \concept{jam plot functions}
+\concept{splicejam core functions}

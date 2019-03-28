@@ -29,6 +29,7 @@
 #'    to train the transformation.
 #'
 #' @family jam GRanges functions
+#' @family splicejam core functions
 #'
 #' @param gr GRanges object containing regions not to compress. Regions
 #'    which are unstranded gaps are compressed to fixed width.
@@ -48,7 +49,30 @@
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
-#' @seealso `grl2df()`
+#' @seealso `grl2df()`, `test_junc_wide_gr`
+#'
+#' @examples
+#' library(GenomicRanges);
+#' library(ggplot2);
+#' data(test_exon_wide_gr);
+#' # To plot a simple GRanges object
+#' widedf <- grl2df(test_exon_wide_gr);
+#' ggWide <- ggplot(widedf, aes(x=x, y=y, group=id, fill=feature_type)) +
+#'    geom_polygon() +
+#'    colorjam::theme_jam() +
+#'    colorjam::scale_fill_jam() +
+#'    xlab("chr1") +
+#'    ggtitle("exons (introns as-is)")
+#' print(ggWide);
+#'
+#' # Now compress the introns keeping axis labels
+#' ref2c <- make_ref2compressed(test_exon_wide_gr,
+#'    nBreaks=10);
+#' ggWide2 <- ggWide +
+#'    scale_x_continuous(trans=ref2c$trans_grc) +
+#'    xlab("chr1 (compressed introns)") +
+#'    ggtitle("exons (compressed introns)")
+#' print(ggWide2);
 #'
 #' @export
 make_ref2compressed <- function
@@ -623,6 +647,7 @@ compressPolygonM <- function
 #'
 #' @family jam GRanges functions
 #' @family jam RNA-seq functions
+#' @family splicejam core functions
 #'
 #' @param gr GRanges where `colnames(values(gr))` is present in `covNames`,
 #'    and contains data with class `NumericList`.
@@ -642,6 +667,23 @@ compressPolygonM <- function
 #'    used to compress the GRanges coordinates.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
+#'
+#' @seealso `test_cov_wide_gr()` for examples
+#'
+#' @examples
+#' # use some test data
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#' data(test_cov_gr);
+#' # prepare polygon coordinates
+#' exondf <- exoncov2polygon(test_cov_gr, covNames="sample_A");
+#' # create a ggplot
+#' gg3 <- ggplot(exondf,
+#'       aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
+#'    ggforce::geom_shape(alpha=0.8) +
+#'    colorjam::theme_jam() +
+#'    colorjam::scale_fill_jam() +
+#'    colorjam::scale_color_jam();
+#' print(gg3);
 #'
 #' @export
 exoncov2polygon <- function
@@ -664,6 +706,7 @@ exoncov2polygon <- function
    ## - input GRanges with coverages in the values columns
    ##   stored as NumericList
    ## create polygons
+   suppressPackageStartupMessages(library(GenomicRanges));
    coord_style <- match.arg(coord_style);
 
    if (!igrepHas("granges", class(gr))) {
@@ -1049,7 +1092,7 @@ combineGRcoverage <- function
 #'
 #' At a minimum, a Sashimi plot requires three things:
 #'
-#' 1. The gene of interest, with corresponding exon model.
+#' 1. Exons, usually from a gene of interest.
 #' 2. RNA-seq coverage data.
 #' 3. Splice junction data.
 #'
@@ -1124,107 +1167,39 @@ combineGRcoverage <- function
 #'    to compress axis coordinates, to compress polygon coverage
 #'    data in compressed regions, and to adjust splice junction arcs
 #'    using compressed coordinates.
-#' @param gapname the default feature_type value to use for gaps when
-#'    `addGaps=TRUE`.
+#' @param gap_feature_type the default feature_type value to use for
+#'    gaps when `addGaps=TRUE`.
+#' @param doStackJunctions logical indicating whether to stack
+#'    junction arcs at each end, this argument is passed to
+#'    `grl2df()` which calls `stackJunctions()`.
+#' @param covGR GRanges object containing coverage data in columns
+#'    stored as NumericList class, where `colnames(values(covGR))`
+#'    are present in `filesDF$url` when `files$type %in% "coverage_gr"`.
+#' @param juncGR GRanges object containing splice junctions, where
+#'    `"score"` is used for the abundance of splice junction reads,
+#'    and `"sample_id"` is used to define the biological `sample_id`.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are passed to `make_ref2compressed()`,
 #'    `getGRcoverageFromBw()`, `exoncov2polygon()`.
 #'
 #' @family RNA-seq functions
 #' @family jam plot functions
+#' @family splicejam core functions
 #'
 #' @examples
-#' # First assemble a data.frame of coverage bigWig and junction BED files
-#' if (1 == 2) {
-#' ## Steps below will capture all replicate coverage and junction
-#' ## files for the Farris et all dataset, and although are relatively
-#' ## efficient (5-10 seconds per gene figure for 8 samples), are
-#' ## too slow to be allowed in CRAN package docs.
-#' ##
-#' baseurl <- "https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/";
-#' bedext <- ".STAR_mm10.combinedJunctions.bed";
-#' bwext <- c("492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw",
-#'    "492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw");
-#' c1 <- c("CA1", "CA2");
-#' r1 <- c("CB", "DE");
-#' bedsamples <- paste0(rep(c1, each=2), "_", r1);
-#' bedurls <- paste0(baseurl,
-#'    bedsamples,
-#'    bedext);
-#' bedurls;
-#' bwsamples <- paste0(rep(c1, each=4), rep(r1, each=2));
-#' bwurls <- paste0(baseurl,
-#'    bwsamples,
-#'    bwext);
-#' bwurls;
-#' filesDF <- data.frame(url=c(bedurls, bwurls),
-#'    type=rep(c("junction", "bw"), c(4,8)),
-#'    sample_id=gsub("_", "", c(bedsamples, bwsamples)));
-#' filesDF;
-#'
-#' ## Next assemble exons by gene from a GTF file
-#' if (!require(rtracklater)) {
-#'    stop("rtracklayer is required.");
-#' }
-#' vM12gtf <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz";
-#' vM12gtfBase <- basename(vM12gtf);
-#' if (!file.exists(vM12gtfBase)) {
-#'    curl::curl_download(url=vM12gtf,
-#'       destfile=vM12gtfBase);
-#' }
-#' localDb <- file.path(".", "vM12gtf.txdb");
-#' if (!file.exists(localDb)) {
-#'    vM12txdb <- GenomicFeatures::makeTxDbFromGFF(vM12gtfBase);
-#'    AnnotationDbi::saveDb(x=vM12txdb, file=localDb);
-#' } else {
-#'    vM12txdb <- AnnotationDbi::loadDb(file=localDb);
-#' }
-#' exonsByTx <- GenomicFeatures::exonsBy(vM12txdb,
-#'    by="tx",
-#'    use.names=TRUE);
-#' values(exonsByTx@unlistData)[,"transcript_id"] <- rep(names(exonsByTx),
-#'    elementNROWS(exonsByTx));
-#'
-#' ## Use the GTF file to define a tx2geneDF data.frame
-#' tx2geneDF <- makeTx2geneFromGtf(GTF=vM12gtfBase);
-#'
-#' ## Next flatten exons per gene, optionally using detectedTx
-#' ## to limit the exon models to observed transcripts.
-#' flatExonsByGene <- flattenExonsByGene(exonsByTx=exonsByTx,
-#' #   detectedTx=detectedTx,
-#'    tx2geneDF=tx2geneDF);
-#'
-#' ## Finally, you can choose a gene, and any sample_id from
-#' ## filesDF$sample_id to prepare Sashimi plot data
-#' shGria1 <- prepareSashimi(flatExonsByGene=flatExonsByGene,
-#'    gene="Gria1",
-#'    sample_id=c("CA2CB", "CA2DE"),
-#'    filesDF=filesDF);
-#'
-#' ## Print the structure of data returned
-#' jamba::sdim(shGria1);
-#'
-#' ## Of initial interest is the ggplot2 sashimi plot
-#' print(shGria1$ggSashimi);
-#'
-#' ## You can just plot coverage
-#' print(shGria1$ggCov);
-#'
-#' ## You can just plot junction reads
-#' print(shGria1$ggJunc);
-#'
-#' ## For more intricate manipulations, use the data.frames
-#' head(shGria1$covDF);
-#' head(shGria1$juncDF);
-#'
-#' ## For kicks, the ref2c data
-#' sdim(shGria1$ref2c)
-#' ## the shGria1$ref2c$trans_grc is usable in ggplot like this
-#' ## + trans_new(x=shGria1$ref2c$trans_grc)
-#' ## or
-#' ## + scale_x_continuous(trans=shGria1$ref2c$trans_grc)
-#'
-#' }
+#' # The active example below uses sample data
+#' data(test_exon_gr);
+#' data(test_junc_gr);
+#' data(test_cov_gr);
+#' filesDF <- data.frame(url="sample_A",
+#'    type="coverage_gr",
+#'    sample_id="sample_A");
+#' sh1 <- prepareSashimi(GRangesList(TestGene1=test_exon_gr),
+#'    filesDF=filesDF,
+#'    gene="TestGene1",
+#'    covGR=test_cov_gr,
+#'    juncGR=test_junc_gr);
+#' plotSashimi(sh1);
 #'
 #' @export
 prepareSashimi <- function
@@ -1246,8 +1221,13 @@ prepareSashimi <- function
  return_data=c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF", "ref2c", "all"),
  junc_color=alpha2col("goldenrod3", 0.7),
  junc_fill=alpha2col("goldenrod1", 0.4),
+ doStackJunctions=TRUE,
  coord_method=c("coord", "scale", "none"),
  scoreFactor=1,
+ scoreArcFactor=0.2,
+ scoreArcMinimum=100,
+ covGR=NULL,
+ juncGR=NULL,
  verbose=FALSE,
  ...)
 {
@@ -1308,7 +1288,7 @@ prepareSashimi <- function
    ############################################
    ## Get coverage data
    bwFilesDF <- filesDF[filesDF$type %in% "bw" &
-         filesDF$sample_id %in% sample_id,,drop=FALSE];
+      filesDF$sample_id %in% sample_id,,drop=FALSE];
    bwUrls <- nameVector(bwFilesDF[,c("url","url")]);
    bwSamples <- nameVector(bwFilesDF[,c("sample_id","url")]);
    bwUrlsL <- split(bwUrls, unname(bwSamples));
@@ -1335,7 +1315,56 @@ prepareSashimi <- function
       printDebug("GRanges:");
       print(gr);
    }
+   if (length(covGR) > 0) {
+      ## Input is pre-processed coverage data
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "Preparing coverage from covGR");
+      }
+      covGRuse <- covGR[names(covGR) %in% names(gr)];
+      if (length(covGRuse) == 0) {
+         warning("Supplied coverage covGR did not have names matching gr");
+      } else {
+         covDF <- filesDF[filesDF$type %in% "coverage_gr" &
+               filesDF$url %in% colnames(values(covGR)) &
+               filesDF$sample_id %in% sample_id,,drop=FALSE];
+         if (nrow(covDF) == 0) {
+            stop("Supplied coverage covGR does not have colnames in filesDF$url with filesDF$type == 'coverage_gr'");
+         }
+         covUrls <- nameVector(covDF[,c("url","url")]);
+         covSamples <- nameVector(covDF[,c("sample_id","url")]);
+         covGRuse <- covGRuse[,covUrls];
+         if ("scale_factor" %in% colnames(covDF)) {
+            covScaleFactors <- rmNA(naValue=1,
+               covDF$scale_factor);
+         } else {
+            covScaleFactors <- rep(1, length(covUrls));
+         }
+         ## Combine coverage per strand
+         covGR2 <- combineGRcoverage(covGRuse,
+            covName=covSamples,
+            scaleFactors=covScaleFactors,
+            covNames=names(covUrls));
+         ## Obtain the new set of covNames
+         covNames <- attr(covGR2, "covNames");
+         covName <- attr(covGR2, "covName");
+         ## Create polygon data.frame
+         covDF <- exoncov2polygon(covGR2,
+            ref2c=ref2c,
+            covNames=covNames,
+            sample_id=covName,
+            coord_style="fortify",
+            ...);
+         if (any(c("all", "covDF") %in% return_data)) {
+            retVals$covDF <- covDF;
+         }
+      }
+   }
    if (length(bwUrls) > 0) {
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "Preparing coverage from bigWig filesDF");
+      }
       covGR <- getGRcoverageFromBw(gr=gr,
          bwUrls=bwUrls,
          addGaps=addGaps,
@@ -1451,8 +1480,36 @@ prepareSashimi <- function
 
    ############################################
    ## Load Junctions
+   if (length(juncGR) > 0) {
+      if (!"sample_id" %in% colnames(values(juncGR))) {
+         stop("juncGR must have 'sample_id' in colnames(values(juncGR)).");
+      }
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "Preparing junctions from juncGR");
+      }
+      juncGRuse <- juncGR[values(juncGR)[["sample_id"]] %in% sample_id];
+      if (length(juncGRuse) == 0) {
+         warning("Supplied junctions juncGR did not have names matching sample_id");
+      } else {
+         ## Create junction summary data.frame
+         if (verbose) {
+            printDebug("prepareSashimi(): ",
+               "running spliceGR2junctionDF for juncGR()");
+         }
+         juncDF1 <- spliceGR2junctionDF(spliceGRgene=juncGR,
+            exonsGR=gr,
+            sampleColname="sample_id");
+         ## Subset junctions by minimum score
+         if (length(minJunctionScore) > 0 && minJunctionScore > 0) {
+            juncDF1 <- subset(juncDF1, abs(score) >= minJunctionScore);
+         }
+      }
+   } else {
+      juncDF1 <- NULL;
+   }
    juncFilesDF <- filesDF[filesDF$type %in% "junction" &
-         filesDF$sample_id %in% sample_id,c("url","sample_id"),drop=FALSE];
+      filesDF$sample_id %in% sample_id,c("url","sample_id"),drop=FALSE];
    juncUrls <- nameVector(juncFilesDF);
    juncSamples <- nameVector(juncFilesDF[,c("sample_id","sample_id")]);
    juncUrlsL <- split(juncUrls, juncSamples);
@@ -1463,8 +1520,6 @@ prepareSashimi <- function
       juncScaleFactors <- rep(1, length(juncUrls));
    }
    names(juncScaleFactors) <- names(juncUrls);
-   #juncUrls <- nameVector(
-   #   filesDF[filesDF$type %in% "junction" & filesDF$sample_id %in% sample_id,c("url","sample_id"),drop=FALSE]);
    if (verbose) {
       printDebug("prepareSashimi(): ",
          "juncUrls:");
@@ -1492,149 +1547,181 @@ prepareSashimi <- function
       ## Create junction summary data.frame
       if (verbose) {
          printDebug("prepareSashimi(): ",
-            "running spliceGR2junctionDF()");
+            "running spliceGR2junctionDF for juncBedGR()");
       }
-      juncDF1 <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
+      juncDF1f <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
          exonsGR=gr,
          sampleColname="sample_id");
+      if (length(juncDF1) > 0) {
+         juncDF1 <- rbind(juncDF1, juncDF1f);
+      } else {
+         juncDF1 <- juncDF1f;
+      }
       ## Subset junctions by minimum score
       if (length(minJunctionScore) > 0 && minJunctionScore > 0) {
          juncDF1 <- subset(juncDF1, abs(score) >= minJunctionScore);
       }
-      if (nrow(juncDF1) > 0) {
-         juncGR <- as(renameColumn(juncDF1, from="ref", to="seqnames"), "GRanges");
-         names(juncGR) <- makeNames(values(juncGR)[,"nameFromToSample"]);
-         ## Convert junctions to polygons usable by geom_diagonal_wide()
-         #      juncPolyDF <- grl2df(setNames(GRangesList(subset(juncGR, score > minJunctionScore)), sample_id),
-         if (length(baseline) == 0) {
-            baseline <- 0;
-         }
-         juncDF <- grl2df(split(juncGR, values(juncGR)[["sample_id"]]),
-            shape="junction",
-            ref2c=ref2c,
-            scoreFactor=juncScaleFactors,
-            scoreArcFactor=0.3,
-            baseline=baseline,
-            verbose=verbose,
-            doStackJunctions=TRUE);
-         if (!"sample_id" %in% colnames(juncDF)) {
-            juncDF <- renameColumn(juncDF,
-               from="grl_name",
-               to="sample_id");
-         }
-         juncDF <- juncDF[,!colnames(juncDF) %in% c("grl_name"),drop=FALSE];
+   }
+   if (nrow(juncDF1) > 0) {
+      juncGR <- as(renameColumn(juncDF1, from="ref", to="seqnames"), "GRanges");
+      names(juncGR) <- makeNames(values(juncGR)[,"nameFromToSample"]);
+      ## Convert junctions to polygons usable by geom_diagonal_wide()
+      #      juncPolyDF <- grl2df(setNames(GRangesList(subset(juncGR, score > minJunctionScore)), sample_id),
+      if (length(baseline) == 0) {
+         baseline <- 0;
+      }
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "calling grl2df() on juncGR");
+         print(head(juncGR));
+         print(head(GenomicRanges::split(juncGR, values(juncGR)[["sample_id"]])));
+         printDebug("prepareSashimi(): ",
+            "calling grl2df() on juncGR");
+      }
+      juncDF <- grl2df(
+         GenomicRanges::split(juncGR, values(juncGR)[["sample_id"]]),
+         shape="junction",
+         ref2c=ref2c,
+         scoreFactor=juncScaleFactors,
+         scoreArcFactor=scoreArcFactor,
+         scoreArcMinimum=scoreArcMinimum,
+         baseline=baseline,
+         doStackJunctions=doStackJunctions,
+         verbose=verbose,
+         ...);
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "called grl2df() on juncGR");
+      }
+      if (!"sample_id" %in% colnames(juncDF)) {
+         juncDF <- renameColumn(juncDF,
+            from="grl_name",
+            to="sample_id");
+      }
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "dim(juncDF):", dim(juncDF));
+      }
+      juncDF <- juncDF[,!colnames(juncDF) %in% c("grl_name"),drop=FALSE];
 
-         if (any(c("all", "juncDF") %in% return_data)) {
-            retVals$juncDF1 <- juncDF1;
-            retVals$juncDF <- juncDF;
-         }
-
-         ## define junction label positions
-         #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
-         juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=makeNames(id)),
-            grepl("_v1_v[23]$", id_name));
-         juncLabelDF <- renameColumn(
-            shrinkMatrix(juncLabelDF1[,c("x","y","score"),drop=FALSE],
-               groupBy=juncLabelDF1[,"nameFromToSample"]),
-            from="groupBy",
-            to="nameFromToSample");
-         juncLabelDF[,c("nameFromTo","sample_id")] <- rbindList(
-            strsplit(juncLabelDF[,"nameFromToSample"], ":!:"));
-         juncLabelDF[,c("nameFrom", "nameTo")] <- rbindList(
-            strsplit(juncLabelDF[,"nameFromTo"], " "));
-
-         if (any(c("all", "juncLabelDF") %in% return_data)) {
-            retVals$juncLabelDF <- juncLabelDF;
-         }
-      } else {
-         juncDF1 <- NULL;
-         juncDF <- NULL;
-         juncLabelDF <- NULL;
+      if (any(c("all", "juncDF") %in% return_data)) {
+         retVals$juncGR <- juncGR;
+         retVals$juncDF1 <- juncDF1;
+         retVals$juncDF <- juncDF;
       }
 
-      ## ggplot2 for junction data
-      if (1 == 2 && any(c("all","ggJunc","ggSashimi") %in% return_data)) {
-         ggJunc <- ggplot(juncDF) +
-            ggforce::geom_diagonal_wide(aes(x=x, y=y, group=id),
-               color=junc_color,
-               fill=junc_fill,
-               strength=0.4);
-         ggJunc <- ggJunc +
-            facet_grid(~sample_id, scales="free_y");
-         if ("mark" %in% junc_label_type) {
-            ggJuncLabels <- ggforce::geom_mark_hull(data=juncLabelDF,
-               aes(x=x, y=y, group=nameFromToSample, label=round(score)),
-               fill="transparent",
-               label.fontsize=10,
-               label.fill=alpha2col("white", 0.3),
-               colour="transparent",
-               concavity=1,
-               label.buffer=unit(2, 'mm'),
-               con.cap=0,
-               expand=unit(1, "mm"),
-               con.border="one",
-               con.colour="navy",
-               label.colour="navy");
-            ggJunc <- ggJunc + ggJuncLabels;
-         } else if ("repel" %in% junc_label_type) {
-            yMax <- max(juncLabelDF$y);
-            yUnit <- 10^floor(log10(yMax));
-            yMaxUse <- floor(yMax/yUnit)*yUnit;yMaxUse;
-            ggJuncLabels <- ggrepel::geom_text_repel(data=juncLabelDF,
-               inherit.aes=FALSE,
-               aes(x=x, y=y,
-                  group=nameFromToSample,
-                  fill="transparent",
-                  label=scales::comma(round(score))),
-               #nudge_y=yMaxUse-juncLabelDF$y, vjust=1, ## Used to fix labels at certain height
-               angle=90, vjust=0.5,
-               direction="y",
-               point.padding=0
-               );
-            ggJunc <- ggJunc + ggJuncLabels;
-         } else {
-            ggJuncLabels <- NULL;
-         }
-         ggJunc <- ggJunc +
-            theme_jam() + scale_fill_jam();
-         if ("scale" %in% coord_method) {
-            ggJunc <- ggJunc +
-               scale_x_continuous(trans=ref2c$trans_grc);
-         } else if ("coord" %in% coord_method) {
-            ggJunc <- ggJunc +
-               coord_trans(x=ref2c$trans_grc);
-         }
-         if (any(c("all", "ggJunc") %in% return_data)) {
-            retVals$ggJunc <- ggJunc;
-         }
+      ## define junction label positions
+      #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
+      juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=makeNames(id)),
+         grepl("_v1_v[23]$", id_name));
+      juncLabelDF <- renameColumn(
+         shrinkMatrix(juncLabelDF1[,c("x","y","score"),drop=FALSE],
+            groupBy=juncLabelDF1[,"nameFromToSample"]),
+         from="groupBy",
+         to="nameFromToSample");
+      juncLabelDF[,c("nameFromTo","sample_id")] <- rbindList(
+         strsplit(juncLabelDF[,"nameFromToSample"], ":!:"));
+      juncLabelDF[,c("nameFrom", "nameTo")] <- rbindList(
+         strsplit(juncLabelDF[,"nameFromTo"], " "));
+
+      if (any(c("all", "juncLabelDF") %in% return_data)) {
+         retVals$juncLabelDF <- juncLabelDF;
       }
+   } else {
+      juncDF1 <- NULL;
+      juncDF <- NULL;
+      juncLabelDF <- NULL;
    }
 
-   #########################################
-   ## ggplot2 for Sashimi plot
-   if (1 == 2 && any(c("all","ggSashimi") %in% return_data)) {
-      if (length(bwUrls) > 0) {
-         ggSashimi <- ggCov;
-         if (length(juncUrls) > 0) {
-            ggSashimi <- ggSashimi +
-               geom_diagonal_wide(data=juncDF,
-                  aes(x=x, y=y, group=id),
-                  color=junc_color,
-                  fill=junc_fill,
-                  strength=0.4);
-            if (length(ggJuncLabels) > 0) {
-               ggSashimi <- ggSashimi + ggJuncLabels;
-            }
-         }
-      } else {
-         if (length(juncUrls) > 0) {
-            ggSashimi <- ggJunc;
-         } else {
-            ggSashimi <- NULL;
-         }
-      }
-      retVals$ggSashimi <- ggSashimi;
-   }
    return(retVals);
 }
 
+#' maximum overlapping internal junction score
+#'
+#' maximum overlapping internal junction score
+#'
+#' This function is intended for internal use, and calculates the
+#' maximum score for junction GRanges for the special case where:
+#'
+#' * a junction range overlaps the start or end of another junction
+#' * the start or end of the other junction is internal, that is
+#' it does not overlap the same start or end.
+#' * overlaps are constrained to the same `"sample_id"` stored
+#' in `values(juncGR)$sample_id`.
+#'
+#' The goal is to determine the highest score contained
+#' inside each junction region, so that the junction arc height
+#' can be defined higher in order to minimize junction arc
+#' overlaps.
+#'
+#' @return numeric vector named by `names(juncGR)` whose values
+#'    are the maximum score of internal overlapping junction ends.
+#'
+#' @param juncGR GRanges containing splice junctions, with numeric
+#'    column `scoreColname` representing the abundance of splice
+#'    junction-spanning sequence reads.
+#' @param scoreColname,sampleColname colnames in `values(juncGR)`
+#'    which define the junction score, and the `"sample_id"`.
+#' @param verbose logical indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
+internal_junc_score <- function
+(juncGR,
+ scoreColname="score",
+ sampleColname="sample_id",
+ verbose=FALSE,
+   ...)
+{
+   ## Purpose is to sum scores for junctions which overlap
+   ## junction ends inside the junction boundary.
+   if (verbose) {
+      printDebug("internal_junc_score(): ",
+         "Defining flank ends of each junction.");
+   }
+   juncEndsGR <- c(
+      flank(juncGR[,c(scoreColname,sampleColname)],
+         start=TRUE,
+         width=1),
+      flank(juncGR[,c(scoreColname,sampleColname)],
+         start=FALSE,
+         width=1));
+   values(juncEndsGR)$side <- rep(c("start", "end"), each=length(juncGR));
+   values(juncEndsGR)$id <- rep(seq_along(juncGR), 2);
+   juncEndsDF <- as.data.frame(unname(juncEndsGR));
+   juncGroup <- pasteByRow(juncEndsDF[,c(sampleColname, "seqnames", "start", "strand", "side")]);
+   juncEndsRed <- shrinkMatrix(juncEndsDF[[scoreColname]],
+      groupBy=juncGroup,
+      shrinkFunc=sum);
+   if (verbose) {
+      printDebug("internal_junc_score(): ",
+         "dim(juncEndsRed):", dim(juncEndsRed));
+   }
+   juncEndsRefGR <- juncEndsGR[match(juncEndsRed$groupBy, juncGroup)];
+   values(juncEndsRefGR)[[scoreColname]] <- juncEndsRed$x;
+   if (verbose) {
+      printDebug("internal_junc_score(): ",
+         "length(juncEndsRefGR):", length(juncEndsRefGR));
+   }
+
+   fo1 <- findOverlaps(juncGR, juncEndsRefGR);
+   fo1df <- data.frame(q=queryHits(fo1),
+      s=subjectHits(fo1));
+   if (verbose) {
+      printDebug("internal_junc_score(): ",
+         "dim(fo1df):", dim(fo1df));
+   }
+   #fo1df$qName <- names(juncGR)[fo1df$q];
+   #fo1df$sName <- names(juncEndsRefGR)[fo1df$s];
+   fo1df$qSample <- values(juncGR[fo1df$q])[[sampleColname]];
+   fo1df$sSample <- values(juncEndsRefGR[fo1df$s])[[sampleColname]];
+   fo1df$sScore <- values(juncEndsRefGR[fo1df$s])[[scoreColname]];
+
+   fo1dfuse <- subset(fo1df,
+      #!qName == sName &
+      qSample == sSample);
+
+   intScore <- rmNA(naValue=0,
+      max(List(split(fo1dfuse$sScore, fo1dfuse$q)))[as.character(seq_along(juncGR))]);
+   names(intScore) <- names(juncGR);
+   return(intScore);
+}

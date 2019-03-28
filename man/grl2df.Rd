@@ -9,8 +9,9 @@ grl2df(grl, keepGRvalues = TRUE, keepGRLvalues = FALSE,
   noncds = 0.3, intron = 0.01, gap = 0.01, `NA` = 0.01),
   width_colname = c("subclass", "feature_type"), shape = c("rectangle",
   "junction"), baseline = NULL, scoreColname = "score",
-  scoreMinimum = 100, scoreFactor = 1, scoreArcFactor = 0.5,
-  doStackJunctions = TRUE, ref2c = NULL, verbose = FALSE, ...)
+  scoreArcMinimum = 100, scoreFactor = 1, scoreArcFactor = 0.5,
+  doStackJunctions = TRUE, strandedScore = TRUE, ref2c = NULL,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{grl}{GRangesList, or GRanges which will be converted to a
@@ -39,7 +40,7 @@ is used.}
 \item{shape}{character string indicating whether input data should
 be processed as rectangular segments or splice junction arcs.}
 
-\item{scoreColname, scoreMinimum, scoreFactor, scoreArcFactor}{numeric
+\item{scoreColname, scoreArcMinimum, scoreFactor, scoreArcFactor}{numeric
 values used to determine junction ribbon height, the minimum
 height of the arc above the starting y-axis values based upon
 the score, the scaling factor for score values, and the
@@ -104,6 +105,8 @@ therefore \code{ref2c} should be supplied so the arcs are defined
 using compresssed coordinates.
 }
 \examples{
+suppressPackageStartupMessages(library(GenomicRanges));
+suppressPackageStartupMessages(library(jamba));
 gr <- GRanges(seqnames=rep(c("chr1"), 7),
    ranges=IRanges(start=c(50, 100, 1300, 2500, 23750, 24900, 25000),
       end=c(100, 150, 1450, 2600, 23800, 25000, 25200)),
@@ -155,6 +158,11 @@ Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},
   \code{\link{plotSashimi}}, \code{\link{prepareSashimi}},
   \code{\link{stackJunctions}}
+
+Other splicejam core functions: \code{\link{exoncov2polygon}},
+  \code{\link{gene2gg}}, \code{\link{make_ref2compressed}},
+  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}}
 }
 \concept{jam GRanges functions}
 \concept{jam plot functions}
+\concept{splicejam core functions}

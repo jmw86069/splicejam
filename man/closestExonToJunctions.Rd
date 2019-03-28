@@ -12,7 +12,7 @@ closestExonToJunctions(spliceGRgene, exonsGR, flipNegativeStrand = TRUE,
 \item{spliceGRgene}{GRanges representing splice junctions}
 
 \item{exonsGR}{GRanges representing flattened exons per gene, as
-is produced by \code{flattenExonsByGene()}.}
+is produced by \code{flattenExonsBy()}.}
 
 \item{flipNegativeStrand}{logical indicating whether to flip
 the orientation of features on the negative strand.}
@@ -48,7 +48,7 @@ Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{defineDetectedTx}},
   \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
   \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsByGene}},
+  \code{\link{flattenExonsBy}},
   \code{\link{groups2contrasts}}, \code{\link{jamCai}},
   \code{\link{makeTx2geneFromGtf}},
   \code{\link{make_ref2compressed}},

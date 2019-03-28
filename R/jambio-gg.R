@@ -61,7 +61,7 @@
 #'    is used.
 #' @param shape character string indicating whether input data should
 #'    be processed as rectangular segments or splice junction arcs.
-#' @param scoreColname,scoreMinimum,scoreFactor,scoreArcFactor numeric
+#' @param scoreColname,scoreArcMinimum,scoreFactor,scoreArcFactor numeric
 #'    values used to determine junction ribbon height, the minimum
 #'    height of the arc above the starting y-axis values based upon
 #'    the score, the scaling factor for score values, and the
@@ -78,8 +78,11 @@
 #'
 #' @family jam GRanges functions
 #' @family jam plot functions
+#' @family splicejam core functions
 #'
 #' @examples
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#' suppressPackageStartupMessages(library(jamba));
 #' gr <- GRanges(seqnames=rep(c("chr1"), 7),
 #'    ranges=IRanges(start=c(50, 100, 1300, 2500, 23750, 24900, 25000),
 #'       end=c(100, 150, 1450, 2600, 23800, 25000, 25200)),
@@ -120,10 +123,11 @@ grl2df <- function
  shape=c("rectangle", "junction"),
  baseline=NULL,
  scoreColname="score",
- scoreMinimum=100,
+ scoreArcMinimum=100,
  scoreFactor=1,
  scoreArcFactor=0.5,
  doStackJunctions=TRUE,
+ strandedScore=TRUE,
  ref2c=NULL,
  verbose=FALSE,
  ...)
@@ -132,9 +136,17 @@ grl2df <- function
    shape <- match.arg(shape);
    offset <- width / 2;
    if ("GRanges" %in% class(grl)) {
+      if (verbose) {
+         printDebug("grl2df(): ",
+            "converting input to GRangesList");
+      }
       grl <- GRangesList(list(gr=grl));
    }
    if (addGaps && !"junction" %in% shape) {
+      if (verbose) {
+         printDebug("grl2df(): ",
+            "calling addGRLgaps()");
+      }
       grl <- addGRLgaps(grl,
          verbose=verbose,
          ...);
@@ -237,6 +249,10 @@ grl2df <- function
    } else if ("junction" %in% shape) {
       #############################################################
       ## optionally stack junction ends so they do not overlap
+      if (verbose) {
+         printDebug("grl2df(): ",
+            "junction processing");
+      }
       if (!all(scoreFactor == 1)) {
          if (verbose) {
             printDebug("grl2df(): ",
@@ -259,7 +275,10 @@ grl2df <- function
                stackJunctions(gr=iGR,
                   scoreColname=scoreColname,
                   baseline=baseline,
-                  scoreFactor=1);
+                  strandedScore=strandedScore,
+                  scoreFactor=1,
+                  verbose=verbose,
+                  ...);
             })
          );
          grl <- grlNew;
@@ -281,7 +300,7 @@ grl2df <- function
          xEnd,
          xEnd,
          xMid
-      ));
+      ))+0.5;
       ## y-axis midpoints
       if ("yStart" %in% colnames(values(grl@unlistData))) {
          yStart <- values(grl@unlistData)$yStart;
@@ -293,9 +312,50 @@ grl2df <- function
       } else {
          yEnd <- rep(0, length(grl@unlistData));
       }
+
+      ## Calculate the height of each junction arc
       yScore <- values(grl@unlistData)[[scoreColname]] * 1;
-      yMaxStartEnd <- pmax(yStart, yEnd);
-      yHeight <- yScore * scoreArcFactor + scoreMinimum + yMaxStartEnd;
+      yMaxStartEnd <- pmax(abs(yStart), abs(yEnd));
+      if (verbose) {
+         printDebug("grl2df(): ",
+            "calling internal_junc_score()");
+         print(head(grl@unlistData));
+      }
+      internalMaxScore <- internal_junc_score(grl@unlistData,
+         scoreColname=scoreColname,
+         sampleColname="sample_id",
+         verbose=verbose,
+         ...);
+      if (verbose) {
+         printDebug("grl2df(): ",
+            "internalMaxScore:", internalMaxScore);
+      }
+
+      #yHeight <- pmax(yMaxStartEnd, internalMaxScore) - internalMaxScore
+      arcBaseHeight <- pmax(abs(yScore), scoreArcMinimum) * scoreArcFactor;
+      internalArcBaseHeight <- abs(internalMaxScore) * (1.1+scoreArcFactor);
+      #yBaseHeight <- noiseFloor(internalArcBaseHeight - yMaxStartEnd,
+      #   minimum=scoreArcMinimum*scoreArcFactor);
+      yBaseHeight <- noiseFloor(internalArcBaseHeight - yStart,
+         minimum=scoreArcMinimum*scoreArcFactor);
+      yHeight <- pmax(arcBaseHeight, yBaseHeight);
+
+      yHeightOld1 <- (pmax(abs(yScore), scoreArcMinimum) + yMaxStartEnd) * scoreArcFactor;
+      yHeightOld <- abs(yScore) * scoreArcFactor + scoreArcMinimum + yMaxStartEnd;
+      yL <- list(yStart=yStart,
+         yEnd=yEnd,
+         yScore=yScore,
+         yMaxStartEnd=yMaxStartEnd,
+         yHeightOld=yHeightOld,
+         yHeightOld1=yHeightOld1,
+         yHeight=yHeight,
+         internalMaxScore=internalMaxScore);
+      #print(data.frame(yL));
+      if (strandedScore) {
+         yHeight <- yHeight * ifelse(
+            as.character(GenomicRanges::strand(grl@unlistData)) %in% "-",
+            -1, 1);
+      }
       yCoords <- as.vector(rbind(
          yStart,
          yStart + yHeight,
@@ -358,7 +418,7 @@ grl2df <- function
 #' models, and is a lightweight wrapper around `grl2df()`.
 #'
 #' It takes `flatExonsByGene` which is the output from
-#' `flattenExonsByGene()`, and essentially plots the end result
+#' `flattenExonsBy()`, and essentially plots the end result
 #' for review.
 #'
 #' Alternatively, when `return_type="df"`, the output is
@@ -367,6 +427,7 @@ grl2df <- function
 #'
 #' @family jam plot functions
 #' @family jam ggplot2 functions
+#' @family splicejam core functions
 #'
 #' @param gene character string of the gene to plot, compared
 #'    with `names(flatExonsByGene)` and `values(flatExonsByTx)$gene_name`.
@@ -377,7 +438,7 @@ grl2df <- function
 #'    by `"gene_name"` or `"transcript_id"` respectively, containing
 #'    disjoint (non-overlapping) exons within each GRangesList
 #'    element. The data is expected to be in the form provided by
-#'    `flattenExonsByGene()`.
+#'    `flattenExonsBy()`.
 #' @param geneColor character color used as the base color for
 #'    exons, where the color is varied for each feature type or
 #'    subclass.
@@ -649,12 +710,37 @@ gene2gg <- function
 #' @family jam plot functions
 #' @family jam GRanges functions
 #'
+#' @return GRanges with colnames `c("yStart", "yEnd")` added
+#'    to `values(gr)`, indicating the baseline y-axis position
+#'    for the start and end of the junction arc. The score
+#'    `values(gr)[[scoreColname]]` will reflect the adjustments
+#'    by `scoreFactor`, and if `strandedScore=TRUE` then all
+#'    strand `"-"` scores will be negative, all other scores
+#'    will be positive.
+#'
 #' @param gr GRanges object representing splice junctions.
 #' @param scoreColname character string matching one of `colnames(values(gr))`
 #'    that contains a numeric value representing the abundance of
 #'    each splice junction observed.
 #' @param scoreFactor numeric value multiplied by the value in `scoreColname`
-#'    to allow scaling the junctions across samples.
+#'    to allow scaling the junctions across samples. Note that
+#'    `scoreFactor` can be a vector, which would be applied to the
+#'    vector of scores.
+#' @param matchFrom,matchTo optional colnames to use when grouping
+#'    junctions at the start and end positions. By default `"nameFrom"`
+#'    and `"nameTo"` are used, as output from `closestExonToJunctions()`,
+#'    which has the benefit of grouping junctions within the
+#'    `spliceBuffer` distance from exon boundaries. If those values
+#'    are not present `colnames(values(gr))` then the new
+#'    default `c("seqnames", "start", "strand")` is used for
+#'    `matchFrom`, and `c("seqnames", "end", "strand")` is used
+#'    for `matchTo`. That said, if `matchFrom` or `matchTo` are supplied,
+#'    those colnames are used from `as.data.frame(gr)`. Multiple colnames
+#'    are allowed.
+#' @param strandedScore logical indicating whether to enforce negative
+#'    scores for junctions on the `"-"` strand. Note that when `strandedScore`
+#'    is true, all `"-"` strand scores will be negative, and all other
+#'    scores with be positive.
 #' @param baseline numeric vector of length 0, 1 or `length(gr)`, with values
 #'    added to the y-axis value for junctions.
 #'    If `baseline` has names matching `names(gr)` they will be used for
@@ -662,13 +748,19 @@ gene2gg <- function
 #'    to `length(gr)`. The purpose is to allow exons to be shifted up
 #'    or down on the y-axis, along with associated junctions and
 #'    coverage data (see `exoncov2polygon()` for another example.)
+#' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
 #' @examples
-#' require(GenomicRanges)
+#' library(GenomicRanges);
+#' library(ggplot2);
+#' library(ggforce);
+#' library(colorjam);
+#' library(jamba);
 #' grExons <- GRanges(seqnames=rep("chr1", 4),
-#'    ranges=IRanges(start=c(100, 300, 500, 900),
-#'       end=c(200, 400, 750, 1000)),
+#'    ranges=IRanges(
+#'       start=c(100, 300, 500,  900),
+#'         end=c(200, 400, 750, 1000)),
 #'    strand=rep("+", 4));
 #' names(grExons) <- makeNames(rep("exon", length(grExons)),
 #'    suffix="");
@@ -681,6 +773,10 @@ gene2gg <- function
 #' names(grJunc) <- makeNames(rep("junc", length(grJunc)));
 #'
 #' # quick plot showing exons and junctions using rectangles
+#' grl <- c(
+#'    GRangesList(exons=grExons),
+#'    split(grJunc, names(grJunc))
+#'    );
 #' ggplot(grl2df(grl), aes(x=x, y=y, group=id, fill=feature_type)) +
 #'    ggforce::geom_shape() +
 #'    scale_y_continuous(breaks=seq_along(grl)-1, labels=names(grl)) +
@@ -702,9 +798,9 @@ gene2gg <- function
 #'    ggtitle("Junctions not stacked at boundaries")
 #'
 #' # The stacked junctions
-#' grJunc2 <- stackJunctions(grJunc2);
+#' grJunc2 <- stackJunctions(grJunc);
 #' grlJunc2df2 <- grl2df(grJunc2,
-#'    scoreMinimum=20,
+#'    scoreArcMinimum=20,
 #'    shape="junction");
 #' ggplot(grlJunc2df2, aes(x=x, y=y, group=id, fill=gr_name)) +
 #'    ggforce::geom_diagonal_wide(alpha=0.7) +
@@ -718,7 +814,11 @@ stackJunctions <- function
 (gr,
  scoreColname="score",
  scoreFactor=1,
+ matchFrom=NULL,
+ matchTo=NULL,
+ strandedScore=TRUE,
  baseline=NULL,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to stack junctions by score (width) so they do
@@ -727,12 +827,81 @@ stackJunctions <- function
       stop("The scoreColname must be present in colnames(values(gr))");
    }
 
+   ## Validate matchFrom, matchTo
+   if (length(matchFrom) == 0) {
+      if ("nameFrom" %in% colnames(values(gr))) {
+         matchFrom <- "nameFrom";
+      } else {
+         matchFrom <- c("seqnames", "start");
+      }
+   }
+   if (length(matchTo) == 0) {
+      if ("nameTo" %in% colnames(values(gr))) {
+         matchTo <- "nameTo";
+      } else {
+         matchTo <- c("seqnames", "end");
+      }
+   }
+   ##
+   grValueColnames <- colnames(values(gr));
+   grValues <- c("seqnames", "start", "end", "width", "strand",
+      grValueColnames);
+   matchFrom <- intersect(matchFrom, grValues);
+   if (length(matchFrom) == 0) {
+      stop("matchFrom must match colnames(as.data.frame(gr))");
+   }
+   matchTo <- intersect(matchTo, grValues);
+   if (length(matchTo) == 0) {
+      stop("matchTo must match colnames(as.data.frame(gr))");
+   }
+   if (verbose) {
+      printDebug("stackJunctions(): ",
+         "matchFrom:", matchFrom,
+         ", matchTo:", matchTo);
+   }
+   ## Optionally enforce strandedness
+   if (strandedScore) {
+      if (verbose) {
+         printDebug("stackJunctions(): ",
+            "Adjusting stranded score.");
+      }
+      matchFrom <- c(matchFrom, "strand");
+      matchTo <- c(matchTo, "strand");
+      scoreV <- scoreFactor *
+         ifelse(as.character(GenomicRanges::strand(gr)) %in% "-", -1, 1) *
+         abs(values(gr)[[scoreColname]]);
+   } else {
+      if (verbose) {
+         printDebug("stackJunctions(): ",
+            "Adjusting unstranded score.");
+      }
+      scoreV <- scoreFactor *
+         values(gr)[[scoreColname]];
+   }
+   values(gr)[[scoreColname]] <- scoreV;
+   # Combine value colnames and non-value colnames, using only
+   # the required colnames since as.data.frame(gr) will fail if
+   # any columns are not coercible to data.frame, for example list.
+   exonsFrom <- pasteByRow(sep="_",
+      as.data.frame(gr[,intersect(matchFrom, grValueColnames)])[,matchFrom,drop=FALSE])
+   exonsTo <- pasteByRow(sep="_",
+      as.data.frame(gr[,intersect(matchTo, grValueColnames)])[,matchTo,drop=FALSE])
+
+   exonsFrom <- gsub("[.][-]*[0-9]+$", "",
+      exonsFrom);
+   exonsTo <- gsub("[.][-]*[0-9]+$", "",
+      exonsTo);
+   if (verbose) {
+      printDebug("stackJunctions(): ",
+         "head(exonsFrom):",
+         head(exonsFrom, 10));
+      printDebug("stackJunctions(): ",
+         "head(exonsTo):",
+         head(exonsTo, 10));
+   }
+
    ## Extend baseline to length of gr, so the baseline applies
    ## to each exon
-   exonsFrom <- gsub("[.][-]*[0-9]+$", "",
-      values(gr)[,"nameFrom"]);
-   exonsTo <- gsub("[.][-]*[0-9]+$", "",
-      values(gr)[,"nameTo"]);
    allExons <- mixedSort(unique(
       c(exonsFrom, exonsTo)));
    baselineV <- nameVector(
@@ -748,32 +917,23 @@ stackJunctions <- function
    }
 
    ## Start position
-   if (length(names(gr)) > 0) {
-      grNames <- names(gr);
-   }
-   juncGR1 <- gr[do.call(order, list(start(gr), width(gr)))];
-   exonsFrom1 <- gsub("[.][-]*[0-9]+$", "",
-      values(juncGR1)[,"nameFrom"]);
-   values(juncGR1)[,"yStart"] <- shrinkMatrix(
-      values(juncGR1)$score * scoreFactor,
-      groupBy=start(juncGR1),
+   #order1 <- do.call(order, list(start(gr), width(gr)));
+   order1 <- do.call(order, list(exonsFrom, width(gr)));
+   values(gr)[order1,"yStart"] <- shrinkMatrix(
+      scoreV[order1],
+      #groupBy=start(gr[order1]),
+      groupBy=exonsFrom[order1],
       shrinkFunc=function(x){cumsum(head(c(0,x), length(x)))})$x +
-      baselineV[exonsFrom1];
+      baselineV[exonsFrom[order1]];
    ## End position
-   juncGR1 <- juncGR1[do.call(order, list(end(juncGR1), width(juncGR1)))];
-   exonsTo1 <- gsub("[.][-]*[0-9]+$", "",
-      values(juncGR1)[,"nameTo"]);
-   values(juncGR1)[,"yEnd"] <- shrinkMatrix(
-      values(juncGR1)$score,
-      groupBy=end(juncGR1),
+   order2 <- do.call(order, list(exonsTo, width(gr)));
+   values(gr)[order2,"yEnd"] <- shrinkMatrix(
+      scoreV[order2],
+      #groupBy=end(gr[order2]),
+      groupBy=exonsTo[order2],
       shrinkFunc=function(x){cumsum(head(c(0,x), length(x)))})$x +
-      baselineV[exonsTo1];
-   if (exists(grNames)) {
-      juncGR1 <- juncGR1[grNames];
-   } else {
-      juncGR1 <- sort(juncGR1);
-   }
-   return(juncGR1);
+      baselineV[exonsTo[order2]];
+   return(gr);
 }
 
 #' Jam Sashimi plot
@@ -787,6 +947,7 @@ stackJunctions <- function
 #'
 #' @family jam plot functions
 #' @family jam ggplot2 functions
+#' @family splicejam core functions
 #'
 #' @param sashimi Sashimi data prepared by `prepareSashimi()` which
 #'    is a `list` with `covDF` coverage data in data.frame format,
@@ -819,6 +980,20 @@ stackJunctions <- function
 #'    compress axis coordinates during junction arc calculations.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are sent to `grl2df()`.
+#'
+#' @examples
+#' data(test_exon_gr);
+#' data(test_junc_gr);
+#' data(test_cov_gr);
+#' filesDF <- data.frame(url="sample_A",
+#'    type="coverage_gr",
+#'    sample_id="sample_A");
+#' sh1 <- prepareSashimi(GRangesList(TestGene1=test_exon_gr),
+#'    filesDF=filesDF,
+#'    gene="TestGene1",
+#'    covGR=test_cov_gr,
+#'    juncGR=test_junc_gr);
+#' plotSashimi(sh1);
 #'
 #' @export
 plotSashimi <- function
@@ -896,7 +1071,7 @@ plotSashimi <- function
                strength=0.4);
       } else {
          ggSashimi <- ggSashimi +
-            geom_diagonal_wide(data=sashimi$juncDF,
+            ggforce::geom_diagonal_wide(data=sashimi$juncDF,
                aes(x=x,
                   y=y,
                   group=id),

@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
       </span>
     </div>
 
@@ -136,8 +136,10 @@
   <span class='st'>"repel"</span>, <span class='st'>"mark"</span>), <span class='kw'>junc_label_type</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"repel"</span>, <span class='st'>"mark"</span>, <span class='st'>"none"</span>),
   <span class='kw'>return_data</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"ggCov"</span>, <span class='st'>"ggJunc"</span>, <span class='st'>"ggSashimi"</span>, <span class='st'>"covDF"</span>, <span class='st'>"juncDF"</span>,
   <span class='st'>"ref2c"</span>, <span class='st'>"all"</span>), <span class='kw'>junc_color</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod3"</span>, <span class='fl'>0.7</span>),
-  <span class='kw'>junc_fill</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod1"</span>, <span class='fl'>0.4</span>), <span class='kw'>coord_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"coord"</span>,
-  <span class='st'>"scale"</span>, <span class='st'>"none"</span>), <span class='kw'>scoreFactor</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>junc_fill</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod1"</span>, <span class='fl'>0.4</span>), <span class='kw'>doStackJunctions</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>coord_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"coord"</span>, <span class='st'>"scale"</span>, <span class='st'>"none"</span>), <span class='kw'>scoreFactor</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>scoreArcFactor</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>scoreArcMinimum</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>covGR</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>juncGR</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -199,6 +201,29 @@ data in compressed regions, and to adjust splice junction arcs
 using compressed coordinates.</p></td>
     </tr>
     <tr>
+      <th>gap_feature_type</th>
+      <td><p>the default feature_type value to use for
+gaps when <code>addGaps=TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>doStackJunctions</th>
+      <td><p>logical indicating whether to stack
+junction arcs at each end, this argument is passed to
+<code><a href='grl2df.html'>grl2df()</a></code> which calls <code><a href='stackJunctions.html'>stackJunctions()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>covGR</th>
+      <td><p>GRanges object containing coverage data in columns
+stored as NumericList class, where <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(values(covGR))</a></code>
+are present in <code>filesDF$url</code> when <code>files$type %in% "coverage_gr"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>juncGR</th>
+      <td><p>GRanges object containing splice junctions, where
+<code>"score"</code> is used for the abundance of splice junction reads,
+and <code>"sample_id"</code> is used to define the biological <code>sample_id</code>.</p></td>
+    </tr>
+    <tr>
       <th>verbose</th>
       <td><p>logical indicating whether to print verbose output.</p></td>
     </tr>
@@ -206,11 +231,6 @@ using compressed coordinates.</p></td>
       <th>...</th>
       <td><p>additional arguments are passed to <code><a href='make_ref2compressed.html'>make_ref2compressed()</a></code>,
 <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw()</a></code>, <code><a href='exoncov2polygon.html'>exoncov2polygon()</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>gapname</th>
-      <td><p>the default feature_type value to use for gaps when
-<code>addGaps=TRUE</code>.</p></td>
     </tr>
     </table>
     
@@ -235,13 +255,13 @@ the splice junction arcs.</p>
 Sashimi plots, and is intended to be a convenient wrapper
 function for several other individual functions.</p>
 <p>At a minimum, a Sashimi plot requires three things:</p><ol>
-<li><p>The gene of interest, with corresponding exon model.</p></li>
+<li><p>Exons, usually from a gene of interest.</p></li>
 <li><p>RNA-seq coverage data.</p></li>
 <li><p>Splice junction data.</p></li>
 </ol>
     <p>There is some required pre-processing before running
 <code>prepareSashimi()</code>:</p><ul>
-<li><p>Prepare flattened exons by gene using <code><a href='flattenExonsByGene.html'>flattenExonsByGene()</a></code>
+<li><p>Prepare flattened exons by gene using <code>flattenExonsByGene()</code>
 and corresponding data, including <code>exonsByGene</code>, <code>cdsByGene</code>,
 and <code>tx2geneDF</code>. Verify the gene exon model data using
 <code><a href='gene2gg.html'>gene2gg()</a></code>.</p></li>
@@ -270,101 +290,29 @@ of secure web requests, but this requirement varies by country.</p>
 <p>Other jam plot functions: <code><a href='bgaPlotly3d.html'>bgaPlotly3d</a></code>,
   <code><a href='factor2label.html'>factor2label</a></code>, <code><a href='gene2gg.html'>gene2gg</a></code>,
   <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='plotSashimi.html'>plotSashimi</a></code>,
-  <code><a href='stackJunctions.html'>stackJunctions</a></code></p></div>
+  <code><a href='stackJunctions.html'>stackJunctions</a></code></p>
+<p>Other splicejam core functions: <code><a href='exoncov2polygon.html'>exoncov2polygon</a></code>,
+  <code><a href='gene2gg.html'>gene2gg</a></code>, <code><a href='grl2df.html'>grl2df</a></code>,
+  <code><a href='make_ref2compressed.html'>make_ref2compressed</a></code>,
+  <code><a href='plotSashimi.html'>plotSashimi</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># First assemble a data.frame of coverage bigWig and junction BED files</span>
-<span class='kw'>if</span> (<span class='fl'>1</span> <span class='kw'>==</span> <span class='fl'>2</span>) {
-<span class='co'>## Steps below will capture all replicate coverage and junction</span>
-<span class='co'>## files for the Farris et all dataset, and although are relatively</span>
-<span class='co'>## efficient (5-10 seconds per gene figure for 8 samples), are</span>
-<span class='co'>## too slow to be allowed in CRAN package docs.</span>
-<span class='co'>##</span>
-<span class='no'>baseurl</span> <span class='kw'>&lt;-</span> <span class='st'>"https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/"</span>;
-<span class='no'>bedext</span> <span class='kw'>&lt;-</span> <span class='st'>".STAR_mm10.combinedJunctions.bed"</span>;
-<span class='no'>bwext</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw"</span>,
-   <span class='st'>"492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw"</span>);
-<span class='no'>c1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"CA1"</span>, <span class='st'>"CA2"</span>);
-<span class='no'>r1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"CB"</span>, <span class='st'>"DE"</span>);
-<span class='no'>bedsamples</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>c1</span>, <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>2</span>), <span class='st'>"_"</span>, <span class='no'>r1</span>);
-<span class='no'>bedurls</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='no'>baseurl</span>,
-   <span class='no'>bedsamples</span>,
-   <span class='no'>bedext</span>);
-<span class='no'>bedurls</span>;
-<span class='no'>bwsamples</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>c1</span>, <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>4</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>r1</span>, <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>2</span>));
-<span class='no'>bwurls</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='no'>baseurl</span>,
-   <span class='no'>bwsamples</span>,
-   <span class='no'>bwext</span>);
-<span class='no'>bwurls</span>;
-<span class='no'>filesDF</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>url</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>bedurls</span>, <span class='no'>bwurls</span>),
-   <span class='kw'>type</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"junction"</span>, <span class='st'>"bw"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>4</span>,<span class='fl'>8</span>)),
-   <span class='kw'>sample_id</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/grep'>gsub</a></span>(<span class='st'>"_"</span>, <span class='st'>""</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>bedsamples</span>, <span class='no'>bwsamples</span>)));
-<span class='no'>filesDF</span>;
-
-<span class='co'>## Next assemble exons by gene from a GTF file</span>
-<span class='kw'>if</span> (!<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>require</a></span>(<span class='no'>rtracklater</span>)) {
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/stop'>stop</a></span>(<span class='st'>"rtracklayer is required."</span>);
-}
-<span class='no'>vM12gtf</span> <span class='kw'>&lt;-</span> <span class='st'>"ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz"</span>;
-<span class='no'>vM12gtfBase</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/basename'>basename</a></span>(<span class='no'>vM12gtf</span>);
-<span class='kw'>if</span> (!<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/files'>file.exists</a></span>(<span class='no'>vM12gtfBase</span>)) {
-   <span class='kw pkg'>curl</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/curl/topics/curl_download'>curl_download</a></span>(<span class='kw'>url</span><span class='kw'>=</span><span class='no'>vM12gtf</span>,
-      <span class='kw'>destfile</span><span class='kw'>=</span><span class='no'>vM12gtfBase</span>);
-}
-<span class='no'>localDb</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/file.path'>file.path</a></span>(<span class='st'>"."</span>, <span class='st'>"vM12gtf.txdb"</span>);
-<span class='kw'>if</span> (!<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/files'>file.exists</a></span>(<span class='no'>localDb</span>)) {
-   <span class='no'>vM12txdb</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicFeatures</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicFeatures/topics/makeTxDbFromGFF'>makeTxDbFromGFF</a></span>(<span class='no'>vM12gtfBase</span>);
-   <span class='kw pkg'>AnnotationDbi</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/AnnotationDbi/topics/AnnotationDb-class'>saveDb</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>vM12txdb</span>, <span class='kw'>file</span><span class='kw'>=</span><span class='no'>localDb</span>);
-} <span class='kw'>else</span> {
-   <span class='no'>vM12txdb</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>AnnotationDbi</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/AnnotationDbi/topics/AnnotationDb-class'>loadDb</a></span>(<span class='kw'>file</span><span class='kw'>=</span><span class='no'>localDb</span>);
-}
-<span class='no'>exonsByTx</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicFeatures</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicFeatures/topics/transcriptsBy'>exonsBy</a></span>(<span class='no'>vM12txdb</span>,
-   <span class='kw'>by</span><span class='kw'>=</span><span class='st'>"tx"</span>,
-   <span class='kw'>use.names</span><span class='kw'>=</span><span class='fl'>TRUE</span>);
-<span class='fu'>values</span>(<span class='no'>exonsByTx</span>@<span class='kw'>unlistData</span>)[,<span class='st'>"transcript_id"</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>exonsByTx</span>),
-   <span class='fu'>elementNROWS</span>(<span class='no'>exonsByTx</span>));
-
-<span class='co'>## Use the GTF file to define a tx2geneDF data.frame</span>
-<span class='no'>tx2geneDF</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='makeTx2geneFromGtf.html'>makeTx2geneFromGtf</a></span>(<span class='kw'>GTF</span><span class='kw'>=</span><span class='no'>vM12gtfBase</span>);
-
-<span class='co'>## Next flatten exons per gene, optionally using detectedTx</span>
-<span class='co'>## to limit the exon models to observed transcripts.</span>
-<span class='no'>flatExonsByGene</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='flattenExonsByGene.html'>flattenExonsByGene</a></span>(<span class='kw'>exonsByTx</span><span class='kw'>=</span><span class='no'>exonsByTx</span>,
-<span class='co'>#   detectedTx=detectedTx,</span>
-   <span class='kw'>tx2geneDF</span><span class='kw'>=</span><span class='no'>tx2geneDF</span>);
-
-<span class='co'>## Finally, you can choose a gene, and any sample_id from</span>
-<span class='co'>## filesDF$sample_id to prepare Sashimi plot data</span>
-<span class='no'>shGria1</span> <span class='kw'>&lt;-</span> <span class='fu'>prepareSashimi</span>(<span class='kw'>flatExonsByGene</span><span class='kw'>=</span><span class='no'>flatExonsByGene</span>,
-   <span class='kw'>gene</span><span class='kw'>=</span><span class='st'>"Gria1"</span>,
-   <span class='kw'>sample_id</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"CA2CB"</span>, <span class='st'>"CA2DE"</span>),
-   <span class='kw'>filesDF</span><span class='kw'>=</span><span class='no'>filesDF</span>);
-
-<span class='co'>## Print the structure of data returned</span>
-<span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/jamba/topics/sdim'>sdim</a></span>(<span class='no'>shGria1</span>);
-
-<span class='co'>## Of initial interest is the ggplot2 sashimi plot</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>shGria1</span>$<span class='no'>ggSashimi</span>);
-
-<span class='co'>## You can just plot coverage</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>shGria1</span>$<span class='no'>ggCov</span>);
-
-<span class='co'>## You can just plot junction reads</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>shGria1</span>$<span class='no'>ggJunc</span>);
-
-<span class='co'>## For more intricate manipulations, use the data.frames</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/head'>head</a></span>(<span class='no'>shGria1</span>$<span class='no'>covDF</span>);
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/head'>head</a></span>(<span class='no'>shGria1</span>$<span class='no'>juncDF</span>);
-
-<span class='co'>## For kicks, the ref2c data</span>
-<span class='fu'>sdim</span>(<span class='no'>shGria1</span>$<span class='no'>ref2c</span>)
-<span class='co'>## the shGria1$ref2c$trans_grc is usable in ggplot like this</span>
-<span class='co'>## + trans_new(x=shGria1$ref2c$trans_grc)</span>
-<span class='co'>## or</span>
-<span class='co'>## + scale_x_continuous(trans=shGria1$ref2c$trans_grc)</span>
-
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='co'># The active example below uses sample data</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>test_exon_gr</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>test_junc_gr</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>test_cov_gr</span>);
+<span class='no'>filesDF</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>url</span><span class='kw'>=</span><span class='st'>"sample_A"</span>,
+   <span class='kw'>type</span><span class='kw'>=</span><span class='st'>"coverage_gr"</span>,
+   <span class='kw'>sample_id</span><span class='kw'>=</span><span class='st'>"sample_A"</span>);
+<span class='no'>sh1</span> <span class='kw'>&lt;-</span> <span class='fu'>prepareSashimi</span>(<span class='fu'>GRangesList</span>(<span class='kw'>TestGene1</span><span class='kw'>=</span><span class='no'>test_exon_gr</span>),
+   <span class='kw'>filesDF</span><span class='kw'>=</span><span class='no'>filesDF</span>,
+   <span class='kw'>gene</span><span class='kw'>=</span><span class='st'>"TestGene1"</span>,
+   <span class='kw'>covGR</span><span class='kw'>=</span><span class='no'>test_cov_gr</span>,
+   <span class='kw'>juncGR</span><span class='kw'>=</span><span class='no'>test_junc_gr</span>);
+<span class='fu'><a href='plotSashimi.html'>plotSashimi</a></span>(<span class='no'>sh1</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: Ignoring unknown aesthetics: fill</span></div><div class='output co'>#&gt; <span class='message'>Scale for 'fill' is already present. Adding another scale for 'fill', which</span>
+#&gt; <span class='message'>will replace the existing scale.</span></div><div class='img'><img src='prepareSashimi-1.png' alt='' width='700' height='433' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

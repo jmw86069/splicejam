@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
       </span>
     </div>
 
@@ -156,7 +156,7 @@ when specifying specific transcripts. Values are matched with
 by <code>"gene_name"</code> or <code>"transcript_id"</code> respectively, containing
 disjoint (non-overlapping) exons within each GRangesList
 element. The data is expected to be in the form provided by
-<code><a href='flattenExonsByGene.html'>flattenExonsByGene()</a></code>.</p></td>
+<code><a href='flattenExonsBy.html'>flattenExonsBy()</a></code>.</p></td>
     </tr>
     <tr>
       <th>geneColor</th>
@@ -243,7 +243,7 @@ as needed, including <code><a href='make_ref2compressed.html'>make_ref2compresse
     <p>This function is intended to help plot gene and transcript exon
 models, and is a lightweight wrapper around <code><a href='grl2df.html'>grl2df()</a></code>.</p>
 <p>It takes <code>flatExonsByGene</code> which is the output from
-<code><a href='flattenExonsByGene.html'>flattenExonsByGene()</a></code>, and essentially plots the end result
+<code><a href='flattenExonsBy.html'>flattenExonsBy()</a></code>, and essentially plots the end result
 for review.</p>
 <p>Alternatively, when <code>return_type="df"</code>, the output is
 the <code>data.frame</code> used to produce the ggplot, which allows
@@ -255,7 +255,10 @@ for more customization.</p>
   <code><a href='factor2label.html'>factor2label</a></code>, <code><a href='grl2df.html'>grl2df</a></code>,
   <code><a href='plotSashimi.html'>plotSashimi</a></code>, <code><a href='prepareSashimi.html'>prepareSashimi</a></code>,
   <code><a href='stackJunctions.html'>stackJunctions</a></code></p>
-<p>Other jam ggplot2 functions: <code><a href='plotSashimi.html'>plotSashimi</a></code></p></div>
+<p>Other jam ggplot2 functions: <code><a href='plotSashimi.html'>plotSashimi</a></code></p>
+<p>Other splicejam core functions: <code><a href='exoncov2polygon.html'>exoncov2polygon</a></code>,
+  <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='make_ref2compressed.html'>make_ref2compressed</a></code>,
+  <code><a href='plotSashimi.html'>plotSashimi</a></code>, <code><a href='prepareSashimi.html'>prepareSashimi</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

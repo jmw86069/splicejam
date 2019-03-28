@@ -15,7 +15,7 @@ spliceGR2junctionDF(spliceGRgene, exonsGR, spliceBuffer = 3,
 the \code{scoreColname} contains numeric scores.}
 
 \item{exonsGR}{GRanges object containing flattened exons by gene,
-as is provided by \code{flattenExonsByGene()}.}
+as is provided by \code{flattenExonsBy()}.}
 
 \item{spliceBuffer}{integer distance allowed from a compatible exon
 boundary, for a junction read to be snapped to that boundary.}
@@ -71,7 +71,7 @@ Other jam RNA-seq functions: \code{\link{ale2violin}},
   \code{\link{defineDetectedTx}},
   \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
   \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsByGene}},
+  \code{\link{flattenExonsBy}},
   \code{\link{groups2contrasts}}, \code{\link{jamCai}},
   \code{\link{makeTx2geneFromGtf}},
   \code{\link{make_ref2compressed}},

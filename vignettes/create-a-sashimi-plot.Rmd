@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options("warn"=-1);
 ```
 
 ## Overview
@@ -34,68 +35,108 @@ There are three basic requirements for a Sashimi plot:
 3. exon-exon splice junction data
 
 
-### Gene-exon structure
+## Gene-exon structure
 
 There are several sources of gene-exon structures:
 
+* GTF or GFF file, for example Gencode GTF (https://www.gencodegenes.com).
+
+    * If a GTF file is used in upstream processing, it is recommended
+    to use that same GTF or GFF file to create a `GenomicFeatures::TxDb`
+    object with `GenomicFeatures::makeTxDbFromGFF()`.
+    * The function `splicejam::makeTx2geneFromGtf()` creates a
+    `data.frame` with cross-reference data for `"transcript_id"` and
+    `"gene_name"`. This step makes GTF a more reliable workflow
+    than the `TxDb` workflow, since the `TxDb` workflow
+    relies upon Bioconductor annotations to obtain `"gene_name"`,
+    and is sometimes lacking.
+
 * Txdb transcript database, provided by `GenomicFeatures::TxDb`
 
-    * It is convenient and recommended to use the same GTF or GFF file
-    used in upstream RNA-seq processing steps as the source of exon data.
-    In this case, you would use `GenomicFeatures::makeTxDbFromGFF()` to
-    create a `TxDb` object, then follow the steps starting with `TxDb`.
-    * Bioconductor provides several  Txdb data packages
-    (see BiocView https://bioconductor.org/packages/release/BiocViews.html#___TxDb)
-    this they do not currently provide Gencode in TxDb format. For
-    example, to install the package for hg19 UCSC knownGenes as a TxDb, use
+    * Bioconductor provides several Txdb data packages
+    (see BiocView
+    https://bioconductor.org/packages/release/BiocViews.html#___TxDb).
+    For example, to install the package for hg19 UCSC knownGenes TxDb,
     `BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene")`.
+    * The `TxDb` specification does not include `"gene_name"` which
+    therefore needs to be added using Bioconductor annotation packages,
+    such as `org.Hs.eg.db` (Human, Homo sapiens) or `org.Mm.eg.db`
+    (Mouse, Mus musculus). This step is almost always a little lossy,
+    seen as `TxDb` entries whose `"transcript_id"` do not
+    have corresponding`"gene_id"` nor `"gene_name"` entries.
+    Ability to fetch annotation directly from UCSC is currently not
+    straightforward.
 
 * GRanges or GRangesList objects, already assembled by other methods.
 
     * For example `rtracklayer::import()` has several methods that can
-    import BED files, or GTF files.
+    import BED files, or GTF files. Typically, BED format Ultimately the requirement is a
+    disjoint (non-overlapping) set of exon GRanges, pulled into a
+    GRangesList whose names are `"gene_name"`. This `"gene_name"`
+    is mainly used as a figure caption, though it can be integrated
+    with transcript exons.
 
-The goal for Sashimi plots is to flatten exons to disjoint (non-overlapping)
-exons across the gene region of interest. The exons are used to determine
-the genomic regions to use for sequence coverage, and splice junction reads.
-The exons are also used to define intron region compression, in order
-to make the Sashimi plot more transcript-focused.
+The requirement for Sashimi plots is to flatten exons
+to disjoint (non-overlapping) exons across the gene
+region of interest. The exons are used to determine
+the genomic regions to use for sequence coverage, and
+splice junction reads.
+
+The exons are also used to define the genome coordinate
+transformation function used to compress introns to more
+manageable (smaller) size.
 
 
-#### Starting with TxDb
+### Use of detected transcripts
 
-The recommended workflow involves assembling transcript exons, then
-aggregating detected transcripts into gene-exon models. The driving
-reason is that transcriptome data is increasingly comprehensive, and
-is derived from numerous tissue samples and cell types, many of which
-are not relevant nor representative of the transcriptome observed in
-a particular experimental condition. While it is not problematic
-to visualize a gene model whose exons are derived from all possible
-conditions, we found many gene models to be unnecessarily complex,
-therefore overshadowing the actual observed structure.
+The recommended workflow is to use detected transcripts
+derived from `splicejam::defineDetectedTx()` or some
+other means. This step typically reduces the total
+transcripts by 60%, which greatly simplifies the
+resulting gene structure, and focuses the gene structure
+on the experimental data.
 
-Said another way, many of the automated transcript structures are
-either just wrong, or were derived from conditions vastly different
-from those observed. Since tools like Salmon or Kallisto have the
-capability to determine detected and undetected transcripts based
-upon observing experimental data, we found it effective to use that
-information to define data-driven gene-exon models.
+Gene transcriptome data resources are increasingly comprehensive,
+as they are derived from numerous tissue samples and cell types.
+In ideal cases, the data should represent the superset
+of possible gene transcripts, of which only a fraction are
+experimentally observed.
 
-The example uses Bioconductor data package
-`TxDb.Mmusculus.UCSC.mm10.knownGene` using UCSC known genes
-for the mouse `mm10` genome assembly.
+In addition, we observed
+questionable transcript annotations, with no apparent
+supporting data -- possible artifacts of an automated
+annotation pipeline. While these apparent errors are
+found in low percentage, their presence can completely
+disrupt a gene structure, sometimes combining several
+genes (70+) into one extremely long gene locus longer than
+5 megabases.
 
-The `TxDb` objects do not permit assigning gene names nor gene symbols,
-so the example uses the Bioconductor annotation package `org.Mm.eg.db`
-to assign `gene_name` values. For any missing values, we use the
-format `LOC#` to indicate the Entrez gene ID, for example
-Entrez gene ID `1234` would be represented `LOC1234`.
+As a practical matter, we found it beneficial that
+many of these transcripts get removed during the
+`splicejam::defineDetectedTx()` process, conveniently
+simplifying the resulting gene-exon models. Note this
+process currently uses data from an analysis tool such as
+Kallisto (Bray et al 2016, https://pachterlab.github.io/kallisto/about)
+or
+Salmon (Patro et al 2017, https://combine-lab.github.io/salmon/)
+since these tools estimate transcript isoform abundance.
 
-```{r, mm10_txdb, fig.height=7, fig.width=7}
-library(splicejam);
-library(jamba);
-library(kableExtra)
-if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
+### Starting with TxDb
+
+This example uses Bioconductor data package
+`TxDb.Mmusculus.UCSC.mm10.knownGene` which represents
+UCSC known genes for the mouse `mm10` genome assembly.
+
+First we assemble all exons by transcript, then
+all CDS exons by transcript. We will use these
+exons to assemble annotated gene models.
+
+```{r, mm10_txdb, fig.height=5, fig.width=7}
+options("warn"=-1);
+suppressPackageStartupMessages(library(splicejam));
+suppressPackageStartupMessages(library(jamba));
+suppressPackageStartupMessages(library(kableExtra));
+if (suppressPackageStartupMessages(require(TxDb.Mmusculus.UCSC.mm10.knownGene))) {
 
    # First obtain exons by transcript
    exonsByTxMm10 <- exonsBy(TxDb.Mmusculus.UCSC.mm10.knownGene,
@@ -109,7 +150,20 @@ if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
       by="tx",
       use.names=TRUE);
    values(cdsByTxMm10@unlistData)$feature_type <- "cds";
-   
+   values(cdsByTxMm10@unlistData)$subclass <- "cds";
+}
+```
+
+The `TxDb` objects do not permit storing gene symbols,
+so the example uses the Bioconductor annotation package
+`org.Mm.eg.db` to assign `gene_name` values.
+For values not found in `org.Mm.eg.db`, we use the
+format `LOC#` to indicate the Entrez gene ID, for example
+Entrez gene ID `1234` would be represented `LOC1234`.
+
+```{r, tx2gene_mm10}
+if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
+
    # Now prepare tx_name, gene_id, gene_name data.frame,
    # surprisingly difficult
    tx2geneMm10 <- suppressMessages(
@@ -124,36 +178,59 @@ if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
       to=c("gene_id", "transcript_id", "transcript_type"));
 
    # add gene_name using org.Mm.eg.db
-   if (require(org.Mm.eg.db)) {
+   if (suppressPackageStartupMessages(require(org.Mm.eg.db))) {
       gene_ids <- values(genes(TxDb.Mmusculus.UCSC.mm10.knownGene))$gene_id;
       gene_namesL <- mget(gene_ids,
          org.Mm.egSYMBOL,
          ifnotfound=NA);
       ## Convert list to vector taking the first gene_name each
+      ## (All genes should only have one SYMBOL but there is no
+      ## hard constraint so we should make absolutely sure to
+      ## use only one value per gene.)
       gene_names <- unlist(heads(S4Vectors::List(gene_namesL), 1));
       ## Replace NA with LOC# format
+      ## Note we use gsub() to ensure the data fits the expected format
       if (any(is.na(gene_names))) {
          gene_na <- which(is.na(gene_names));
-         gene_names[gene_na] <- paste0("LOC",
+         gene_names[gene_na] <- gsub("^([0-9]+)$", "LOC\\1",
             names(gene_names[gene_na]));
       }
       tx2geneMm10$gene_name <- gene_names[as.character(tx2geneMm10$gene_id)];
    } else {
+      ## If we have no gene annotations, use the gene_id values
       tx2geneMm10$gene_name <- as.character(tx2geneMm10$gene_id);
    }
    # print the first 20 rows to show the content
    print(head(tx2geneMm10, 20));
-   
+}
+```
+
+Next we flatten transcript exons to the gene level using
+the function `splicejam::flattenExonsBy()`.
+
+We also flatten exons to the transcript level, which has
+the effect of combining CDS exons alongside non-CDS exons.
+The result is used when plotting transcript exon structures.
+
+In both cases, the argument `genes=c("Gria1", "Ntrk2")` is
+used as a convenience to produce data for only these two genes.
+
+> We recommend using detected transcripts here, with the
+argument `detectedTx`.
+
+```{r, flatten_exons}
+if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
    # flatten exons to the gene level
    # for speed, we will only process "Gria1", and "Ntrk2"
-   flatExonsByGeneMm10 <- flattenExonsByGene(exonsByTx=exonsByTxMm10,
+   flatExonsByGeneMm10 <- flattenExonsBy(exonsByTx=exonsByTxMm10,
       cdsByTx=cdsByTxMm10,
+      by="gene",
       genes=c("Gria1", "Ntrk2"),
       tx2geneDF=tx2geneMm10,
       verbose=FALSE);
 
    # to be fancy, also flatten transcripts, to include CDS ranges   
-   flatExonsByTxMm10 <- flattenExonsByGene(exonsByTx=exonsByTxMm10,
+   flatExonsByTxMm10 <- flattenExonsBy(exonsByTx=exonsByTxMm10,
       cdsByTx=cdsByTxMm10,
       tx2geneDF=tx2geneMm10,
       by="tx",
@@ -161,10 +238,12 @@ if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
 }
 ```
 
-Once the gene-transcript-exon data is prepared, the process of
-plotting data for one gene is demonstrated below.
+#### Plot gene-exon models using gene2gg()
 
-```{r, gene_plot, fig.height=7, fig.width=7}
+Once the gene-transcript-exon data is prepared, the exon
+structure can be plotted using the function `splicejam::gene2gg()`:
+
+```{r, gene_plot, fig.height=5, fig.width=7}
 if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
    # Pull out Gria1
    grlGria1 <- flatExonsByGeneMm10[["Gria1"]];
@@ -173,7 +252,7 @@ if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
    ggGria1exons <- gene2gg(gene="Gria1",
       flatExonsByGene=flatExonsByGeneMm10,
       exonLabelSize=6);
-   print(ggGria1exons);
+   print(ggGria1exons + ggtitle("Gria1 exons"));
 
    ## Compare to the gene structure without compressing introns
    gg1full <- gene2gg(gene="Gria1",
@@ -186,7 +265,7 @@ if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
       flatExonsByGene=flatExonsByGeneMm10,
       flatExonsByTx=flatExonsByTxMm10,
       tx2geneDF=tx2geneMm10);
-   print(ggGria1exonsTx);
+   print(ggGria1exonsTx + ggtitle("Gria1 (compressed introns)"));
    
    ## Notice how difficult it is to see exon15 and exon16 are
    ## mutually exclusive exons
@@ -195,38 +274,53 @@ if (require(TxDb.Mmusculus.UCSC.mm10.knownGene)) {
       flatExonsByTx=flatExonsByTxMm10,
       tx2geneDF=tx2geneMm10,
       compressGaps=FALSE);
-   print(gg2full);
+   print(gg2full + ggtitle("Gria1 (uncompressed introns)"));
 
 }
 ```
 
 
-### Coverage and Junction data
+## Coverage data
 
-The current workflow is intended to use bigWig files as the primary
-source for RNA-seq coverage data.
+There are currently two main sources of coverage data:
 
-To provide bigWig coverage files to the `prepareSashimi()` function,
-requires a `data.frame` with column names:
+* Files in `bigWig` format, accessible either as a file or web URL.
+* GRanges objects, with one or more columns containing numeric coverage
+data in the form of `NumericList`. This data is generated using
+`rtracklayer::import(...,type="bigWig")` but it is recommended
+to use the function `splicejam::getGRcoverageFromBw()`.
 
-* `"url"` - the path to a local file, or a valid web URL.
-* `"type"` - the type of file, currently allowing `"bw"` for bigWig
-data, or `"junction"` for a BED12 formatted file containing
-splice junction reads.
-* `"sample_id"` - a unique biological sample identifier, which
-can be repeated for replicate files as needed.
-* `"scale_factor"` - optional column with numeric values which are
-multiplied by the coverage (or junction read counts), in order
-to define normalized values for plotting purposes.
+The next step is to define biological samples for each
+set of coverage data. For this step, we use a `data.frame`
+called `"filesDF"`, with these colnames:
+
+* `"url"` - one of the following:
+    * path to a local file
+    * valid web URL
+    * value from `colnames(values(covGR))` when `covGR` is supplied
+    as a `GRanges` object containing coverage data.
+
+* `"type"` - the type of file
+    * `"bw"` for bigWig data
+    * `"junction"` for a BED12 file containing splice junction reads
+    * `"coverage_gr"` for coverage data provided in `covGR`
+
+* `"sample_id"` - biological sample identifier, used to aggregate
+files into the same plot panel.
+* `"scale_factor"` - (optional) column with numeric values which are
+multiplied by the score of the file. These values can help
+normalize scores across samples.
+
+### Coverage in bigWig format
 
 A bigWig coverage file can only store coverage for one strand,
 when using strand-specific RNA-seq. To provide negative strand data,
 either provide bigWig coverage scores which are negative values
 (never above zero, and containing at least one negative value),
-or supply a negative value for the `"scale_factor"` field as
-described above.
+or supply a negative value for the `"scale_factor"` field in
+`filesDF`.
 
-The example below defines a `data.frame` named  `filesDF`
+The example below defines a `data.frame` named `filesDF`
 which contains bigWig coverage, and splice junction data.
 
 ```{r, files_df}
@@ -265,16 +359,170 @@ filesDF;
 
 ```
 
-### Prepare Sashimi Data
+### Coverage in GRanges format
+
+Example coverage data is provided as data, to demonstrate
+the format expected. Note that in this case, there is no
+coverage defined for introns. The bigWig workflow by default
+adds gaps between exons, and retrieves coverage data for 
+introns as well.
+
+The `GRanges` object below uses an example set of exons,
+`test_exon_wide_gr`, and corresponding coverage `GRanges`
+is `test_exon_wide_gr`. Note that both share the same
+names and genomic coordinates.
+
+Ultimately, coverage data should be split by the same
+`GRanges` used to define exons (and introns) for the
+Sashimi plot.
+
+```{r, test_cov_data}
+data(test_exon_wide_gr);
+test_exon_wide_gr;
+data(test_cov_wide_gr);
+test_cov_wide_gr;
+```
+
+### Plotting exon coverage data
+
+Some basic plotting functions are provided, in fact they
+are rolled into the Sashimi plot itself. They can help
+visualize the coverage by itself.
+
+The function `splicejam::exoncov2polygon()` converts coverage
+to polygons, by default it returns a format convenient for
+`geom_polygon()` or `ggforce::geom_shape()`, but if
+`coord_style="base"` then it returns a matrix with blank
+rows separating each polygon, suitable for R base graphics
+using `graphics::polygon()`.
+
+The argument `covNames` must contain one of more columns in
+`colnames(values(test_cov_wide_gr))`.
+
+```{r, cov_plots, fig.height=5, fig.width=7}
+# To plot a simple GRanges object
+widecovdf <- exoncov2polygon(test_cov_wide_gr, covNames="sample_A");
+
+ggWide3 <- ggplot(widecovdf,
+      aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
+   ggforce::geom_shape(alpha=0.7) +
+   colorjam::theme_jam() +
+   colorjam::scale_fill_jam() +
+   colorjam::scale_color_jam();
+print(ggWide3);
+```
+
+#### Compressing intron coordinates
+
+The plot above demonstrates default genomic coordinates,
+and shows how large intron regions are compared to typical
+exons (in mammals anyway.) For better visualization of the
+transcript exons, we compress introns using the
+function `splicejam::make_ref2compresssed()`. This function
+returns a list with several useful components, one of which
+is `trans_grc` which is a ggplot2 transformation function.
+
+The argument `nBreaks=10` defines 10 fixed x-axis label
+positions, which by default use exon boundaries. To label
+every exon boundary, use `nBreaks=Inf`.
+
+The key step when using ggplot2 is to use the function
+`ggplot2::scale_x_continuous()`, using argument
+`trans=ref2c$trans_grc`. This argument defines the
+x-axis compression, x-axis breaks, x-axis minor breaks,
+and x-axis labels.
+
+Alternatively, you can use `ggplot2::coord_trans(x=ref2c$trans_grc)`
+however, that function only compresses the x-axis coordinates
+and does not define breaks or labels.
+
+```{r, compress_intron_cov, fig.height=5, fig.width=7}
+# Now compress the introns keeping axis labels
+ref2c <- make_ref2compressed(test_cov_wide_gr,
+   nBreaks=10);
+
+# Repeat ggplot using ref2c$trans_grc
+ggWide3c <- ggWide3 +
+   scale_x_continuous(trans=ref2c$trans_grc) +
+   xlab("chr1 (compressed introns)") +
+   ggtitle("exons (compressed introns)");
+print(ggWide3c);
+```
+
+## Splice junction data
+
+Splice junction data can be provided in two forms:
+
+* Files in `BED6` or `BED12` format, accessible either as a file or web URL.
+The `BED6` format uses the score column to count reads, and uses
+the genomic coordinates to indicate the splice junction span. The
+`BED12` format is inverted, so there is one base on each side, and
+the junction region is in the middle. In this case, the one base is trimmed
+off each side, and the internal region is used to indicate the junction
+spanning region.
+* GRanges objects, where the `"score"` column indicates the number of
+splice junction reads, and the `"sample_id"` column indicates the
+biological sample. Therefore all splice junctions for all samples
+should be condensed into one `GRanges` object.
+
+Currently, the `rtracklayer::import()` function does not support
+`bigBed` format, and there is no apparent plan to provide that
+capability. It is recommended to use the UCSC tool `bigBedToBed`
+to convert `bigBed` files to BED format.
+
+A set of sample splice junction data is provided to show the
+expected format of junction data. Note it has two columns
+`"score"` and `"sample_id"`.
+
+```{r, test_junc}
+data(test_junc_wide_gr);
+test_junc_wide_gr;
+```
+
+### Plotting splice junction data
+
+Some basic plotting functions are provided, which are
+rolled into the Sashimi plot. They can help
+visualize splice junction data directly, as needed.
+
+The key function here is `splicejam::grl2df(...,shape="junction")`
+which configures wide junction arcs suitable for
+`ggforce::geom_diagonal_wide()`. (Note that
+`ggplot2::geom_polygon()` would also work.)
+
+```{r, plot_test_junc, fig.height=5, fig.width=7}
+# To plot junctions, use grl2df(..., shape="junction")
+junc_wide_df <-grl2df(test_junc_wide_gr,
+   shape="junction");
+
+ggWide1 <- ggplot(junc_wide_df,
+      aes(x=x, y=y, group=id, fill=gr_name)) +
+   ggforce::geom_diagonal_wide(alpha=0.7) +
+   colorjam::theme_jam() +
+   colorjam::scale_fill_jam() +
+   xlab("chr1") +
+   ggtitle("junctions (full intron width)")
+print(ggWide1);
+```
+
+For more insight into creating a Sashimi plot manually,
+see the help for data `splicejam::test_junc_wide_gr`.
+
+## Prepare Sashimi Data
 
 The main function `prepareSashimi()` is intended to assemble the
 sources of data together into one list of `data.frame` results
 which can be used to produce ggplot2 visualizations.
 
-For this example, we use the Gria1 gene in mouse mm10.
+### Data obtained from external files
+
+For this example, we use the Gria1 gene in mouse mm10,
+pulling from a web-accessible track hub. Note that
+the `bigBed` files were already converted to `BED12`
+format using the UCSC tool `bigBedToBed`.
 
 
-```{r, prepare_sashimi, fig.height=10, fig.width=8}
+```{r, prepare_sashimi}
 shGria1 <- prepareSashimi(gene="Gria1",
    flatExonsByGene=flatExonsByGeneMm10,
    minJunctionScore=100,
@@ -282,11 +530,50 @@ shGria1 <- prepareSashimi(gene="Gria1",
    filesDF=filesDF)
 ```
 
-### Plot Sashimi Data
+### Data provided using GRanges objects
 
-Once the data is prepared, the plot function can be called
-and customized to fit the particular visualization.
+Alternatively, you can provide data in the form of
+`GRanges` objects, and not point to specific files.
 
+Note that `filesDF` is still required for coverage
+in `GRanges` format, in order to define the
+`"sample_id"` for each coverage.
+
+```{r, prepare_sashimi_gr}
+data(test_exon_wide_gr);
+data(test_junc_wide_gr);
+data(test_cov_wide_gr);
+testfilesDF <- data.frame(url="sample_A",
+   type="coverage_gr",
+   sample_id="sample_A");
+testfilesDF;
+
+# Now prepare sashimi data
+sh1 <- prepareSashimi(GRangesList(TestGene1=test_exon_gr),
+   filesDF=testfilesDF,
+   gene="TestGene1",
+   sample_id="sample_A",
+   covGR=test_cov_gr,
+   juncGR=test_junc_gr);
+
+```
+
+At this point, we can just plot the result.
+
+```{r, plot_sashimi_gr, fig.height=5, fig.width=7}
+# Plot sample Sashimi data
+plotSashimi(sh1);
+```
+
+## Plot Sashimi Data
+
+Once the Sashimi data is prepared, the `splicejam::plotSashimi()`
+function is used to create a visualization that
+can be customized in several ways.
+
+The output of `splicejam::plotSashimi()` is a `ggplot`
+object, which can be printed to create a plot, or
+can be modified as needed.
 
 ```{r, plot_sashimi, fig.height=10, fig.width=8}
 ggGria1 <- plotSashimi(shGria1,
@@ -297,23 +584,33 @@ ggGria1 <- plotSashimi(shGria1,
 print(ggGria1);
 ```
 
-#### Adding gene-exon model
 
-To add the gene-exon model, currently the best method is to use
-something like the `cowplot` package to assemble multiple ggplot
-visualizations together. It also helps in this context to force
-the `facet_wrap` to have one column, using the `ncol=1` argument.
+### Adding gene-exon model to a Sashimi plot
 
-An example is shown below.
+To add a gene-exon model, and even transcript-exon
+models, we will use the `cowplot` package to arrange
+multiple `ggplot` objects together.
 
-Note for the Sashimi plots, the x-axis labels are hidden, since
-the gene-exon plot shares the same range and values.
+Some guidelines:
 
-```{r, plot_sashimi_exons, fig.height=10, fig.width=8}
-if (require(cowplot)) {
+* This step requires the `cowplot` package.
+* Sashimi plots should have facets with one column,
+for example ` + facet_wrap(~sample_id, ncol=1)`.
+* The Sashimi plot and the gene-exon plot should
+share identical x-axis range and axis breaks.
+* The x-axis labels of Sashimi plot panels should
+be hidden, since the gene-exon plot will display
+the genomic coordinates.
+
+The example below demonstrates combining a gene-exon
+plot with a Sashimi plot, meeting the required
+guidelines.
+
+```{r, plot_sashimi_exons, fig.height=8, fig.width=7}
+if (suppressPackageStartupMessages(require(cowplot))) {
    cpGria1 <- cowplot::plot_grid(
       ggGria1 + theme(axis.text.x=element_blank()) + xlab(NULL),
-      ggGria1exons + ggtitle(NULL) + expand_limits(y=-2),
+      ggGria1exonsTx + ggtitle(NULL) + expand_limits(y=-2),
       ncol=1,
       align="v", 
       axis="lr",
@@ -321,3 +618,78 @@ if (require(cowplot)) {
    print(cpGria1);
 }
 ```
+
+### Sashimi plot with unscaled introns
+
+```{r plot_sashimi_wide, fig.height=10, fig.width=7}
+if (require(cowplot)) {
+   cpWide <- cowplot::plot_grid(ncol=1,
+      ggGria1 + scale_x_continuous() + theme(axis.text.x=element_blank()) + xlab(NULL),
+      gg2full,
+      axis="lr",
+      align="v");
+   print(cpWide);
+}
+```
+
+### Zoom into specific exons
+
+There are two ways to zoom into a region of interest:
+
+1. Prepare one Sashimi panel, and use `ggforce::facet_zoom()`
+2. Prepare Sashimi data for a specific set of exons.
+
+#### Zoom one panel using facet_zoom
+
+The example below shows the `ggforce::facet_zoom()`
+capability.
+
+Note the most important step is to transform the x-axis
+values when using `xlim` to subset the range.
+The `splicejam::prepareSashimi()` function returns
+`x$ref2c$transform()` which transforms genomic
+coordinates into compressed coordinates.
+
+```{r, zoom_sashimi, fig.height=5, fig.width=7}
+plotSashimi(sh1) + 
+   facet_zoom(xlim=sh1$ref2c$transform(c(370, 410)));
+```
+
+#### Zoom multiple panels
+
+In order to zoom multiple panels, a few steps must be
+followed:
+
+* the data for each panel must be prepared separately,
+* the `ggforce::facet_zoom()` method above is applied to
+each plot
+* the plots are arranged together using `cowplot::plot_grid()`.
+
+```{r, zoom_gria1, fig.height=10, fig.width=12}
+zoomStart <- start(flatExonsByGeneMm10[["Gria1"]]["Gria1_exon14"]);
+zoomEnd <- end(flatExonsByGeneMm10[["Gria1"]]["Gria1_exon18a"]);
+
+# Now prepare sashimi data
+shGria1L <- lapply(c("CA1_CB", "CA2_CB"), function(iSample){
+   # devtools::load_all("/Users/wardjm/Projects/Ward/splicejam")
+   shX <- prepareSashimi(gene="Gria1",
+      flatExonsByGene=flatExonsByGeneMm10,
+      minJunctionScore=100,
+      sample_id=iSample,
+      doStackJunctions=FALSE,
+      filesDF=filesDF);
+});
+ggGriaL <- lapply(shGria1L, function(shX){
+      ggX <- plotSashimi(shX) +
+         facet_zoom(xlim=shX$ref2c$transform(c(zoomStart, zoomEnd)));
+});
+
+# now use cowplot
+if (require(cowplot)) {
+   cpMulti <- do.call(cowplot::plot_grid, ggGriaL);
+   print(cpMulti);
+}
+
+
+```
+

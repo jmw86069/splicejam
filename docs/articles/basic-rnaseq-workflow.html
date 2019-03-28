@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <h1>Splicejam basic RNAseq workflow</h1>
                         <h4 class="author">James M. Ward</h4>
             
-            <h4 class="date">2019-03-26</h4>
+            <h4 class="date">2019-03-28</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jmw86069/splicejam/blob/master/vignettes/basic-rnaseq-workflow.Rmd"><code>vignettes/basic-rnaseq-workflow.Rmd</code></a></small>
       <div class="hidden name"><code>basic-rnaseq-workflow.Rmd</code></div>
@@ -298,7 +298,7 @@ numDetectedGenes &lt;-<span class="st"> </span><span class="kw"><a href="https:/
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/format">format</a></span>(<span class="dt">big.mark=</span><span class="st">","</span>, numDetectedGenes),
    <span class="st">" genes."</span>);
 <span class="co">#&gt; Warning: package 'colorspace' was built under R version 3.5.2</span>
-<span class="co">#&gt; ##  (15:36:16) 26Mar2019:  Defined 39,111 detected Tx representing 15,168 genes.</span></code></pre></div>
+<span class="co">#&gt; ##  (17:58:23) 28Mar2019:  Defined 39,111 detected Tx representing 15,168 genes.</span></code></pre></div>
 <ul>
 <li>**{r format(numDetectedTx, scientific=FALSE, big.mark=“,”)} detected transcripts</li>
 <li>**{r format(numDetectedGenes, scientific=FALSE, big.mark=“,”)} detected genes</li>
@@ -324,16 +324,16 @@ iWhich &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdoc
 <span class="co">#&gt; subscript is an array, passing it thru as.vector() first</span>
 jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/minorLogTicksAxis">minorLogTicksAxis</a></span>(<span class="dv">1</span>,
    <span class="dt">logBase=</span><span class="dv">2</span>, <span class="dt">displayBase=</span><span class="dv">10</span>, <span class="dt">offset=</span><span class="dv">1</span>);
-<span class="co">#&gt; ##  (15:36:17) 26Mar2019:  adjusting logBase to displayBase.</span>
+<span class="co">#&gt; ##  (17:58:23) 28Mar2019:  adjusting logBase to displayBase.</span>
 <span class="co">#&gt; Warning in any(majorLabels): coercing argument of type 'double' to logical</span>
-<span class="co">#&gt; ##  (15:36:17) 26Mar2019:  majorTicks:-3.459432,-1.000000,0.000000,1.000000,3.459432,6.658211 </span>
-<span class="co">#&gt; ##  (15:36:17) 26Mar2019:  majorLabels:-10,-1,0,1,10,100</span>
+<span class="co">#&gt; ##  (17:58:23) 28Mar2019:  majorTicks:-3.459432,-1.000000,0.000000,1.000000,3.459432,6.658211 </span>
+<span class="co">#&gt; ##  (17:58:23) 28Mar2019:  majorLabels:-10,-1,0,1,10,100</span>
 jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/minorLogTicksAxis">minorLogTicksAxis</a></span>(<span class="dv">2</span>,
    <span class="dt">logBase=</span><span class="dv">2</span>, <span class="dt">displayBase=</span><span class="dv">10</span>, <span class="dt">offset=</span><span class="dv">1</span>);
-<span class="co">#&gt; ##  (15:36:17) 26Mar2019:  adjusting logBase to displayBase.</span>
+<span class="co">#&gt; ##  (17:58:23) 28Mar2019:  adjusting logBase to displayBase.</span>
 <span class="co">#&gt; Warning in any(majorLabels): coercing argument of type 'double' to logical</span>
-<span class="co">#&gt; ##  (15:36:17) 26Mar2019:  majorTicks:-3.459432,-1.000000,0.000000,1.000000,3.459432,6.658211 </span>
-<span class="co">#&gt; ##  (15:36:17) 26Mar2019:  majorLabels:-10,-1,0,1,10,100</span>
+<span class="co">#&gt; ##  (17:58:23) 28Mar2019:  majorTicks:-3.459432,-1.000000,0.000000,1.000000,3.459432,6.658211 </span>
+<span class="co">#&gt; ##  (17:58:23) 28Mar2019:  majorLabels:-10,-1,0,1,10,100</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/abline">abline</a></span>(<span class="dt">v=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxExpr),
    <span class="dt">h=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxTPMExpr),
    <span class="dt">lty=</span><span class="st">"dashed"</span>,
@@ -433,7 +433,7 @@ iDesign &lt;-<span class="st"> </span>iDC<span class="op">$</span>iDesign;
 iContrasts &lt;-<span class="st"> </span>iDC<span class="op">$</span>iContrasts;
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"iDesign:"</span>);
-<span class="co">#&gt; ##  (15:36:22) 26Mar2019:  iDesign:</span>
+<span class="co">#&gt; ##  (17:58:29) 28Mar2019:  iDesign:</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(iDesign);
 <span class="co">#&gt;           A B</span>
 <span class="co">#&gt; ERR188297 1 0</span>
@@ -443,7 +443,7 @@ iContrasts &lt;-<span class="st"> </span>iDC<span class="op">$</span>iContrasts;
 <span class="co">#&gt; ERR188021 1 0</span>
 <span class="co">#&gt; ERR188356 0 1</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"iContrasts:"</span>);
-<span class="co">#&gt; ##  (15:36:22) 26Mar2019:  iContrasts:</span>
+<span class="co">#&gt; ##  (17:58:29) 28Mar2019:  iContrasts:</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(iContrasts);
 <span class="co">#&gt;       Contrasts</span>
 <span class="co">#&gt; Levels B-A</span>
@@ -512,7 +512,7 @@ diffSpliceHitsL &lt;-<span class="st"> </span><span class="kw"><a href="https://
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/subset">subset</a></span>(iDF, iDF[[hitColname]] <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>)[,geneColname]);
 });
 <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"Differential isoform hits per contrast:"</span>);
-<span class="co">#&gt; ##  (15:36:27) 26Mar2019:  Differential isoform hits per contrast:</span>
+<span class="co">#&gt; ##  (17:58:33) 28Mar2019:  Differential isoform hits per contrast:</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/sdim">sdim</a></span>(diffSpliceHitsL));
 <span class="co">#&gt;     rows     class</span>
 <span class="co">#&gt; B-A  661 character</span></code></pre></div>

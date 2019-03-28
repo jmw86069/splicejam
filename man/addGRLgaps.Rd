@@ -7,7 +7,7 @@
 addGRLgaps(grl, strandSpecific = TRUE, gapname = "gap",
   suffix = "_v", newValues = list(feature_type = "gap"),
   default_feature_type = "exon", feature_type_colname = "feature_type",
-  doSort = TRUE, ...)
+  doSort = TRUE, verbose = FALSE, ...)
 }
 \arguments{
 \item{grl}{GRangesList object}
@@ -34,6 +34,8 @@ GRanges objects. When \code{doSort=FALSE} the gaps are added to the end
 of each input \code{grl} GRanges object. Note that the GrangesList object
 is not sorted, only the GRanges objects within the GRangesList
 are sorted.}
+
+\item{verbose}{logical indicating whether to print verbose output.}
 
 \item{...}{additional arguments are passed to \code{getGRLgaps()}.}
 }

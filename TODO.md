@@ -1,5 +1,18 @@
 ## TODO for jambio
 
+### Sashimi plot functionality
+
+* Needs ability to zoom without polygon clipping issues in ggplot2.
+Suggestions: prepare only subset of exons or a fixed chromosome region
+during `prepSashimi()`; however it still displays any junction whose
+ends are in this range, sometimes extending far outside of the intended
+range.
+* Customize the transformed axis breaks, minor_breaks, and labels
+functions so ggplot2 labels include as many non-overlapping x-axis
+labels at exon boundaries as possible. Make minor_breaks include
+tick marks and optional smaller labels when zoomed in, or when an
+exon is wide enough to have an intermediate label.
+
 ### Portability
 
 * Verify handling of gzip files across architectures, specifically for

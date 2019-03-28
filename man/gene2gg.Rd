@@ -24,7 +24,7 @@ when specifying specific transcripts. Values are matched with
 by \code{"gene_name"} or \code{"transcript_id"} respectively, containing
 disjoint (non-overlapping) exons within each GRangesList
 element. The data is expected to be in the form provided by
-\code{flattenExonsByGene()}.}
+\code{flattenExonsBy()}.}
 
 \item{geneColor}{character color used as the base color for
 exons, where the color is varied for each feature type or
@@ -88,7 +88,7 @@ This function is intended to help plot gene and transcript exon
 models, and is a lightweight wrapper around \code{grl2df()}.
 
 It takes \code{flatExonsByGene} which is the output from
-\code{flattenExonsByGene()}, and essentially plots the end result
+\code{flattenExonsBy()}, and essentially plots the end result
 for review.
 
 Alternatively, when \code{return_type="df"}, the output is
@@ -118,6 +118,11 @@ Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{stackJunctions}}
 
 Other jam ggplot2 functions: \code{\link{plotSashimi}}
+
+Other splicejam core functions: \code{\link{exoncov2polygon}},
+  \code{\link{grl2df}}, \code{\link{make_ref2compressed}},
+  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}}
 }
 \concept{jam ggplot2 functions}
 \concept{jam plot functions}
+\concept{splicejam core functions}

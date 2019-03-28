@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
       </span>
     </div>
 
@@ -126,6 +126,50 @@
     </colgroup>
 
     <tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-splicejam-core-functions" class="hasAnchor"><a href="#section-splicejam-core-functions" class="anchor"></a>Splicejam core functions</h2>
+          <p class="section-desc"><p>These functions are the heart of the splicejam package</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="exoncov2polygon.html">exoncov2polygon()</a></code> </p>
+        </td>
+        <td><p>Convert exon coverage to polygons</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="gene2gg.html">gene2gg()</a></code> </p>
+        </td>
+        <td><p>Gene GRangesList to ggplot2 grob</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="grl2df.html">grl2df()</a></code> </p>
+        </td>
+        <td><p>GRangesList to data.frame for ggplot2</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="make_ref2compressed.html">make_ref2compressed()</a></code> </p>
+        </td>
+        <td><p>Create a ref2compressed function to compress GR gaps</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plotSashimi.html">plotSashimi()</a></code> </p>
+        </td>
+        <td><p>Jam Sashimi plot</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="prepareSashimi.html">prepareSashimi()</a></code> </p>
+        </td>
+        <td><p>Prepare Sashimi plot data</p></td>
+      </tr>
+    </tbody><tbody>
       <tr>
         <th colspan="2">
           <h2 id="section-rna-seq-functions" class="hasAnchor"><a href="#section-rna-seq-functions" class="anchor"></a>RNA-seq functions</h2>
@@ -195,9 +239,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="flattenExonsByGene.html">flattenExonsByGene()</a></code> </p>
+          <p><code><a href="flattenExonsBy.html">flattenExonsBy()</a></code> </p>
         </td>
-        <td><p>Flatten transcript exons by gene</p></td>
+        <td><p>Flatten exons by gene or transcript</p></td>
       </tr><tr>
         
         <td>
@@ -612,6 +656,7 @@
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#section-splicejam-core-functions">Splicejam core functions</a></li>
       <li><a href="#section-rna-seq-functions">RNA-seq functions</a></li>
       <li><a href="#section-granges-functions">GRanges functions</a></li>
       <li><a href="#section-design-functions">Design functions</a></li>
