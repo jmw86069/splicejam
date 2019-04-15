@@ -292,7 +292,7 @@ makeTx2geneFromGtf <- function
 #'    aggregating transcripts into ALEs. Note that only multi-ALE genes
 #'    are included, all single-ALE genes are excluded.
 #'
-#' @family jam RNA-seq functions
+#' @family jam ALE-specific RNA-seq functions
 #'
 #' @export
 tx2ale <- function
@@ -1075,10 +1075,10 @@ shrinkMatrix <- function
 #' `codon`, `frequency`, and `count`.
 #'
 #' @examples
-#' codonFile <- system.file("extdata", "Mouse_codon_usage.txt", package="farrisdata");
+#' codonFile <- system.file("extdata", "Mouse_codon_usage.txt", package="splicejam");
 #' codonDF <- codonUsage2df(codonFile);
 #'
-#' @family jam RNA-seq functions
+#' @family jam codon usage functions
 #'
 #' @export
 codonUsage2df <- function
@@ -1137,7 +1137,7 @@ codonUsage2df <- function
 #' dnaext1 <- c("atgggattataga");
 #' dna2codon(dnaext1);
 #'
-#' @family jam RNA-seq functions
+#' @family jam codon usage functions
 #'
 #' @export
 dna2codon <- function
@@ -1188,7 +1188,7 @@ dna2codon <- function
 #'    `names(x)` containing codon adaptation index (cai) values
 #'    equivalent to those produced by `seqinr::cai()`.
 #'
-#' @family jam RNA-seq functions
+#' @family jam codon usage functions
 #'
 #' @export
 jamCai <- function
@@ -1500,6 +1500,7 @@ factor2label <- function
 #' @return GRangesList containing only the first GRanges feature
 #'    in stranded order.
 #'
+#' @family jam ALE-specific RNA-seq functions
 #' @family jam GRanges functions
 #'
 #' @param grl GRangesList
@@ -2686,7 +2687,7 @@ assignGRLexonNames <- function
 #' @param verbose logical indicating whether to print verbose output
 #' @param ... additional arguments are ignored.
 #'
-#' @family jam RNA-seq functions
+#' @family jam ALE-specific RNA-seq functions
 #'
 #' @export
 ale2violin <- function

@@ -19,7 +19,8 @@
 #'
 #' @examples
 #' # The code below is used to create the junction test data
-#' library(GenomicRanges);
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#' suppressPackageStartupMessages(library(ggplot2));
 #'
 #' test_junc_gr <- GRanges(seqnames=rep("chr1", 5),
 #'    ranges=IRanges(
@@ -68,7 +69,9 @@
 #'
 #' @examples
 #' # The code below is used to create the junction test data
-#' library(GenomicRanges);
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#' suppressPackageStartupMessages(library(ggplot2));
+#'
 #' data(test_junc_gr);
 #' test_junc_wide_gr <- test_junc_gr;
 #' xshift <- c(0, 10000, 20000, 39000);
@@ -129,7 +132,8 @@
 #'
 #' @examples
 #' # The code below is used to create the exon test data
-#' library(GenomicRanges);
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#' suppressPackageStartupMessages(library(ggplot2));
 #'
 #' test_exon_gr <- GRanges(seqnames=rep("chr1", 4),
 #'    ranges=IRanges(
@@ -166,7 +170,8 @@
 #'
 #' @examples
 #' # The code below is used to create the exon test data
-#' library(GenomicRanges);
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#' suppressPackageStartupMessages(library(ggplot2));
 #'
 #' test_exon_wide_gr <- GRanges(seqnames=rep("chr1", 4),
 #'    ranges=IRanges(
@@ -208,7 +213,8 @@
 #' across these exons.
 #'
 #' @examples
-#' library(GenomicRanges);
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#' suppressPackageStartupMessages(library(ggplot2));
 #' data(test_exon_gr);
 #'
 #' # The steps below demonstrate how to create coverage data manually
@@ -258,7 +264,9 @@
 #'
 #' @examples
 #' # The steps below demonstrate how to create coverage data manually
-#' library(GenomicRanges);
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#' suppressPackageStartupMessages(library(ggplot2));
+#'
 #' data(test_cov_gr);
 #' data(test_exon_wide_gr);
 #' test_cov_wide_gr <- test_cov_gr;

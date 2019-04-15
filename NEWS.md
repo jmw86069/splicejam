@@ -1,3 +1,19 @@
+# splicejam version 0.0.21.900
+
+## bug fixes
+
+* Fixed examples that did not explicitly call library() for
+required libraries.
+* Fixed error in `codonUsage2df()` example data file path.
+
+## changes
+
+* Added specific TODO items.
+* Added two function categories: `"jam ALE-specific RNA-seq functions"`,
+and `"jam codon-usage RNA-seq functions"` to help organize the
+large list of accessory functions.
+
+
 # splicejam version 0.0.20.900
 
 ## changes

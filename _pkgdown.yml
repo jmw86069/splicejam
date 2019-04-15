@@ -10,6 +10,14 @@ reference:
   desc: Functions aimed at RNA-seq analysis
   contents:
   - has_concept("jam RNA-seq functions")
+- title: ALE-specific RNA-seq functions
+  desc: Functions specific to ALE (alternate last exon) RNA-seq analysis
+  contents:
+  - has_concept("jam ALE-specific RNA-seq functions")
+- title: RNA-seq codon usage functions
+  desc: Functions specific to codon usage in RNA-seq analysis
+  contents:
+  - has_concept("jam codon usage functions")
 - title: GRanges functions
   desc: Functions to manipulate the Genomic Ranges (GRanges) family of objects
   contents:

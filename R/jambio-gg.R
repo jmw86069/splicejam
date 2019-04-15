@@ -631,7 +631,7 @@ gene2gg <- function
          -1 * (exonLabelSize/10) +
          -1 * ((labelExons*1) * length(grl1a1))/6);
    ## Put it together
-   grl1a1gg <- ggplot(grl1a1df,
+   grl1a1gg <- ggplot2::ggplot(grl1a1df,
          aes(x=x,
             y=y,
             group=id)) +
@@ -982,6 +982,7 @@ stackJunctions <- function
 #' @param ... additional arguments are sent to `grl2df()`.
 #'
 #' @examples
+#' suppressPackageStartupMessages(library(GenomicRanges));
 #' data(test_exon_gr);
 #' data(test_junc_gr);
 #' data(test_cov_gr);
@@ -1022,7 +1023,7 @@ plotSashimi <- function
    }
    ggCov <- NULL;
    if ("coverage" %in% show && "covDF" %in% names(sashimi)) {
-      ggSashimi <- ggplot(sashimi$covDF,
+      ggSashimi <- ggplot2::ggplot(sashimi$covDF,
          aes(x=x,
             y=y,
             group=gr));
@@ -1061,7 +1062,7 @@ plotSashimi <- function
    ## Junction data
    if ("junction" %in% show && "juncDF" %in% names(sashimi)) {
       if (length(ggSashimi) == 0) {
-         ggSashimi <- ggplot(sashimi$juncDF) +
+         ggSashimi <- ggplot2::ggplot(sashimi$juncDF) +
             ggforce::geom_diagonal_wide(
                aes(x=x,
                   y=y,

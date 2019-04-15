@@ -12,6 +12,7 @@
 #' coordinates of the gaps between GRanges features.
 #'
 #' @family jam GRanges functions
+#' @family splicejam core functions
 #' @family jam RNA-seq functions
 #'
 #' @return list with `trans_grc` which is class `"trans"` suitable
@@ -28,8 +29,6 @@
 #'    be programmatically defined; `"gr"` the `GRanges` input data used
 #'    to train the transformation.
 #'
-#' @family jam GRanges functions
-#' @family splicejam core functions
 #'
 #' @param gr GRanges object containing regions not to compress. Regions
 #'    which are unstranded gaps are compressed to fixed width.
@@ -52,8 +51,9 @@
 #' @seealso `grl2df()`, `test_junc_wide_gr`
 #'
 #' @examples
-#' library(GenomicRanges);
-#' library(ggplot2);
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#' suppressPackageStartupMessages(library(ggplot2));
+#'
 #' data(test_exon_wide_gr);
 #' # To plot a simple GRanges object
 #' widedf <- grl2df(test_exon_wide_gr);
@@ -478,7 +478,6 @@ simplifyXY <- function
 #' coverages compressed to this value.
 #'
 #' @family jam spatial functions
-#' @family jam RNA-seq functions
 #'
 #' @return data.frame with the same colnames, with reduced rows
 #'    for polygons where the coordinate compression defined in
@@ -673,6 +672,8 @@ compressPolygonM <- function
 #' @examples
 #' # use some test data
 #' suppressPackageStartupMessages(library(GenomicRanges));
+#' suppressPackageStartupMessages(library(ggplot2));
+#'
 #' data(test_cov_gr);
 #' # prepare polygon coordinates
 #' exondf <- exoncov2polygon(test_cov_gr, covNames="sample_A");
@@ -888,6 +889,9 @@ exoncov2polygon <- function
 #' This function takes a GRanges object to define genomic regions,
 #' for which coverage data is loaded for each `bwUrls` input file.
 #'
+#' Note that this function uses `rtracklayer::import.bw()` which
+#' they describe does not work on the Windows platform.
+#'
 #' @return DataFrame object, whose colnames are defined using
 #'    `makeNames(basename(bwUrls))`. Each column is type `NumericList`,
 #'    which is a list of numeric coverage values.
@@ -909,6 +913,7 @@ exoncov2polygon <- function
 #'    otherwise the column is created with value `default_feature_type`.
 #'    By default, this function adds a column `"feature_type"` with
 #'    value `"gap"`.
+#' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
 #' @export
@@ -1188,6 +1193,8 @@ combineGRcoverage <- function
 #'
 #' @examples
 #' # The active example below uses sample data
+#' suppressPackageStartupMessages(library(GenomicRanges));
+#'
 #' data(test_exon_gr);
 #' data(test_junc_gr);
 #' data(test_cov_gr);
