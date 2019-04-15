@@ -26,7 +26,8 @@ stored as a GRangesList.
 }
 \examples{
 # The code below is used to create the junction test data
-library(GenomicRanges);
+suppressPackageStartupMessages(library(GenomicRanges));
+suppressPackageStartupMessages(library(ggplot2));
 
 test_junc_gr <- GRanges(seqnames=rep("chr1", 5),
    ranges=IRanges(

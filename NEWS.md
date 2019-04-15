@@ -1,3 +1,11 @@
+# splicejam version 0.0.22.900
+
+## additions
+
+* Initial R-shiny `launchSashimiApp()` function.
+* Suggests the `farrisdata` package for example data used
+for the Farris et all RNA-seq mouse hippocampus manuscript.
+
 # splicejam version 0.0.21.900
 
 ## bug fixes

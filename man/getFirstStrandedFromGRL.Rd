@@ -35,6 +35,9 @@ GRangesList element has only one strand, as is true for exons
 in one transcript.
 }
 \seealso{
+Other jam ALE-specific RNA-seq functions: \code{\link{ale2violin}},
+  \code{\link{tx2ale}}
+
 Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{addGRgaps}},
   \code{\link{annotateGRLfromGRL}},
@@ -50,4 +53,5 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{spliceGR2junctionDF}},
   \code{\link{stackJunctions}}
 }
+\concept{jam ALE-specific RNA-seq functions}
 \concept{jam GRanges functions}

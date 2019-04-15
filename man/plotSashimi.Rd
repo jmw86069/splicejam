@@ -62,6 +62,7 @@ As a result, this function provides several arguments to
 customize the visualization.
 }
 \examples{
+suppressPackageStartupMessages(library(GenomicRanges));
 data(test_exon_gr);
 data(test_junc_gr);
 data(test_cov_gr);

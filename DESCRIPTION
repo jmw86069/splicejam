@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.21.900
+Version: 0.0.22.900
 Authors@R: person(given="James M.", family="Ward",
     email="jmw86069@gmail.com", role=c("aut", "cre"))
 Maintainer: James M. Ward <jmw86069@gmail.com>
@@ -35,13 +35,15 @@ Suggests:
     rmarkdown,
     tximport,
     TxDb.Mmusculus.UCSC.mm10.knownGene,
-    org.Mm.eg.db
+    org.Mm.eg.db,
+    farrisdata(>= 0.0.5.900)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Remotes: github::jmw86069/jamba,
     github::jmw86069/colorjam,
-    github::jmw86069/jamma
+    github::jmw86069/jamma,
+    github::jmw86069/farrisdata
 URL: http://github.com/jmw86069/splicejam
 BugReports: http://github.com/jmw86069/splicejam/issues
 Roxygen: list(markdown = TRUE)

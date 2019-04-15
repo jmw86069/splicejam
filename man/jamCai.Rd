@@ -35,20 +35,7 @@ This function is equivalent to \code{seqinr::cai()} except that it
 runs in vectorized form and is markedly more efficient.
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{ale2violin}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{codonUsage2df}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{compressPolygonM}},
-  \code{\link{defineDetectedTx}},
-  \code{\link{detectedTxInfo}}, \code{\link{dna2codon}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsBy}},
-  \code{\link{groups2contrasts}},
-  \code{\link{makeTx2geneFromGtf}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}, \code{\link{tx2ale}}
+Other jam codon usage functions: \code{\link{codonUsage2df}},
+  \code{\link{dna2codon}}
 }
-\concept{jam RNA-seq functions}
+\concept{jam codon usage functions}

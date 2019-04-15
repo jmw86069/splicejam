@@ -34,20 +34,7 @@ dna2codon(dnaext1);
 
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{ale2violin}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{codonUsage2df}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{compressPolygonM}},
-  \code{\link{defineDetectedTx}},
-  \code{\link{detectedTxInfo}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsBy}},
-  \code{\link{groups2contrasts}}, \code{\link{jamCai}},
-  \code{\link{makeTx2geneFromGtf}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}, \code{\link{tx2ale}}
+Other jam codon usage functions: \code{\link{codonUsage2df}},
+  \code{\link{jamCai}}
 }
-\concept{jam RNA-seq functions}
+\concept{jam codon usage functions}

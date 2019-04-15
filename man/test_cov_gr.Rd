@@ -17,7 +17,8 @@ with NumericList values representing RNA-seq read coverage
 across these exons.
 }
 \examples{
-library(GenomicRanges);
+suppressPackageStartupMessages(library(GenomicRanges));
+suppressPackageStartupMessages(library(ggplot2));
 data(test_exon_gr);
 
 # The steps below demonstrate how to create coverage data manually

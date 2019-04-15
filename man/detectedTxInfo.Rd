@@ -32,19 +32,16 @@ This function provides a simple summary of the results of
 \code{defineDetectedTx()}, typically for a given gene of interest.
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{ale2violin}},
-  \code{\link{assignGRLexonNames}},
+Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
   \code{\link{closestExonToJunctions}},
-  \code{\link{codonUsage2df}},
   \code{\link{combineGRcoverage}},
-  \code{\link{compressPolygonM}},
-  \code{\link{defineDetectedTx}}, \code{\link{dna2codon}},
+  \code{\link{defineDetectedTx}},
   \code{\link{exoncov2polygon}},
   \code{\link{flattenExonsBy}},
-  \code{\link{groups2contrasts}}, \code{\link{jamCai}},
+  \code{\link{groups2contrasts}},
   \code{\link{makeTx2geneFromGtf}},
   \code{\link{make_ref2compressed}},
   \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}, \code{\link{tx2ale}}
+  \code{\link{spliceGR2junctionDF}}
 }
 \concept{jam RNA-seq functions}

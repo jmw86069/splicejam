@@ -136,6 +136,8 @@ of secure web requests, but this requirement varies by country.
 }
 \examples{
 # The active example below uses sample data
+suppressPackageStartupMessages(library(GenomicRanges));
+
 data(test_exon_gr);
 data(test_junc_gr);
 data(test_cov_gr);

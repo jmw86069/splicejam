@@ -24,7 +24,9 @@ for steps to compress the intron sizes.
 }
 \examples{
 # The steps below demonstrate how to create coverage data manually
-library(GenomicRanges);
+suppressPackageStartupMessages(library(GenomicRanges));
+suppressPackageStartupMessages(library(ggplot2));
+
 data(test_cov_gr);
 data(test_exon_wide_gr);
 test_cov_wide_gr <- test_cov_gr;

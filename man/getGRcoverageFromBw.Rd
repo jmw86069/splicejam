@@ -26,6 +26,8 @@ otherwise the column is created with value \code{default_feature_type}.
 By default, this function adds a column \code{"feature_type"} with
 value \code{"gap"}.}
 
+\item{verbose}{logical indicating whether to print verbose output.}
+
 \item{...}{additional arguments are ignored.}
 }
 \value{
@@ -39,6 +41,9 @@ Get coverage for GRanges from bigWig files
 \details{
 This function takes a GRanges object to define genomic regions,
 for which coverage data is loaded for each \code{bwUrls} input file.
+
+Note that this function uses \code{rtracklayer::import.bw()} which
+they describe does not work on the Windows platform.
 }
 \seealso{
 Other jam GRanges functions: \code{\link{addGRLgaps}},

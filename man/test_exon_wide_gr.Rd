@@ -25,7 +25,8 @@ for steps to compress the intron sizes.
 }
 \examples{
 # The code below is used to create the exon test data
-library(GenomicRanges);
+suppressPackageStartupMessages(library(GenomicRanges));
+suppressPackageStartupMessages(library(ggplot2));
 
 test_exon_wide_gr <- GRanges(seqnames=rep("chr1", 4),
    ranges=IRanges(

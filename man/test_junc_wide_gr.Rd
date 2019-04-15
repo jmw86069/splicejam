@@ -32,7 +32,9 @@ for steps to compress the intron sizes.
 }
 \examples{
 # The code below is used to create the junction test data
-library(GenomicRanges);
+suppressPackageStartupMessages(library(GenomicRanges));
+suppressPackageStartupMessages(library(ggplot2));
+
 data(test_junc_gr);
 test_junc_wide_gr <- test_junc_gr;
 xshift <- c(0, 10000, 20000, 39000);
