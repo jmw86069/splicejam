@@ -13,6 +13,8 @@
    * `ggforce::facet_zoom()` keeps all labels that use
    `ggrepel::geom_text_repel()`, which makes no sense. Hide
    labels outside the plot range.
+   * Evaluate using `coords_cartesian(xlim=, ylim=)` which supposedly does not
+   crop data points prior to applying axis limits.
    
 * Transformed axis:
 

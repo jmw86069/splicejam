@@ -51,6 +51,7 @@ sashimiAppUI <- function
                   inputId="gene",
                   selected="Gria1",
                   choices=c("Gria1", "Ntrk2"),
+                  options=list(maxOptions=100),
                   multiple=FALSE
                ),
                actionButton("calc_gene_params",

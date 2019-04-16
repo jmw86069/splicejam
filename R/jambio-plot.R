@@ -1184,6 +1184,12 @@ combineGRcoverage <- function
 #'    `"score"` is used for the abundance of splice junction reads,
 #'    and `"sample_id"` is used to define the biological `sample_id`.
 #' @param verbose logical indicating whether to print verbose output.
+#' @param do_shiny_progress logical indicating whether to send
+#'    progress updates to a running shiny app, using the
+#'    `shiny::withProgress()` and `shiny::incProgress()` methods.
+#'    This function only calls `shiny::incProgress()` and
+#'    assumes the `shiny::withProgress()` has already been
+#'    initialized.
 #' @param ... additional arguments are passed to `make_ref2compressed()`,
 #'    `getGRcoverageFromBw()`, `exoncov2polygon()`.
 #'
@@ -1235,6 +1241,7 @@ prepareSashimi <- function
  scoreArcMinimum=100,
  covGR=NULL,
  juncGR=NULL,
+ do_shiny_progress=FALSE,
  verbose=FALSE,
  ...)
 {
@@ -1328,6 +1335,11 @@ prepareSashimi <- function
          printDebug("prepareSashimi(): ",
             "Preparing coverage from covGR");
       }
+      if (do_shiny_progress) {
+         ##
+         shiny::incProgress(1/4,
+            detail=paste0("Preparing GR coverage data for ", gene));
+      }
       covGRuse <- covGR[names(covGR) %in% names(gr)];
       if (length(covGRuse) == 0) {
          warning("Supplied coverage covGR did not have names matching gr");
@@ -1371,6 +1383,11 @@ prepareSashimi <- function
       if (verbose) {
          printDebug("prepareSashimi(): ",
             "Preparing coverage from bigWig filesDF");
+      }
+      if (do_shiny_progress) {
+         ##
+         shiny::incProgress(1/4,
+            detail=paste0("Preparing bw coverage data for ", gene));
       }
       covGR <- getGRcoverageFromBw(gr=gr,
          bwUrls=bwUrls,
@@ -1428,61 +1445,6 @@ prepareSashimi <- function
          to="gr_sample");
       retVals$exonLabelDF <- exonLabelDF;
 
-      ## ggplot2 for exon coverage data
-      if (1 == 2) {
-         if (any(c("all","ggCov","ggSashimmi") %in% return_data)) {
-            ggCov <- ggplot(covDF, aes(x=x, y=y, group=gr, fill=gr)) +
-               geom_shape(show.legend=FALSE) +
-               theme_jam() +
-               scale_fill_jam() +
-               facet_grid(~sample_id, scales="free_y");
-            if ("scale" %in% coord_method) {
-               ggCov <- ggCov +
-                  scale_x_continuous(trans=ref2c$trans_grc);
-            } else if ("coord" %in% coord_method) {
-               ggCov <- ggCov +
-                  coord_trans(x=ref2c$trans_grc);
-            }
-            if (any(c("all", "ggCov") %in% return_data)) {
-               retVals$ggCov <- ggCov;
-            }
-            if ("mark" %in% exon_label_type) {
-               ggExonLabels <- ggforce::geom_mark_hull(data=exonLabelDF,
-                  aes(x=x, y=y, label=gr, group=gr_sample),
-                  fill="transparent",
-                  label.fontsize=10,
-                  label.fill=alpha2col("white", 0.3),
-                  colour="transparent",
-                  concavity=1,
-                  label.buffer=unit(2, 'mm'),
-                  con.cap=0,
-                  expand=unit(1, "mm"),
-                  con.border="one",
-                  con.colour="navy",
-                  label.colour="navy");
-               ggCov <- ggCov + ggExonLabels;
-            } else if ("repel" %in% junc_label_type) {
-               yMax <- max(exonLabelDF$y);
-               yUnit <- 10^floor(log10(yMax));
-               yMaxUse <- floor(yMax/yUnit)*yUnit;
-               ggExonLabels <- ggrepel::geom_text_repel(data=exonLabelDF,
-                  inherit.aes=FALSE,
-                  aes(x=x, y=y,
-                     group=gr_sample,
-                     fill="transparent",
-                     label=gr),
-                  #nudge_y=yMaxUse-juncLabelDF$y, vjust=1, ## Used to fix labels at certain height
-                  angle=90,
-                  vjust=1,
-                  direction="y",
-                  point.padding=0
-               );
-               ggCov <- ggCov + ggExonLabels;
-            } else {
-               ggExonLabels <- NULL;
-            }
-         }
-      }
    }
 
    ############################################
@@ -1494,6 +1456,11 @@ prepareSashimi <- function
       if (verbose) {
          printDebug("prepareSashimi(): ",
             "Preparing junctions from juncGR");
+      }
+      if (do_shiny_progress) {
+         ##
+         shiny::incProgress(2/4,
+            detail=paste0("Preparing GR junction data for ", gene));
       }
       juncGRuse <- juncGR[values(juncGR)[["sample_id"]] %in% sample_id];
       if (length(juncGRuse) == 0) {
@@ -1537,6 +1504,11 @@ prepareSashimi <- function
       }
    }
    if (length(juncUrls) > 0) {
+      if (do_shiny_progress) {
+         ##
+         shiny::incProgress(2/4,
+            detail=paste0("Preparing BED junction data for ", gene));
+      }
       juncBedGR <- GRangesList(lapply(nameVectorN(juncUrls), function(iBedName){
          iBed <- juncUrls[[iBedName]];
          if (verbose) {
@@ -1619,6 +1591,11 @@ prepareSashimi <- function
 
       ## define junction label positions
       #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
+      if (do_shiny_progress) {
+         ##
+         shiny::incProgress(3/4,
+            detail=paste0("Preparing junction labels for ", gene));
+      }
       juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=makeNames(id)),
          grepl("_v1_v[23]$", id_name));
       juncLabelDF <- renameColumn(
@@ -1638,6 +1615,11 @@ prepareSashimi <- function
       juncDF1 <- NULL;
       juncDF <- NULL;
       juncLabelDF <- NULL;
+   }
+   if (do_shiny_progress) {
+      ##
+      shiny::incProgress(4/4,
+         detail=paste0("Sashimi data is ready for ", gene));
    }
 
    return(retVals);

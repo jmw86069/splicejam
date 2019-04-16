@@ -1,3 +1,12 @@
+# splicejam version 0.0.23.900
+
+## additions
+
+* First working Sashimi R-shiny app, still has issues with
+certain genes that needs debugging. Defaults to using
+Farris et al data from `farrisdata` package, but can
+be overridden with global environment variables.
+
 # splicejam version 0.0.22.900
 
 ## additions

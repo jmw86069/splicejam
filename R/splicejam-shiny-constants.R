@@ -26,7 +26,7 @@ sashimiAppConstants <- function
          printDebug("Using filesDF from ",
             "farrisdata::farris_sashimi_files_df");
          data(farris_sashimi_files_df);
-         filesDF <- farris_sashimi_files_df;
+         filesDF <<- farris_sashimi_files_df;
       }
    }
 
@@ -110,17 +110,27 @@ sashimiAppConstants <- function
    }
 
    ## Define detectedTx
-   if (!exists("detectedTx")) {
+   if (!exists("detectedTx") || length(detectedTx) == 0) {
       if (suppressPackageStartupMessages(require(farrisdata))) {
          data(farrisTxSE);
          printDebug("Using detectedTx from farrisTxSE");
-         detectedTx <- subset(SummarizedExperiment::rowData(farrisTxSE),
+         detectedTx <<- subset(SummarizedExperiment::rowData(farrisTxSE),
             TxDetectedByTPM)$transcript_id;
       }
-      if (!all(detectedTx) %in% tx2geneDF$transcript_id) {
+      if (!all(detectedTx %in% tx2geneDF$transcript_id)) {
          printDebug("Using detectedTx <- unique(tx2geneDF$transcript_id)");
-         detectedTx <- unique(tx2geneDF$transcript_id);
+         detectedTx <<- unique(tx2geneDF$transcript_id);
       }
+   }
+   ## Infer available genes
+   if (!exists("detectedGenes") || length(detectedGenes) == 0) {
+      printDebug("Inferring detectedGenes from detectedTx:",
+         head(detectedTx));
+      printDebug("head(tx2geneDF):");
+      print(head(tx2geneDF));
+      detectedGenes <<- jamba::mixedSort(
+         unique(
+            subset(tx2geneDF, transcript_id %in% detectedTx)$gene_name));
    }
 
    ## Define flatExonsByGene
@@ -129,7 +139,7 @@ sashimiAppConstants <- function
          c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
       flattenExonsBy_m <- memoise::memoise(flattenExonsBy,
          cache=memoise::cache_filesystem("flattenExonsBy_memoise"));
-      flatExonsByGene <- flattenExonsBy_m(exonsByTx=exonsByTx,
+      flatExonsByGene <<- flattenExonsBy_m(exonsByTx=exonsByTx,
          cdsByTx=cdsByTx,
          detectedTx=detectedTx,
          by="gene",

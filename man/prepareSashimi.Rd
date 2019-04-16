@@ -15,7 +15,7 @@ prepareSashimi(flatExonsByGene = NULL, filesDF = NULL, gene,
   junc_fill = alpha2col("goldenrod1", 0.4), doStackJunctions = TRUE,
   coord_method = c("coord", "scale", "none"), scoreFactor = 1,
   scoreArcFactor = 0.2, scoreArcMinimum = 100, covGR = NULL,
-  juncGR = NULL, verbose = FALSE, ...)
+  juncGR = NULL, do_shiny_progress = FALSE, verbose = FALSE, ...)
 }
 \arguments{
 \item{flatExonsByGene}{GRangesList named by gene, whose GRanges
@@ -72,6 +72,13 @@ are present in \code{filesDF$url} when \code{files$type \%in\% "coverage_gr"}.}
 \item{juncGR}{GRanges object containing splice junctions, where
 \code{"score"} is used for the abundance of splice junction reads,
 and \code{"sample_id"} is used to define the biological \code{sample_id}.}
+
+\item{do_shiny_progress}{logical indicating whether to send
+progress updates to a running shiny app, using the
+\code{shiny::withProgress()} and \code{shiny::incProgress()} methods.
+This function only calls \code{shiny::incProgress()} and
+assumes the \code{shiny::withProgress()} has already been
+initialized.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 
