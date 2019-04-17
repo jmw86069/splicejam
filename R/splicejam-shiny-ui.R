@@ -45,6 +45,7 @@ sashimiAppUI <- function
                title="Sashimi Plot Parameters",
                status="warning",
                solidHeader=TRUE,
+               collapsible=TRUE,
                width=12,
                selectizeInput(
                   label="Select Gene",
@@ -53,6 +54,15 @@ sashimiAppUI <- function
                   choices=c("Gria1", "Ntrk2"),
                   options=list(maxOptions=100),
                   multiple=FALSE
+               ),
+               sliderInput(
+                  "gene_coords",
+                  label="Genome coordinate range",
+                  min=1,
+                  max=2000,
+                  value=c(2, 2000),
+                  step=1,
+                  round=TRUE
                ),
                actionButton("calc_gene_params",
                   label="Update Sashimi Plots")

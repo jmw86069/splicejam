@@ -1,3 +1,10 @@
+# splicejam version 0.0.24.900
+
+## changes
+
+* R-shiny Sashimi app now allows zooming into coordinate ranges,
+defined per gene.
+
 # splicejam version 0.0.23.900
 
 ## additions

@@ -36,6 +36,23 @@ sashimiAppServer <- function
       selected="Gria1",
       server=TRUE);
 
+   observe({
+      gene <- input$gene;
+      printDebug("updateInputSlider gene:", gene);
+      if (length(gene) > 0 && nchar(gene) > 0) {
+         chr_range <- as.data.frame(range(flatExonsByGene[[gene]]))[,c("start", "end")];
+         if (length(chr_range) > 0) {
+            ## Update sliderInput for gene_coords
+            updateSliderInput(session,
+               "gene_coords",
+               min=min(chr_range[["start"]]),
+               max=max(chr_range[["end"]]),
+               value=range(c(chr_range[["start"]], chr_range[["end"]]))
+            );
+         }
+      }
+   })
+
    get_sashimi_data <- reactive({
       input$calc_gene_params;
       gene <- isolate(input$gene);
@@ -43,6 +60,7 @@ sashimiAppServer <- function
             !exists("filesDF")) {
          return(NULL);
       }
+
       ## Wrap the workflow in a progress bar
       prepareSashimi_m <- memoise::memoise(prepareSashimi,
          cache=memoise::cache_filesystem("sashimidata_memoise"));
@@ -56,7 +74,6 @@ sashimiAppServer <- function
                sample_id=c("CA1_CB", "CA2_CB"),
                filesDF=filesDF,
                do_shiny_progress=TRUE);
-            print(sdim(sashimi_data));
             sashimi_data;
          }
       );
@@ -70,7 +87,15 @@ sashimiAppServer <- function
          gg_sashimi <- plotSashimi(sashimi_data,
             junc_color=alpha2col("goldenrod1", 0.1),
             fill_scheme="sample_id");
-         print(gg_sashimi);
+         ## Optionally get gene coordinate range
+         gene_coords <- isolate(input$gene_coords);
+         if (length(gene_coords) > 0) {
+            print(gg_sashimi +
+               coord_cartesian(xlim=gene_coords)
+            );
+         } else {
+            print(gg_sashimi);
+         }
       }
    });
 

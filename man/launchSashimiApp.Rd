@@ -14,7 +14,9 @@ Launch Sashimi R-shiny application
 }
 \details{
 This function launches the Sashimi visualization
-R-shiny app.
+R-shiny app. Input is taken from the global environment,
+otherwise defaults are used from the Farris et al data
+in the \code{farrisdata} R package at https://github.com/jmw86069/farrisdata.
 }
 \examples{
 # Note: disabled for web page examples
