@@ -35,9 +35,11 @@ NULL
 #' }
 #'
 #' @param GTF character file name sent to `data.table::fread()`. When the
-#'    file ends with ".gz", gzcat is used to gunzip the file during the
-#'    import step. (TODO: verify that handling of gz files is portable across
-#'    architectures, or gracefully exit as needed.)
+#'    file ends with ".gz", the `R.utils` package is recommended, otherwise
+#'    the fallback option is to make a system call to `gzcat`
+#'    to gunzip the file during the import step. Note this process fails
+#'    when `gzcat` is not available in the path of the user environment.
+#'    In general, the `R.utils` package is the best solution.
 #' @param geneAttrNames character vector of recognized attribute names
 #'    as they appear in column 9 of the GTF file, for gene rows.
 #' @param txAttrNames character vector of recognized attribute names

@@ -11,9 +11,11 @@ makeTx2geneFromGtf(GTF, geneAttrNames = c("gene_id", "gene_name",
 }
 \arguments{
 \item{GTF}{character file name sent to \code{data.table::fread()}. When the
-file ends with ".gz", gzcat is used to gunzip the file during the
-import step. (TODO: verify that handling of gz files is portable across
-architectures, or gracefully exit as needed.)}
+file ends with ".gz", the \code{R.utils} package is recommended, otherwise
+the fallback option is to make a system call to \code{gzcat}
+to gunzip the file during the import step. Note this process fails
+when \code{gzcat} is not available in the path of the user environment.
+In general, the \code{R.utils} package is the best solution.}
 
 \item{geneAttrNames}{character vector of recognized attribute names
 as they appear in column 9 of the GTF file, for gene rows.}
