@@ -104,6 +104,13 @@ sashimiAppServer <- function
          gg_sashimi <- plotSashimi(sashimi_data,
             junc_color=alpha2col("goldenrod1", 0.1),
             fill_scheme="sample_id");
+         ## Optionally prepare gene-exon model
+         if (input$show_gene_model) {
+            gg_gene <- gene2gg(gene=gene,
+               flatExonsByGene=flatExonsByGene,
+               exonLabelSize=input$exon_label_size);
+         }
+
          ## Optionally get gene coordinate range
          if (isolate(input$use_exon_names)) {
             exon_range <- isolate(input$exon_range);
@@ -114,22 +121,66 @@ sashimiAppServer <- function
          } else {
             gene_coords <- isolate(input$gene_coords);
          }
+
+         ## Prepare plotly or ggplot2 output
+         ref_name <- as.character(head(seqnames(flatExonsByGene[[gene]]), 1));
          if (input$do_plotly) {
-            gg_ly <- plotly::ggplotly(
-               gg_sashimi +
-                  scale_y_continuous(labels=scales::comma) +
-                  coord_cartesian(xlim=gene_coords)
-            );
+            sample_id <- unique(filesDF$sample_id);
+            num_samples <- max(c(length(sample_id), 1)) + 1;
+            num_samples <- 2;
+            plot_height <- 250 * (num_samples +
+                  input$do_rangeslider +
+                  input$show_gene_model);
+            printDebug("plotly num_samples:", num_samples,
+               ", plot_height:", plot_height);
+            if (input$show_gene_model) {
+               gg_ly <- subplot(
+                  gg_sashimi + theme(axis.text.x=element_blank()) + xlab(NULL),
+                  gg_gene + ggtitle(NULL) + xlab(ref_name),
+                  nrows=2,
+                  heights=c(num_samples, 1)/(num_samples + 1)
+               ) %>% layout(height=plot_height)
+            } else {
+               gg_ly <- plotly::ggplotly(
+                  gg_sashimi +
+                     scale_y_continuous(labels=scales::comma) +
+                     xlab(ref_name) +
+                     coord_cartesian(xlim=gene_coords),
+                  height=plot_height
+               )
+            }
+            ## Remove the color legend (again)
+            gg_ly <- gg_ly %>%
+               layout(showlegend=FALSE);
+            #%>%plotly::layout(autosize=TRUE)
             if (input$do_rangeslider) {
                gg_ly <- gg_ly %>%
-                  plotly::rangeslider();
+                  plotly::rangeslider(start=head(gene_coords, 1),
+                     end=tail(gene_coords, 1));
             }
-            tagList(gg_ly);
+            tagList(
+               htmltools::as.tags(gg_ly)
+            );
          } else {
+            ## Non-plotly static plot output
             if (length(gene_coords) > 0) {
-               tagList(renderPlot(gg_sashimi +
-                     coord_cartesian(xlim=gene_coords)
-               ));
+               if (input$show_gene_model) {
+                  tagList(renderPlot(
+                     cowplot::plot_grid(
+                        gg_sashimi + theme(axis.text.x=element_blank()) + xlab(NULL),
+                        gg_gene + ggtitle(NULL) + xlab(ref_name),
+                        ncol=1,
+                        align="v",
+                        axis="lr",
+                        rel_heights=c(num_samples,num_samples+1)
+                     )
+                  ));
+               } else {
+                  tagList(renderPlot(gg_sashimi +
+                        xlab(ref_name) +
+                        coord_cartesian(xlim=gene_coords)
+                  ));
+               }
             } else {
                tagList(renderPlot(gg_sashimi));
             }

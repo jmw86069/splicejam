@@ -4,7 +4,7 @@
 \alias{to_basic.GeomShape}
 \title{Support plotly for GeomShape}
 \usage{
-to_basic.GeomShape(data, prestats_data, layout, params, p, ...)
+\method{to_basic}{GeomShape}(data, prestats_data, layout, params, p, ...)
 }
 \arguments{
 \item{data, prestats_data, layout, params, p, ...}{arguments provided

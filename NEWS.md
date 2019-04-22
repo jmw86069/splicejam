@@ -1,3 +1,13 @@
+# splicejam version 0.0.26.900
+
+## changes
+
+* This version is an incremental update, while we evaluate
+some display options of Sashimi plots in the R-shiny app.
+* Minor aesthetic changes to R-shiny app, including plotly
+interactive options, and evaluating some UI elements in sidebar.
+* Added option to display gene-exon model in R-shiny.
+
 # splicejam version 0.0.25.900
 
 ## changes

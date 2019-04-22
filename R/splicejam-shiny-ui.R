@@ -55,9 +55,10 @@ sashimiAppUI <- function
                   options=list(maxOptions=100),
                   multiple=FALSE
                ),
-               shinyWidgets::materialSwitch(
+               shinyWidgets::prettySwitch(
                   inputId="use_exon_names",
                   value=FALSE,
+                  slim=TRUE,
                   status="info",
                   label="Use Exon Names?"),
                conditionalPanel(
@@ -95,31 +96,50 @@ sashimiAppUI <- function
             shinydashboardPlus::boxPlus(
                title="Sashimi Plot",
                status="primary",
-               solidheader=FALSE,
+               solidheader=TRUE,
                closable=FALSE,
+               collapsible=TRUE,
                enable_sidebar=TRUE,
                width=12,
                #plotOutput("sashimiplot_output"),
-               uiOutput("sashimiplot_output"),
-               sidebar_width=35,
+               fluidRow(
+                  column(
+                     width=12,
+                     uiOutput("sashimiplot_output")
+                  )
+               ),
+               sidebar_width=25,
                sidebar_start_open=FALSE,
                sidebar_content=tagList(
                   shinyWidgets::prettySwitch(
                      inputId="do_plotly",
                      value=FALSE,
                      slim=TRUE,
-                     fill=TRUE,
                      status="info",
-                     label="Interactive"),
+                     label="Interactive?"),
                   conditionalPanel(
                      condition="input.do_plotly == true",
                      shinyWidgets::prettySwitch(
                         inputId="do_rangeslider",
                         value=FALSE,
                         slim=TRUE,
-                        fill=TRUE,
                         status="info",
-                        label="Dynamic range slider")
+                        label="Show dynamic range slider?")
+                  ),
+                  shinyWidgets::prettySwitch(
+                     inputId="show_gene_model",
+                     value=TRUE,
+                     slim=TRUE,
+                     status="info",
+                     label="Show gene-exon model?"
+                  ),
+                  sliderInput(
+                     inputId="exon_label_size",
+                     label="Exon label size",
+                     min=2,
+                     max=20,
+                     value=6,
+                     step=0.5
                   )
                )
             )
@@ -132,15 +152,14 @@ sashimiAppUI <- function
 
    # dashboard body
    body <- dashboardBody(
+      setShadow(class="box"),
+      setShadow(class="boxPlus"),
       tabItems(
          tabItem(tabName="guides", guidesTab),
          tabItem(tabName="sashimiplot", sashimiplotTab)
       )
    );
 
-   printDebug("class(header):", class(header));
-   printDebug("class(sidebar):", class(sidebar));
-   printDebug("class(body):", class(body));
    dp <- dashboardPage(
       header,
       sidebar,
