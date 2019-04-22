@@ -26,7 +26,10 @@ Imports: jamba (>= 0.0.26.900),
     rtracklayer,
     ggrepel,
     plyr,
-    tximportData
+    dplyr,
+    tximportData,
+    shiny,
+    shinydashboard
 Suggests: 
     made4,
     plotly,

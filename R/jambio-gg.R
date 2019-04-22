@@ -1120,3 +1120,30 @@ plotSashimi <- function
    }
    return(ggSashimi);
 }
+
+#' Support plotly for GeomShape
+#'
+#' Support plotly for GeomShape
+#'
+#' This function is a helper function intended to provide a simple
+#' but not fully-equivalent link between `ggforce::geom_shape()` and
+#' `plotly::ggplotly()`. This function converts data to
+#' `ggplot2::geom_polygon` which is sufficient for the splicejam
+#' package, but which does not provide the extra effects from
+#' `ggforce::geom_shape()` such as rounded corners or resizing.
+#' This function may be extended then submitted to
+#' the `ggforce` package to assist plotly support.
+#'
+#' This function is not exported, as it is only used by plotly
+#' specifically during conversion of a ggplot object to plotly object.
+#'
+#' @param data,prestats_data,layout,params,p,... arguments provided
+#'    by plotly during rendering, after stats have been applied.
+#'    Currently only `data` is passed to `ggplot2::GeomPolygon`.
+#'
+to_basic.GeomShape <- function
+(data, prestats_data, layout, params, p, ...)
+{
+   plotly:::prefix_class(data, "GeomPolygon");
+}
+

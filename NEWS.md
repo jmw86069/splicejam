@@ -1,3 +1,18 @@
+# splicejam version 0.0.25.900
+
+## changes
+
+* `makeTx2geneFromGtf()` help docs recommend installing the `R.utils`
+package when `.gz` files are required for import, since this process
+uses `data.table::fread()`.
+* Package dependencies were added for shiny, shinydashboard.
+
+## new functions
+
+* `to_basic.GeomShape()` is a hidden function intended only to
+provide basic support of `ggforce::geom_shape()` when converting
+ggplot objects to plotly.
+
 # splicejam version 0.0.24.900
 
 ## changes
