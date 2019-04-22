@@ -15,7 +15,7 @@ sashimiAppUI <- function
 (...)
 {
    # header
-   header <- dashboardHeader(
+   header <- dashboardHeaderPlus(
       title=tagList("Splicejam Sashimi Viewer",
          icon("map"))
    );
@@ -55,14 +55,33 @@ sashimiAppUI <- function
                   options=list(maxOptions=100),
                   multiple=FALSE
                ),
-               sliderInput(
-                  "gene_coords",
-                  label="Genome coordinate range",
-                  min=1,
-                  max=2000,
-                  value=c(2, 2000),
-                  step=1,
-                  round=TRUE
+               shinyWidgets::materialSwitch(
+                  inputId="use_exon_names",
+                  value=FALSE,
+                  status="info",
+                  label="Use Exon Names?"),
+               conditionalPanel(
+                  condition="input.use_exon_names == true",
+                  sliderTextInput(
+                     inputId="exon_range",
+                     label="Gene exon range",
+                     grid=TRUE,
+                     force_edges=TRUE,
+                     choices=c("exon1", "exon2", "exon3"),
+                     selected=c("exon1", "exon3")
+                  )
+               ),
+               conditionalPanel(
+                  condition="input.use_exon_names == false",
+                  sliderInput(
+                     "gene_coords",
+                     label="Genome coordinate range",
+                     min=1,
+                     max=2000,
+                     value=c(2, 2000),
+                     step=1,
+                     round=TRUE
+                  )
                ),
                actionButton("calc_gene_params",
                   label="Update Sashimi Plots")
@@ -73,12 +92,36 @@ sashimiAppUI <- function
          column(
             width=12,
             style="padding:0px",
-            shinydashboard::box(
+            shinydashboardPlus::boxPlus(
                title="Sashimi Plot",
                status="primary",
                solidheader=FALSE,
+               closable=FALSE,
+               enable_sidebar=TRUE,
                width=12,
-               plotOutput("sashimiplot_output")
+               #plotOutput("sashimiplot_output"),
+               uiOutput("sashimiplot_output"),
+               sidebar_width=35,
+               sidebar_start_open=FALSE,
+               sidebar_content=tagList(
+                  shinyWidgets::prettySwitch(
+                     inputId="do_plotly",
+                     value=FALSE,
+                     slim=TRUE,
+                     fill=TRUE,
+                     status="info",
+                     label="Interactive"),
+                  conditionalPanel(
+                     condition="input.do_plotly == true",
+                     shinyWidgets::prettySwitch(
+                        inputId="do_rangeslider",
+                        value=FALSE,
+                        slim=TRUE,
+                        fill=TRUE,
+                        status="info",
+                        label="Dynamic range slider")
+                  )
+               )
             )
          )
       )

@@ -2942,15 +2942,52 @@ ale2violin <- function
 #'
 #' Perform differential isoform analysis using diffSplice
 #'
-#' This function is intended to be a straightforward method
+#' This function is intended to be a convenient method
 #' to call `limma::diffSplice()` and return the output of
 #' `limma::topSplice()` in helpful formats for downstream
 #' use.
 #'
-#' For example, it can be helpful to call this function with and without
-#' the "voom" component, dependent upon whether the input data
-#' contains count data, or TPM abundance. The input data is assumed
-#' to be normalized, and is not adjusted.
+#' The basic input required:
+#'
+#' * `iMatrixTx` a numeric matrix of transcript expression
+#' * `detectedTx` (optional) subset of `rownames(iMatrixTx)`, sometimes
+#'    determined by `defineDetectedTx()`.
+#' * `tx2geneDF` data.frame with "transcript_id" and "gene_name" columns.
+#'    This data.frame is often the same one used with `tximport::tximport()`
+#'    when importing transcriptome data to the gene level.
+#' * `iDesign`,`iContrasts` design and contrast matrix, as created by
+#'    `groups2contrasts()`.
+#'
+#' These steps are run in order:
+#'
+#' * `limma:voom()` (Optional.) This step is enabled with
+#'    the argument `useVoom=TRUE` and should only be used when `iMatrixTx`
+#'    contains count or pseudocount data. When using TPM or FPKM values,
+#'    set `useVoom=FALSE`.
+#' * `limma::lmFit()`
+#' * `limma::contrasts.fit()`
+#' * `limma::diffSplice()`
+#' * `limma::topSplice()` This function is called on each contrast
+#'       in order to return a list of data.frames.
+#'
+#' Each contrast is tested for differential transcript expression.
+#' No other contrasts are tested.
+#'
+#' The output is a list with an element `"statsDFs"` that is itself
+#' list of data.frames for each contrast. By default when
+#' `collapseByGene=TRUE` each row is collapsed to gene level,
+#' using the best statistical hit per gene as an exemplar.
+#'
+#' The rows  of `iMatrixTx` are expected to contain expression values
+#' per transcript isoform, but may contain alternative measurements
+#' such as: junction counts per gene; exon expression per gene.
+#'
+#' When `useVoom=TRUE`, the `iMatrixTx` data is exponentiated
+#' prior to running `limma::voom()`, for the purpose of
+#' calculating a weights matrix.
+#' The original `iMatrixTx` data is used in `limma::lmFit()` as-is,
+#' alongside the voom weights. The voom-normalized data is not
+#' used. Therefore, the input data is assumed to be normalized.
 #'
 #' Statistical results can be summarized at the gene level, after
 #' applying thresholds for statistical hits in the form of
@@ -2958,58 +2995,23 @@ ale2violin <- function
 #' to review results per gene, alongside the specific transcript
 #' isoforms which are called statistical hits.
 #'
-#' This function may also test the subset of "detected transcripts",
-#' for example based upon the output of `defineDetectedTx()`.
-#' In practice, this strategy removes a number of potential hits
-#' which are otherwise not considered to be "detected". The intent is to
-#' filter out potential hits based upon a noise threshold, which
-#' may be below the practical limit of follow-up validation techniques.
-#' Another goal is the removal of a large number of undetected
-#' transcripts which are effectively not tested, prior to
-#' multiple testing correction.
-#'
-#' The input data `iMatrixTx` should contain rows of data where the
-#' `rownames(iMatrixTx)` are represented in `tx2geneDF[,txColname]`
-#' in order to link rows to genes, using `tx2geneDF[,geneColname]`.
-#' The rows  of `iMatrixTx` are expected to contain expression values
-#' per transcript isoform, but may contain alternative measurements
-#' such as: junction expression per gene; exon expression per gene.
-#'
-#' Details:
-#'
-#' This function provides a wrapper of a basic workflow for differential
-#' isoform analysis, including these basic steps in order:
-#'
-#' \describe{
-#'    \item{`limma:voom()`}{(Optional.) This step is enabled with
-#'    the argument `useVoom=TRUE` and should only be used when `iMatrixTx`
-#'    contains count or pseudocount data. When using TPM or FPKM values,
-#'    set `useVoom=FALSE`.}
-#'    \item{`limma::lmFit()`}{}
-#'    \item{`limma::contrasts.fit()`}{}
-#'    \item{`limma::diffSplice()`}{}
-#'    \item{`limma::topSplice()`}{This function is called on each contrast
-#'       in order to return a list of data.frames.}
-#' }
-#'
-#' Note that `iMatrixTx` is exponentiated prior to running `limma::voom()`
-#' when `useVoom=TRUE`, for the purpose of calculating a weights matrix.
-#' The original `iMatrixTx` data is used in `limma::lmFits()` as-is,
-#' alongside the voom weights. The voom-normalized data is not
-#' used. Therefore, the input data is assumed to be normalized.
-#'
-#' @return list containing `detectedTx`, `detectedTxUse` the detectedTx
-#' values representing genes with multiple transcripts; `fit` the initial
-#' model fit; `fit2` the contrast model fit; `splice` the output from
-#' `limma::diffSplice()`; `statsDFs` list of data.frame output from
-#' `limma::topSplice()` either at the transcript level or the gene level.
+#' @return list containing:
+#' * `detectedTx`, `detectedTxUse` the detectedTx
+#' values representing genes with multiple transcripts;
+#' * `fit` the initial model fit;
+#' * `fit2` the contrast model fit;
+#' * `splice` the output from `limma::diffSplice()`;
+#' * `statsDFs` list of data.frame output from `limma::topSplice()`
+#' either at the transcript level or the gene level.
 #'
 #' Note that when `collapseByGene=TRUE` the results will return the first
 #' transcript entry per gene that has the best P-value. Often one gene
 #' will have two transcripts with identical P-value, and the order
 #' that the transcripts appear is inconsistent. Therefore, the direction
 #' of fold change is not meaningful by itself, except with respect to
-#' the specific isoform returned.
+#' the specific isoform returned. See `limma::topSplice()` argument
+#' `test` for more information about transcript- and gene-level
+#' summaries.
 #'
 #' @family jam RNA-seq functions
 #'
@@ -3060,6 +3062,12 @@ ale2violin <- function
 #'    should be `TRUE` when analyzing count or pseudocount data.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
+#'
+#' @references
+#' Law, CW, Chen, Y, Shi, W, and Smyth, GK (2014).
+#' Voom: precision weights unlock linear model analysis
+#' tools for RNA-seq read counts.
+#' *Genome Biology* **15**, R29.
 #'
 #' @examples
 #' # example for defining iDesign

@@ -36,6 +36,7 @@ sashimiAppServer <- function
       selected="Gria1",
       server=TRUE);
 
+
    observe({
       gene <- input$gene;
       printDebug("updateInputSlider gene:", gene);
@@ -49,6 +50,18 @@ sashimiAppServer <- function
                max=max(chr_range[["end"]]),
                value=range(c(chr_range[["start"]], chr_range[["end"]]))
             );
+         }
+         ## update exon name range slider
+         if ("gene_nameExon" %in% colnames(values(flatExonsByGene[[gene]]))) {
+            exon_names <- jamba::mixedSort(
+               values(flatExonsByGene[[gene]])$gene_nameExon);
+            if (length(exon_names) > 0) {
+               updateSliderTextInput(session,
+                  "exon_range",
+                  choices=exon_names,
+                  selected=c(head(exon_names, 1), tail(exon_names, 1))
+               );
+            }
          }
       }
    })
@@ -79,22 +92,47 @@ sashimiAppServer <- function
       );
    });
 
-   output$sashimiplot_output <- renderPlot({
+#   output$sashimiplot_output <- renderPlot({
+   output$sashimiplot_output <- renderUI({
       sashimi_data <- get_sashimi_data();
       if (length(sashimi_data) == 0) {
-         ggplot() + geom_blank();
+         tagList(renderPlot(
+            ggplot() + geom_blank()
+            )
+         );
       } else {
          gg_sashimi <- plotSashimi(sashimi_data,
             junc_color=alpha2col("goldenrod1", 0.1),
             fill_scheme="sample_id");
          ## Optionally get gene coordinate range
-         gene_coords <- isolate(input$gene_coords);
-         if (length(gene_coords) > 0) {
-            print(gg_sashimi +
-               coord_cartesian(xlim=gene_coords)
-            );
+         if (isolate(input$use_exon_names)) {
+            exon_range <- isolate(input$exon_range);
+            # Convert exon names to coordinates
+            gene_coords <- range(as.data.frame(range(
+               subset(flatExonsByGene[[gene]], gene_nameExon %in% exon_range)
+            ))[,c("start", "end")]);
          } else {
-            print(gg_sashimi);
+            gene_coords <- isolate(input$gene_coords);
+         }
+         if (input$do_plotly) {
+            gg_ly <- plotly::ggplotly(
+               gg_sashimi +
+                  scale_y_continuous(labels=scales::comma) +
+                  coord_cartesian(xlim=gene_coords)
+            );
+            if (input$do_rangeslider) {
+               gg_ly <- gg_ly %>%
+                  plotly::rangeslider();
+            }
+            tagList(gg_ly);
+         } else {
+            if (length(gene_coords) > 0) {
+               tagList(renderPlot(gg_sashimi +
+                     coord_cartesian(xlim=gene_coords)
+               ));
+            } else {
+               tagList(renderPlot(gg_sashimi));
+            }
          }
       }
    });
