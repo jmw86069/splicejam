@@ -664,7 +664,7 @@ gene2gg <- function
                hjust=vjust,
                vjust=hjust,
                segment.color="grey35",
-               fill="white",
+               #fill="white",
                size=exonLabelSize,
                direction="x");
       } else {
@@ -676,7 +676,7 @@ gene2gg <- function
                angle=exonLabelAngle,
                hjust=hjust,
                vjust=vjust,
-               fill="white",
+               #fill="white",
                size=3,
                direction="y");
       }
@@ -1049,7 +1049,7 @@ plotSashimi <- function
             aes(x=x,
                y=y,
                group=gr_sample,
-               fill="transparent",
+               #fill="transparent",
                label=gr),
             angle=90,
             vjust=1,
@@ -1090,7 +1090,7 @@ plotSashimi <- function
             aes(x=x,
                y=y,
                group=nameFromToSample,
-               fill="transparent",
+               #fill="transparent",
                label=scales::comma(round(score))),
             angle=90,
             vjust=0.5,

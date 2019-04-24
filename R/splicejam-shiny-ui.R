@@ -7,6 +7,8 @@
 #'
 #' @import shiny
 #' @import shinydashboard
+#' @import shinydashboardPlus
+#' @import shinyWidgets
 #'
 #' @param ... additional arguments are ignored.
 #'
@@ -19,6 +21,7 @@ sashimiAppUI <- function
       title=tagList("Splicejam Sashimi Viewer",
          icon("map"))
    );
+   options("warn"=-1);
 
    # sidebar
    sidebar <- dashboardSidebar(
@@ -101,6 +104,7 @@ sashimiAppUI <- function
                collapsible=TRUE,
                enable_sidebar=TRUE,
                width=12,
+               height="100%",
                #plotOutput("sashimiplot_output"),
                fluidRow(
                   column(
@@ -117,15 +121,6 @@ sashimiAppUI <- function
                      slim=TRUE,
                      status="info",
                      label="Interactive?"),
-                  conditionalPanel(
-                     condition="input.do_plotly == true",
-                     shinyWidgets::prettySwitch(
-                        inputId="do_rangeslider",
-                        value=FALSE,
-                        slim=TRUE,
-                        status="info",
-                        label="Show dynamic range slider?")
-                  ),
                   shinyWidgets::prettySwitch(
                      inputId="show_gene_model",
                      value=TRUE,

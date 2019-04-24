@@ -1558,7 +1558,7 @@ getFirstStrandedFromGRL <- function
             "performing flank() logic");
       }
       #grlWidths <- width(grl);
-      grlHeads1 <- heads(grl, 1);
+      grlHeads1 <- IRanges::heads(grl, 1);
       grlWidths1 <- width(grlHeads1);
       grlWidths2 <- width(tails(grl, 1));
       if (verbose) {

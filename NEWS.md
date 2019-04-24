@@ -1,3 +1,25 @@
+# splicejam version 0.0.27.900
+
+## bug fixes
+
+* Packages now imported for `launchSashimiApp()`: `shiny`,
+`shinydashboard`, `shinydashboardPlus`, `shinyWidgets`.
+* `getGRcoverageFromBw()` now returns NULL when a BigWig file
+is not accessible. Previously any error caused
+`"Error in seqinfo(con) : UCSC library operation failed"` which
+could mean the file does not exist, or any number of other validation
+checks failed. Since `getGRcoverageFromBw()` used a vector of
+BigWig files, any error caused the entire set to fail.
+* `getFirstStrandedFromGRL()` added package prefix to the use
+of `IRanges::heads()` which was not imported directly.
+
+## changes
+
+* R-shiny plots now set the plot height for ggplot2 or plotly,
+depending upon the number of samples, and presence of
+gene-exon model. Future versions will allow R-shiny user
+customization.
+
 # splicejam version 0.0.26.900
 
 ## changes

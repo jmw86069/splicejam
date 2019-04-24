@@ -959,6 +959,7 @@ getGRcoverageFromBw <- function
          newValues=newValues,
          ...);
    }
+   ## Iterate bwUrls and get coverage from each
    covL <- lapply(nameVectorN(bwUrls), function(iBw){
       bwUrl <- bwUrls[[iBw]];
       if (verbose) {
@@ -966,15 +967,21 @@ getGRcoverageFromBw <- function
             "Importing bwUrl:",
             bwUrl);
       }
-      cov1 <- rtracklayer::import(bwUrl,
-         selection=rtracklayer::BigWigSelection(gr),
-         as="NumericList");
+      cov1 <- tryCatch({
+         rtracklayer::import(bwUrl,
+            selection=rtracklayer::BigWigSelection(gr),
+            as="NumericList");
+      }, error=function(e){
+         ## Note: errors occur most commonly when the file is not available
+         warnText <- paste0("getGRcoverageFromBw(): ",
+            "BigWig file not accessible:'",
+            iBw,
+            "', returning NULL.");
+         warning(warnText);
+         NULL;
+      })
    });
-   #grNew <- gr[,0];
    values(gr)[,names(covL)] <-S4Vectors::DataFrame(covL);
-   #if (addGaps) {
-   #   values(grNew)[,feature_type_colname] <- values(gr)[,feature_type_colname];
-   #}
    return(gr);
 }
 
@@ -1398,6 +1405,10 @@ prepareSashimi <- function
          verbose=verbose,
          ...);
       ## Combine coverage per strand
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "Combining coverage by sample_id");
+      }
       covGR2 <- combineGRcoverage(covGR,
          covName=bwSamples,
          scaleFactors=bwScaleFactors,
