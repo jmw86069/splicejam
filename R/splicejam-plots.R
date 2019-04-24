@@ -543,8 +543,6 @@ bgaPlotly3d <- function
             name=factor(rep(iGroup, length(iEllipse$vb[2,])), levels=levels(sampleGroups)),
             color=rep(iGroupColor, length(iEllipse$vb[2,]))
          );
-         printDebug("head(iEllipseDF):");
-         print(head(iEllipseDF));
          ## Add to the plotly object
          p11 <- p11 %>% add_trace(
             data=iEllipseDF,

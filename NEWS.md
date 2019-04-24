@@ -19,6 +19,7 @@ of `IRanges::heads()` which was not imported directly.
 depending upon the number of samples, and presence of
 gene-exon model. Future versions will allow R-shiny user
 customization.
+* `bgaPlotly3d()` removed some unnecessary print functions.
 
 # splicejam version 0.0.26.900
 
