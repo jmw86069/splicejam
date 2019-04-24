@@ -332,7 +332,12 @@ bgaPlotly3d <- function
       }
       ## Determine distance from origin
       if (length(highlightGenes) > 0) {
-         printDebug("Using ", length(highlightGenes), " highlightGenes");
+         if (verbose) {
+            printDebug("bgaPlotly3d(): ",
+               "Using ",
+               length(highlightGenes),
+               " highlightGenes");
+         }
          iGenes <- rownames(dfVgDF)[tolower(rownames(dfVgDF)) %in% tolower(highlightGenes)];
          maxGenes <- length(iGenes);
       } else {
@@ -340,7 +345,12 @@ bgaPlotly3d <- function
             splicejam:::geomean(i, offset=1);
          });
          iGenes <- head(iGenes[order(-geneDist)], maxGenes);
-         printDebug("Using ", length(iGenes), " based upon distance from origin.");
+         if (verbose) {
+            printDebug("bgaPlotly3d(): ",
+               "Using ",
+               length(iGenes),
+               " based upon distance from origin.");
+         }
       }
       dfVgDF <- dfVgDF[rownames(dfVgDF) %in% iGenes,,drop=FALSE];
 
@@ -511,8 +521,6 @@ bgaPlotly3d <- function
                bgaS2coords[,k] <- newC;
             }
          }
-         #printDebug("Xs:", Xs, ", Xsc:", Xsc, ", Xg:", Xg);
-         print(head(dfSamplesDFsub, 8));
          if (ellipseType %in% "ellipsoid") {
             ## Return a mesh3d object
             ## formerly rgl::ellipse3d()
