@@ -7,7 +7,9 @@
 defineDetectedTx(iMatrixTx = NULL, iMatrixTxGrp = NULL,
   iMatrixTxTPM = NULL, iMatrixTxTPMGrp = NULL, groups = NULL,
   tx2geneDF = NULL, cutoffTxPctMax = 10, cutoffTxExpr = 5,
-  cutoffTxTPMExpr = 2, useMedian = FALSE, verbose = FALSE, ...)
+  cutoffTxTPMExpr = 2, txColname = "transcript_id",
+  geneColname = "gene_name", zeroAsNA = TRUE, useMedian = FALSE,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{iMatrixTx}{numeric matrix of read counts (or pseudocounts) with
@@ -52,6 +54,23 @@ detection.}
 \item{cutoffTxTPMExpr}{numeric value indicating the minimum group mean
 TPM in \code{iMatrixTxTPMGrp} for a transcript to be considered for
 detection.}
+
+\item{txColname, geneColname}{the \code{colnames(tx2geneDF)} representing
+the \code{rownames(iMatrixTx)} matched by \code{tx2geneDF[,txColname]},
+and the associated genes given by \code{tx2geneDF[,geneColname]}.
+Note that \code{detectedTx} must also contain values in
+\code{rownames(iMatrixTx)} and \code{tx2geneDF[,txColname]}.}
+
+\item{zeroAsNA}{logical indicating whether values of zero
+(or less than zero) should
+be treated as \code{NA} values, thus removing them from mean
+calculations. This argument is only relevant when \code{iMatrixTxGrp}
+and \code{iMatrixTxTPMGrp} are not supplied.
+Argument \code{zeroAsNA=TRUE} is recommended when using kmer
+quantitation tools such as Salmon or Kallisto, which can
+sometimes allocate all expression to one or another transcript
+isoform when two isoforms are nearly identical. Also use
+\code{TRUE} when a value of zero represents the absense of data.}
 
 \item{useMedian}{logical indicating whether to use group median
 values instead of group mean values.}
@@ -138,6 +157,16 @@ may have an isoform with 120 pseudocounts. When we reviewed the sequence
 coverage, we could find no compelling evidence to support the minor
 isoform, and theorized that the pseudocounts arose from the stochastic
 nature of rebalancing relative expression among isoforms.
+
+Note the argument \code{zeroAsNA=TRUE}, which by default treats any
+expression value of zero (or less than zero) as \code{NA},
+thus removing them from group
+mean calculations. When \code{iMatrixTxGrp} and \code{iMatrixTxTPMGrp}
+are not supplied, this option is helpful in calculating a more
+appropriate group mean expression value, notably when a
+value of zero represents absence of data. Any group mean that is
+\code{NA} as a result is converted to zero for the purpose of applying
+filters.
 }
 \seealso{
 Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},

@@ -1,3 +1,19 @@
+# splicejam version 0.0.28.900
+
+## changes to existing functions
+
+* `defineDetectedTx()` has a new argument `zeroAsNA`
+to handle the special case where some expression values
+reported as zero should be treated as `NA` (no data obtained)
+and therefore will not be included in group mean calculations.
+As transcript-exon models get more "comprehensive", kmer
+quantitation tools such as Salmon and Kallisto sometimes
+need to assign abundance to one of several nearly identical
+isoforms, and in low count scenarios all counts may be
+assigned to one or another isoform, leaving zero in the
+alternate position. Excluding zero ensures that group
+mean values represent only the assigned quantitation.
+
 # splicejam version 0.0.27.900
 
 ## bug fixes

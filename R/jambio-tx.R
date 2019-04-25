@@ -669,6 +669,16 @@ tx2ale <- function
 #' isoform, and theorized that the pseudocounts arose from the stochastic
 #' nature of rebalancing relative expression among isoforms.
 #'
+#' Note the argument `zeroAsNA=TRUE`, which by default treats any
+#' expression value of zero (or less than zero) as `NA`,
+#' thus removing them from group
+#' mean calculations. When `iMatrixTxGrp` and `iMatrixTxTPMGrp`
+#' are not supplied, this option is helpful in calculating a more
+#' appropriate group mean expression value, notably when a
+#' value of zero represents absence of data. Any group mean that is
+#' `NA` as a result is converted to zero for the purpose of applying
+#' filters.
+#'
 #' @return
 #' List with the following elements:
 #' \describe{
@@ -722,6 +732,21 @@ tx2ale <- function
 #' @param cutoffTxTPMExpr numeric value indicating the minimum group mean
 #'    TPM in `iMatrixTxTPMGrp` for a transcript to be considered for
 #'    detection.
+#' @param txColname,geneColname the `colnames(tx2geneDF)` representing
+#'    the `rownames(iMatrixTx)` matched by `tx2geneDF[,txColname]`,
+#'    and the associated genes given by `tx2geneDF[,geneColname]`.
+#'    Note that `detectedTx` must also contain values in
+#'    `rownames(iMatrixTx)` and `tx2geneDF[,txColname]`.
+#' @param zeroAsNA logical indicating whether values of zero
+#'    (or less than zero) should
+#'    be treated as `NA` values, thus removing them from mean
+#'    calculations. This argument is only relevant when `iMatrixTxGrp`
+#'    and `iMatrixTxTPMGrp` are not supplied.
+#'    Argument `zeroAsNA=TRUE` is recommended when using kmer
+#'    quantitation tools such as Salmon or Kallisto, which can
+#'    sometimes allocate all expression to one or another transcript
+#'    isoform when two isoforms are nearly identical. Also use
+#'    `TRUE` when a value of zero represents the absense of data.
 #' @param useMedian logical indicating whether to use group median
 #'    values instead of group mean values.
 #' @param verbose logical indicating whether to print verbose output.
@@ -739,6 +764,9 @@ defineDetectedTx <- function
  cutoffTxPctMax=10,
  cutoffTxExpr=5,
  cutoffTxTPMExpr=2,
+ txColname="transcript_id",
+ geneColname="gene_name",
+ zeroAsNA=TRUE,
  useMedian=FALSE,
  verbose=FALSE,
  ...)
@@ -772,6 +800,7 @@ defineDetectedTx <- function
       if (length(groups) == 0) {
          stop("defineDetectedTx() requires groups, named by colnames(iMatrixTx).");
       }
+      ## Optionally apply log2(1+x) transformation
       if (max(iMatrixTx, na.rm=TRUE) >= 50) {
          if (verbose) {
             printDebug("defineDetectedTx(): ",
@@ -782,15 +811,29 @@ defineDetectedTx <- function
             minimum=0,
             adjustNA=TRUE);
       }
+      ## Optionally convert zero to NA
+      if (length(zeroAsNA) > 0 && zeroAsNA && any(iMatrixTx <= 0)) {
+         if (verbose) {
+            printDebug("defineDetectedTx(): ",
+               "Converting Tx zero to NA prior to group mean calculations");
+         }
+         iMatrixTx[iMatrixTx <= 0] <- NA;
+      }
+      ## Calculate group mean values
       if (verbose) {
          printDebug("defineDetectedTx(): ",
             "Calculating iMatrixTxGrp.");
       }
-      iMatrixTxGrp <- rowGroupMeans(iMatrixTx,
+      iMatrixTxGrp <- jamba::rowGroupMeans(iMatrixTx,
          useMedian=useMedian,
          groups=groups);
    }
-   ## Check group values
+   ## Process group mean counts
+   ## Convert any remaining NA to zero
+   if (any(is.na(iMatrixTxGrp))) {
+      iMatrixTxGrp[is.na(iMatrixTxGrp)] <- 0;
+   }
+   ## Optionally apply log2(1+x) transformation
    if (max(iMatrixTxGrp, na.rm=TRUE) >= 50) {
       if (verbose) {
          printDebug("defineDetectedTx(): ",
@@ -808,6 +851,7 @@ defineDetectedTx <- function
          if (length(groups) == 0) {
             stop("defineDetectedTx() requires groups, named by colnames(iMatrixTxTPM).");
          }
+         ## Optionally apply log2(1+x) transformation
          if (max(iMatrixTxTPM, na.rm=TRUE) >= 50) {
             if (verbose) {
                printDebug("defineDetectedTx(): ",
@@ -818,6 +862,15 @@ defineDetectedTx <- function
                minimum=0,
                adjustNA=TRUE);
          }
+         ## Optionally convert zero to NA
+         if (length(zeroAsNA) > 0 && zeroAsNA && any(iMatrixTxTPM <= 0)) {
+            if (verbose) {
+               printDebug("defineDetectedTx(): ",
+                  "Converting TxTPM zero to NA prior to group mean calculations");
+            }
+            iMatrixTxTPM[iMatrixTxTPM <= 0] <- NA;
+         }
+         ## Calculate group mean values
          if (verbose) {
             printDebug("defineDetectedTx(): ",
                "Calculating iMatrixTxTPMGrp.");
@@ -827,7 +880,12 @@ defineDetectedTx <- function
             groups=groups);
       }
    }
-   ## Check group values
+   ## Process group mean TPM
+   ## Convert any remaining NA to zero
+   if (any(is.na(iMatrixTxTPMGrp))) {
+      iMatrixTxTPMGrp[is.na(iMatrixTxTPMGrp)] <- 0;
+   }
+   ## Optionally apply log2(1+x) transformation
    if (max(iMatrixTxTPMGrp, na.rm=TRUE) >= 50) {
       if (verbose) {
          printDebug("defineDetectedTx(): ",
@@ -843,13 +901,13 @@ defineDetectedTx <- function
    ## matrix associating gene to transcript_id, mainly useful since it
    ## returns transcripts in the same order as each matrix below, which
    ## otherwise has rownames based upon gene and not transcript.
-   iRows <- match(rownames(iMatrixTxGrp), tx2geneDF$transcript_id);
+   iRows <- match(rownames(iMatrixTxGrp), tx2geneDF[,txColname]);
    if (verbose) {
       printDebug("defineDetectedTx(): ",
          "shrinkMatrix Tx names.");
    }
    txExprGrpTx <- shrinkMatrix(rownames(iMatrixTxGrp),
-      groupBy=tx2geneDF[iRows,"gene_name"],
+      groupBy=tx2geneDF[iRows,geneColname],
       shrinkFunc=c,
       returnClass="matrix",
       verbose=verbose);
@@ -864,7 +922,7 @@ defineDetectedTx <- function
             "Calculating percent max isoform expression by TPM.");
       }
       txPctMaxGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
-         groupBy=tx2geneDF[iRows,"gene_name"],
+         groupBy=tx2geneDF[iRows,geneColname],
          shrinkFunc=function(i){
             round(i/max(c(1, max(i)))*100)
          },
@@ -878,7 +936,7 @@ defineDetectedTx <- function
             "Calculating percent max isoform expression by counts.");
       }
       txPctMaxGrpAll <- shrinkMatrix((2^iMatrixTxGrp-1),
-         groupBy=tx2geneDF[iRows,"gene_name"],
+         groupBy=tx2geneDF[iRows,geneColname],
          shrinkFunc=function(i){
             round(i/max(c(1, max(i, na.rm=TRUE)), na.rm=TRUE)*100);
          },
@@ -897,7 +955,7 @@ defineDetectedTx <- function
          "Creating exponentiated expression counts, rounded to integers.");
    }
    txExprGrpAll <- shrinkMatrix(2^iMatrixTxGrp-1,
-      groupBy=tx2geneDF[iRows,"gene_name"],
+      groupBy=tx2geneDF[iRows,geneColname],
       shrinkFunc=function(i){
          round(i)
       },
@@ -914,7 +972,7 @@ defineDetectedTx <- function
             "Creating exponentiated expression TPM.");
       }
       txTPMExprGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
-         groupBy=tx2geneDF[iRows,"gene_name"],
+         groupBy=tx2geneDF[iRows,geneColname],
          shrinkFunc=function(i){
             round(i)
          },
