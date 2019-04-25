@@ -251,9 +251,11 @@ bgaPlotly3d <- function
    i2 <- igrep("^circle-open$", dfSampleLinesDF$Symbol);
    i3 <- igrep("^x$", dfSampleLinesDF$Symbol);
    dfSampleLinesDF[,"Label"] <- "";
-   #if (drawSampleLabels) {
+   if (drawSampleLabels) {
       dfSampleLinesDF[i1,"Label"] <- dfSampleLinesDF$Name[i1];
-   #}
+   } else {
+      dfSampleLinesDF[i1,"Label"] <- "";
+   }
    dfSampleLinesDF[i2,"Label"] <- as.character(dfSampleLinesDF$groupName)[i2];
 
    i2keep <- match(unique(sampleGroups), dfSampleLinesDF[i2,"Label"]);
@@ -390,7 +392,7 @@ bgaPlotly3d <- function
       printDebug("bgaPlotly3d(): ",
          "Creating plotly object with samples and sample centroids.");
    }
-   if (debug) {
+   if (debug == 1) {
       return(dfSampleLinesDF);
    }
    p9 <- plot_ly(data=dfSampleLinesDF,
@@ -415,6 +417,9 @@ bgaPlotly3d <- function
       textfont=list(
          color=dfSampleLinesDF$color,
          size=(40-dfSampleLinesDF$size)/2));
+   if (debug == 2) {
+      return(p9);
+   }
    p10 <- p9;
 
 
