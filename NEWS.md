@@ -1,3 +1,11 @@
+# splicejam version 0.0.29.900
+
+* R-shiny app now properly keeps interactive plot x-axis ranges
+in sync, when zooming the plot.
+* Fixed bug in `prepareSashimi()` that occurred when
+no junctions overlapped another, resulting in error
+"invalid 'type' (S4) of argument".
+
 # splicejam version 0.0.28.900
 
 ## changes to existing functions

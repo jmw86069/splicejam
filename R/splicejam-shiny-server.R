@@ -139,7 +139,8 @@ sashimiAppServer <- function
                      gg_sashimi + theme(axis.text.x=element_blank()) + xlab(NULL),
                      gg_gene + ggtitle(NULL) + xlab(ref_name),
                      nrows=2,
-                     heights=c(num_samples, 1)/(num_samples + 1)
+                     heights=c(num_samples, 1)/(num_samples + 1),
+                     shareX=TRUE
                   ) %>% layout(height=plot_height)
                );
             } else {

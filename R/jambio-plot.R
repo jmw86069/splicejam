@@ -1710,18 +1710,20 @@ internal_junc_score <- function
       printDebug("internal_junc_score(): ",
          "dim(fo1df):", dim(fo1df));
    }
-   #fo1df$qName <- names(juncGR)[fo1df$q];
-   #fo1df$sName <- names(juncEndsRefGR)[fo1df$s];
-   fo1df$qSample <- values(juncGR[fo1df$q])[[sampleColname]];
-   fo1df$sSample <- values(juncEndsRefGR[fo1df$s])[[sampleColname]];
-   fo1df$sScore <- values(juncEndsRefGR[fo1df$s])[[scoreColname]];
+   if (nrow(fo1df) == 0) {
+      intScore <- nameVector(rep(0, length(juncGR)),
+         names(juncGR));
+   } else {
+      fo1df$qSample <- values(juncGR[fo1df$q])[[sampleColname]];
+      fo1df$sSample <- values(juncEndsRefGR[fo1df$s])[[sampleColname]];
+      fo1df$sScore <- values(juncEndsRefGR[fo1df$s])[[scoreColname]];
 
-   fo1dfuse <- subset(fo1df,
-      #!qName == sName &
-      qSample == sSample);
+      fo1dfuse <- subset(fo1df,
+         qSample == sSample);
 
-   intScore <- rmNA(naValue=0,
-      max(List(split(fo1dfuse$sScore, fo1dfuse$q)))[as.character(seq_along(juncGR))]);
-   names(intScore) <- names(juncGR);
+      intScore <- rmNA(naValue=0,
+         max(List(split(fo1dfuse$sScore, fo1dfuse$q)))[as.character(seq_along(juncGR))]);
+      names(intScore) <- names(juncGR);
+   }
    return(intScore);
 }
