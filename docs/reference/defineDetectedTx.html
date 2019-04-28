@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
       </span>
     </div>
 
@@ -131,7 +131,9 @@
     <pre class="usage"><span class='fu'>defineDetectedTx</span>(<span class='kw'>iMatrixTx</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>iMatrixTxGrp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>iMatrixTxTPM</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>iMatrixTxTPMGrp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>tx2geneDF</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>cutoffTxPctMax</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>cutoffTxExpr</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-  <span class='kw'>cutoffTxTPMExpr</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>useMedian</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>cutoffTxTPMExpr</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>txColname</span> <span class='kw'>=</span> <span class='st'>"transcript_id"</span>,
+  <span class='kw'>geneColname</span> <span class='kw'>=</span> <span class='st'>"gene_name"</span>, <span class='kw'>zeroAsNA</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useMedian</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -196,6 +198,27 @@ detection.</p></td>
       <td><p>numeric value indicating the minimum group mean
 TPM in <code>iMatrixTxTPMGrp</code> for a transcript to be considered for
 detection.</p></td>
+    </tr>
+    <tr>
+      <th>txColname, geneColname</th>
+      <td><p>the <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(tx2geneDF)</a></code> representing
+the <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames(iMatrixTx)</a></code> matched by <code>tx2geneDF[,txColname]</code>,
+and the associated genes given by <code>tx2geneDF[,geneColname]</code>.
+Note that <code>detectedTx</code> must also contain values in
+<code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames(iMatrixTx)</a></code> and <code>tx2geneDF[,txColname]</code>.</p></td>
+    </tr>
+    <tr>
+      <th>zeroAsNA</th>
+      <td><p>logical indicating whether values of zero
+(or less than zero) should
+be treated as <code>NA</code> values, thus removing them from mean
+calculations. This argument is only relevant when <code>iMatrixTxGrp</code>
+and <code>iMatrixTxTPMGrp</code> are not supplied.
+Argument <code>zeroAsNA=TRUE</code> is recommended when using kmer
+quantitation tools such as Salmon or Kallisto, which can
+sometimes allocate all expression to one or another transcript
+isoform when two isoforms are nearly identical. Also use
+<code>TRUE</code> when a value of zero represents the absense of data.</p></td>
     </tr>
     <tr>
       <th>useMedian</th>
@@ -279,23 +302,29 @@ may have an isoform with 120 pseudocounts. When we reviewed the sequence
 coverage, we could find no compelling evidence to support the minor
 isoform, and theorized that the pseudocounts arose from the stochastic
 nature of rebalancing relative expression among isoforms.</p>
+<p>Note the argument <code>zeroAsNA=TRUE</code>, which by default treats any
+expression value of zero (or less than zero) as <code>NA</code>,
+thus removing them from group
+mean calculations. When <code>iMatrixTxGrp</code> and <code>iMatrixTxTPMGrp</code>
+are not supplied, this option is helpful in calculating a more
+appropriate group mean expression value, notably when a
+value of zero represents absence of data. Any group mean that is
+<code>NA</code> as a result is converted to zero for the purpose of applying
+filters.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam RNA-seq functions: <code><a href='ale2violin.html'>ale2violin</a></code>,
-  <code><a href='assignGRLexonNames.html'>assignGRLexonNames</a></code>,
+    <div class='dont-index'><p>Other jam RNA-seq functions: <code><a href='assignGRLexonNames.html'>assignGRLexonNames</a></code>,
   <code><a href='closestExonToJunctions.html'>closestExonToJunctions</a></code>,
-  <code><a href='codonUsage2df.html'>codonUsage2df</a></code>,
   <code><a href='combineGRcoverage.html'>combineGRcoverage</a></code>,
-  <code><a href='compressPolygonM.html'>compressPolygonM</a></code>,
-  <code><a href='detectedTxInfo.html'>detectedTxInfo</a></code>, <code><a href='dna2codon.html'>dna2codon</a></code>,
+  <code><a href='detectedTxInfo.html'>detectedTxInfo</a></code>,
   <code><a href='exoncov2polygon.html'>exoncov2polygon</a></code>,
   <code><a href='flattenExonsBy.html'>flattenExonsBy</a></code>,
-  <code><a href='groups2contrasts.html'>groups2contrasts</a></code>, <code><a href='jamCai.html'>jamCai</a></code>,
+  <code><a href='groups2contrasts.html'>groups2contrasts</a></code>,
   <code><a href='makeTx2geneFromGtf.html'>makeTx2geneFromGtf</a></code>,
   <code><a href='make_ref2compressed.html'>make_ref2compressed</a></code>,
   <code><a href='runDiffSplice.html'>runDiffSplice</a></code>, <code><a href='sortSamples.html'>sortSamples</a></code>,
-  <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a></code>, <code><a href='tx2ale.html'>tx2ale</a></code></p></div>
+  <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a></code></p></div>
     
 
   </div>

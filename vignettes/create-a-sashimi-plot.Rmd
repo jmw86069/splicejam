@@ -487,7 +487,7 @@ visualize splice junction data directly, as needed.
 
 The key function here is `splicejam::grl2df(...,shape="junction")`
 which configures wide junction arcs suitable for
-`ggforce::geom_diagonal_wide()`. (Note that
+`splicejam::geom_diagonal_wide_arc()`. (Note that
 `ggplot2::geom_polygon()` would also work.)
 
 ```{r, plot_test_junc, fig.height=5, fig.width=7}
@@ -496,10 +496,11 @@ junc_wide_df <-grl2df(test_junc_wide_gr,
    shape="junction");
 
 ggWide1 <- ggplot(junc_wide_df,
-      aes(x=x, y=y, group=id, fill=gr_name)) +
-   ggforce::geom_diagonal_wide(alpha=0.7) +
+      aes(x=x, y=y, group=gr_name, fill=gr_name, color=gr_name)) +
+   splicejam::geom_diagonal_wide_arc() +
    colorjam::theme_jam() +
-   colorjam::scale_fill_jam() +
+   colorjam::scale_fill_jam(alpha=0.7) +
+   colorjam::scale_color_jam() +
    xlab("chr1") +
    ggtitle("junctions (full intron width)")
 print(ggWide1);

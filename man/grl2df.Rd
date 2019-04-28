@@ -67,7 +67,7 @@ include \code{grl_name} which are names of the input GRangesList
 \code{names(grl)}; \code{gr_name} which are names of the GRanges entries; and
 other columns from the input GRanges entries. When \code{shape="junction"}
 the data includes two polygons per junction, intended to be used
-with \code{ggforce::geom_diagonal_wide()} for each side in order to
+with \code{geom_diagonal_wide_arc()} for each side in order to
 produce a ribbon arc. The data also includes \code{sample_id} which is
 helpful for keeping data distinct when derived from multiple
 samples.

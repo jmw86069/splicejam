@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
       </span>
     </div>
 
@@ -149,7 +149,8 @@ for steps to compress the intron sizes.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># The code below is used to create the exon test data</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>GenomicRanges</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>GenomicRanges</span>));
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggplot2</span>));
 
 <span class='no'>test_exon_wide_gr</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRanges-class'>GRanges</a></span>(<span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"chr1"</span>, <span class='fl'>4</span>),
    <span class='kw'>ranges</span><span class='kw'>=</span><span class='fu'>IRanges</span>(
@@ -170,20 +171,20 @@ for steps to compress the intron sizes.</p>
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'>
 <span class='co'># To plot a simple GRanges object</span>
 <span class='no'>widedf</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>test_exon_wide_gr</span>);
-<span class='no'>ggWide</span> <span class='kw'>&lt;-</span> <span class='fu'>ggplot</span>(<span class='no'>widedf</span>, <span class='fu'>aes</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
-   <span class='fu'>geom_polygon</span>() +
+<span class='no'>ggWide</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>widedf</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_polygon'>geom_polygon</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
-   <span class='fu'>xlab</span>(<span class='st'>"chr1"</span>) +
-   <span class='fu'>ggtitle</span>(<span class='st'>"exons (full introns)"</span>)
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>xlab</a></span>(<span class='st'>"chr1"</span>) +
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"exons (full introns)"</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>ggWide</span>);</div><div class='img'><img src='test_exon_wide_gr-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Now compress the introns keeping axis labels</span>
 <span class='no'>ref2c</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='make_ref2compressed.html'>make_ref2compressed</a></span>(<span class='no'>test_exon_wide_gr</span>,
    <span class='kw'>nBreaks</span><span class='kw'>=</span><span class='fl'>10</span>);
 <span class='no'>ggWide2</span> <span class='kw'>&lt;-</span> <span class='no'>ggWide</span> +
-   <span class='fu'>scale_x_continuous</span>(<span class='kw'>trans</span><span class='kw'>=</span><span class='no'>ref2c</span>$<span class='no'>trans_grc</span>) +
-   <span class='fu'>xlab</span>(<span class='st'>"chr1 (compressed introns)"</span>) +
-   <span class='fu'>ggtitle</span>(<span class='st'>"exons (compressed introns)"</span>)
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous'>scale_x_continuous</a></span>(<span class='kw'>trans</span><span class='kw'>=</span><span class='no'>ref2c</span>$<span class='no'>trans_grc</span>) +
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>xlab</a></span>(<span class='st'>"chr1 (compressed introns)"</span>) +
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"exons (compressed introns)"</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>ggWide2</span>);</div><div class='img'><img src='test_exon_wide_gr-2.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>

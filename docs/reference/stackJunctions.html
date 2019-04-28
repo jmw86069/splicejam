@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
       </span>
     </div>
 
@@ -206,7 +206,7 @@ will be positive.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function is intended to help visualize splice junctions
-specifically when plotted using <code><a href='https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html'>ggforce::geom_diagonal_wide()</a></code>,
+specifically when plotted using <code><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc()</a></code>,
 where the height of the junction arc is defined by the <code>score</code>.
 When two junctions have the same start position, their y-positions
 are stacked, such that the shorter junction width is placed before
@@ -241,8 +241,7 @@ the columns <code>"nameFrom"</code> and <code>"nameTo"</code>, see examples belo
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>GenomicRanges</span>);
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggplot2</span>);
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggforce</span>);
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>colorjam</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggforce</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘ggforce’ was built under R version 3.5.2</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>colorjam</span>);
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>jamba</span>);
 <span class='no'>grExons</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRanges-class'>GRanges</a></span>(<span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"chr1"</span>, <span class='fl'>4</span>),
    <span class='kw'>ranges</span><span class='kw'>=</span><span class='fu'>IRanges</span>(
@@ -276,20 +275,20 @@ the columns <code>"nameFrom"</code> and <code>"nameTo"</code>, see examples belo
 <span class='co'># The un-stacked junctions</span>
 <span class='no'>grlJunc2df1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grJunc</span>,
    <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>,
-   <span class='kw'>doStackJunctions</span><span class='kw'>=</span><span class='fl'>FALSE</span>);</div><div class='output co'>#&gt; <span class='error'>Error: subscript contains invalid names</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>grlJunc2df1</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
-   <span class='kw pkg'>ggforce</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html'>geom_diagonal_wide</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.7</span>) +
+   <span class='kw'>doStackJunctions</span><span class='kw'>=</span><span class='fl'>FALSE</span>);</div><div class='output co'>#&gt; <span class='error'>Error: subscript contains invalid names</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>grlJunc2df1</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>gr_name</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
+   <span class='fu'><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.7</span>) +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Junctions not stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df1, aes(x = x, y = y, group = id, fill = gr_name)): object 'grlJunc2df1' not found</span></div><div class='input'>
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Junctions not stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df1, aes(x = x, y = y, group = gr_name, fill = gr_name)): object 'grlJunc2df1' not found</span></div><div class='input'>
 <span class='co'># The stacked junctions</span>
 <span class='no'>grJunc2</span> <span class='kw'>&lt;-</span> <span class='fu'>stackJunctions</span>(<span class='no'>grJunc</span>);
 <span class='no'>grlJunc2df2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grJunc2</span>,
    <span class='kw'>scoreArcMinimum</span><span class='kw'>=</span><span class='fl'>20</span>,
-   <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>);</div><div class='output co'>#&gt; <span class='error'>Error: subscript contains invalid names</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>grlJunc2df2</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
-   <span class='kw pkg'>ggforce</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html'>geom_diagonal_wide</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.7</span>) +
+   <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>);</div><div class='output co'>#&gt; <span class='error'>Error: subscript contains invalid names</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>grlJunc2df2</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>gr_name</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
+   <span class='fu'><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.7</span>) +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Junctions stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df2, aes(x = x, y = y, group = id, fill = gr_name)): object 'grlJunc2df2' not found</span></div><div class='input'>
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Junctions stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df2, aes(x = x, y = y, group = gr_name, fill = gr_name)): object 'grlJunc2df2' not found</span></div><div class='input'>
 
 </div></pre>
   </div>

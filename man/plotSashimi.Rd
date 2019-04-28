@@ -9,7 +9,7 @@ plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   junc_color = alpha2col("goldenrod3", 0.7),
   junc_fill = alpha2col("goldenrod1", 0.4), fill_scheme = c("exon",
   "sample_id"), use_jam_themes = TRUE, apply_facet = TRUE,
-  ref2c = NULL, verbose = FALSE, ...)
+  facet_scales = "free_y", ref2c = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{sashimi}{Sashimi data prepared by \code{prepareSashimi()} which
@@ -44,6 +44,16 @@ so overlapping junction arcs are visible.}
 will be color-filled: \code{"exon"} will define colors for each
 distinct exon, using the GRanges names from \code{flatExonsByGene};
 \code{"sample_id"} to color all exons the same by sample_id.}
+
+\item{use_jam_themes}{logical indicating whether to apply
+\code{colorjam::theme_jam()}, by default for the ggplot theme.}
+
+\item{apply_facet}{logical indicating whether to apply
+\code{ggplot2::facet_wrap()} with \code{"~sample_id"} defining each
+panel.}
+
+\item{facet_scales}{character value used as \code{"scales"} argument in
+\code{ggplot2::facet_wrap()} when \code{apply_facet=TRUE}.}
 
 \item{ref2c}{optional output from \code{make_ref2compressed()} used to
 compress axis coordinates during junction arc calculations.}
@@ -83,7 +93,9 @@ Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{grl2df}}, \code{\link{prepareSashimi}},
   \code{\link{stackJunctions}}
 
-Other jam ggplot2 functions: \code{\link{gene2gg}}
+Other jam ggplot2 functions: \code{\link{gene2gg}},
+  \code{\link{geom_diagonal_wide_arc}},
+  \code{\link{splicejam-extensions}}
 
 Other splicejam core functions: \code{\link{exoncov2polygon}},
   \code{\link{gene2gg}}, \code{\link{grl2df}},

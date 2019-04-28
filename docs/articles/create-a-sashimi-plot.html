@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <h1>Create a Sashimi Plot</h1>
                         <h4 class="author">James M. Ward</h4>
             
-            <h4 class="date">2019-03-28</h4>
+            <h4 class="date">2019-04-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jmw86069/splicejam/blob/master/vignettes/create-a-sashimi-plot.Rmd"><code>vignettes/create-a-sashimi-plot.Rmd</code></a></small>
       <div class="hidden name"><code>create-a-sashimi-plot.Rmd</code></div>
@@ -490,16 +490,17 @@ test_junc_wide_gr;
 <h3 class="hasAnchor">
 <a href="#plotting-splice-junction-data" class="anchor"></a>Plotting splice junction data</h3>
 <p>Some basic plotting functions are provided, which are rolled into the Sashimi plot. They can help visualize splice junction data directly, as needed.</p>
-<p>The key function here is <code><a href="../reference/grl2df.html">splicejam::grl2df(...,shape="junction")</a></code> which configures wide junction arcs suitable for <code><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">ggforce::geom_diagonal_wide()</a></code>. (Note that <code><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_polygon">ggplot2::geom_polygon()</a></code> would also work.)</p>
+<p>The key function here is <code><a href="../reference/grl2df.html">splicejam::grl2df(...,shape="junction")</a></code> which configures wide junction arcs suitable for <code><a href="../reference/geom_diagonal_wide_arc.html">splicejam::geom_diagonal_wide_arc()</a></code>. (Note that <code><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_polygon">ggplot2::geom_polygon()</a></code> would also work.)</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># To plot junctions, use grl2df(..., shape="junction")</span>
 junc_wide_df &lt;-<span class="kw"><a href="../reference/grl2df.html">grl2df</a></span>(test_junc_wide_gr,
    <span class="dt">shape=</span><span class="st">"junction"</span>);
 
 ggWide1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(junc_wide_df,
-      <span class="kw">aes</span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">group=</span>id, <span class="dt">fill=</span>gr_name)) <span class="op">+</span>
-<span class="st">   </span>ggforce<span class="op">::</span><span class="kw"><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">geom_diagonal_wide</a></span>(<span class="dt">alpha=</span><span class="fl">0.7</span>) <span class="op">+</span>
+      <span class="kw">aes</span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">group=</span>gr_name, <span class="dt">fill=</span>gr_name, <span class="dt">color=</span>gr_name)) <span class="op">+</span>
+<span class="st">   </span>splicejam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/splicejam/topics/geom_diagonal_wide_arc">geom_diagonal_wide_arc</a></span>() <span class="op">+</span>
 <span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/theme_jam">theme_jam</a></span>() <span class="op">+</span>
-<span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam">scale_fill_jam</a></span>() <span class="op">+</span>
+<span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam">scale_fill_jam</a></span>(<span class="dt">alpha=</span><span class="fl">0.7</span>) <span class="op">+</span>
+<span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/scale_color_jam">scale_color_jam</a></span>() <span class="op">+</span>
 <span class="st">   </span><span class="kw">xlab</span>(<span class="st">"chr1"</span>) <span class="op">+</span>
 <span class="st">   </span><span class="kw">ggtitle</span>(<span class="st">"junctions (full intron width)"</span>)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggWide1);</code></pre></div>

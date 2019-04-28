@@ -102,8 +102,13 @@ sashimiAppServer <- function
          if (!exists("gene") || length(gene) == 0) {
             gene <<- isolate(input$gene);
          }
+         if (input$share_y_axis) {
+            facet_scales <- "fixed";
+         } else {
+            facet_scales <- "free_y";
+         }
          gg_sashimi <- plotSashimi(sashimi_data,
-            junc_color=alpha2col("goldenrod1", 0.1),
+            facet_scales=facet_scales,
             fill_scheme="sample_id");
          ## Optionally prepare gene-exon model
          if (input$show_gene_model) {

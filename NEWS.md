@@ -1,3 +1,20 @@
+# splicejam version 0.0.30.900
+
+## additions
+
+* New ggplot2 geom `geom_diagonal_wide_arc()`, extends
+`ggforce::geom_diagonal_wide()` by connecting the left and right halves
+of a diagonal into one continuous ribbon arc.
+
+## changes
+
+* `plotSashimi()` now uses `geom_diagonal_wide_arc()` to display
+junction arcs instead of using two `ggforce::geom_diagonal_wide()`.
+For now, `prepareSashimi()` still provides coordinates to create
+two polygons, which are combined in the geom. Still todo: figure
+out how to add a label; and make the middle x position immune to
+x-axis rescaling.
+
 # splicejam version 0.0.29.900
 
 * R-shiny app now properly keeps interactive plot x-axis ranges

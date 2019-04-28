@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
       </span>
     </div>
 
@@ -144,7 +144,8 @@ stored as a GRangesList.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># The code below is used to create the exon test data</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>GenomicRanges</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>GenomicRanges</span>));
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggplot2</span>));
 
 <span class='no'>test_exon_gr</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRanges-class'>GRanges</a></span>(<span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"chr1"</span>, <span class='fl'>4</span>),
    <span class='kw'>ranges</span><span class='kw'>=</span><span class='fu'>IRanges</span>(
@@ -156,8 +157,8 @@ stored as a GRangesList.</p>
    <span class='kw'>suffix</span><span class='kw'>=</span><span class='st'>""</span>);
 
 <span class='co'># To plot a simple GRanges object</span>
-<span class='fu'>ggplot</span>(<span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>test_exon_gr</span>), <span class='fu'>aes</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
-   <span class='fu'>geom_polygon</span>() +
+<span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>test_exon_gr</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
+   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_polygon'>geom_polygon</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>()</div><div class='img'><img src='test_exon_gr-1.png' alt='' width='700' height='433' /></div></pre>
   </div>

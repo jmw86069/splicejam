@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
       </span>
     </div>
 
@@ -139,9 +139,11 @@
     <tr>
       <th>GTF</th>
       <td><p>character file name sent to <code><a href='https://www.rdocumentation.org/packages/data.table/topics/fread'>data.table::fread()</a></code>. When the
-file ends with ".gz", gzcat is used to gunzip the file during the
-import step. (TODO: verify that handling of gz files is portable across
-architectures, or gracefully exit as needed.)</p></td>
+file ends with ".gz", the <code>R.utils</code> package is recommended, otherwise
+the fallback option is to make a system call to <code>gzcat</code>
+to gunzip the file during the import step. Note this process fails
+when <code>gzcat</code> is not available in the path of the user environment.
+In general, the <code>R.utils</code> package is the best solution.</p></td>
     </tr>
     <tr>
       <th>geneAttrNames</th>
@@ -210,20 +212,17 @@ results into R for downstream processing.</p></li>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam RNA-seq functions: <code><a href='ale2violin.html'>ale2violin</a></code>,
-  <code><a href='assignGRLexonNames.html'>assignGRLexonNames</a></code>,
+    <div class='dont-index'><p>Other jam RNA-seq functions: <code><a href='assignGRLexonNames.html'>assignGRLexonNames</a></code>,
   <code><a href='closestExonToJunctions.html'>closestExonToJunctions</a></code>,
-  <code><a href='codonUsage2df.html'>codonUsage2df</a></code>,
   <code><a href='combineGRcoverage.html'>combineGRcoverage</a></code>,
-  <code><a href='compressPolygonM.html'>compressPolygonM</a></code>,
   <code><a href='defineDetectedTx.html'>defineDetectedTx</a></code>,
-  <code><a href='detectedTxInfo.html'>detectedTxInfo</a></code>, <code><a href='dna2codon.html'>dna2codon</a></code>,
+  <code><a href='detectedTxInfo.html'>detectedTxInfo</a></code>,
   <code><a href='exoncov2polygon.html'>exoncov2polygon</a></code>,
   <code><a href='flattenExonsBy.html'>flattenExonsBy</a></code>,
-  <code><a href='groups2contrasts.html'>groups2contrasts</a></code>, <code><a href='jamCai.html'>jamCai</a></code>,
+  <code><a href='groups2contrasts.html'>groups2contrasts</a></code>,
   <code><a href='make_ref2compressed.html'>make_ref2compressed</a></code>,
   <code><a href='runDiffSplice.html'>runDiffSplice</a></code>, <code><a href='sortSamples.html'>sortSamples</a></code>,
-  <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a></code>, <code><a href='tx2ale.html'>tx2ale</a></code></p></div>
+  <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a></code></p></div>
     
 
   </div>

@@ -117,7 +117,9 @@ Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{plotSashimi}}, \code{\link{prepareSashimi}},
   \code{\link{stackJunctions}}
 
-Other jam ggplot2 functions: \code{\link{plotSashimi}}
+Other jam ggplot2 functions: \code{\link{geom_diagonal_wide_arc}},
+  \code{\link{plotSashimi}},
+  \code{\link{splicejam-extensions}}
 
 Other splicejam core functions: \code{\link{exoncov2polygon}},
   \code{\link{grl2df}}, \code{\link{make_ref2compressed}},

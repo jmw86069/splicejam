@@ -63,7 +63,7 @@ Stack the y-axis position of junctions
 }
 \details{
 This function is intended to help visualize splice junctions
-specifically when plotted using \code{ggforce::geom_diagonal_wide()},
+specifically when plotted using \code{geom_diagonal_wide_arc()},
 where the height of the junction arc is defined by the \code{score}.
 When two junctions have the same start position, their y-positions
 are stacked, such that the shorter junction width is placed before
@@ -113,8 +113,8 @@ grJunc <- closestExonToJunctions(grJunc, grExons)$spliceGRgene;
 grlJunc2df1 <- grl2df(grJunc,
    shape="junction",
    doStackJunctions=FALSE);
-ggplot(grlJunc2df1, aes(x=x, y=y, group=id, fill=gr_name)) +
-   ggforce::geom_diagonal_wide(alpha=0.7) +
+ggplot(grlJunc2df1, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
+   geom_diagonal_wide_arc(alpha=0.7) +
    colorjam::scale_fill_jam() +
    colorjam::theme_jam() +
    ggtitle("Junctions not stacked at boundaries")
@@ -124,8 +124,8 @@ grJunc2 <- stackJunctions(grJunc);
 grlJunc2df2 <- grl2df(grJunc2,
    scoreArcMinimum=20,
    shape="junction");
-ggplot(grlJunc2df2, aes(x=x, y=y, group=id, fill=gr_name)) +
-   ggforce::geom_diagonal_wide(alpha=0.7) +
+ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
+   geom_diagonal_wide_arc(alpha=0.7) +
    colorjam::scale_fill_jam() +
    colorjam::theme_jam() +
    ggtitle("Junctions stacked at boundaries")

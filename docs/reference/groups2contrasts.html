@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
       </span>
     </div>
 
@@ -252,20 +252,17 @@ of pairwise contrasts.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam RNA-seq functions: <code><a href='ale2violin.html'>ale2violin</a></code>,
-  <code><a href='assignGRLexonNames.html'>assignGRLexonNames</a></code>,
+    <div class='dont-index'><p>Other jam RNA-seq functions: <code><a href='assignGRLexonNames.html'>assignGRLexonNames</a></code>,
   <code><a href='closestExonToJunctions.html'>closestExonToJunctions</a></code>,
-  <code><a href='codonUsage2df.html'>codonUsage2df</a></code>,
   <code><a href='combineGRcoverage.html'>combineGRcoverage</a></code>,
-  <code><a href='compressPolygonM.html'>compressPolygonM</a></code>,
   <code><a href='defineDetectedTx.html'>defineDetectedTx</a></code>,
-  <code><a href='detectedTxInfo.html'>detectedTxInfo</a></code>, <code><a href='dna2codon.html'>dna2codon</a></code>,
+  <code><a href='detectedTxInfo.html'>detectedTxInfo</a></code>,
   <code><a href='exoncov2polygon.html'>exoncov2polygon</a></code>,
-  <code><a href='flattenExonsBy.html'>flattenExonsBy</a></code>, <code><a href='jamCai.html'>jamCai</a></code>,
+  <code><a href='flattenExonsBy.html'>flattenExonsBy</a></code>,
   <code><a href='makeTx2geneFromGtf.html'>makeTx2geneFromGtf</a></code>,
   <code><a href='make_ref2compressed.html'>make_ref2compressed</a></code>,
   <code><a href='runDiffSplice.html'>runDiffSplice</a></code>, <code><a href='sortSamples.html'>sortSamples</a></code>,
-  <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a></code>, <code><a href='tx2ale.html'>tx2ale</a></code></p>
+  <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a></code></p>
 <p>Other jam design functions: <code><a href='curateDFtoDF.html'>curateDFtoDF</a></code>,
   <code><a href='curateVtoDF.html'>curateVtoDF</a></code></p></div>
     
@@ -283,7 +280,7 @@ of pairwise contrasts.</p>
 #&gt; KO_Treated_v2 KO_Treated_v3 
 #&gt;    KO_Treated    KO_Treated 
 #&gt; Levels: WT_Control WT_Treated KO_Control KO_Treated</div><div class='input'>
-<span class='no'>iDesignL</span> <span class='kw'>&lt;-</span> <span class='fu'>groups2contrasts</span>(<span class='no'>iGroups</span>, <span class='kw'>returnDesign</span><span class='kw'>=</span><span class='fl'>TRUE</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'data.table' was built under R version 3.5.2</span></div><div class='input'><span class='no'>iDesignL</span>$<span class='no'>iDesign</span>;</div><div class='output co'>#&gt;               WT_Control WT_Treated KO_Control KO_Treated
+<span class='no'>iDesignL</span> <span class='kw'>&lt;-</span> <span class='fu'>groups2contrasts</span>(<span class='no'>iGroups</span>, <span class='kw'>returnDesign</span><span class='kw'>=</span><span class='fl'>TRUE</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘arules’ was built under R version 3.5.2</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘Matrix’ was built under R version 3.5.2</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘data.table’ was built under R version 3.5.2</span></div><div class='input'><span class='no'>iDesignL</span>$<span class='no'>iDesign</span>;</div><div class='output co'>#&gt;               WT_Control WT_Treated KO_Control KO_Treated
 #&gt; WT_Control_v1          1          0          0          0
 #&gt; WT_Control_v2          1          0          0          0
 #&gt; WT_Control_v3          1          0          0          0

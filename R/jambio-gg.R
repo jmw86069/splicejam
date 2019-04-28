@@ -37,7 +37,7 @@
 #'    `names(grl)`; `gr_name` which are names of the GRanges entries; and
 #'    other columns from the input GRanges entries. When `shape="junction"`
 #'    the data includes two polygons per junction, intended to be used
-#'    with `ggforce::geom_diagonal_wide()` for each side in order to
+#'    with `geom_diagonal_wide_arc()` for each side in order to
 #'    produce a ribbon arc. The data also includes `sample_id` which is
 #'    helpful for keeping data distinct when derived from multiple
 #'    samples.
@@ -635,7 +635,7 @@ gene2gg <- function
          aes(x=x,
             y=y,
             group=id)) +
-      geom_shape(show.legend=FALSE,
+      ggforce::geom_shape(show.legend=FALSE,
          aes(fill=subclass,
             color=subclass)) +
       colorjam::theme_jam() +
@@ -697,7 +697,7 @@ gene2gg <- function
 #' Stack the y-axis position of junctions
 #'
 #' This function is intended to help visualize splice junctions
-#' specifically when plotted using `ggforce::geom_diagonal_wide()`,
+#' specifically when plotted using `geom_diagonal_wide_arc()`,
 #' where the height of the junction arc is defined by the `score`.
 #' When two junctions have the same start position, their y-positions
 #' are stacked, such that the shorter junction width is placed before
@@ -791,8 +791,8 @@ gene2gg <- function
 #' grlJunc2df1 <- grl2df(grJunc,
 #'    shape="junction",
 #'    doStackJunctions=FALSE);
-#' ggplot(grlJunc2df1, aes(x=x, y=y, group=id, fill=gr_name)) +
-#'    ggforce::geom_diagonal_wide(alpha=0.7) +
+#' ggplot(grlJunc2df1, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
+#'    geom_diagonal_wide_arc(alpha=0.7) +
 #'    colorjam::scale_fill_jam() +
 #'    colorjam::theme_jam() +
 #'    ggtitle("Junctions not stacked at boundaries")
@@ -802,8 +802,8 @@ gene2gg <- function
 #' grlJunc2df2 <- grl2df(grJunc2,
 #'    scoreArcMinimum=20,
 #'    shape="junction");
-#' ggplot(grlJunc2df2, aes(x=x, y=y, group=id, fill=gr_name)) +
-#'    ggforce::geom_diagonal_wide(alpha=0.7) +
+#' ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
+#'    geom_diagonal_wide_arc(alpha=0.7) +
 #'    colorjam::scale_fill_jam() +
 #'    colorjam::theme_jam() +
 #'    ggtitle("Junctions stacked at boundaries")
@@ -976,6 +976,13 @@ stackJunctions <- function
 #'    will be color-filled: `"exon"` will define colors for each
 #'    distinct exon, using the GRanges names from `flatExonsByGene`;
 #'    `"sample_id"` to color all exons the same by sample_id.
+#' @param use_jam_themes logical indicating whether to apply
+#'    `colorjam::theme_jam()`, by default for the ggplot theme.
+#' @param apply_facet logical indicating whether to apply
+#'    `ggplot2::facet_wrap()` with `"~sample_id"` defining each
+#'    panel.
+#' @param facet_scales character value used as `"scales"` argument in
+#'    `ggplot2::facet_wrap()` when `apply_facet=TRUE`.
 #' @param ref2c optional output from `make_ref2compressed()` used to
 #'    compress axis coordinates during junction arc calculations.
 #' @param verbose logical indicating whether to print verbose output.
@@ -1008,6 +1015,7 @@ plotSashimi <- function
  fill_scheme=c("exon", "sample_id"),
  use_jam_themes=TRUE,
  apply_facet=TRUE,
+ facet_scales="free_y",
  ref2c=NULL,
  verbose=FALSE,
  ...)
@@ -1063,19 +1071,19 @@ plotSashimi <- function
    if ("junction" %in% show && "juncDF" %in% names(sashimi)) {
       if (length(ggSashimi) == 0) {
          ggSashimi <- ggplot2::ggplot(sashimi$juncDF) +
-            ggforce::geom_diagonal_wide(
+            geom_diagonal_wide_arc(
                aes(x=x,
                   y=y,
-                  group=id),
+                  group=gr_name),
                color=junc_color,
                fill=junc_fill,
                strength=0.4);
       } else {
          ggSashimi <- ggSashimi +
-            ggforce::geom_diagonal_wide(data=sashimi$juncDF,
+            geom_diagonal_wide_arc(data=sashimi$juncDF,
                aes(x=x,
                   y=y,
-                  group=id),
+                  group=gr_name),
                color=junc_color,
                fill=junc_fill,
                strength=0.4);
@@ -1116,7 +1124,7 @@ plotSashimi <- function
    if (apply_facet) {
       ggSashimi <- ggSashimi +
          facet_grid(sample_id~.,
-         scales="free_y");
+         scales=facet_scales);
    }
    return(ggSashimi);
 }

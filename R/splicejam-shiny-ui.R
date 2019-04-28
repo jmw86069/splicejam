@@ -128,6 +128,13 @@ sashimiAppUI <- function
                      status="info",
                      label="Show gene-exon model?"
                   ),
+                  shinyWidgets::prettySwitch(
+                     inputId="share_y_axis",
+                     value=FALSE,
+                     slim=TRUE,
+                     status="info",
+                     label="Shared y-axis range?"
+                  ),
                   sliderInput(
                      inputId="exon_label_size",
                      label="Exon label size",

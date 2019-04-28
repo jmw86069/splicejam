@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
       </span>
     </div>
 
@@ -161,6 +161,10 @@ By default, this function adds a column <code>"feature_type"</code> with
 value <code>"gap"</code>.</p></td>
     </tr>
     <tr>
+      <th>verbose</th>
+      <td><p>logical indicating whether to print verbose output.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>additional arguments are ignored.</p></td>
     </tr>
@@ -176,6 +180,8 @@ which is a list of numeric coverage values.</p>
 
     <p>This function takes a GRanges object to define genomic regions,
 for which coverage data is loaded for each <code>bwUrls</code> input file.</p>
+<p>Note that this function uses <code><a href='https://www.rdocumentation.org/packages/rtracklayer/topics/BigWigFile'>rtracklayer::import.bw()</a></code> which
+they describe does not work on the Windows platform.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
