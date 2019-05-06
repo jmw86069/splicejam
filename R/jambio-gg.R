@@ -637,6 +637,9 @@ gene2gg <- function
             group=id)) +
       ggforce::geom_shape(show.legend=FALSE,
          aes(fill=subclass,
+            text=paste0(gr_name,
+               "<br>", grl_name,
+               "<br>",subclass),
             color=subclass)) +
       colorjam::theme_jam() +
       ylab("") +
@@ -659,6 +662,7 @@ gene2gg <- function
                data=exonLabelDF,
                aes(x=x,
                   y=min(y),
+                  text=NULL,
                   label=gene_nameExon),
                angle=exonLabelAngle,
                hjust=vjust,
@@ -672,7 +676,10 @@ gene2gg <- function
             geom_text(
                inherit.aes=FALSE,
                data=exonLabelDF,
-               aes(x=x, y=min(y), label=gene_nameExon),
+               aes(x=x,
+                  y=min(y),
+                  text=NULL,
+                  label=gene_nameExon),
                angle=exonLabelAngle,
                hjust=hjust,
                vjust=vjust,
@@ -1031,18 +1038,37 @@ plotSashimi <- function
    }
    ggCov <- NULL;
    if ("coverage" %in% show && "covDF" %in% names(sashimi)) {
+      print(head(sashimi$covDF));
       ggSashimi <- ggplot2::ggplot(sashimi$covDF,
          aes(x=x,
             y=y,
-            group=gr));
+            group=gr
+            #,text=NULL
+            #,text=paste0("sample_id:", sample_id,
+            #   "<br>feature:", as.character(gr),
+            #   "<br>track:", as.character(cov))
+         )
+      );
       if ("exon" %in% fill_scheme) {
          ggSashimi <- ggSashimi +
             ggforce::geom_shape(show.legend=FALSE,
-               aes(fill=gr));
+               aes(fill=gr
+                  ,text=paste0(
+                     "feature:", as.character(gr),
+                     "<br>sample_id:", sample_id,
+                     "<br>track:", as.character(cov))
+               )
+            );
       } else if ("sample_id" %in% fill_scheme) {
          ggSashimi <- ggSashimi +
             ggforce::geom_shape(show.legend=FALSE,
-               aes(fill=sample_id));
+               aes(fill=sample_id
+                  ,text=paste0(
+                     "feature:", as.character(gr),
+                     "<br>sample_id:", sample_id,
+                     "<br>track:", as.character(cov))
+               )
+            );
       }
       ggSashimi <- ggSashimi +
          colorjam::theme_jam() +
@@ -1058,6 +1084,7 @@ plotSashimi <- function
                y=y,
                group=gr_sample,
                #fill="transparent",
+               text=NULL,
                label=gr),
             angle=90,
             vjust=1,
@@ -1074,7 +1101,12 @@ plotSashimi <- function
             geom_diagonal_wide_arc(
                aes(x=x,
                   y=y,
-                  group=gr_name),
+                  group=gr_name,
+                  text=paste0("sample_id:", sample_id,
+                     "<br>score:", scales::comma(score),
+                     "<br>nameFrom:", nameFrom,
+                     "<br>nameTo:", nameTo)
+               ),
                color=junc_color,
                fill=junc_fill,
                strength=0.4);
@@ -1083,7 +1115,13 @@ plotSashimi <- function
             geom_diagonal_wide_arc(data=sashimi$juncDF,
                aes(x=x,
                   y=y,
-                  group=gr_name),
+                  group=gr_name,
+                  text=paste0(
+                     "score:", scales::comma(score),
+                     "<br>sample_id:", sample_id,
+                     "<br>nameFrom:", nameFrom,
+                     "<br>nameTo:", nameTo)
+               ),
                color=junc_color,
                fill=junc_fill,
                strength=0.4);
@@ -1098,6 +1136,7 @@ plotSashimi <- function
             aes(x=x,
                y=y,
                group=nameFromToSample,
+               text=NULL,
                #fill="transparent",
                label=scales::comma(round(score))),
             angle=90,

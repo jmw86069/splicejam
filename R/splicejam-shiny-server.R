@@ -140,9 +140,17 @@ sashimiAppServer <- function
          if (input$do_plotly) {
             if (input$show_gene_model) {
                gg_ly <- suppressMessages(
-                  subplot(
-                     gg_sashimi + theme(axis.text.x=element_blank()) + xlab(NULL),
-                     gg_gene + ggtitle(NULL) + xlab(ref_name),
+                  plotly::subplot(
+                     plotly::ggplotly(
+                        gg_sashimi +
+                           theme(axis.text.x=element_blank()) +
+                           xlab(NULL),
+                        tooltip="text"),
+                     plotly::ggplotly(
+                        gg_gene +
+                           ggtitle(NULL) +
+                           xlab(ref_name),
+                        tooltip="text"),
                      nrows=2,
                      heights=c(num_samples, 1)/(num_samples + 1),
                      shareX=TRUE
@@ -155,6 +163,7 @@ sashimiAppServer <- function
                         scale_y_continuous(labels=scales::comma) +
                         xlab(ref_name) +
                         coord_cartesian(xlim=gene_coords),
+                     tooltip="text",
                      height=plot_height
                   )
                );
@@ -183,12 +192,19 @@ sashimiAppServer <- function
                      height=plot_height,
                      suppressMessages(
                         cowplot::plot_grid(
-                           gg_sashimi + theme(axis.text.x=element_blank()) + xlab(NULL),
-                           gg_gene + ggtitle(NULL) + xlab(ref_name),
+                           gg_sashimi +
+                              scale_y_continuous(labels=scales::comma) +
+                              theme(axis.text.x=element_blank()) +
+                              xlab(NULL) +
+                              coord_cartesian(xlim=gene_coords),
+                           gg_gene +
+                              ggtitle(NULL) +
+                              xlab(ref_name) +
+                              coord_cartesian(xlim=gene_coords),
                            ncol=1,
                            align="v",
                            axis="lr",
-                           rel_heights=c(num_samples,num_samples+1)
+                           rel_heights=c(num_samples, num_samples+1)
                         )
                      )
                   ));

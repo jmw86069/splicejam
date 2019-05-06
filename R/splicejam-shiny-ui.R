@@ -130,7 +130,7 @@ sashimiAppUI <- function
                   ),
                   shinyWidgets::prettySwitch(
                      inputId="share_y_axis",
-                     value=FALSE,
+                     value=TRUE,
                      slim=TRUE,
                      status="info",
                      label="Shared y-axis range?"

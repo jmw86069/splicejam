@@ -1532,6 +1532,12 @@ prepareSashimi <- function
          values(bed1)$score <- as.numeric(values(bed1)$name) * juncScaleFactors[iBedName];
          values(bed1)[,c("juncNames")] <- iBedName;
          values(bed1)[,c("sample_id")] <- juncSamples[iBedName];
+         ## Subset junctions to require one end within the region of interest
+         keepWhich <- (overlapsAny(flank(bed1, -1, start=TRUE), range(gr)) |
+            overlapsAny(flank(bed1, -1, start=FALSE), range(gr)));
+         if (any(!keepWhich)) {
+            bed1 <- bed1[keepWhich];
+         }
          bed1;
       }))@unlistData;
       ## Create junction summary data.frame

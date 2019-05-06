@@ -1,3 +1,20 @@
+# splicejam version 0.0.31.900
+
+## changes/fixes
+
+* Splice junctions now require at least one junction end within
+the range being displayed, to avoid junctions that do not connect
+with the visible gene model.
+* The x-axis range of multiple plots are more consistently controlled,
+to avoid one panel autoscaling to display a wider junction than
+other panels.
+
+## additions
+
+* Plotly views contain custom tooltip text, using the
+sample_id, the name of the exon or feature, and the track
+(referring to the name of the coverage).
+
 # splicejam version 0.0.30.900
 
 ## additions
