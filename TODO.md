@@ -1,21 +1,20 @@
 ## TODO for jambio
 
+### R-shiny launchSashimiApp()
+
+* Better error message for gene symbol not recognized.
+* Optionally show transcript exon models.
+* Optionally (new default) get coverage only for the gene strand.
+    * Requires bigWig files are named with indication
+    of strand. Current method of reading coverage to
+    test for negative coverage values is still a time step.
+    * Another option is to add strandedness to filesDF, but
+    would only apply to bigWig files, not junctions.
+* Color splice junctions using alternating lighter/darker
+shading, to try to help visibility for crowded ribbons.
+
 ### Sashimi plot functionality
 
-* Need ability to zoom without polygon clipping issues in ggplot2. Ideas:
-
-    * Provide zoom in `prepareSashimi()` based upon GRanges, or range of
-    exons. However in testing it still displays junctions whose
-   ends are in range, extending outside of the intended range.
-   * Exploit ggforce::facet_zoom() that somehow manages zoom without
-   clipping issues. Does require the facet stage of rendering? It
-   removes all previous faceting, which is problematic.
-   * `ggforce::facet_zoom()` keeps all labels that use
-   `ggrepel::geom_text_repel()`, which makes no sense. Hide
-   labels outside the plot range.
-   * Evaluate using `coords_cartesian(xlim=, ylim=)` which supposedly does not
-   crop data points prior to applying axis limits.
-   
 * Transformed axis:
 
     * customize breaks, minor_breaks, and labels functions so
@@ -26,13 +25,6 @@
     * Transformed axis line: x-axis line indicating compresssed
     status, solid line = uncompressed, dotted line = compressed.
     It might need a new own geom.
-
-* Junction arc:
-
-    * Remove the seam in the middle of each junction arc.
-    * Make arcs correctly center during x-axis transforms.
-    * Consider a custom geom "geom_diagonal_arc_wide()",
-    effectively a two-sided "ggforce::geom_diagonal_wide()".
 
 ### Portability
 
@@ -45,14 +37,6 @@ in which case it runs the command and imports the data stream.
     * Can Windows users load coverage data? Package "rtracklayer"
     cannot import bigWig format.
     * What is Plan B for coverage data?
-
-### Example data
-
-* Define a small subset of transcript gene models to use in examples
-for each function for improved documentation. **COMPLETE**
-* Add "mouse_codon_usage.txt" raw text file as example
-input for codon usage analysis. **COMPLETE**
-* Small bigWig file?
 
 ### Testing
 

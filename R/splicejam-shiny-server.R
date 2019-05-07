@@ -112,9 +112,23 @@ sashimiAppServer <- function
             fill_scheme="sample_id");
          ## Optionally prepare gene-exon model
          if (input$show_gene_model) {
-            gg_gene <- gene2gg(gene=gene,
-               flatExonsByGene=flatExonsByGene,
-               exonLabelSize=input$exon_label_size);
+            if (input$show_tx_model) {
+               if (input$show_detected_tx) {
+                  gg_gene <- gene2gg(gene=gene,
+                     flatExonsByGene=flatExonsByGene,
+                     flatExonsByTx=flatExonsByTx[detectedTx],
+                     exonLabelSize=input$exon_label_size);
+               } else {
+                  gg_gene <- gene2gg(gene=gene,
+                     flatExonsByGene=flatExonsByGene,
+                     flatExonsByTx=flatExonsByTx,
+                     exonLabelSize=input$exon_label_size);
+               }
+            } else {
+               gg_gene <- gene2gg(gene=gene,
+                  flatExonsByGene=flatExonsByGene,
+                  exonLabelSize=input$exon_label_size);
+            }
          }
 
          ## Optionally get gene coordinate range

@@ -117,7 +117,7 @@ sashimiAppUI <- function
                sidebar_content=tagList(
                   shinyWidgets::prettySwitch(
                      inputId="do_plotly",
-                     value=FALSE,
+                     value=TRUE,
                      slim=TRUE,
                      status="info",
                      label="Interactive?"),
@@ -127,6 +127,26 @@ sashimiAppUI <- function
                      slim=TRUE,
                      status="info",
                      label="Show gene-exon model?"
+                  ),
+                  conditionalPanel(
+                     condition="input.show_gene_model == true",
+                     shinyWidgets::prettySwitch(
+                        inputId="show_tx_model",
+                        value=FALSE,
+                        slim=TRUE,
+                        status="info",
+                        label="Include transcript isoforms?"
+                     ),
+                     conditionalPanel(
+                        condition="input.show_tx_model == true",
+                        shinyWidgets::prettySwitch(
+                           inputId="show_detected_tx",
+                           value=TRUE,
+                           slim=TRUE,
+                           status="info",
+                           label="Show detected transcripts only?"
+                        )
+                     )
                   ),
                   shinyWidgets::prettySwitch(
                      inputId="share_y_axis",

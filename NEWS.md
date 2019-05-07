@@ -1,3 +1,14 @@
+# splicejam version 0.0.32.900
+
+## changes/fixes
+
+* Added `flatExonsByTx` to R-shiny app, to be able to display
+transcript isoform exon structures alongside the flattened
+gene-exon model.
+* Added R-shiny option to display transcript isoforms alongside
+the gene-exon model. Also option to show all or detected
+transcripts.
+
 # splicejam version 0.0.31.900
 
 ## changes/fixes

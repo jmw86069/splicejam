@@ -134,11 +134,13 @@ sashimiAppConstants <- function
    }
 
    ## Define flatExonsByGene
+   if (!exists("flatExonsByGene") || !exists("flatExonsByTx")) {
+      flattenExonsBy_m <- memoise::memoise(flattenExonsBy,
+         cache=memoise::cache_filesystem("flattenExonsBy_memoise"));
+   }
    if (!exists("flatExonsByGene")) {
       printDebug("Deriving flatExonsByGene from:",
          c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
-      flattenExonsBy_m <- memoise::memoise(flattenExonsBy,
-         cache=memoise::cache_filesystem("flattenExonsBy_memoise"));
       flatExonsByGene <<- flattenExonsBy_m(exonsByTx=exonsByTx,
          cdsByTx=cdsByTx,
          detectedTx=detectedTx,
@@ -146,8 +148,16 @@ sashimiAppConstants <- function
          tx2geneDF=tx2geneDF,
          verbose=FALSE);
    }
-
-      #flatExonsByGeneMm10
+   ## Define flatExonsByTx
+   if (!exists("flatExonsByTx")) {
+      printDebug("Deriving flatExonsByTx from:",
+         c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
+      flatExonsByTx <<- flattenExonsBy_m(exonsByTx=exonsByTx,
+         cdsByTx=cdsByTx,
+         tx2geneDF=tx2geneDF,
+         by="tx",
+         verbose=FALSE)
+   }
 
    # guides
    # define guides tab
