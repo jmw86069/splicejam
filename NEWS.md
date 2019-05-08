@@ -1,3 +1,19 @@
+# splicejam version 0.0.33.900
+
+## changes
+
+* `stackJunctions()` now also returns "junction_rank"
+scored from 1 to 3, where 1=minor, 2=partial, 3=major,
+based upon the rank of junctions entering and leaving
+exons.
+* Junctions are drawn in order from dominant to minor,
+which has the effect of ensuring smaller junctions are
+displayed. The `junc_fill` is converted to gradient so
+a darker color is used for dominant junctions, to try
+to highlight the major isoform splice junctions per sample.
+Unfortunately, plotly does not honor the polygon render
+order (yet).
+
 # splicejam version 0.0.32.900
 
 ## changes/fixes

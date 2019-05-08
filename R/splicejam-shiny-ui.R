@@ -63,7 +63,7 @@ sashimiAppUI <- function
                   value=FALSE,
                   slim=TRUE,
                   status="info",
-                  label="Use Exon Names?"),
+                  label="Use exon names in the slider below?"),
                conditionalPanel(
                   condition="input.use_exon_names == true",
                   sliderTextInput(
@@ -77,11 +77,14 @@ sashimiAppUI <- function
                ),
                conditionalPanel(
                   condition="input.use_exon_names == false",
+                  htmltools::em(textOutput("gene_coords_label",
+                     inline=TRUE)),
                   sliderInput(
                      "gene_coords",
-                     label="Genome coordinate range",
+                     label=NULL,#"Genome coordinate range",
                      min=1,
                      max=2000,
+                     width="80%",
                      value=c(2, 2000),
                      step=1,
                      round=TRUE
@@ -105,10 +108,10 @@ sashimiAppUI <- function
                enable_sidebar=TRUE,
                width=12,
                height="100%",
-               #plotOutput("sashimiplot_output"),
                fluidRow(
                   column(
                      width=12,
+                     textOutput("sashimitext_output"),
                      uiOutput("sashimiplot_output")
                   )
                ),

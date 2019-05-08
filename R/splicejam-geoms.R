@@ -87,7 +87,11 @@ StatDiagonalWideArc <- ggproto('StatDiagonalWideArc', Stat,
     strength=0.5,
     n=100)
    {
-      data <- data[order(data$group, data$x, data$y),]
+      # Keep original order of groups
+      data$group_factor <- factor(data$group,
+         levels=(unique(data$group)));
+
+      data <- data[order(data$group_factor, data$x, data$y),]
       group_data <- data$group;
       new_group <- rep(
          makeNames(
@@ -111,8 +115,8 @@ StatDiagonalWideArc <- ggproto('StatDiagonalWideArc', Stat,
       lower <- lower[order(lower$group, lower$x),];
       upper <- upper[order(upper$group, -upper$x),];
       diagonals <- rbind(lower, upper);
-      diagonals$index <- NULL
-      diagonals[order(diagonals$group),]
+      #diagonals$index <- NULL
+      diagonals[order(diagonals$group_factor),,drop=FALSE];
    },
    required_aes = c('x', 'y', 'group'),
    extra_params = c('na.rm', 'n', 'strength')
@@ -172,7 +176,8 @@ geom_diagonal_wide_arc <- function
       data = data,
       mapping = mapping,
       stat = stat,
-      geom = ggforce::GeomShape,
+      #geom = ggforce::GeomShape,
+      geom = GeomPolygon,
       position = position,
       show.legend = show.legend,
       inherit.aes = inherit.aes,

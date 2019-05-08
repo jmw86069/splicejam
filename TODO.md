@@ -10,8 +10,18 @@
     test for negative coverage values is still a time step.
     * Another option is to add strandedness to filesDF, but
     would only apply to bigWig files, not junctions.
-* Color splice junctions using alternating lighter/darker
-shading, to try to help visibility for crowded ribbons.
+* Color splice junctions for visibility:
+    * use alternating lighter/darker shading
+    * figure out dominant junction and shade slightly darker/lighter
+    whenever multiple junctions enter/exit the same exon.
+* Add genome coordinates as text, to allow copy-paste.
+* Add y-position to coverage tooltip for plotly.
+* Add x-range of gr feature to tooltip for plotly, for gene-tx-exons,
+coverage polygon, and junction.
+* When showing tx-exons and gene-exons, make the gene panel
+proportionally larger.
+* Option to resize axis label fonts.
+* Add chromosome label atop the coordinate slider.
 
 ### Sashimi plot functionality
 

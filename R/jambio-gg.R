@@ -924,7 +924,7 @@ stackJunctions <- function
    }
 
    ## Start position
-   #order1 <- do.call(order, list(start(gr), width(gr)));
+   ## group by exonsFrom which allows the spliceBuffer to work
    order1 <- do.call(order, list(exonsFrom, width(gr)));
    values(gr)[order1,"yStart"] <- shrinkMatrix(
       scoreV[order1],
@@ -932,7 +932,9 @@ stackJunctions <- function
       groupBy=exonsFrom[order1],
       shrinkFunc=function(x){cumsum(head(c(0,x), length(x)))})$x +
       baselineV[exonsFrom[order1]];
+
    ## End position
+   ## group by exonsTo which allows the spliceBuffer to work
    order2 <- do.call(order, list(exonsTo, width(gr)));
    values(gr)[order2,"yEnd"] <- shrinkMatrix(
       scoreV[order2],
@@ -940,6 +942,35 @@ stackJunctions <- function
       groupBy=exonsTo[order2],
       shrinkFunc=function(x){cumsum(head(c(0,x), length(x)))})$x +
       baselineV[exonsTo[order2]];
+
+   ## Bonus points
+   ## rank junctions by score at the exonsFrom and exonsTo position
+   ## so the rank can be used to colorize dominant junctions
+   shrink_junc <- function(i){
+      if (jamba::igrepHas("numeric|integer", class(i))) {
+         (rank(-abs(i)) == 1) * 1;
+      } else {
+         i;
+      }
+   }
+   juncRankFrom <- shrinkMatrix(
+      values(gr)[,c("score","nameFromToSample")],
+      pasteByRow(values(gr)[,c("sample_id","nameFrom")]),
+      shrinkFunc=shrink_junc);
+   juncRankTo <- shrinkMatrix(
+      values(gr)[,c("score","nameFromToSample")],
+      pasteByRow(values(gr)[,c("sample_id","nameTo")]),
+      #shrinkFunc=c)
+      shrinkFunc=shrink_junc);
+   juncRankDF <- data.frame(
+         juncRankFrom[match(values(gr)[,"nameFromToSample"], juncRankFrom[,"nameFromToSample"]),],
+         juncRankTo[match(values(gr)[,"nameFromToSample"], juncRankTo[,"nameFromToSample"]),]
+   );
+   juncRank <- (1 +
+         juncRankFrom[match(values(gr)[,"nameFromToSample"], juncRankFrom[,"nameFromToSample"]),"score"] +
+         juncRankTo[match(values(gr)[,"nameFromToSample"], juncRankTo[,"nameFromToSample"]),"score"]
+   );
+   values(gr)[,"junction_rank"] <- factor(juncRank);
    return(gr);
 }
 
@@ -1017,8 +1048,8 @@ plotSashimi <- function
     "junctionLabels"),
  coord_method=c("scale", "coord", "none"),
  exonsGrl=NULL,
- junc_color=alpha2col("goldenrod3", 0.7),
- junc_fill=alpha2col("goldenrod1", 0.4),
+ junc_color=alpha2col("goldenrod2", 0.3),
+ junc_fill=alpha2col("goldenrod2", 0.9),
  fill_scheme=c("exon", "sample_id"),
  use_jam_themes=TRUE,
  apply_facet=TRUE,
@@ -1037,16 +1068,12 @@ plotSashimi <- function
       coord_method <- "none";
    }
    ggCov <- NULL;
+   color_sub <- NULL;
    if ("coverage" %in% show && "covDF" %in% names(sashimi)) {
-      print(head(sashimi$covDF));
       ggSashimi <- ggplot2::ggplot(sashimi$covDF,
          aes(x=x,
             y=y,
             group=gr
-            #,text=NULL
-            #,text=paste0("sample_id:", sample_id,
-            #   "<br>feature:", as.character(gr),
-            #   "<br>track:", as.character(cov))
          )
       );
       if ("exon" %in% fill_scheme) {
@@ -1059,6 +1086,8 @@ plotSashimi <- function
                      "<br>track:", as.character(cov))
                )
             );
+         color_sub_cov <- group2colors(unique(sashimi$covDF$gr));
+         color_sub[names(color_sub_cov)] <- color_sub_cov;
       } else if ("sample_id" %in% fill_scheme) {
          ggSashimi <- ggSashimi +
             ggforce::geom_shape(show.legend=FALSE,
@@ -1069,10 +1098,12 @@ plotSashimi <- function
                      "<br>track:", as.character(cov))
                )
             );
+         color_sub_cov <- group2colors(unique(sashimi$covDF$sample_id));
+         color_sub[names(color_sub_cov)] <- color_sub_cov;
       }
-      ggSashimi <- ggSashimi +
-         colorjam::theme_jam() +
-         colorjam::scale_fill_jam();
+      #ggSashimi <- ggSashimi +
+      #   colorjam::theme_jam() +
+      #   scale_fill_manual(values=color_sub);
       if ("exonLabels" %in% show && "exonLabelDF" %in% names(sashimi)) {
          yMax <- max(sashimi$exonLabelDF$y);
          yUnit <- 10^floor(log10(yMax));
@@ -1096,35 +1127,99 @@ plotSashimi <- function
    }
    ## Junction data
    if ("junction" %in% show && "juncDF" %in% names(sashimi)) {
+      color_sub_junc <- NULL;
+      if ("junction_rank" %in% colnames(sashimi$juncDF)) {
+         # order so the lower rank, lesser junctions, are drawn on top
+         sashimi$juncDF <- sashimi$juncDF[order(-sashimi$juncDF$junction_rank),,drop=FALSE];
+         # color junctions by rank
+         if (!all(c("1","2","3") %in% names(junc_fill))) {
+            color_sub_junc <- nameVector(
+               makeColorDarker(rep(junc_fill, each=3),
+                  darkFactor=c(-1.4, -1.2, 1),
+                  sFactor=c(-1.4, -1.2, 1)),
+               c(1,2,3));
+         } else {
+            color_sub_junc <- junc_fill[c("1","2","3")];
+         }
+      }
+      junc_alpha <- col2alpha(junc_fill);
       if (length(ggSashimi) == 0) {
-         ggSashimi <- ggplot2::ggplot(sashimi$juncDF) +
-            geom_diagonal_wide_arc(
-               aes(x=x,
-                  y=y,
-                  group=gr_name,
-                  text=paste0("sample_id:", sample_id,
-                     "<br>score:", scales::comma(score),
-                     "<br>nameFrom:", nameFrom,
-                     "<br>nameTo:", nameTo)
-               ),
-               color=junc_color,
-               fill=junc_fill,
-               strength=0.4);
+         if ("junction_rank" %in% colnames(sashimi$juncDF)) {
+            # color junctions by rank
+            sashimi$juncDF$gr_name_f <- factor(sashimi$juncDF$gr_name,
+               levels=unique(as.character(sashimi$juncDF$gr_name)));
+            ggSashimi <- ggplot2::ggplot(sashimi$juncDF) +
+               geom_diagonal_wide_arc(
+                  aes(x=x,
+                     y=y,
+                     group=gr_name_f,
+                     fill=as.character(junction_rank),
+                     text=paste0(
+                        "score:", scales::comma(score),
+                        "<br>nameFrom:", nameFrom,
+                        "<br>nameTo:", nameTo,
+                        "<br>sample_id:", sample_id)
+                  ),
+                  show.legend=FALSE,
+                  alpha=junc_alpha,
+                  color=junc_color,
+                  strength=0.4);
+            color_sub[names(color_sub_junc)] <- color_sub_junc;
+         } else {
+            ggSashimi <- ggplot2::ggplot(sashimi$juncDF) +
+               geom_diagonal_wide_arc(
+                  aes(x=x,
+                     y=y,
+                     group=gr_name,
+                     text=paste0("sample_id:", sample_id,
+                        "<br>score:", scales::comma(score),
+                        "<br>nameFrom:", nameFrom,
+                        "<br>nameTo:", nameTo)
+                  ),
+                  show.legend=FALSE,
+                  color=junc_color,
+                  fill=junc_fill,
+                  strength=0.4);
+         }
       } else {
-         ggSashimi <- ggSashimi +
-            geom_diagonal_wide_arc(data=sashimi$juncDF,
-               aes(x=x,
-                  y=y,
-                  group=gr_name,
-                  text=paste0(
-                     "score:", scales::comma(score),
-                     "<br>sample_id:", sample_id,
-                     "<br>nameFrom:", nameFrom,
-                     "<br>nameTo:", nameTo)
-               ),
-               color=junc_color,
-               fill=junc_fill,
-               strength=0.4);
+         if ("junction_rank" %in% colnames(sashimi$juncDF)) {
+            # color junctions by rank
+            sashimi$juncDF$gr_name_f <- factor(sashimi$juncDF$gr_name,
+               levels=unique(as.character(sashimi$juncDF$gr_name)));
+            ggSashimi <- ggSashimi +
+               geom_diagonal_wide_arc(data=sashimi$juncDF,
+                  aes(x=x,
+                     y=y,
+                     group=gr_name_f,
+                     fill=as.character(junction_rank),
+                     text=paste0(
+                        "score:", scales::comma(score),
+                        "<br>sample_id:", sample_id,
+                        "<br>nameFrom:", nameFrom,
+                        "<br>nameTo:", nameTo)
+                  ),
+                  show.legend=FALSE,
+                  alpha=junc_alpha,
+                  color=junc_color,
+                  strength=0.4);
+            color_sub[names(color_sub_junc)] <- color_sub_junc;
+         } else {
+            ggSashimi <- ggSashimi +
+               geom_diagonal_wide_arc(data=sashimi$juncDF,
+                  aes(x=x,
+                     y=y,
+                     group=gr_name,
+                     text=paste0(
+                        "score:", scales::comma(score),
+                        "<br>sample_id:", sample_id,
+                        "<br>nameFrom:", nameFrom,
+                        "<br>nameTo:", nameTo)
+                  ),
+                  show.legend=FALSE,
+                  color=junc_color,
+                  fill=junc_fill,
+                  strength=0.4);
+         }
       }
       if ("junctionLabels" %in% show && "juncLabelDF" %in% names(sashimi)) {
          yMax <- max(sashimi$juncLabelDF$y);
@@ -1158,7 +1253,7 @@ plotSashimi <- function
       ggSashimi <- ggSashimi +
          colorjam::theme_jam(panel.grid.major.colour="grey80",
             panel.grid.minor.colour="grey90") +
-         colorjam::scale_fill_jam();
+         scale_fill_manual(values=color_sub);
    }
    if (apply_facet) {
       ggSashimi <- ggSashimi +

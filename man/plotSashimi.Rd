@@ -6,8 +6,8 @@
 \usage{
 plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   coord_method = c("scale", "coord", "none"), exonsGrl = NULL,
-  junc_color = alpha2col("goldenrod3", 0.7),
-  junc_fill = alpha2col("goldenrod1", 0.4), fill_scheme = c("exon",
+  junc_color = alpha2col("goldenrod2", 0.3),
+  junc_fill = alpha2col("goldenrod2", 0.9), fill_scheme = c("exon",
   "sample_id"), use_jam_themes = TRUE, apply_facet = TRUE,
   facet_scales = "free_y", ref2c = NULL, verbose = FALSE, ...)
 }

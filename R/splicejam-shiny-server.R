@@ -32,6 +32,7 @@ sashimiAppServer <- function
       selected="Gria1",
       server=TRUE);
 
+   output$gene_coords_label <- renderText({"Genome coordinate range"});
 
    observe({
       gene <- input$gene;
@@ -39,6 +40,13 @@ sashimiAppServer <- function
       if (length(gene) > 0 && nchar(gene) > 0) {
          chr_range <- as.data.frame(range(flatExonsByGene[[gene]]))[,c("start", "end")];
          if (length(chr_range) > 0) {
+            ## Update slider text label
+            output$gene_coords_label <- renderText({
+               paste0(
+                  "Coordinate range ",
+                  as.character(seqnames(head(flatExonsByGene[[gene]], 1))),
+                  ":")
+            });
             ## Update sliderInput for gene_coords
             updateSliderInput(session,
                "gene_coords",
@@ -93,9 +101,11 @@ sashimiAppServer <- function
    output$sashimiplot_output <- renderUI({
       sashimi_data <- get_sashimi_data();
       if (length(sashimi_data) == 0) {
-         tagList(renderPlot(
-            height=300,
-            ggplot() + geom_blank()
+         ## Todo: make empty plot a minimum height in pixels
+         tagList(
+            renderPlot(
+               height=300,
+               ggplot() + geom_blank()
             )
          );
       } else {
@@ -142,8 +152,16 @@ sashimiAppServer <- function
             gene_coords <- isolate(input$gene_coords);
          }
 
-         ## Prepare plotly or ggplot2 output
+         ## Prepare text label with genome coordinates
          ref_name <- as.character(head(seqnames(flatExonsByGene[[gene]]), 1));
+         coord_label <- paste0(
+            ref_name,
+            ":",
+            paste(gene_coords, collapse="-")
+         );
+         output$sashimitext_output <- renderText({coord_label});
+
+         ## Prepare plotly or ggplot2 output
          sample_id <- unique(filesDF$sample_id);
          num_samples <- max(c(length(sample_id), 1)) + 1;
          num_samples <- 2;
@@ -158,12 +176,14 @@ sashimiAppServer <- function
                      plotly::ggplotly(
                         gg_sashimi +
                            theme(axis.text.x=element_blank()) +
-                           xlab(NULL),
+                           xlab(NULL) +
+                           coord_cartesian(xlim=gene_coords),
                         tooltip="text"),
                      plotly::ggplotly(
                         gg_gene +
                            ggtitle(NULL) +
-                           xlab(ref_name),
+                           xlab(ref_name) +
+                           coord_cartesian(xlim=gene_coords),
                         tooltip="text"),
                      nrows=2,
                      heights=c(num_samples, 1)/(num_samples + 1),

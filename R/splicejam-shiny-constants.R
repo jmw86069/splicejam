@@ -60,6 +60,7 @@ sashimiAppConstants <- function
             tx2geneDF <- read.table(file=tx2geneFile,
                sep="\t", header=TRUE, quote="\"", comment.char="");
          }
+         tx2geneDF <<- tx2geneDF;
       } else {
          printDebug("Using tx2geneDF from environment.");
       }
@@ -93,6 +94,7 @@ sashimiAppConstants <- function
             use.names=TRUE);
          values(exonsByTx@unlistData)$feature_type <- "exon";
          values(exonsByTx@unlistData)$subclass <- "exon";
+         exonsByTx <<- exonsByTx;
       }
       if (!exists("cdsByTx")) {
          printDebug("Deriving cdsByTx from txdb");
@@ -106,6 +108,7 @@ sashimiAppConstants <- function
             use.names=TRUE);
          values(cdsByTx@unlistData)$feature_type <- "cds";
          values(cdsByTx@unlistData)$subclass <- "cds";
+         cdsByTx <<- cdsByTx;
       }
    }
 
