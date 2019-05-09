@@ -1190,6 +1190,14 @@ combineGRcoverage <- function
 #' @param juncGR GRanges object containing splice junctions, where
 #'    `"score"` is used for the abundance of splice junction reads,
 #'    and `"sample_id"` is used to define the biological `sample_id`.
+#' @param include_strand character value, one of `"both"`, `"+"`,
+#'    `"-"` indicating the strandedness of coverage and junctions
+#'    to display. The default `"both"` shows coverage on both strands,
+#'    otherwise coverage is filtered either by filename (presence of
+#'    `"pos"`, `"+"`, or `"plus"` indicates positive strand), or
+#'    by detecting strandedness by positive/negative coverage scores.
+#'    Detecting by filename is intended to avoid retrieving coverage
+#'    in the R-shiny app, to help efficiency.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param do_shiny_progress logical indicating whether to send
 #'    progress updates to a running shiny app, using the
@@ -1239,6 +1247,7 @@ prepareSashimi <- function
  exon_label_type=c("none", "repel", "mark"),
  junc_label_type=c("repel", "mark", "none"),
  return_data=c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF", "ref2c", "all"),
+ include_strand=c("both", "+", "-"),
  junc_color=alpha2col("goldenrod3", 0.7),
  junc_fill=alpha2col("goldenrod1", 0.4),
  doStackJunctions=TRUE,
@@ -1259,6 +1268,7 @@ prepareSashimi <- function
    ## so the threshold is proportional to the coverage.
    junc_label_type <- match.arg(junc_label_type);
    exon_label_type <- match.arg(exon_label_type);
+   include_strand <- match.arg(include_strand);
    coord_method <- match.arg(coord_method);
    retVals <- list();
    #if (length(return_data) > 1 || "all" %in% return_data) {
@@ -1310,6 +1320,16 @@ prepareSashimi <- function
    ## Get coverage data
    bwFilesDF <- filesDF[filesDF$type %in% "bw" &
       filesDF$sample_id %in% sample_id,,drop=FALSE];
+   ## Subset by filename if include_strand is not "both"
+   if (!"both" %in% include_strand) {
+      if (igrepHas("pos|[+]|plus", bwFilesDF$url)) {
+         if ("+" %in% include_strand) {
+            bwFilesDF <- bwFilesDF[jamba::igrep("pos|[+]|plus", bwFilesDF$url),,drop=FALSE];
+         } else {
+            bwFilesDF <- bwFilesDF[jamba::unigrep("pos|[+]|plus", bwFilesDF$url),,drop=FALSE];
+         }
+      }
+   }
    bwUrls <- nameVector(bwFilesDF[,c("url","url")]);
    bwSamples <- nameVector(bwFilesDF[,c("sample_id","url")]);
    bwUrlsL <- split(bwUrls, unname(bwSamples));
@@ -1558,7 +1578,7 @@ prepareSashimi <- function
          juncDF1 <- subset(juncDF1, abs(score) >= minJunctionScore);
       }
    }
-   if (nrow(juncDF1) > 0) {
+   if (exists("juncDF1") && length(juncDF1) > 0 && nrow(juncDF1) > 0) {
       juncGR <- as(renameColumn(juncDF1, from="ref", to="seqnames"), "GRanges");
       names(juncGR) <- makeNames(values(juncGR)[,"nameFromToSample"]);
       ## Convert junctions to polygons usable by geom_diagonal_wide()

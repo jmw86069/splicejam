@@ -81,16 +81,26 @@ sashimiAppServer <- function
       ## Wrap the workflow in a progress bar
       prepareSashimi_m <- memoise::memoise(prepareSashimi,
          cache=memoise::cache_filesystem("sashimidata_memoise"));
+      ## Define sample_id for now
+      if (!exists("sample_id")) {
+         sample_id <<- head(unique(filesDF$sample_id), 2);
+      }
+      min_junction_reads <- isolate(input$min_junction_reads);
+      include_strand <- isolate(input$include_strand);
+      if (!exists("verbose")) {
+         verbose <- FALSE;
+      }
       withProgress(
          message="Preparing Sashimi data.",
          value=0,
          {
             sashimi_data <- prepareSashimi_m(gene=gene,
                flatExonsByGene=flatExonsByGene,
-               minJunctionScore=100,
-               sample_id=c("CA1_CB", "CA2_CB"),
+               minJunctionScore=min_junction_reads,
+               sample_id=sample_id,
                filesDF=filesDF,
-               verbose=TRUE,
+               include_strand=include_strand,
+               verbose=verbose,
                do_shiny_progress=FALSE);
             sashimi_data;
          }

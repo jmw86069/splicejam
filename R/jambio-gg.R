@@ -639,7 +639,9 @@ gene2gg <- function
          aes(fill=subclass,
             text=paste0(gr_name,
                "<br>", grl_name,
-               "<br>",subclass),
+               "<br>",subclass,
+               "<br>coord:", scales::comma(x)
+            ),
             color=subclass)) +
       colorjam::theme_jam() +
       ylab("") +
@@ -1081,7 +1083,9 @@ plotSashimi <- function
             ggforce::geom_shape(show.legend=FALSE,
                aes(fill=gr
                   ,text=paste0(
-                     "feature:", as.character(gr),
+                     "score:", scales::comma(y),
+                     "<br>coord:", scales::comma(x),
+                     "<br>feature:", as.character(gr),
                      "<br>sample_id:", sample_id,
                      "<br>track:", as.character(cov))
                )
@@ -1093,7 +1097,9 @@ plotSashimi <- function
             ggforce::geom_shape(show.legend=FALSE,
                aes(fill=sample_id
                   ,text=paste0(
-                     "feature:", as.character(gr),
+                     "score:", scales::comma(y),
+                     "<br>coord:", scales::comma(x),
+                     "<br>feature:", as.character(gr),
                      "<br>sample_id:", sample_id,
                      "<br>track:", as.character(cov))
                )
@@ -1158,7 +1164,8 @@ plotSashimi <- function
                         "score:", scales::comma(score),
                         "<br>nameFrom:", nameFrom,
                         "<br>nameTo:", nameTo,
-                        "<br>sample_id:", sample_id)
+                        "<br>sample_id:", sample_id
+                     )
                   ),
                   show.legend=FALSE,
                   alpha=junc_alpha,
@@ -1171,10 +1178,12 @@ plotSashimi <- function
                   aes(x=x,
                      y=y,
                      group=gr_name,
-                     text=paste0("sample_id:", sample_id,
-                        "<br>score:", scales::comma(score),
+                     text=paste0(
+                        "score:", scales::comma(score),
                         "<br>nameFrom:", nameFrom,
-                        "<br>nameTo:", nameTo)
+                        "<br>nameTo:", nameTo,
+                        "<br>sample_id:", sample_id
+                     )
                   ),
                   show.legend=FALSE,
                   color=junc_color,
@@ -1194,9 +1203,10 @@ plotSashimi <- function
                      fill=as.character(junction_rank),
                      text=paste0(
                         "score:", scales::comma(score),
-                        "<br>sample_id:", sample_id,
                         "<br>nameFrom:", nameFrom,
-                        "<br>nameTo:", nameTo)
+                        "<br>nameTo:", nameTo,
+                        "<br>sample_id:", sample_id
+                     )
                   ),
                   show.legend=FALSE,
                   alpha=junc_alpha,
@@ -1211,9 +1221,10 @@ plotSashimi <- function
                      group=gr_name,
                      text=paste0(
                         "score:", scales::comma(score),
-                        "<br>sample_id:", sample_id,
                         "<br>nameFrom:", nameFrom,
-                        "<br>nameTo:", nameTo)
+                        "<br>nameTo:", nameTo,
+                        "<br>sample_id:", sample_id
+                     )
                   ),
                   show.legend=FALSE,
                   color=junc_color,

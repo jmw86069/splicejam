@@ -161,6 +161,9 @@ sashimiAppConstants <- function
          by="tx",
          verbose=FALSE)
    }
+   if (!exists("verbose")) {
+      verbose <- FALSE;
+   }
 
    # guides
    # define guides tab

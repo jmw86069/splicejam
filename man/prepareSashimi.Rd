@@ -11,7 +11,8 @@ prepareSashimi(flatExonsByGene = NULL, filesDF = NULL, gene,
   feature_type_colname = "feature_type", exon_label_type = c("none",
   "repel", "mark"), junc_label_type = c("repel", "mark", "none"),
   return_data = c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF",
-  "ref2c", "all"), junc_color = alpha2col("goldenrod3", 0.7),
+  "ref2c", "all"), include_strand = c("both", "+", "-"),
+  junc_color = alpha2col("goldenrod3", 0.7),
   junc_fill = alpha2col("goldenrod1", 0.4), doStackJunctions = TRUE,
   coord_method = c("coord", "scale", "none"), scoreFactor = 1,
   scoreArcFactor = 0.2, scoreArcMinimum = 100, covGR = NULL,
@@ -60,6 +61,15 @@ using compressed coordinates.}
 
 \item{gap_feature_type}{the default feature_type value to use for
 gaps when \code{addGaps=TRUE}.}
+
+\item{include_strand}{character value, one of \code{"both"}, \code{"+"},
+\code{"-"} indicating the strandedness of coverage and junctions
+to display. The default \code{"both"} shows coverage on both strands,
+otherwise coverage is filtered either by filename (presence of
+\code{"pos"}, \code{"+"}, or \code{"plus"} indicates positive strand), or
+by detecting strandedness by positive/negative coverage scores.
+Detecting by filename is intended to avoid retrieving coverage
+in the R-shiny app, to help efficiency.}
 
 \item{doStackJunctions}{logical indicating whether to stack
 junction arcs at each end, this argument is passed to

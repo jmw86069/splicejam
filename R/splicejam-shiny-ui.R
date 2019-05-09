@@ -58,12 +58,44 @@ sashimiAppUI <- function
                   options=list(maxOptions=100),
                   multiple=FALSE
                ),
-               shinyWidgets::prettySwitch(
-                  inputId="use_exon_names",
-                  value=FALSE,
-                  slim=TRUE,
-                  status="info",
-                  label="Use exon names in the slider below?"),
+               fluidRow(
+                  column(
+                     width=4,
+                     style="padding:0px",
+                     shinyWidgets::prettySwitch(
+                        inputId="use_exon_names",
+                        value=FALSE,
+                        slim=TRUE,
+                        status="info",
+                        width="90%",
+                        label="Use exon names in the slider below?")
+                  ),
+                  column(
+                     width=4,
+                     style="padding:0px",
+                     numericInput(
+                        inputId="min_junction_reads",
+                        label="Minimum junction reads",
+                        value=100,
+                        width="90%",
+                        step=1,
+                        min=1,
+                        max=1000
+                     )
+                  ),
+                  column(
+                     width=4,
+                     style="padding:0px",
+                     selectInput(
+                        inputId="include_strand",
+                        label="Show coverage by strand:",
+                        choices=c("both", "+", "-"),
+                        selected="both",
+                        multiple=FALSE,
+                        width="90%"
+                     )
+                  )
+               ),
                conditionalPanel(
                   condition="input.use_exon_names == true",
                   sliderTextInput(

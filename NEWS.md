@@ -1,3 +1,14 @@
+# splicejam version 0.0.34.900
+
+## changes
+
+* R-shiny new options: minimum junctions; show by strand.
+* R-shiny now defines each to the global environment if they do
+not already exists: exonsByTx, cdsByTx, flatExonsByGene, flatExonsByTx,
+tx2geneDF, detectedTx, detectedGenes. This mechanism is used for now,
+both to help define custom input data, but also to help define the
+data values needed to produce plots manually outside R-shiny.
+
 # splicejam version 0.0.33.900
 
 ## changes
