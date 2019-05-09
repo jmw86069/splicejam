@@ -136,7 +136,7 @@ sashimiAppServer <- function
                if (input$show_detected_tx) {
                   gg_gene <- gene2gg(gene=gene,
                      flatExonsByGene=flatExonsByGene,
-                     flatExonsByTx=flatExonsByTx[detectedTx],
+                     flatExonsByTx=flatExonsByTx[names(flatExonsByTx) %in% detectedTx],
                      exonLabelSize=input$exon_label_size);
                } else {
                   gg_gene <- gene2gg(gene=gene,
