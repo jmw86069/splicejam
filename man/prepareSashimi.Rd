@@ -174,8 +174,8 @@ Other RNA-seq functions: \code{\link{getGRcoverageFromBw}}
 
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},
-  \code{\link{grl2df}}, \code{\link{plotSashimi}},
-  \code{\link{stackJunctions}}
+  \code{\link{grl2df}}, \code{\link{jitter_norm}},
+  \code{\link{plotSashimi}}, \code{\link{stackJunctions}}
 
 Other splicejam core functions: \code{\link{exoncov2polygon}},
   \code{\link{gene2gg}}, \code{\link{grl2df}},

@@ -114,7 +114,8 @@ ggGria1 <- gene2gg("Gria1",
 \seealso{
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{grl2df}},
-  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}},
+  \code{\link{jitter_norm}}, \code{\link{plotSashimi}},
+  \code{\link{prepareSashimi}},
   \code{\link{stackJunctions}}
 
 Other jam ggplot2 functions: \code{\link{geom_diagonal_wide_arc}},

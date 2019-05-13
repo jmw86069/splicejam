@@ -14,6 +14,11 @@ shrinkMatrix(x, groupBy, shrinkFunc = function(x) {
 \item{groupBy}{vector of group labels, whose length equals \code{nrow(x)}.
 These values will become rownames in the output data.}
 
+\item{shrinkFunc}{function that takes vector input and returns
+vector output. The vector class can be checked, in order to
+call a function on numeric or character data separately, as
+needed.}
+
 \item{returnClass}{character string indicating the return data type,
 \code{"data.frame"} returns a \code{data.frame} whose first column contains
 entries from \code{groups}; \code{"matrix"} returns a numeric matrix whose

@@ -156,6 +156,15 @@ sashimiAppUI <- function
                      slim=TRUE,
                      status="info",
                      label="Interactive?"),
+                  conditionalPanel(
+                     condition="input.do_plotly == true",
+                     shinyWidgets::prettySwitch(
+                        inputId="enable_highlights",
+                        value=TRUE,
+                        slim=TRUE,
+                        status="info",
+                        label="enable highlighting?")
+                  ),
                   shinyWidgets::prettySwitch(
                      inputId="show_gene_model",
                      value=TRUE,

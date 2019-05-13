@@ -481,7 +481,7 @@ tx2ale <- function
             " to determine ALEs.");
       }
       threeUtrGRLdetRange <- getFirstStrandedFromGRL(threeUtrGRLdet,
-         method="flank",
+         method="direct",
          verbose=verbose);
    }
    ## add transcript_id annotation
@@ -1026,6 +1026,10 @@ defineDetectedTx <- function
 #' @param x numeric matrix
 #' @param groupBy vector of group labels, whose length equals `nrow(x)`.
 #'    These values will become rownames in the output data.
+#' @param shrinkFunc function that takes vector input and returns
+#'    vector output. The vector class can be checked, in order to
+#'    call a function on numeric or character data separately, as
+#'    needed.
 #' @param returnClass character string indicating the return data type,
 #'    `"data.frame"` returns a `data.frame` whose first column contains
 #'    entries from `groups`; `"matrix"` returns a numeric matrix whose
@@ -1088,16 +1092,17 @@ shrinkMatrix <- function
    }
 
    ## Operate on the DT object
-   byDT <- DT[,lapply(.SD, shrinkFunc), by="groupBy"];
+   byDT <- DT[,lapply(.SD, shrinkFunc),
+      by="groupBy"];
    if (verbose) {
       t3 <- Sys.time();
    }
 
    if (verbose) {
-      printDebug("shrinkMatrix(): ",
+      jamba::printDebug("shrinkMatrix(): ",
          "Duration for data.table DT creation: ",
          format(t2-t1));
-      printDebug("shrinkMatrix(): ",
+      jamba::printDebug("shrinkMatrix(): ",
          "Duration for data.table shrinkMatrix: ",
          format(t3-t2));
    }
@@ -1159,7 +1164,7 @@ codonUsage2df <- function
       codonTxt);
    codonV <- unlist(strsplit(codonTxt, "[!]+"));
    codonDF <- data.frame(stringsAsFactors=FALSE,
-      rbindList(strsplit(codonV, "[() ]+")));
+      jamba::rbindList(strsplit(codonV, "[() ]+")));
    ncolDF <- seq_len(min(c(ncol(codonDF), 3)));
    colnames(codonDF)[ncolDF] <- c("codon", "frequency", "count")[ncolDF];
 
@@ -1215,7 +1220,7 @@ dna2codon <- function
    ## matrix() will recycle text to fill the last row, creating a
    ## false codon.
    head(
-      pasteByRow(
+      jamba::pasteByRow(
          matrix(ncol=3,
             byrow=TRUE,
             unlist(strsplit(x, ""))),
@@ -1441,7 +1446,7 @@ detectedTxInfo <- function
    }
 
    txDatNames <- setdiff(vigrep("^tx", names(detectedTxL)), "txExprGrpTx");
-   lapply(nameVector(txDatNames), function(i){
+   lapply(jamba::nameVector(txDatNames), function(i){
       i1 <- match(iTx, rownames(detectedTxL[[i]]));
       iM <- detectedTxL[[i]][i1,,drop=FALSE];
       colnames(iM) <- gsub("^x[.]", "", colnames(iM));
@@ -1554,29 +1559,49 @@ factor2label <- function
 #'
 #' This function returns the first feature per GRangesList,
 #' relative to the strand of the GRangesList. It assumes each
-#' GRangesList element has only one strand, as is true for exons
-#' in one transcript.
+#' GRangesList element has only one strand and one seqname,
+#' and will stop otherwise.
 #'
-#' @return GRangesList containing only the first GRanges feature
-#'    in stranded order.
+#' @return GRangesList containing only the first stranded
+#'    GRanges feature per input GRangesList element. When
+#'    `method="flank"` the output contains no metadata values,
+#'    but this method is deprecated.
 #'
 #' @family jam ALE-specific RNA-seq functions
 #' @family jam GRanges functions
 #'
 #' @param grl GRangesList
-#' @param method character value in `c("endoapply", "flank")`
+#' @param method character value in `c("direct", "endoapply", "flank")`
 #'    representing which method to use to define the first feature.
-#'    The `"endoapply"` method uses `S4Vectors::endoapply()` to
-#'    iterate each GRangesList element. The `"flank"` method is
-#'    intended to be equivalent but uses the `GenomicRanges::flank()`
-#'    function, which is vectorized.
+#'    The `"direct"` method uses `IRanges::heads()` or
+#'    `IRanges::tails()` depending upon the strandedness;
+#'    the `"endoapply"` method uses `S4Vectors::endoapply()` to
+#'    iterate each GRangesList element, then returns the result
+#'    from `head()` or `tail()`. The `"flank"` method is
+#'    intended to be equivalent but uses `IRanges::heads()` or
+#'    `IRanges::tails()` then `GenomicRanges::flank()`, which
+#'    is vectorized. The `"flank"` method is deprecated and
+#'    `"direct"` is recommended as the preferred vectorized
+#'    replacement.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
+#'
+#' @examples
+#' gr12 <- GenomicRanges::GRanges(seqnames=rep("chr1", 9),
+#'    ranges=IRanges::IRanges(
+#'       start=c(100, 200, 400, 500, 300, 100, 200, 400, 600),
+#'       width=c(50,50,50, 50,50,50, 50,50,50)
+#'    ),
+#'    strand=rep(c("+", "-", "+"), c(3,3,3)),
+#'    gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
+#' )
+#' grl <- GenomicRanges::split(gr12, values(gr12)$gene_name)
+#' getFirstStrandedFromGRL(grl)
 #'
 #' @export
 getFirstStrandedFromGRL <- function
 (grl,
- method=c("endoapply","flank"),
+ method=c("direct", "endoapply", "flank"),
  verbose=FALSE,
  ...)
 {
@@ -1591,19 +1616,38 @@ getFirstStrandedFromGRL <- function
    ## First, ensure the GRangesList is sorted by strand, since we use that
    ## assumption in downstream steps
    if (verbose) {
-      printDebug("getFirstStrandedFromGRL(): ",
+      jamba::printDebug("getFirstStrandedFromGRL(): ",
          "sorting grl");
    }
    grl <- sortGRL(grl,
       verbose=verbose);
 
-   if (method %in% "endoapply") {
+   # First check that each GRL has only one strand and seqname
+   if (any(lengths(unique(strand(grl))) > 1)) {
+      stop("Input GRangesList must contain only one strand per element.");
+   }
+   if (any(lengths(unique(seqnames(grl))) > 1)) {
+      stop("Input GRangesList must contain only one seqname per element.");
+   }
+
+   if (method %in% "direct") {
       if (verbose) {
-         printDebug("getFirstStrandedFromGRL(): ",
+         jamba::printDebug("getFirstStrandedFromGRL(): ",
+            "performing direct logic");
+      }
+      grl2 <- IRanges::heads(grl, 1);
+      is_minus <- as.vector(unlist(strand(range(grl)))) %in% "-";
+      if (any(is_minus)) {
+         grl2[is_minus] <- IRanges::tails(grl[is_minus], 1);
+      }
+      return(grl2);
+   } else if (method %in% "endoapply") {
+      if (verbose) {
+         jamba::printDebug("getFirstStrandedFromGRL(): ",
             "performing endoapply() logic");
       }
-      grl2 <- endoapply(grl, function(iGR){
-         if ("-" %in% strand(iGR)[1]) {
+      grl2 <- S4Vectors::endoapply(grl, function(iGR){
+         if ("-" %in% as.vector(strand(iGR[1]))) {
             tail(iGR, 1);
          } else {
             head(iGR, 1);
@@ -1612,42 +1656,40 @@ getFirstStrandedFromGRL <- function
       return(grl2);
    } else {
       if (verbose) {
-         printDebug("getFirstStrandedFromGRL(): ",
+         jamba::printDebug("getFirstStrandedFromGRL(): ",
             "performing flank() logic");
       }
-      #grlWidths <- width(grl);
-      grlHeads1 <- IRanges::heads(grl, 1);
-      grlWidths1 <- width(grlHeads1);
-      grlWidths2 <- width(tails(grl, 1));
+      grlWidths1 <- width(IRanges::heads(grl, 1));
+      grlWidths2 <- width(IRanges::tails(grl, 1));
       if (verbose) {
-         printDebug("getFirstStrandedFromGRL(): ",
+         jamba::printDebug("getFirstStrandedFromGRL(): ",
             "applying range() function, class(grl):",
             class(grl));
       }
-      grlRanges <- range(grl);
+      grlRanges <- GenomicRanges::range(grl);
       if (verbose) {
-         printDebug("getFirstStrandedFromGRL(): ",
+         jamba::printDebug("getFirstStrandedFromGRL(): ",
             "Validating one strand per range(grl).");
       }
       if (length(grlRanges) != length(grlRanges@unlistData)) {
-         stop("getFirstStrandedFromGRL() requires each GRanges element to have only one strand.");
+         stop("getFirstStrandedFromGRL() requires each GRanges element to have only one strand and one seqname.");
       }
       if (verbose) {
-         printDebug("getFirstStrandedFromGRL(): ",
+         jamba::printDebug("getFirstStrandedFromGRL(): ",
             "applying ifelse() logic");
       }
-      grlFlankWidth <- ifelse(as.vector(unlist(strand(grlHeads1))) %in% "+",
+      grlFlankWidth <- ifelse(as.vector(unlist(strand(grlRanges))) %in% "+",
          unlist(grlWidths1),
          unlist(grlWidths2));
       if (verbose) {
-         printDebug("getFirstStrandedFromGRL(): ",
+         jamba::printDebug("getFirstStrandedFromGRL(): ",
             "applying flank() function");
       }
-      grl3 <- flank(grlRanges,
+      grl3 <- GenomicRanges::flank(grlRanges,
          start=TRUE,
          width=-grlFlankWidth);
       if (verbose) {
-         printDebug("getFirstStrandedFromGRL(): ",
+         jamba::printDebug("getFirstStrandedFromGRL(): ",
             "flank() function complete.");
       }
       return(grl3);
@@ -1673,15 +1715,32 @@ getFirstStrandedFromGRL <- function
 #'    from GRanges to GRangesList. It only needs to be defined
 #'    if for some reason the default "splitColname" is already
 #'    in `colnames(values(GRL))`.
-#' @param removeSplitColname logical indicating whether to remove
-#'    the `splitColname` from the output GRangesList.
+#' @param keep_order logical indicating whether to maintain the
+#'    input order of GRanges; `FALSE` will return GRangesList
+#'    ordered by the first sorted GRanges occurrence.
 #' @param ... additional arguments are ignored.
+#'
+#' @examples
+#' gr12 <- GenomicRanges::GRanges(
+#'    seqnames=rep(c("chr1", "chr2", "chr1"), c(3,3,3)),
+#'    ranges=IRanges::IRanges(
+#'       start=c(100, 200, 400, 500, 300, 100, 200, 400, 600),
+#'       width=c(50,50,50, 50,50,50, 50,50,50)
+#'    ),
+#'    strand=rep(c("+", "-", "+"), c(3,3,3)),
+#'    gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
+#' )
+#' grl <- GenomicRanges::split(gr12, values(gr12)$gene_name);
+#' grl;
+#' sort(grl);
+#' sortGRL(grl);
+#' sortGRL(grl, keep_order=FALSE);
 #'
 #' @export
 sortGRL <- function
 (GRL,
  splitColname="splitColname",
- removeSplitColname=TRUE,
+ keep_order=TRUE,
  verbose=FALSE,
  ...)
 {
@@ -1693,27 +1752,24 @@ sortGRL <- function
    }
    ## Ensure input GRL contains names
    if (is.null(names(GRL))) {
-      names(GRL) <- makeNames(rep("GRL", length(GRL)));
+      names(GRL) <- jamba::makeNames(rep("GRL", length(GRL)));
    }
 
-   values(GRL@unlistData)[,splitColname] <- factor(rep(names(GRL), elementNROWS(GRL)),
+   values(GRL@unlistData)[,splitColname] <- factor(rep(names(GRL), IRanges::elementNROWS(GRL)),
       levels=names(GRL));
    GR1 <- sort(GRL@unlistData);
-   #values(GR1)[,splitColname] <- factor(values(GR1)[,splitColname], unique(values(GR1)[,splitColname]));
+   if (!keep_order) {
+      values(GR1)[[splitColname]] <- factor(values(GR1)[[splitColname]],
+         levels=as.character(unique(values(GR1)[[splitColname]])));
+   }
    if (verbose) {
-      printDebug("sortGRL(): ",
+      jamba::printDebug("sortGRL(): ",
          "splitting GRanges into list");
    }
-   GRL <- GenomicRanges::split(GR1,
-      f=values(GR1)[,splitColname]);
+   splitColnum <- match(splitColname, colnames(values(GR1)));
+   GRL <- GenomicRanges::split(GR1[,-splitColnum],
+      f=values(GR1)[[splitColname]]);
 
-   ## Optionally remove splitColname from the result
-   if (removeSplitColname) {
-      keepNames <- setdiff(names(values(GRL@unlistData)),
-         splitColname);
-      #GRL@unlistData <- GRL@unlistData[,keepNames];
-      values(GRL@unlistData) <- values(GRL@unlistData)[,keepNames,drop=FALSE];
-   }
    return(GRL);
 }
 
@@ -1804,13 +1860,26 @@ sortGRL <- function
 #' @param DEBUG logical indicating whether to print debugging output.
 #' @param ... additional arguments are ignored.
 #'
+#' @examples
+#' gr12 <- GenomicRanges::GRanges(
+#'    seqnames=rep(c("chr1", "chr2", "chr1"), c(3,3,3)),
+#'    ranges=IRanges::IRanges(
+#'       start=c(100, 200, 400, 500, 300, 100, 200, 400, 600),
+#'       width=c(100,150,50, 50,50,100, 50,200,50)
+#'    ),
+#'    strand=rep(c("+", "-", "+"), c(3,3,3)),
+#'    gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
+#' )
+#' grl1 <- GenomicRanges::split(gr12[,0], values(gr12)$gene_name);
+#' grl2 <- GenomicRanges::split(gr12, values(gr12)$gene_name);
+#'
 #' @export
 annotateGRfromGR <- function
 (GR1,
  GR2,
  grOL=NULL,
  numAsStrings=FALSE,
- stringShrinkFunc=function(...){cPasteUnique(..., doSort=TRUE)},
+ stringShrinkFunc=function(...){jamba::cPasteUnique(..., doSort=TRUE)},
  numShrinkFunc=sum,
  addStringCols=NULL,
  type=c("any", "start", "end", "within", "equal"),

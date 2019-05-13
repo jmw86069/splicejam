@@ -5,10 +5,11 @@
 \title{Annotate GRanges using another GRanges object}
 \usage{
 annotateGRfromGR(GR1, GR2, grOL = NULL, numAsStrings = FALSE,
-  stringShrinkFunc = function(...) {     cPasteUnique(..., doSort = TRUE)
-  }, numShrinkFunc = sum, addStringCols = NULL, type = c("any",
-  "start", "end", "within", "equal"), ignore.strand = FALSE,
-  select = "all", sep = ",", verbose = FALSE, DEBUG = FALSE, ...)
+  stringShrinkFunc = function(...) {     jamba::cPasteUnique(..., doSort
+  = TRUE) }, numShrinkFunc = sum, addStringCols = NULL,
+  type = c("any", "start", "end", "within", "equal"),
+  ignore.strand = FALSE, select = "all", sep = ",",
+  verbose = FALSE, DEBUG = FALSE, ...)
 }
 \arguments{
 \item{GR1}{GRanges object, the reference object to which annotations
@@ -107,6 +108,20 @@ instead of using \code{data.table}.
 TODO: This function is a specific case where another function
 \code{shrinkDataFrame()} may be a more general purpose use. That function
 is yet to be ported to the Jam package suite.
+}
+\examples{
+gr12 <- GenomicRanges::GRanges(
+   seqnames=rep(c("chr1", "chr2", "chr1"), c(3,3,3)),
+   ranges=IRanges::IRanges(
+      start=c(100, 200, 400, 500, 300, 100, 200, 400, 600),
+      width=c(100,150,50, 50,50,100, 50,200,50)
+   ),
+   strand=rep(c("+", "-", "+"), c(3,3,3)),
+   gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
+)
+grl1 <- GenomicRanges::split(gr12[,0], values(gr12)$gene_name);
+grl2 <- GenomicRanges::split(gr12, values(gr12)$gene_name);
+
 }
 \seealso{
 Other jam GRanges functions: \code{\link{addGRLgaps}},

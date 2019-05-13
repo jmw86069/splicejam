@@ -8,8 +8,9 @@ plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   coord_method = c("scale", "coord", "none"), exonsGrl = NULL,
   junc_color = alpha2col("goldenrod2", 0.3),
   junc_fill = alpha2col("goldenrod2", 0.9), fill_scheme = c("exon",
-  "sample_id"), use_jam_themes = TRUE, apply_facet = TRUE,
-  facet_scales = "free_y", ref2c = NULL, verbose = FALSE, ...)
+  "sample_id"), color_sub = NULL, use_jam_themes = TRUE,
+  apply_facet = TRUE, facet_scales = "free_y", ref2c = NULL,
+  do_highlight = TRUE, verbose = FALSE, ...)
 }
 \arguments{
 \item{sashimi}{Sashimi data prepared by \code{prepareSashimi()} which
@@ -44,6 +45,13 @@ so overlapping junction arcs are visible.}
 will be color-filled: \code{"exon"} will define colors for each
 distinct exon, using the GRanges names from \code{flatExonsByGene};
 \code{"sample_id"} to color all exons the same by sample_id.}
+
+\item{color_sub}{optional character vector of R compatible colors
+or hex strings, whose names are used to color or fill features
+in the ggplot object. For example, if \code{fill_sheme="sample_id"}
+the \code{color_sub} should have names for each \code{"sample_id"} value.
+If any values are missing, they will be filled in using
+\code{colorjam::rainbowJam()}.}
 
 \item{use_jam_themes}{logical indicating whether to apply
 \code{colorjam::theme_jam()}, by default for the ggplot theme.}
@@ -90,7 +98,8 @@ plotSashimi(sh1);
 \seealso{
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},
-  \code{\link{grl2df}}, \code{\link{prepareSashimi}},
+  \code{\link{grl2df}}, \code{\link{jitter_norm}},
+  \code{\link{prepareSashimi}},
   \code{\link{stackJunctions}}
 
 Other jam ggplot2 functions: \code{\link{gene2gg}},

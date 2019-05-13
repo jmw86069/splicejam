@@ -168,26 +168,28 @@ bgaPlotly3d <- function
    sampleGroups <- bgaInfo$fac;
    names(sampleGroups) <- rownames(bgaInfo$ord$ord$tab);
 
-   sampleColors <- nameVector(group2colors(as.character(sampleGroups),
+   sampleColors <- jamba::nameVector(
+      colorjam::group2colors(as.character(sampleGroups),
       colorSub=colorSub),
       names(sampleGroups));
-   groupNameColors <- nameVector(sampleColors[match(unique(sampleGroups), sampleGroups)],
+   groupNameColors <- jamba::nameVector(
+      sampleColors[match(unique(sampleGroups), sampleGroups)],
       unique(sampleGroups));
 
    if (verbose) {
-      printDebug("bgaPlotly3d(): ",
+      jamba::printDebug("bgaPlotly3d(): ",
          "sampleGroups:");
       print(sampleGroups);
       if (length(superGroups) > 0) {
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "superGroups:");
          print(superGroups);
       }
-      printDebug("bgaPlotly3d(): ",
+      jamba::printDebug("bgaPlotly3d(): ",
          "sampleColors:",
          names(sampleColors),
          fgText=list("orange","dodgerblue",sampleColors));
-      printDebug("bgaPlotly3d(): ",
+      jamba::printDebug("bgaPlotly3d(): ",
          "groupNameColors:",
          names(groupNameColors),
          fgText=list("orange","dodgerblue",groupNameColors));
@@ -214,42 +216,50 @@ bgaPlotly3d <- function
       Yg <- colnames(bgaInfo$bet$co)[axes[2]];
       Zg <- colnames(bgaInfo$bet$co)[axes[3]];
    }
-   axesVs <- nameVector(1:3, c(Xs,Ys,Zs));
-   axesVsc <- nameVector(1:3, c(Xsc,Ysc,Zsc));
-   axesVg <- nameVector(1:3, c(Xg,Yg,Zg));
+   axesVs <- jamba::nameVector(1:3, c(Xs,Ys,Zs));
+   axesVsc <- jamba::nameVector(1:3, c(Xsc,Ysc,Zsc));
+   axesVg <- jamba::nameVector(1:3, c(Xg,Yg,Zg));
    if (verbose) {
-      printDebug("bgaPlotly3d(): ",
-         "axesVs:", names(axesVs));
-      printDebug("bgaPlotly3d(): ",
-         "axesVsc:", names(axesVsc));
-      printDebug("bgaPlotly3d(): ",
-         "axesVg:", names(axesVg));
+      jamba::printDebug("bgaPlotly3d(): ",
+         "axesVs:",
+         names(axesVs));
+      jamba::printDebug("bgaPlotly3d(): ",
+         "axesVsc:",
+         names(axesVsc));
+      jamba::printDebug("bgaPlotly3d(): ",
+         "axesVg:",
+         names(axesVg));
    }
 
 
    ############################################################
    ## Sample segments to centroid
    if (useScaledCoords) {
-      dfSamplesDF <- data.frame(Label=rownames(bgaInfo$bet$ls),
+      dfSamplesDF <- data.frame(
+         Label=rownames(bgaInfo$bet$ls),
          bgaInfo$bet$ls[,names(axesVs)],
          bgaInfo$bet$l1[as.character(sampleGroups),names(axesVsc)]);
    } else {
-      dfSamplesDF <- data.frame(Label=rownames(bgaInfo$bet$ls),
+      dfSamplesDF <- data.frame(
+         Label=rownames(bgaInfo$bet$ls),
          bgaInfo$bet$ls[,names(axesVs)],
          bgaInfo$bet$li[as.character(sampleGroups),names(axesVsc)]);
    }
    dfSamples <- rownames(dfSamplesDF);
-   dfSampleLinesDF <- dfWide2segments(dfSamplesDF,
+   dfSampleLinesDF <- dfWide2segments(
+      dfSamplesDF,
       axes1=names(axesVs),
-      axes2=names(axesVsc))
+      axes2=names(axesVsc));
    dfSampleLinesDF$Name <- rep(names(sampleGroups), each=3);
    dfSampleLinesDF$groupName <- rep(sampleGroups, each=3);
-   dfSampleLinesDF$Symbol <- rep(c("circle","circle-open","x"), length(sampleGroups));
-   dfSampleLinesDF$size <- rep(c(20,0,0), length(sampleGroups));
+   dfSampleLinesDF$Symbol <- rep(c("circle","circle-open","x"),
+      length(sampleGroups));
+   dfSampleLinesDF$size <- rep(c(20,0,0),
+      length(sampleGroups));
    dfSampleLinesDF$color <- sampleColors[dfSampleLinesDF$Name];
-   i1 <- igrep("^circle$", dfSampleLinesDF$Symbol);
-   i2 <- igrep("^circle-open$", dfSampleLinesDF$Symbol);
-   i3 <- igrep("^x$", dfSampleLinesDF$Symbol);
+   i1 <- jamba::igrep("^circle$", dfSampleLinesDF$Symbol);
+   i2 <- jamba::igrep("^circle-open$", dfSampleLinesDF$Symbol);
+   i3 <- jamba::igrep("^x$", dfSampleLinesDF$Symbol);
    dfSampleLinesDF[,"Label"] <- "";
    if (drawSampleLabels) {
       dfSampleLinesDF[i1,"Label"] <- dfSampleLinesDF$Name[i1];
@@ -267,7 +277,7 @@ bgaPlotly3d <- function
    }
    dfSampleLinesDF[i2[i2keep],"textposition"] <- "middle right";
    if (verbose) {
-      printDebug("bgaPlotly3d(): ",
+      jamba::printDebug("bgaPlotly3d(): ",
          "head(dfSampleLinesDF, 20):");
       print(head(dfSampleLinesDF, 20));
    }
@@ -275,16 +285,19 @@ bgaPlotly3d <- function
 
    ############################################################
    ## Optionally add vectors from origin to each centroid
-   if (igrepHas("sample|centroid", drawVectors)) {
+   if (jamba::igrepHas("sample|centroid", drawVectors)) {
       axesVscO <- paste0("origin_", names(axesVsc));
       if (useScaledCoords) {
-         dfCVDF <- data.frame(Label=rownames(bgaInfo$bet$l1),
-            renameColumn(bgaInfo$bet$l1[sampleGroups,names(axesVsc)]*0,
+         dfCVDF <- data.frame(
+            Label=rownames(bgaInfo$bet$l1),
+            jamba::renameColumn(
+               bgaInfo$bet$l1[sampleGroups,names(axesVsc)]*0,
                from=names(axesVsc),
                to=paste0("origin_", names(axesVsc))),
             bgaInfo$bet$l1[sampleGroups,names(axesVsc)]);
       } else {
-         dfCVDF <- data.frame(Label=rownames(bgaInfo$bet$li),
+         dfCVDF <- data.frame(
+            Label=rownames(bgaInfo$bet$li),
             renameColumn(bgaInfo$bet$li[sampleGroups,names(axesVsc)]*0,
                from=names(axesVsc),
                to=paste0("origin_", names(axesVsc))),
@@ -298,9 +311,9 @@ bgaPlotly3d <- function
       dfCVLDF$Symbol <- rep(c("circle","circle-open","x"), length(sampleGroups));
       dfCVLDF$size <- rep(c(2,0,0), length(sampleGroups));
       dfCVLDF$color <- sampleColors[dfCVLDF$Name];
-      i1 <- igrep("^circle$", dfCVLDF$Symbol);
-      i2 <- igrep("^circle-open$", dfCVLDF$Symbol);
-      i3 <- igrep("^x$", dfCVLDF$Symbol);
+      i1 <- jamba::igrep("^circle$", dfCVLDF$Symbol);
+      i2 <- jamba::igrep("^circle-open$", dfCVLDF$Symbol);
+      i3 <- jamba::igrep("^x$", dfCVLDF$Symbol);
       dfCVLDF[,"Label"] <- "";
       dfCVLDF[i1,"Label"] <- dfCVLDF$Name[i1];
       dfCVLDF[i2,"Label"] <- as.character(dfCVLDF$groupName)[i2];
@@ -319,15 +332,19 @@ bgaPlotly3d <- function
       axesVgO <- paste0("origin_", names(axesVg));
       if (useScaledCoords) {
          iGenes <- rownames(bgaInfo$bet$c1);
-         dfVgDF <- data.frame(Label=iGenes,
-            renameColumn(bgaInfo$bet$c1[iGenes,names(axesVg)]*0,
+         dfVgDF <- data.frame(
+            Label=iGenes,
+            jamba::renameColumn(
+               bgaInfo$bet$c1[iGenes,names(axesVg)]*0,
                from=names(axesVg),
                to=paste0("origin_", names(axesVg))),
             bgaInfo$bet$c1[iGenes,names(axesVg)]*geneScaleFactor);
       } else {
          iGenes <- rownames(bgaInfo$bet$co);
-         dfVgDF <- data.frame(Label=iGenes,
-            renameColumn(bgaInfo$bet$co[iGenes,names(axesVg)]*0,
+         dfVgDF <- data.frame(
+            Label=iGenes,
+            jamba::renameColumn(
+               bgaInfo$bet$co[iGenes,names(axesVg)]*0,
                from=names(axesVg),
                to=paste0("origin_", names(axesVg))),
             bgaInfo$bet$co[iGenes,names(axesVg)]);
@@ -335,7 +352,7 @@ bgaPlotly3d <- function
       ## Determine distance from origin
       if (length(highlightGenes) > 0) {
          if (verbose) {
-            printDebug("bgaPlotly3d(): ",
+            jamba::printDebug("bgaPlotly3d(): ",
                "Using ",
                length(highlightGenes),
                " highlightGenes");
@@ -348,7 +365,7 @@ bgaPlotly3d <- function
          });
          iGenes <- head(iGenes[order(-geneDist)], maxGenes);
          if (verbose) {
-            printDebug("bgaPlotly3d(): ",
+            jamba::printDebug("bgaPlotly3d(): ",
                "Using ",
                length(iGenes),
                " based upon distance from origin.");
@@ -364,9 +381,9 @@ bgaPlotly3d <- function
       dfVgLDF$Symbol <- rep(c("circle","circle-open","x"), nrow(dfVgDF));
       dfVgLDF$size <- rep(c(2,0,0), nrow(dfVgDF));
       dfVgLDF$color <- geneColor;
-      i1 <- igrep("^circle$", dfVgLDF$Symbol);
-      i2 <- igrep("^circle-open$", dfVgLDF$Symbol);
-      i3 <- igrep("^x$", dfVgLDF$Symbol);
+      i1 <- jamba::igrep("^circle$", dfVgLDF$Symbol);
+      i2 <- jamba::igrep("^circle-open$", dfVgLDF$Symbol);
+      i3 <- jamba::igrep("^x$", dfVgLDF$Symbol);
       dfVgLDF[,"Label"] <- "";
       dfVgLDF[i1,"Label"] <- dfVgLDF$Name[i1];
       dfVgLDF[i2,"Label"] <- as.character(dfVgLDF$groupName)[i2];
@@ -377,10 +394,10 @@ bgaPlotly3d <- function
       dfVgLDF[i1,"textposition"] <- "top center";
       dfVgLDF[i2[i2keep],"textposition"] <- "middle right";
       if (verbose) {
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "head(dfVgLDF, 10):");
          print(head(dfVgLDF, 10));
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "head(dfVgDF, 10):");
          print(head(dfVgDF, 10));
       }
@@ -389,13 +406,14 @@ bgaPlotly3d <- function
    ############################################################
    ## First create plotly with sample points, lines, labels
    if (verbose) {
-      printDebug("bgaPlotly3d(): ",
+      jamba::printDebug("bgaPlotly3d(): ",
          "Creating plotly object with samples and sample centroids.");
    }
    if (debug == 1) {
       return(dfSampleLinesDF);
    }
-   p9 <- plot_ly(data=dfSampleLinesDF,
+   p9 <- plotly::plot_ly(
+      data=dfSampleLinesDF,
       name="Samples",
       type="scatter3d",
       x=as.formula(paste0("~", Xs)),
@@ -404,19 +422,26 @@ bgaPlotly3d <- function
       mode="markers+lines",
       text=dfSampleLinesDF$Label,
       hoverinfo="text",
-      line=list(width=5,
-         color=dfSampleLinesDF$color),
+      line=list(
+         width=5,
+         color=dfSampleLinesDF$color
+      ),
       hoverlabel=list(
          bgcolor=dfSampleLinesDF$color,
          bordercolor=setTextContrastColor(dfSampleLinesDF$color),
          font=list(
-            color=setTextContrastColor(dfSampleLinesDF$color))),
+            color=setTextContrastColor(dfSampleLinesDF$color)
+         )
+      ),
       marker=list(
          size=dfSampleLinesDF$size,
-         color=dfSampleLinesDF$color),
+         color=dfSampleLinesDF$color
+      ),
       textfont=list(
          color=dfSampleLinesDF$color,
-         size=(40-dfSampleLinesDF$size)/2));
+         size=(40-dfSampleLinesDF$size)/2
+      )
+   );
    if (debug == 2) {
       return(p9);
    }
@@ -427,11 +452,11 @@ bgaPlotly3d <- function
    ## Optionally add centroid lines to the origin
    if (igrepHas("sample|centroid", drawVectors)) {
       if (verbose) {
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "Adding vectors for sample centroids.");
          print(head(dfCVLDF, 20));
       }
-      p10 <- p10 %>% add_trace(
+      p10 <- p10 %>% plotly::add_trace(
          name="CentroidLines",
          type="scatter3d",
          x=dfCVLDF[[Xsc]],
@@ -459,13 +484,13 @@ bgaPlotly3d <- function
 
    ####################################################
    ## Optionally add gene lines to the origin
-   if (igrepHas("gene|row", drawVectors)) {
+   if (jamba::igrepHas("gene|row", drawVectors)) {
       if (verbose) {
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "Adding vectors for gene rows.");
          print(head(dfVgLDF, 20));
       }
-      p10 <- p10 %>% add_trace(
+      p10 <- p10 %>% plotly::add_trace(
          type="scatter3d",
          x=dfVgLDF[[Xg]],
          y=dfVgLDF[[Yg]],
@@ -495,7 +520,7 @@ bgaPlotly3d <- function
    if (!ellipseType %in% "none") {
       sampleGroupsL <- split(names(sampleGroups), sampleGroups);
       if (verbose) {
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "Creating sample centroid ellipsoids.");
       }
       ###################################
@@ -503,7 +528,7 @@ bgaPlotly3d <- function
       p11 <- p10;
       for (iGroup in names(sampleGroupsL)) {
          if (verbose) {
-            printDebug("   bgaPlotly3d(): ",
+            jamba::printDebug("   bgaPlotly3d(): ",
                "Creating ellipsoid for group:",
                iGroup,
                ".");
@@ -515,13 +540,13 @@ bgaPlotly3d <- function
          ## to help the ellipsoid calculation
          if (nrow(bgaS2coords) <= 150) {
             if (verbose) {
-               printDebug("   bgaPlotly3d(): ",
-                  "radialJitter()");
+               jamba::printDebug("   bgaPlotly3d(): ",
+                  "jitter_norm()");
             }
             bgaS2coords <- dfSamplesDF[rep(iGroupSamples, each=100),c(Xs,Ys,Zs),drop=FALSE];
             for (k in 1:3) {
                ## Use the range along each axis to impart variance relative to the visual noise space
-               newC <- radialJitter(bgaS2coords[,k],
+               newC <- jitter_norm(bgaS2coords[,k],
                   amount=diff(range(dfSamplesDF[,c(Xs,Ys,Zs)[k]]))/50);
                bgaS2coords[,k] <- newC;
             }
@@ -891,15 +916,15 @@ spline3d <- function
 #' @family jam color functions
 #'
 #' @examples
-#' colorSub1 <- group2colors(LETTERS[1:6]);
+#' colorSub1 <- colorjam::group2colors(LETTERS[1:6]);
 #' df <- data.frame(one=LETTERS[1:6],
 #'    two=rep(LETTERS[3:4], each=3),
 #'    three=rep(LETTERS[5:6], 3));
 #' dfColors <- df2colorSub(df, colorSub1);
-#' imageByColors(dfColors, cellnote=df);
+#' jamba::imageByColors(dfColors, cellnote=df);
 #'
 #' # Or in one step
-#' imageByColors(df2colorSub(df), cellnote=df);
+#' jamba::imageByColors(df2colorSub(df), cellnote=df);
 #'
 #' @export
 df2colorSub <- function
@@ -914,9 +939,71 @@ df2colorSub <- function
    ## where possible, then group2colors() otherwise.
    x2 <- as.data.frame(do.call(cbind, lapply(seq_len(ncol(x)), function(i) {
       j <- x[[i]];
-      group2colors(j, colorSub=colorSub, ...);
+      colorjam::group2colors(j, colorSub=colorSub, ...);
    })));
    rownames(x2) <- rownames(x);
    colnames(x2) <- colnames(x);
    x2;
+}
+
+#' Apply jitter using normal distribution
+#'
+#' Apply jitter using normal distribution
+#'
+#' This function applies a jitter (noise) to points by adding
+#' random values from a normal distribution, where the argument `sd`
+#' is used to apply the jitter magnitude.
+#'
+#' The default jitter is defined as 1/10 the median difference between
+#' unique, finite input values, which can be scaled using the argument
+#' `factor`. Note the use of "unique" input values, which ensures the
+#' presence of duplicate values does not skew the jitter toward zero.
+#' When applied to three dimensions, this results in jitter consistently
+#' scaled relative to the range of values in each dimension. That is,
+#' points will appear to have a radial jitter.
+#'
+#' @family jam plot functions
+#'
+#' @param x numeric vector
+#' @param factor numeric value to define the magnitude of jitter,
+#'    multiplied by the default jitter which is 1/10 the median
+#'    difference between unique values in `x`.
+#' @param amount optional numeric value indicating a fixed `sd`
+#'    standard deviation passed to `stats::rnorm()`.
+#' @param ... additional arguments are ignored.
+#'
+#' @export
+jitter_norm <- function
+(x,
+ factor=1,
+ amount=NULL,
+ ...)
+{
+   ## Determine the amount of jitter relative to the median distance
+   ## between points
+   if (length(amount) == 0) {
+      x <- x[is.finite(x)];
+      z <- diff(range(x));
+      if (z == 0) {
+         z <- abs(range(x)[1]);
+      }
+      if (z == 0) {
+         z <- 1;
+      }
+      xx <- unique(sort(round(x, 3 - floor(log10(z)))));
+      if (length(xx) == 1) {
+         dAmount <- xx / 10;
+      } else {
+         dAmount <- median(diff(xx));
+      }
+      if (length(dAmount) == 0 || dAmount == 0) {
+         dAmount <- z / 10;
+      }
+      amount <- (factor / 5) * dAmount;
+   }
+
+   ## Choose distances from normal distribution
+   xDists <- rnorm(length(x), sd=amount * 0.6);
+   xValue <- x + xDists;
+   return(xValue);
 }

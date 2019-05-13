@@ -35,15 +35,15 @@ Note that providing \code{colorSub} helps keep colors consistent, otherwise
 each column is independently colorized.
 }
 \examples{
-colorSub1 <- group2colors(LETTERS[1:6]);
+colorSub1 <- colorjam::group2colors(LETTERS[1:6]);
 df <- data.frame(one=LETTERS[1:6],
    two=rep(LETTERS[3:4], each=3),
    three=rep(LETTERS[5:6], 3));
 dfColors <- df2colorSub(df, colorSub1);
-imageByColors(dfColors, cellnote=df);
+jamba::imageByColors(dfColors, cellnote=df);
 
 # Or in one step
-imageByColors(df2colorSub(df), cellnote=df);
+jamba::imageByColors(df2colorSub(df), cellnote=df);
 
 }
 \concept{jam color functions}

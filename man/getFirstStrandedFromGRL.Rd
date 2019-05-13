@@ -4,26 +4,34 @@
 \alias{getFirstStrandedFromGRL}
 \title{Get first stranded GRanges feature per GRangesList}
 \usage{
-getFirstStrandedFromGRL(grl, method = c("endoapply", "flank"),
+getFirstStrandedFromGRL(grl, method = c("direct", "endoapply", "flank"),
   verbose = FALSE, ...)
 }
 \arguments{
 \item{grl}{GRangesList}
 
-\item{method}{character value in \code{c("endoapply", "flank")}
+\item{method}{character value in \code{c("direct", "endoapply", "flank")}
 representing which method to use to define the first feature.
-The \code{"endoapply"} method uses \code{S4Vectors::endoapply()} to
-iterate each GRangesList element. The \code{"flank"} method is
-intended to be equivalent but uses the \code{GenomicRanges::flank()}
-function, which is vectorized.}
+The \code{"direct"} method uses \code{IRanges::heads()} or
+\code{IRanges::tails()} depending upon the strandedness;
+the \code{"endoapply"} method uses \code{S4Vectors::endoapply()} to
+iterate each GRangesList element, then returns the result
+from \code{head()} or \code{tail()}. The \code{"flank"} method is
+intended to be equivalent but uses \code{IRanges::heads()} or
+\code{IRanges::tails()} then \code{GenomicRanges::flank()}, which
+is vectorized. The \code{"flank"} method is deprecated and
+\code{"direct"} is recommended as the preferred vectorized
+replacement.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
 }
 \value{
-GRangesList containing only the first GRanges feature
-in stranded order.
+GRangesList containing only the first stranded
+GRanges feature per input GRangesList element. When
+\code{method="flank"} the output contains no metadata values,
+but this method is deprecated.
 }
 \description{
 Get first stranded GRanges feature per GRangesList
@@ -31,8 +39,21 @@ Get first stranded GRanges feature per GRangesList
 \details{
 This function returns the first feature per GRangesList,
 relative to the strand of the GRangesList. It assumes each
-GRangesList element has only one strand, as is true for exons
-in one transcript.
+GRangesList element has only one strand and one seqname,
+and will stop otherwise.
+}
+\examples{
+gr12 <- GenomicRanges::GRanges(seqnames=rep("chr1", 9),
+   ranges=IRanges::IRanges(
+      start=c(100, 200, 400, 500, 300, 100, 200, 400, 600),
+      width=c(50,50,50, 50,50,50, 50,50,50)
+   ),
+   strand=rep(c("+", "-", "+"), c(3,3,3)),
+   gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
+)
+grl <- GenomicRanges::split(gr12, values(gr12)$gene_name)
+getFirstStrandedFromGRL(grl)
+
 }
 \seealso{
 Other jam ALE-specific RNA-seq functions: \code{\link{ale2violin}},

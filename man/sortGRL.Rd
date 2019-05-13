@@ -4,7 +4,7 @@
 \alias{sortGRL}
 \title{Sort GRangesList elements by chromosome and position}
 \usage{
-sortGRL(GRL, splitColname = "splitColname", removeSplitColname = TRUE,
+sortGRL(GRL, splitColname = "splitColname", keep_order = TRUE,
   verbose = FALSE, ...)
 }
 \arguments{
@@ -15,8 +15,9 @@ from GRanges to GRangesList. It only needs to be defined
 if for some reason the default "splitColname" is already
 in \code{colnames(values(GRL))}.}
 
-\item{removeSplitColname}{logical indicating whether to remove
-the \code{splitColname} from the output GRangesList.}
+\item{keep_order}{logical indicating whether to maintain the
+input order of GRanges; \code{FALSE} will return GRangesList
+ordered by the first sorted GRanges occurrence.}
 
 \item{...}{additional arguments are ignored.}
 }
@@ -32,6 +33,23 @@ position, using the default sort routine for GRanges objects.
 It accomplishes the task by sorting the GRanges elements, then
 splitting that GRanges into a GRangesList based upon the
 original \code{names(GrangesList)}.
+}
+\examples{
+gr12 <- GenomicRanges::GRanges(
+   seqnames=rep(c("chr1", "chr2", "chr1"), c(3,3,3)),
+   ranges=IRanges::IRanges(
+      start=c(100, 200, 400, 500, 300, 100, 200, 400, 600),
+      width=c(50,50,50, 50,50,50, 50,50,50)
+   ),
+   strand=rep(c("+", "-", "+"), c(3,3,3)),
+   gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
+)
+grl <- GenomicRanges::split(gr12, values(gr12)$gene_name);
+grl;
+sort(grl);
+sortGRL(grl);
+sortGRL(grl, keep_order=FALSE);
+
 }
 \seealso{
 Other jam GRanges functions: \code{\link{addGRLgaps}},

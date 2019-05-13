@@ -1,3 +1,13 @@
+# splicejam version 0.0.35.900
+
+## changes
+
+* `grl2df()` now returns seqnames, and adjusts yBaseline
+within each seqname (chromosome). To plot multi-chromosome
+GRangesList, use `+facet_wrap(~seqnames)`
+* R-shiny enabled some plotly highlighting features, currently
+in testing phases.
+
 # splicejam version 0.0.34.900
 
 ## changes

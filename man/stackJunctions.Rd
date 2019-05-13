@@ -135,8 +135,8 @@ ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
 \seealso{
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},
-  \code{\link{grl2df}}, \code{\link{plotSashimi}},
-  \code{\link{prepareSashimi}}
+  \code{\link{grl2df}}, \code{\link{jitter_norm}},
+  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}}
 
 Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{addGRgaps}},

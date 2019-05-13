@@ -83,7 +83,7 @@ sashimiAppServer <- function
          cache=memoise::cache_filesystem("sashimidata_memoise"));
       ## Define sample_id for now
       if (!exists("sample_id")) {
-         sample_id <<- head(unique(filesDF$sample_id), 2);
+         sample_id <<- head(unique(filesDF$sample_id), 3);
       }
       min_junction_reads <- isolate(input$min_junction_reads);
       include_strand <- isolate(input$include_strand);
@@ -101,7 +101,7 @@ sashimiAppServer <- function
                filesDF=filesDF,
                include_strand=include_strand,
                verbose=verbose,
-               do_shiny_progress=FALSE);
+               do_shiny_progress=TRUE);
             sashimi_data;
          }
       );
@@ -128,6 +128,8 @@ sashimiAppServer <- function
             facet_scales <- "free_y";
          }
          gg_sashimi <- plotSashimi(sashimi_data,
+            color_sub=color_sub,
+            do_highlight=TRUE,
             facet_scales=facet_scales,
             fill_scheme="sample_id");
          ## Optionally prepare gene-exon model
@@ -172,29 +174,41 @@ sashimiAppServer <- function
          output$sashimitext_output <- renderText({coord_label});
 
          ## Prepare plotly or ggplot2 output
-         sample_id <- unique(filesDF$sample_id);
-         num_samples <- max(c(length(sample_id), 1)) + 1;
-         num_samples <- 2;
+         #sample_id <- unique(filesDF$sample_id);
+         #num_samples <- max(c(length(sample_id), 1)) + 1;
+         #num_samples <- 2;
+         num_samples <- length(unique(sample_id));
          plot_height <- 250 * (num_samples +
                input$show_gene_model);
          printDebug("num_samples:", num_samples,
             ", plot_height:", plot_height);
          if (input$do_plotly) {
             if (input$show_gene_model) {
+               ggly1 <- plotly::ggplotly(
+                  gg_sashimi +
+                     theme(axis.text.x=element_blank()) +
+                     xlab(NULL) +
+                     coord_cartesian(xlim=gene_coords),
+                  tooltip="text") %>%
+                  plotly::style(
+                     hoveron="fill"
+                  );
+               if (input$enable_highlights) {
+                  ggly1 <- ggly1 %>%
+                     highlight("plotly_hover",
+                        opacityDim=1,
+                        selected=attrs_selected(line=list(color="#444444")));
+               }
+               ggly2 <- plotly::ggplotly(
+                  gg_gene +
+                     ggtitle(NULL) +
+                     xlab(ref_name) +
+                     coord_cartesian(xlim=gene_coords),
+                  tooltip="text");
                gg_ly <- suppressMessages(
                   plotly::subplot(
-                     plotly::ggplotly(
-                        gg_sashimi +
-                           theme(axis.text.x=element_blank()) +
-                           xlab(NULL) +
-                           coord_cartesian(xlim=gene_coords),
-                        tooltip="text"),
-                     plotly::ggplotly(
-                        gg_gene +
-                           ggtitle(NULL) +
-                           xlab(ref_name) +
-                           coord_cartesian(xlim=gene_coords),
-                        tooltip="text"),
+                     ggly1,
+                     ggly2,
                      nrows=2,
                      heights=c(num_samples, 1)/(num_samples + 1),
                      shareX=TRUE
@@ -211,6 +225,13 @@ sashimiAppServer <- function
                      height=plot_height
                   )
                );
+               if (input$enable_highlights) {
+                  gg_ly <- gg_ly %>%
+                     style(hoveron="fill") %>%
+                     highlight("plotly_hover",
+                        opacityDim=1,
+                        selected=attrs_selected(line=list(color="#444444")));
+               }
             }
             ## Remove the color legend (again)
             gg_ly <- gg_ly %>%

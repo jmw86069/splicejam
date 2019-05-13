@@ -156,7 +156,8 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
 
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},
-  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}},
+  \code{\link{jitter_norm}}, \code{\link{plotSashimi}},
+  \code{\link{prepareSashimi}},
   \code{\link{stackJunctions}}
 
 Other splicejam core functions: \code{\link{exoncov2polygon}},

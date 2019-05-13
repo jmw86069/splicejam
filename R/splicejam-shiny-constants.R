@@ -30,6 +30,11 @@ sashimiAppConstants <- function
       }
    }
 
+   ## Define color_sub
+   if (!exists("color_sub")) {
+      color_sub <- farrisdata::colorSub;
+   }
+
    ## Define flat exons by gene
    ## One-time setup cost when using GTF input
    if (!exists("tx2geneDF") || !exists("exonsByTx")) {

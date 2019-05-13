@@ -197,9 +197,22 @@ grl2df <- function
                each=4);
          }
       } else {
+         yBase <- rep(seq_along(grl) - 1,
+            elementNROWS(grl));
+         ySeqnames <- as.character(unlist(seqnames(grl)));
+         abs_rank <- function(x){
+            xu <- nameVector(unique(x));
+            xr <- rank(xu, ties.method="min");
+            unname(xr[as.character(x)] - 1);
+         }
+         yBase <- shrinkMatrix(yBase,
+            groupBy=ySeqnames,
+            shrinkFunc=abs_rank)$x;
+         yName <- shrinkMatrix(seq_along(yBase),
+            groupBy=ySeqnames,
+            shrinkFunc=c)$x;
          yBaseline <- rep(
-            rep(seq_along(grl) - 1,
-               elementNROWS(grl)),
+            yBase[yName],
             each=4);
       }
       yCoords <- rep(c(-1, -1, 1, 1) * offset,
@@ -209,7 +222,8 @@ grl2df <- function
          each=4);
       df <- data.frame(x=xCoords,
          y=yCoords,
-         id=id);
+         id=id,
+         seqnames=rep(seqnames(grl@unlistData), each=4));
       if (length(names(grl)) > 0) {
          grlNames <- factor(
             rep(
@@ -1016,6 +1030,12 @@ stackJunctions <- function
 #'    will be color-filled: `"exon"` will define colors for each
 #'    distinct exon, using the GRanges names from `flatExonsByGene`;
 #'    `"sample_id"` to color all exons the same by sample_id.
+#' @param color_sub optional character vector of R compatible colors
+#'    or hex strings, whose names are used to color or fill features
+#'    in the ggplot object. For example, if `fill_sheme="sample_id"`
+#'    the `color_sub` should have names for each `"sample_id"` value.
+#'    If any values are missing, they will be filled in using
+#'    `colorjam::rainbowJam()`.
 #' @param use_jam_themes logical indicating whether to apply
 #'    `colorjam::theme_jam()`, by default for the ggplot theme.
 #' @param apply_facet logical indicating whether to apply
@@ -1053,10 +1073,12 @@ plotSashimi <- function
  junc_color=alpha2col("goldenrod2", 0.3),
  junc_fill=alpha2col("goldenrod2", 0.9),
  fill_scheme=c("exon", "sample_id"),
+ color_sub=NULL,
  use_jam_themes=TRUE,
  apply_facet=TRUE,
  facet_scales="free_y",
  ref2c=NULL,
+ do_highlight=TRUE,
  verbose=FALSE,
  ...)
 {
@@ -1070,9 +1092,14 @@ plotSashimi <- function
       coord_method <- "none";
    }
    ggCov <- NULL;
-   color_sub <- NULL;
+   #color_sub <- NULL;
    if ("coverage" %in% show && "covDF" %in% names(sashimi)) {
-      ggSashimi <- ggplot2::ggplot(sashimi$covDF,
+      if (do_highlight) {
+         covDF <- highlight_key(sashimi$covDF, key=~gr);
+      } else {
+         covDF <- sashimi$covDF;
+      }
+      ggSashimi <- ggplot2::ggplot(covDF,
          aes(x=x,
             y=y,
             group=gr
@@ -1090,8 +1117,9 @@ plotSashimi <- function
                      "<br>track:", as.character(cov))
                )
             );
-         color_sub_cov <- group2colors(unique(sashimi$covDF$gr));
-         color_sub[names(color_sub_cov)] <- color_sub_cov;
+         color_sub_cov <- colorjam::group2colors(unique(sashimi$covDF$gr));
+         use_names <- setdiff(names(color_sub_cov), names(color_sub));
+         color_sub[use_names] <- color_sub_cov[use_names];
       } else if ("sample_id" %in% fill_scheme) {
          ggSashimi <- ggSashimi +
             ggforce::geom_shape(show.legend=FALSE,
@@ -1104,8 +1132,9 @@ plotSashimi <- function
                      "<br>track:", as.character(cov))
                )
             );
-         color_sub_cov <- group2colors(unique(sashimi$covDF$sample_id));
-         color_sub[names(color_sub_cov)] <- color_sub_cov;
+         color_sub_cov <- colorjam::group2colors(unique(sashimi$covDF$sample_id));
+         use_names <- setdiff(names(color_sub_cov), names(color_sub));
+         color_sub[use_names] <- color_sub_cov[use_names];
       }
       #ggSashimi <- ggSashimi +
       #   colorjam::theme_jam() +
@@ -1144,17 +1173,46 @@ plotSashimi <- function
                   darkFactor=c(-1.4, -1.2, 1),
                   sFactor=c(-1.4, -1.2, 1)),
                c(1,2,3));
+            # alternate using sample_id:dominance
+            if (all(unique(sashimi$juncDF$sample_id) %in% names(color_sub))) {
+               color_sub_junc_2 <- unlist(lapply(color_sub[unique(sashimi$juncDF$sample_id)], function(j){
+                  sapply(c(`3`="#DDDDDD55", `2`="#DDDDDD88", `1`="#DDDDDDCC"), function(i){
+                     colorspace::hex(
+                        colorspace::mixcolor(
+                           alpha=col2alpha(i),
+                           color1=hex2RGB(rgb2col(col2rgb(j))),
+                           color2=hex2RGB(i)
+                        )
+                     )
+                  })
+               }));
+               # printDebug("color_sub_junc_2:");
+               printDebug(color_sub_junc_2);
+               use_names <- setdiff(names(color_sub_junc_2), names(color_sub));
+               color_sub[use_names] <- color_sub_junc_2[use_names];
+               if (fill_scheme %in% "sample_id") {
+                  # update to include sample_id.junction_rank
+                  sashimi$juncDF$junction_rank <- pasteByRow(
+                     sashimi$juncDF[,c("sample_id", "junction_rank")],
+                     sep=".");
+               }
+            }
          } else {
             color_sub_junc <- junc_fill[c("1","2","3")];
          }
       }
-      junc_alpha <- col2alpha(junc_fill);
+      junc_alpha <- mean(col2alpha(junc_fill));
       if (length(ggSashimi) == 0) {
          if ("junction_rank" %in% colnames(sashimi$juncDF)) {
             # color junctions by rank
             sashimi$juncDF$gr_name_f <- factor(sashimi$juncDF$gr_name,
                levels=unique(as.character(sashimi$juncDF$gr_name)));
-            ggSashimi <- ggplot2::ggplot(sashimi$juncDF) +
+            if (do_highlight) {
+               juncDF <- highlight_key(sashimi$juncDF, key=~nameFromTo);
+            } else {
+               juncDF <- sashimi$juncDF;
+            }
+            ggSashimi <- ggplot2::ggplot(juncDF) +
                geom_diagonal_wide_arc(
                   aes(x=x,
                      y=y,
@@ -1171,9 +1229,15 @@ plotSashimi <- function
                   alpha=junc_alpha,
                   color=junc_color,
                   strength=0.4);
-            color_sub[names(color_sub_junc)] <- color_sub_junc;
+            use_names <- setdiff(names(color_sub_junc), names(color_sub));
+            color_sub[use_names] <- color_sub_junc[use_names];
          } else {
-            ggSashimi <- ggplot2::ggplot(sashimi$juncDF) +
+            if (do_highlight) {
+               juncDF <- highlight_key(sashimi$juncDF, key=~nameFromTo);
+            } else {
+               juncDF <- sashimi$juncDF;
+            }
+            ggSashimi <- ggplot2::ggplot(juncDF) +
                geom_diagonal_wide_arc(
                   aes(x=x,
                      y=y,
@@ -1195,8 +1259,13 @@ plotSashimi <- function
             # color junctions by rank
             sashimi$juncDF$gr_name_f <- factor(sashimi$juncDF$gr_name,
                levels=unique(as.character(sashimi$juncDF$gr_name)));
+            if (do_highlight) {
+               juncDF <- highlight_key(sashimi$juncDF, key=~nameFromTo);
+            } else {
+               juncDF <- sashimi$juncDF;
+            }
             ggSashimi <- ggSashimi +
-               geom_diagonal_wide_arc(data=sashimi$juncDF,
+               geom_diagonal_wide_arc(data=juncDF,
                   aes(x=x,
                      y=y,
                      group=gr_name_f,
@@ -1212,10 +1281,16 @@ plotSashimi <- function
                   alpha=junc_alpha,
                   color=junc_color,
                   strength=0.4);
-            color_sub[names(color_sub_junc)] <- color_sub_junc;
+            use_names <- setdiff(names(color_sub_junc), names(color_sub));
+            color_sub[use_names] <- color_sub_junc[use_names];
          } else {
+            if (do_highlight) {
+               juncDF <- highlight_key(sashimi$juncDF, key=~nameFromTo);
+            } else {
+               juncDF <- sashimi$juncDF;
+            }
             ggSashimi <- ggSashimi +
-               geom_diagonal_wide_arc(data=sashimi$juncDF,
+               geom_diagonal_wide_arc(data=juncDF,
                   aes(x=x,
                      y=y,
                      group=gr_name,
