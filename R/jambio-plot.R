@@ -1635,8 +1635,10 @@ prepareSashimi <- function
       }
       juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=makeNames(id)),
          grepl("_v1_v[23]$", id_name));
+      shrink_colnames <- intersect(c("x","y","score","junction_rank"),
+         colnames(juncLabelDF1));
       juncLabelDF <- renameColumn(
-         shrinkMatrix(juncLabelDF1[,c("x","y","score"),drop=FALSE],
+         shrinkMatrix(juncLabelDF1[,shrink_colnames,drop=FALSE],
             groupBy=juncLabelDF1[,"nameFromToSample"]),
          from="groupBy",
          to="nameFromToSample");

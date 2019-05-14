@@ -7,6 +7,9 @@ within each seqname (chromosome). To plot multi-chromosome
 GRangesList, use `+facet_wrap(~seqnames)`
 * R-shiny enabled some plotly highlighting features, currently
 in testing phases.
+* Major refactor of `plotSashimi()` to merge together the junction,
+coverage, and label coordinate data.frames to enable plotly and
+crosstalk to highlight features. The end result looks amazing.
 
 # splicejam version 0.0.34.900
 

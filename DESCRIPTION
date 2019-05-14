@@ -32,10 +32,10 @@ Imports: jamba (>= 0.0.26.900),
     shinydashboard,
     shinydashboardPlus,
     shinyWidgets,
-    cowplot
+    cowplot,
+    plotly
 Suggests: 
     made4,
-    plotly,
     openxlsx,
     knitr,
     rmarkdown,

@@ -195,9 +195,10 @@ sashimiAppServer <- function
                   );
                if (input$enable_highlights) {
                   ggly1 <- ggly1 %>%
-                     highlight("plotly_hover",
-                        opacityDim=1,
-                        selected=attrs_selected(line=list(color="#444444")));
+                     plotly::highlight("plotly_hover",
+                        opacityDim=0.8,
+                        selected=attrs_selected(
+                           line=list(color="#444444")));
                }
                ggly2 <- plotly::ggplotly(
                   gg_gene +

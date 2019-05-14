@@ -7,10 +7,10 @@
 plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   coord_method = c("scale", "coord", "none"), exonsGrl = NULL,
   junc_color = alpha2col("goldenrod2", 0.3),
-  junc_fill = alpha2col("goldenrod2", 0.9), fill_scheme = c("exon",
-  "sample_id"), color_sub = NULL, use_jam_themes = TRUE,
-  apply_facet = TRUE, facet_scales = "free_y", ref2c = NULL,
-  do_highlight = TRUE, verbose = FALSE, ...)
+  junc_fill = alpha2col("goldenrod2", 0.9),
+  fill_scheme = c("sample_id", "exon"), color_sub = NULL,
+  use_jam_themes = TRUE, apply_facet = TRUE, facet_scales = "free_y",
+  ref2c = NULL, do_highlight = TRUE, verbose = FALSE, ...)
 }
 \arguments{
 \item{sashimi}{Sashimi data prepared by \code{prepareSashimi()} which
