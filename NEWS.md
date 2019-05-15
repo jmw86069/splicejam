@@ -1,3 +1,12 @@
+# splicejam version 0.0.36.900
+
+## bug fixes
+
+* Fixed regression in use of `color_sub` to pre-define categorical
+colors in sashimi plots.
+* Updated plotly highlighting, increasing the success rate in most
+test cases.
+
 # splicejam version 0.0.35.900
 
 ## changes

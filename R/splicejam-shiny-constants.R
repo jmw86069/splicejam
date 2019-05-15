@@ -32,7 +32,7 @@ sashimiAppConstants <- function
 
    ## Define color_sub
    if (!exists("color_sub")) {
-      color_sub <- farrisdata::colorSub;
+      color_sub <<- farrisdata::colorSub;
    }
 
    ## Define flat exons by gene

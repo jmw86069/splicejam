@@ -132,6 +132,7 @@ sashimiAppServer <- function
             do_highlight=TRUE,
             facet_scales=facet_scales,
             fill_scheme="sample_id");
+         gg_sashimi <<- gg_sashimi;
          ## Optionally prepare gene-exon model
          if (input$show_gene_model) {
             if (input$show_tx_model) {
@@ -151,6 +152,7 @@ sashimiAppServer <- function
                   flatExonsByGene=flatExonsByGene,
                   exonLabelSize=input$exon_label_size);
             }
+            gg_gene <<- gg_gene;
          }
 
          ## Optionally get gene coordinate range
@@ -184,12 +186,14 @@ sashimiAppServer <- function
             ", plot_height:", plot_height);
          if (input$do_plotly) {
             if (input$show_gene_model) {
+               ## use plotly, showing gene model
                ggly1 <- plotly::ggplotly(
                   gg_sashimi +
+                     scale_y_continuous(labels=scales::comma) +
                      theme(axis.text.x=element_blank()) +
                      xlab(NULL) +
                      coord_cartesian(xlim=gene_coords),
-                  tooltip="text") %>%
+                  tooltip="name") %>%
                   plotly::style(
                      hoveron="fill"
                   );
@@ -205,7 +209,7 @@ sashimiAppServer <- function
                      ggtitle(NULL) +
                      xlab(ref_name) +
                      coord_cartesian(xlim=gene_coords),
-                  tooltip="text");
+                  tooltip="name");
                gg_ly <- suppressMessages(
                   plotly::subplot(
                      ggly1,
@@ -215,29 +219,31 @@ sashimiAppServer <- function
                      shareX=TRUE
                   ) %>% layout(height=plot_height)
                );
+               gg_ly <- gg_ly %>%
+                  plotly::highlight("plotly_hover",
+                     opacityDim=0.8,
+                     selected=attrs_selected(
+                        line=list(color="#444444")));
             } else {
-               gg_ly <- suppressMessages(
-                  plotly::ggplotly(
-                     gg_sashimi +
-                        scale_y_continuous(labels=scales::comma) +
-                        xlab(ref_name) +
-                        coord_cartesian(xlim=gene_coords),
-                     tooltip="text",
-                     height=plot_height
-                  )
-               );
+               ## use plotly, showing gene model
+               gg_ly <- plotly::ggplotly(
+                  gg_sashimi +
+                     scale_y_continuous(labels=scales::comma) +
+                     xlab(ref_name) +
+                     coord_cartesian(xlim=gene_coords),
+                  tooltip="name",
+                  height=plot_height
+               ) %>% style(hoveron="fill");
                if (input$enable_highlights) {
                   gg_ly <- gg_ly %>%
-                     style(hoveron="fill") %>%
                      highlight("plotly_hover",
-                        opacityDim=1,
+                        opacityDim=0.8,
                         selected=attrs_selected(line=list(color="#444444")));
                }
             }
             ## Remove the color legend (again)
             gg_ly <- gg_ly %>%
                layout(showlegend=FALSE);
-            #%>%plotly::layout(autosize=TRUE)
             # Try converting to plotlyOutput to define a fixed plot height
             output$plotly <- renderPlotly({
                gg_ly %>%
