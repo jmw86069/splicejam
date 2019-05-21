@@ -22,6 +22,8 @@ sashimiAppUI <- function
          icon("map"))
    );
    options("warn"=-1);
+   nbsp <- HTML("&nbsp;");
+   nbsp3 <- HTML("&nbsp;&nbsp;&nbsp;");
 
    # sidebar
    sidebar <- dashboardSidebar(
@@ -60,18 +62,39 @@ sashimiAppUI <- function
                ),
                fluidRow(
                   column(
-                     width=4,
-                     style="padding:0px",
-                     shinyWidgets::prettySwitch(
-                        inputId="use_exon_names",
-                        value=FALSE,
-                        slim=TRUE,
-                        status="info",
-                        width="90%",
-                        label="Use exon names in the slider below?")
+                     width=1,
+                     style="padding:0px"
                   ),
                   column(
                      width=4,
+                     style="padding:0px",
+                     shinyWidgets::radioGroupButtons(
+                        inputId="use_exon_names",
+                        status="primary",
+                        choices=c("coordinates", "exon names"),
+                        selected="coordinates",
+                        checkIcon = list(
+                           yes=icon("ok", lib="glyphicon")
+                        ),
+                        #width="90%",
+                        label="Slider bar measurement"
+                     )
+                  ),
+                  column(
+                     width=3,
+                     style="padding:0px",
+                     shinyWidgets::radioGroupButtons(
+                        inputId="include_strand",
+                        label="Show coverage by strand:",
+                        choices=c("+", "-", "both"),
+                        selected="both",
+                        status="primary",
+                        checkIcon=list(
+                           yes=icon("ok", lib="glyphicon"))
+                     )
+                  ),
+                  column(
+                     width=3,
                      style="padding:0px",
                      numericInput(
                         inputId="min_junction_reads",
@@ -84,20 +107,12 @@ sashimiAppUI <- function
                      )
                   ),
                   column(
-                     width=4,
-                     style="padding:0px",
-                     selectInput(
-                        inputId="include_strand",
-                        label="Show coverage by strand:",
-                        choices=c("both", "+", "-"),
-                        selected="both",
-                        multiple=FALSE,
-                        width="90%"
-                     )
+                     width=1,
+                     style="padding:0px"
                   )
                ),
                conditionalPanel(
-                  condition="input.use_exon_names == true",
+                  condition="input.use_exon_names == 'exon names'",
                   sliderTextInput(
                      inputId="exon_range",
                      label="Gene exon range",
@@ -108,15 +123,15 @@ sashimiAppUI <- function
                   )
                ),
                conditionalPanel(
-                  condition="input.use_exon_names == false",
+                  condition="input.use_exon_names == 'coordinates'",
                   htmltools::em(textOutput("gene_coords_label",
-                     inline=TRUE)),
+                     inline=FALSE)),
                   sliderInput(
                      "gene_coords",
                      label=NULL,#"Genome coordinate range",
                      min=1,
                      max=2000,
-                     width="80%",
+                     #width="80%",
                      value=c(2, 2000),
                      step=1,
                      round=TRUE
@@ -150,45 +165,59 @@ sashimiAppUI <- function
                sidebar_width=25,
                sidebar_start_open=FALSE,
                sidebar_content=tagList(
+                  shinyWidgets::sliderTextInput(
+                     inputId="panel_height",
+                     label="Height per panel:",
+                     choices=c(50,100,75,150,200,250,300,400,500),
+                     selected=200,
+                     grid=TRUE
+                  ),
                   shinyWidgets::prettySwitch(
                      inputId="do_plotly",
                      value=TRUE,
                      slim=TRUE,
-                     status="info",
+                     status="success",
                      label="Interactive?"),
                   conditionalPanel(
                      condition="input.do_plotly == true",
+                     nbsp3,
                      shinyWidgets::prettySwitch(
                         inputId="enable_highlights",
+                        inline=TRUE,
                         value=TRUE,
                         slim=TRUE,
-                        status="info",
-                        label="enable highlighting?")
+                        status="success",
+                        label="Enable highlighting?")
                   ),
                   shinyWidgets::prettySwitch(
                      inputId="show_gene_model",
                      value=TRUE,
                      slim=TRUE,
-                     status="info",
+                     status="success",
                      label="Show gene-exon model?"
                   ),
                   conditionalPanel(
                      condition="input.show_gene_model == true",
+                     nbsp3,
                      shinyWidgets::prettySwitch(
                         inputId="show_tx_model",
+                        inline=TRUE,
                         value=FALSE,
                         slim=TRUE,
-                        status="info",
+                        status="success",
                         label="Include transcript isoforms?"
                      ),
                      conditionalPanel(
                         condition="input.show_tx_model == true",
+                        nbsp3,
+                        nbsp3,
                         shinyWidgets::prettySwitch(
                            inputId="show_detected_tx",
+                           inline=TRUE,
                            value=TRUE,
                            slim=TRUE,
-                           status="info",
-                           label="Show detected transcripts only?"
+                           status="success",
+                           label="Show detected only?"
                         )
                      )
                   ),
@@ -196,16 +225,19 @@ sashimiAppUI <- function
                      inputId="share_y_axis",
                      value=TRUE,
                      slim=TRUE,
-                     status="info",
+                     status="success",
                      label="Shared y-axis range?"
                   ),
-                  sliderInput(
-                     inputId="exon_label_size",
-                     label="Exon label size",
-                     min=2,
-                     max=20,
-                     value=6,
-                     step=0.5
+                  conditionalPanel(
+                     condition="input.do_plotly == false",
+                     sliderInput(
+                        inputId="exon_label_size",
+                        label="Exon label size",
+                        min=2,
+                        max=20,
+                        value=6,
+                        step=0.5
+                     )
                   )
                )
             )

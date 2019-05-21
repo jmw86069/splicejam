@@ -42,8 +42,7 @@ sashimiAppServer <- function
          if (length(chr_range) > 0) {
             ## Update slider text label
             output$gene_coords_label <- renderText({
-               paste0(
-                  "Coordinate range ",
+               paste0("Coordinate range ",
                   as.character(seqnames(head(flatExonsByGene[[gene]], 1))),
                   ":")
             });
@@ -132,10 +131,11 @@ sashimiAppServer <- function
             do_highlight=TRUE,
             facet_scales=facet_scales,
             fill_scheme="sample_id");
+         sashimi_data <- sashimi_data;
          gg_sashimi <<- gg_sashimi;
          ## Optionally prepare gene-exon model
          if (input$show_gene_model) {
-            if (input$show_tx_model) {
+            if (input$show_tx_model && length(flatExonsByTx) > 0) {
                if (input$show_detected_tx) {
                   gg_gene <- gene2gg(gene=gene,
                      flatExonsByGene=flatExonsByGene,
@@ -156,7 +156,7 @@ sashimiAppServer <- function
          }
 
          ## Optionally get gene coordinate range
-         if (isolate(input$use_exon_names)) {
+         if (isolate(input$use_exon_names) %in% "exon names") {
             exon_range <- isolate(input$exon_range);
             # Convert exon names to coordinates
             gene_coords <- range(as.data.frame(range(
@@ -173,23 +173,31 @@ sashimiAppServer <- function
             ":",
             paste(gene_coords, collapse="-")
          );
-         output$sashimitext_output <- renderText({coord_label});
+         output$sashimitext_output <- renderText({
+            paste0("  ",
+               coord_label)
+         });
 
          ## Prepare plotly or ggplot2 output
          #sample_id <- unique(filesDF$sample_id);
          #num_samples <- max(c(length(sample_id), 1)) + 1;
          #num_samples <- 2;
          num_samples <- length(unique(sample_id));
-         plot_height <- 250 * (num_samples +
-               input$show_gene_model);
+         panel_height <- input$panel_height;
+         # adjust base_size for fonts using exponent based upon panel height
+         font_exp <- 1/3;
+         base_size <- 12 * (panel_height^font_exp)/(250^font_exp);
+         plot_height <- panel_height * (num_samples + input$show_gene_model);
          printDebug("num_samples:", num_samples,
+            ", panel_height:", panel_height,
+            ", base_size:", format(digits=1, base_size),
             ", plot_height:", plot_height);
          if (input$do_plotly) {
             if (input$show_gene_model) {
                ## use plotly, showing gene model
                ggly1 <- plotly::ggplotly(
                   gg_sashimi +
-                     scale_y_continuous(labels=scales::comma) +
+                     theme_jam(base_size=base_size) +
                      theme(axis.text.x=element_blank()) +
                      xlab(NULL) +
                      coord_cartesian(xlim=gene_coords),
@@ -199,17 +207,20 @@ sashimiAppServer <- function
                   );
                if (input$enable_highlights) {
                   ggly1 <- ggly1 %>%
-                     plotly::highlight("plotly_hover",
+                     plotly::highlight(
+                        on="plotly_hover",
+                        off="plotly_doubleclick",
                         opacityDim=0.8,
                         selected=attrs_selected(
                            line=list(color="#444444")));
                }
                ggly2 <- plotly::ggplotly(
                   gg_gene +
+                     theme_jam(base_size=base_size) +
                      ggtitle(NULL) +
                      xlab(ref_name) +
                      coord_cartesian(xlim=gene_coords),
-                  tooltip="name");
+                  tooltip="text");
                gg_ly <- suppressMessages(
                   plotly::subplot(
                      ggly1,
@@ -228,7 +239,7 @@ sashimiAppServer <- function
                ## use plotly, showing gene model
                gg_ly <- plotly::ggplotly(
                   gg_sashimi +
-                     scale_y_continuous(labels=scales::comma) +
+                     theme_jam(base_size=base_size) +
                      xlab(ref_name) +
                      coord_cartesian(xlim=gene_coords),
                   tooltip="name",
@@ -265,11 +276,12 @@ sashimiAppServer <- function
                      suppressMessages(
                         cowplot::plot_grid(
                            gg_sashimi +
-                              scale_y_continuous(labels=scales::comma) +
+                              theme_jam(base_size=base_size) +
                               theme(axis.text.x=element_blank()) +
                               xlab(NULL) +
                               coord_cartesian(xlim=gene_coords),
                            gg_gene +
+                              theme_jam(base_size=base_size) +
                               ggtitle(NULL) +
                               xlab(ref_name) +
                               coord_cartesian(xlim=gene_coords),
@@ -285,6 +297,7 @@ sashimiAppServer <- function
                      height=plot_height,
                      suppressMessages(
                         gg_sashimi +
+                           theme_jam(base_size=base_size) +
                            xlab(ref_name) +
                            coord_cartesian(xlim=gene_coords)
                      )
@@ -293,7 +306,8 @@ sashimiAppServer <- function
             } else {
                tagList(renderPlot(
                   height=plot_height,
-                  gg_sashimi
+                  gg_sashimi +
+                     theme_jam(base_size=base_size)
                ));
             }
          }

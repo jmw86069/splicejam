@@ -10,6 +10,22 @@
 #' an R-shiny app, since it defines several variables in the
 #' parent (global) environment.
 #'
+#' Specifically, this function will attempt to re-use several
+#' R data objects by name if they exist in any parent environment.
+#' If they do not exist, defaults will be used based upon the
+#' Farris et all data from the `farrisdata` package.
+#'
+#' * filesDF
+#' * color_sub
+#' * tx2geneDF
+#' * gtf (used if tx2geneDF or exonsByTx are not available)
+#' * exonsByTx
+#' * cdsByTx
+#' * detectedTx
+#' * detectedGenes, inferred from tx2geneDF and detectedTx
+#' * flatExonsByGene
+#' * flatExonsByTx
+#'
 #' @family SALSA Shiny functions
 #'
 #' @import shiny
@@ -265,6 +281,8 @@ sashimiAppConstants <- function
          )
       )
    );
+   nbsp <- HTML("&nbsp;");
+   nbsp3 <- HTML("&nbsp;&nbsp;&nbsp;");
 
    invisible(NULL);
 }

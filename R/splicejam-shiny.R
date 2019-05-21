@@ -18,7 +18,8 @@
 #'
 #' @export
 launchSashimiApp <- function
-(...)
+(...,
+ options=list(width=1200))
 {
    #
    shiny::shinyApp(ui=sashimiAppUI,

@@ -1,3 +1,12 @@
+# splicejam version 0.0.37.900
+
+## updates
+
+* Added panel height to R-shiny UI, controlling the allocated
+height for each facet panel.
+* Numerous updates to the plotly highlighting methods.
+* Reorganized the R-shiny UI, still in progress.
+
 # splicejam version 0.0.36.900
 
 ## bug fixes

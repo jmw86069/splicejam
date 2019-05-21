@@ -648,15 +648,23 @@ gene2gg <- function
    grl1a1gg <- ggplot2::ggplot(grl1a1df,
          aes(x=x,
             y=y,
+            text=paste0(sub("_", "<br>", gr_name),
+               "<br>",subclass,
+               "<br>",
+               seqnames,
+               ":", scales::comma(x)
+            ),
             group=id)) +
       ggforce::geom_shape(show.legend=FALSE,
          aes(fill=subclass,
-            text=paste0(gr_name,
-               "<br>", grl_name,
-               "<br>",subclass,
-               "<br>coord:", scales::comma(x)
-            ),
-            color=subclass)) +
+            #text=paste0(gr_name,
+            #   "<br>", grl_name,
+            #   "<br>",subclass,
+            #   "<br>coord:", scales::comma(x)
+            #),
+            color=subclass
+         )
+      ) +
       colorjam::theme_jam() +
       ylab("") +
       scale_color_manual(values=makeColorDarker(colorSubV,
@@ -1036,6 +1044,12 @@ stackJunctions <- function
 #'    the `color_sub` should have names for each `"sample_id"` value.
 #'    If any values are missing, they will be filled in using
 #'    `colorjam::rainbowJam()`.
+#' @param ylabel character string used as the y-axis label, by default
+#'    `"score"` reflects the coverage score and junction score,
+#'    respectively for coverage and junction data. Scores are
+#'    also adjusted using the `scale_factor` value for each
+#'    `sample_id` as defined in the `filesDF`. Set to `NULL` to
+#'    hide the y-axis label completely.
 #' @param use_jam_themes logical indicating whether to apply
 #'    `colorjam::theme_jam()`, by default for the ggplot theme.
 #' @param apply_facet logical indicating whether to apply
@@ -1074,6 +1088,7 @@ plotSashimi <- function
  junc_fill=alpha2col("goldenrod2", 0.9),
  fill_scheme=c("sample_id", "exon"),
  color_sub=NULL,
+ ylabel="score",
  use_jam_themes=TRUE,
  apply_facet=TRUE,
  facet_scales="free_y",
@@ -1195,7 +1210,7 @@ plotSashimi <- function
             #juncDF$color_by <- juncDF$nameFromToSample;
             juncLabelDF$color_by <- as.character(juncLabelDF$junction_rank);
          }
-         juncLabelDF$label <- scales::comma(round(juncLabelDF$score));
+         juncLabelDF$text <- scales::comma(round(juncLabelDF$score));
       }
    }
 
@@ -1246,7 +1261,8 @@ plotSashimi <- function
             y=y,
             group=name,
             color=color_by,
-            fill=color_by
+            fill=color_by,
+            text=name
          ));
    } else {
       gg_sashimi <- ggplot(
@@ -1259,6 +1275,12 @@ plotSashimi <- function
             fill=color_by
          ));
    }
+   # comma-delimit y-axis values
+   # and remove the y-axis label
+   gg_sashimi <- gg_sashimi +
+      scale_y_continuous(
+         labels=scales::comma,
+         name=ylabel);
 
    # Add coverage layer
    color_sub_d <- makeColorDarker(color_sub, darkFactor=1.2);
@@ -1296,10 +1318,10 @@ plotSashimi <- function
             direction="y",
             point.padding=0,
             color="black",
-            fill="transparent",
+            #fill="transparent",
             aes(
-               text=NULL,
-               label=label
+               #text=NULL,
+               label=scales::comma(score)
             )
          );
    }
