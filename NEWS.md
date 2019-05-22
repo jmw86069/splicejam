@@ -6,6 +6,10 @@
 height for each facet panel.
 * Numerous updates to the plotly highlighting methods.
 * Reorganized the R-shiny UI, still in progress.
+* Added R-shiny tab "Sample and Data" intended to customize and
+select sample_id entries to display or hide in the Sashimi plots.
+Purely aesthetic and non-functional, still testing out the many
+javascript table options available.
 
 # splicejam version 0.0.36.900
 

@@ -314,4 +314,79 @@ sashimiAppServer <- function
       }
    });
 
+   # filesDF table output
+   output$files_df <- DT::renderDT({
+      options("rowGroup.dataSrc"="sample_id");
+
+      # add new colname to contain checkboxes
+      shinyCheckboxInput <- function(FUN, len, id, ...) {
+         inputs <- sapply(seq_len(len), function(i){
+            as.character(
+               FUN(
+                  paste0(id, i),
+                  label="selected?",
+                  width="30px",
+                  ...
+               )
+            )
+         });
+         inputs;
+      }
+      files_dt <- filesDF;
+      files_dt$selected <- shinyCheckboxInput(
+         checkboxInput,
+         nrow(files_dt),
+         "cbox_");
+
+      files_dt <- files_dt %>%
+         dplyr::select(sample_id, selected, type, everything(), -url, url) %>%
+         dplyr::arrange(sample_id, type) %>%
+         DT::datatable(
+            editable=TRUE,
+            rownames=FALSE,
+            escape=FALSE,
+            height='15px',
+            extensions=c("RowReorder"),
+            options=list(
+               autoWidth=TRUE,
+               deferRender=TRUE,
+               columnDefs=list(list(width='50px', targets=list(1,2,3))),
+               pageLength=24,
+               lengthMenu=c(12,24,48,120),
+               rowReorder=TRUE,
+               preDrawCallback=DT::JS('function() {
+Shiny.unbindAll(this.api().table().node()); } '),
+               drawCallback=DT::JS('function() {
+Shiny.bindAll(this.api().table().node()); } ')
+            )
+         );
+         # optionally colorize sample_id using color_sub
+         color_sub["junction"] <- "slateblue1";
+         color_sub["bw"] <- "darkslategray1";
+
+         # check each colname for matching colors
+         for (iCol in colnames(filesDF)) {
+            if (all(unique(filesDF[[iCol]]) %in% names(color_sub))) {
+               files_dt <- files_dt %>%
+                  DT::formatStyle(
+                     iCol,
+                     backgroundColor=DT::styleEqual(
+                        levels=names(color_sub),
+                        values=rgb2col(col2rgb(color_sub))
+                     ),
+                     color=DT::styleEqual(
+                        levels=names(color_sub),
+                        values=setTextContrastColor(color_sub)
+                     )
+                  );
+            }
+         }
+         files_dt;
+      },
+      options=list(
+         lengthChange=FALSE,
+         pageLength=24
+      )
+   );
+
 }

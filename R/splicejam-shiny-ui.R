@@ -36,7 +36,11 @@ sashimiAppUI <- function
          menuItem(
             text="Sashimi Plot",
             tabName="sashimiplot",
-            icon=icon("map"))
+            icon=icon("map")),
+         menuItem(
+            text="Samples and Data",
+            tabName="samplesdata",
+            icon=icon("table"))
       )
    );
 
@@ -245,6 +249,19 @@ sashimiAppUI <- function
       )
    );
 
+   # define Sashimi Plot tab
+   samplesdataTab <- fluidPage(
+      fluidRow(
+         column(
+            width=12,
+            style="padding:0px",
+            DT::DTOutput(
+               outputId="files_df"
+            )
+         )
+      )
+   );
+
    ## Load guidesTab via salsaAppConstants()
    #sashimiAppConstants();
 
@@ -254,7 +271,8 @@ sashimiAppUI <- function
       setShadow(class="boxPlus"),
       tabItems(
          tabItem(tabName="guides", guidesTab),
-         tabItem(tabName="sashimiplot", sashimiplotTab)
+         tabItem(tabName="sashimiplot", sashimiplotTab),
+         tabItem(tabName="samplesdata", samplesdataTab)
       )
    );
 
