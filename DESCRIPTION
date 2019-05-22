@@ -33,7 +33,8 @@ Imports: jamba (>= 0.0.26.900),
     shinydashboardPlus,
     shinyWidgets,
     cowplot,
-    plotly
+    plotly,
+    DT
 Suggests: 
     made4,
     openxlsx,
