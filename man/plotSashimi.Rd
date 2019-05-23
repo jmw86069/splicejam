@@ -9,8 +9,9 @@ plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   junc_color = alpha2col("goldenrod2", 0.3),
   junc_fill = alpha2col("goldenrod2", 0.9),
   fill_scheme = c("sample_id", "exon"), color_sub = NULL,
-  use_jam_themes = TRUE, apply_facet = TRUE, facet_scales = "free_y",
-  ref2c = NULL, do_highlight = TRUE, verbose = FALSE, ...)
+  ylabel = "score", use_jam_themes = TRUE, apply_facet = TRUE,
+  facet_scales = "free_y", ref2c = NULL, do_highlight = TRUE,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{sashimi}{Sashimi data prepared by \code{prepareSashimi()} which
@@ -52,6 +53,13 @@ in the ggplot object. For example, if \code{fill_sheme="sample_id"}
 the \code{color_sub} should have names for each \code{"sample_id"} value.
 If any values are missing, they will be filled in using
 \code{colorjam::rainbowJam()}.}
+
+\item{ylabel}{character string used as the y-axis label, by default
+\code{"score"} reflects the coverage score and junction score,
+respectively for coverage and junction data. Scores are
+also adjusted using the \code{scale_factor} value for each
+\code{sample_id} as defined in the \code{filesDF}. Set to \code{NULL} to
+hide the y-axis label completely.}
 
 \item{use_jam_themes}{logical indicating whether to apply
 \code{colorjam::theme_jam()}, by default for the ggplot theme.}

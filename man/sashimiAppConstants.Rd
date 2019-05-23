@@ -16,5 +16,22 @@ the creation of the SALSA shiny UI.
 This function is intended to be called only from within
 an R-shiny app, since it defines several variables in the
 parent (global) environment.
+
+Specifically, this function will attempt to re-use several
+R data objects by name if they exist in any parent environment.
+If they do not exist, defaults will be used based upon the
+Farris et all data from the \code{farrisdata} package.
+\itemize{
+\item filesDF
+\item color_sub
+\item tx2geneDF
+\item gtf (used if tx2geneDF or exonsByTx are not available)
+\item exonsByTx
+\item cdsByTx
+\item detectedTx
+\item detectedGenes, inferred from tx2geneDF and detectedTx
+\item flatExonsByGene
+\item flatExonsByTx
+}
 }
 \concept{SALSA Shiny functions}

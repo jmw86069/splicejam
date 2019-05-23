@@ -1,3 +1,35 @@
+# splicejam version 0.0.38.900
+
+## additional package dependencies
+
+* Dependency added for `shinyjqui`
+to use `orderInput()` for drag-and-drop selection
+and ordering of `sample_id` values.
+* Dependency added for `shinycssloaders`.
+
+## updates to the R-shiny app
+
+* New tab "Sample Selection" which focuses on selecting and ordering
+the unique sample_id entries found in `filesDF`.
+* "Samples and Data" tab allows editing columns, and will
+include updated `"scale_factor"` values in normalizing coverage
+and junction scores.
+* "Samples and Data" tab uses `color_sub` to colorize the table,
+and will create colors for any undefined values in the `"sample_id"`
+column. Other columns are colorized when all values match `names(color_sub)`
+otherwise are not colorized. Columns are arranged so any extra columns
+(such as group, subgroup, batch, etc.) would appear beside `sample_id`,
+and typically would be colorized also using `color_sub`.
+* Added spinning loader indicator to the plot panel, which covers the
+time after data is prepared, but before ggplot has created the actual
+visualization.
+* The "Sample Selection" tab now allows setting the number of plot
+panel columns. However, it breaks the synchrony with the gene-exon model,
+since the gene panel is still full-width. Already thinking of
+alternatives.
+* Plot settings like panel height, font relative sizing, and exon
+label size (for non-interactive) are available.
+
 # splicejam version 0.0.37.900
 
 ## updates

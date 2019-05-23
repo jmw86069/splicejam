@@ -4,7 +4,7 @@
 \alias{launchSashimiApp}
 \title{Launch Sashimi R-shiny application}
 \usage{
-launchSashimiApp(...)
+launchSashimiApp(..., options = list(width = 1200))
 }
 \arguments{
 \item{...}{additional arguments are passed to \code{shiny::shinyApp()}.}
