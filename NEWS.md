@@ -1,3 +1,10 @@
+# splicejam version 0.0.39.900
+
+## bug fixes
+
+* Fixed regression in junction scale factors, not consistently applied
+in `prepareSashimi()`.
+
 # splicejam version 0.0.38.900
 
 ## additional package dependencies

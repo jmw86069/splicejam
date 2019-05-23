@@ -1480,6 +1480,8 @@ prepareSashimi <- function
 
    ############################################
    ## Load Junctions
+   ##
+   ## Pre-existing junctions supplied as GRanges
    if (length(juncGR) > 0) {
       if (!"sample_id" %in% colnames(values(juncGR))) {
          stop("juncGR must have 'sample_id' in colnames(values(juncGR)).");
@@ -1513,18 +1515,24 @@ prepareSashimi <- function
    } else {
       juncDF1 <- NULL;
    }
+   ##
+   ## Junctions available from filesDF type %in% "junction"
+   ##
    juncFilesDF <- filesDF[filesDF$type %in% "junction" &
-      filesDF$sample_id %in% sample_id,c("url","sample_id"),drop=FALSE];
-   juncUrls <- nameVector(juncFilesDF);
+      filesDF$sample_id %in% sample_id,c("url", "sample_id", "scale_factor"),drop=FALSE];
+   juncUrls <- nameVector(juncFilesDF[,c("url", "sample_id")]);
    juncSamples <- nameVector(juncFilesDF[,c("sample_id","sample_id")]);
    juncUrlsL <- split(juncUrls, juncSamples);
-   if ("score_factor" %in% colnames(juncFilesDF)) {
-      juncScaleFactors <- rmNA(naValue=1,
-         juncFilesDF$scale_factor);
-   } else {
-      juncScaleFactors <- rep(1, length(juncUrls));
+   if (!"scale_factor" %in% colnames(juncFilesDF)) {
+      juncFilesDF$scale_factor <- 1;
    }
-   names(juncScaleFactors) <- names(juncUrls);
+   juncScaleFactors <- nameVector(juncFilesDF[,c("scale_factor","sample_id")]);
+   if (verbose) {
+      printDebug("prepareSashimi(): ",
+         "Applying scale_factor values to junction scores,",
+         "juncScaleFactors:",
+         format(juncScaleFactors, digits=2));
+   }
    if (verbose) {
       printDebug("prepareSashimi(): ",
          "juncUrls:");
@@ -1545,19 +1553,27 @@ prepareSashimi <- function
          if (verbose) {
             printDebug("prepareSashimi(): ",
                "Importing bed:",
-               iBed);
+               iBed,
+               " with scale_factor:",
+               format(digits=1, juncScaleFactors[iBedName]),
+               " for sample_id:", juncSamples[iBedName]);
          }
          bed1 <- rtracklayer::import(iBed,
             which=range(gr));
-         values(bed1)$score <- as.numeric(values(bed1)$name) * juncScaleFactors[iBedName];
+         ## Assign score, apply scale_factor
+         ## Consider rounding the score to integer value?
+         values(bed1)$score <- as.numeric(as.character(values(bed1)$name)) * juncScaleFactors[iBedName];
+
          values(bed1)[,c("juncNames")] <- iBedName;
          values(bed1)[,c("sample_id")] <- juncSamples[iBedName];
+
          ## Subset junctions to require one end within the region of interest
-         keepWhich <- (overlapsAny(flank(bed1, -1, start=TRUE), range(gr)) |
-            overlapsAny(flank(bed1, -1, start=FALSE), range(gr)));
-         if (any(!keepWhich)) {
-            bed1 <- bed1[keepWhich];
-         }
+         bed1 <- subset(bed1,
+            (
+               overlapsAny(flank(bed1, -1, start=TRUE), range(gr)) |
+               overlapsAny(flank(bed1, -1, start=FALSE), range(gr))
+            )
+         );
          bed1;
       }))@unlistData;
       ## Create junction summary data.frame
@@ -1569,6 +1585,10 @@ prepareSashimi <- function
          exonsGR=gr,
          sampleColname="sample_id");
       if (length(juncDF1) > 0) {
+         if (verbose) {
+            printDebug("prepareSashimi(): ",
+               "Appending BED-derived junctions to supplied juncGR-derived data.");
+         }
          juncDF1 <- rbind(juncDF1, juncDF1f);
       } else {
          juncDF1 <- juncDF1f;
@@ -1598,7 +1618,7 @@ prepareSashimi <- function
          GenomicRanges::split(juncGR, values(juncGR)[["sample_id"]]),
          shape="junction",
          ref2c=ref2c,
-         scoreFactor=juncScaleFactors,
+         scoreFactor=1,
          scoreArcFactor=scoreArcFactor,
          scoreArcMinimum=scoreArcMinimum,
          baseline=baseline,

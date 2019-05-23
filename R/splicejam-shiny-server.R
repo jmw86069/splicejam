@@ -172,6 +172,8 @@ sashimiAppServer <- function
 
    output$sashimiplot_output <- renderUI({
       sashimi_data <- get_sashimi_data();
+      # Update in parent environment
+      sashimi_data <<- sashimi_data;
       if (length(sashimi_data) == 0) {
          ## Todo: make empty plot a minimum height in pixels
          tagList(
