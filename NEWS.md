@@ -1,3 +1,12 @@
+# splicejam version 0.0.41.900
+
+## R-shiny app updates
+
+* Changed `sashimiAppConstants()` to improve handling of memoise
+flatExonsByTx data.
+* Updated the Guides tab with a description of Sashimi plots,
+and a how-to for creating a Sashimi plot.
+
 # splicejam version 0.0.40.900
 
 ## bug fixes

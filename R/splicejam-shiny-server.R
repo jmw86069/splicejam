@@ -23,6 +23,7 @@ sashimiAppServer <- function
    #
    options("warn"=-1);
    output$sashimiplot_guide <- renderUI(sashimiplot_guide);
+   output$sashimiplotviz_guide <- renderUI(sashimiplotviz_guide);
 
    ## server-side selectize gene list
    printDebug("length(detectedGenes):", length(detectedGenes));
