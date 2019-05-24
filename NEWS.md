@@ -1,3 +1,9 @@
+# splicejam version 0.0.40.900
+
+## bug fixes
+
+* Added `shinyjs` package dependency.
+
 # splicejam version 0.0.39.900
 
 ## bug fixes
