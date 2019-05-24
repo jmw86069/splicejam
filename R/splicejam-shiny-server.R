@@ -127,7 +127,7 @@ sashimiAppServer <- function
    get_sashimi_data <- reactive({
       input$calc_gene_params;
       shinyjs::disable("calc_gene_params");
-      gene <<- isolate(input$gene);
+      gene <- isolate(input$gene);
       if (!exists("flatExonsByGene") ||
             !exists("filesDF")) {
          return(NULL);
@@ -141,12 +141,12 @@ sashimiAppServer <- function
       sample_order <- isolate(input$selectionto_order);
       if (!exists("sample_id")) {
          if (length(sample_order) == 0) {
-            sample_id <<- head(unique(filesDF$sample_id), 3);
+            sample_id <- head(unique(filesDF$sample_id), 4);
          } else {
-            sample_id <<- sample_order;
+            sample_id <- sample_order;
          }
       } else if (length(sample_order) > 0) {
-         sample_id <<- sample_order;
+         sample_id <- sample_order;
       }
       printDebug("Using sample_id:", sample_id);
       min_junction_reads <- isolate(input$min_junction_reads);
@@ -189,7 +189,7 @@ sashimiAppServer <- function
          );
       } else {
          if (!exists("gene") || length(gene) == 0) {
-            gene <<- isolate(input$gene);
+            gene <- isolate(input$gene);
          }
          if (share_y_axis_d()) {
             facet_scales <- "fixed";
@@ -201,10 +201,25 @@ sashimiAppServer <- function
          } else {
             do_highlight <- TRUE;
          }
+
+         ## Optionally get gene coordinate range
+         if (isolate(input$use_exon_names) %in% "exon names") {
+            exon_range <- isolate(input$exon_range);
+            # Convert exon names to coordinates
+            gene_coords <- range(as.data.frame(range(
+               subset(flatExonsByGene[[gene]], gene_nameExon %in% exon_range)
+            ))[,c("start", "end")]);
+         } else {
+            gene_coords <- isolate(input$gene_coords);
+         }
+
+         ## Obtain the baseline ggplot object
          gg_sashimi <- plotSashimi(sashimi_data,
+            show=c("coverage", "junction", "junctionLabels"),
             color_sub=color_sub,
             do_highlight=do_highlight,
             facet_scales=facet_scales,
+            label_coords=gene_coords,
             fill_scheme="sample_id");
          #sashimi_data <- sashimi_data;
 
@@ -222,35 +237,28 @@ sashimiAppServer <- function
          gg_sashimi <<- gg_sashimi;
          ## Optionally prepare gene-exon model
          if (show_gene_model_d()) {
+            printDebug("Getting gene model with label_coords:", gene_coords);
             if (show_tx_model_d() && length(flatExonsByTx) > 0) {
                if (show_detected_tx_d()) {
                   gg_gene <- gene2gg(gene=gene,
                      flatExonsByGene=flatExonsByGene,
                      flatExonsByTx=flatExonsByTx[names(flatExonsByTx) %in% detectedTx],
+                     label_coords=gene_coords,
                      exonLabelSize=exon_label_size_d());
                } else {
                   gg_gene <- gene2gg(gene=gene,
                      flatExonsByGene=flatExonsByGene,
                      flatExonsByTx=flatExonsByTx,
+                     label_coords=gene_coords,
                      exonLabelSize=exon_label_size_d());
                }
             } else {
                gg_gene <- gene2gg(gene=gene,
                   flatExonsByGene=flatExonsByGene,
+                  label_coords=gene_coords,
                   exonLabelSize=exon_label_size_d());
             }
-            gg_gene <<- gg_gene;
-         }
-
-         ## Optionally get gene coordinate range
-         if (isolate(input$use_exon_names) %in% "exon names") {
-            exon_range <- isolate(input$exon_range);
-            # Convert exon names to coordinates
-            gene_coords <- range(as.data.frame(range(
-               subset(flatExonsByGene[[gene]], gene_nameExon %in% exon_range)
-            ))[,c("start", "end")]);
-         } else {
-            gene_coords <- isolate(input$gene_coords);
+            gg_gene <- gg_gene;
          }
 
          ## Prepare text label with genome coordinates

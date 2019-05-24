@@ -1,3 +1,27 @@
+# splicejam version 0.0.43.900
+
+## changes
+
+* `plotSashimi()` and `gene2gg()` have argument `label_coords` for
+optional x-axis range to subset labels before displaying with
+`ggrepel::geom_text_repel()`. This change solves the issue where
+zooming the x-axis range with `coord_cartesian()` kept all labels
+which were then arranged at the edges of the plot. This change
+also necessitates re-creating the ggplot object, since it has to
+change the label coordinate data.
+* Fixed some legacy code that assigned `gene` and `sample_id` to
+the global environment.
+* Removed the `"Samples and Data"` tab from R-shiny for now.
+* Improved level of detail in shiny progress bars, now shows each
+file being loaded. Not sure it is actually better than having
+less detail.
+* The order of `sample_id` items in R-shiny `"Sample Selection"`
+is now maintained, allowing custom sorting of samples.
+* Fixed error when junctions had no intervening junctions to use
+when determining the minimum height for a junction arc.
+* Fixed errors when part of the Sashimi plot data did not exist,
+for example no junction data or no coverage data.
+
 # splicejam version 0.0.42.900
 
 ## changes

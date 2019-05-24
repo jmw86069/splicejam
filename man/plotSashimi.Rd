@@ -10,8 +10,8 @@ plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   junc_fill = alpha2col("goldenrod2", 0.9),
   fill_scheme = c("sample_id", "exon"), color_sub = NULL,
   ylabel = "score", use_jam_themes = TRUE, apply_facet = TRUE,
-  facet_scales = "free_y", ref2c = NULL, do_highlight = TRUE,
-  verbose = FALSE, ...)
+  facet_scales = "free_y", ref2c = NULL, label_coords = NULL,
+  do_highlight = TRUE, verbose = FALSE, ...)
 }
 \arguments{
 \item{sashimi}{Sashimi data prepared by \code{prepareSashimi()} which
@@ -73,6 +73,11 @@ panel.}
 
 \item{ref2c}{optional output from \code{make_ref2compressed()} used to
 compress axis coordinates during junction arc calculations.}
+
+\item{label_coords}{numeric vector length 2, optional range of
+genomic coordinates to restrict labels, so labels are not
+arranged by \code{ggrepel::geom_text_repel()} even when \code{coord_cartesian()}
+is used to zoom into a specific x-axis range.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 

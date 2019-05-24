@@ -493,6 +493,11 @@ grl2df <- function
 #' @param tx2geneDF data.frame or NULL, optionally used to help
 #'    identify matching transcripts for the requested `gene` value,
 #'    used when `"gene_name"` is not present in `values(flatExonsByTx)`.
+#' @param label_coords numeric vector length 2, optional range of
+#'    genomic coordinates to restrict labels, so labels are not
+#'    arranged by `ggrepel::geom_text_repel()` even when `coord_cartesian()`
+#'    is used to zoom into a specific x-axis range.
+#' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are passed to relevant functions
 #'    as needed, including `make_ref2compressed()`.
 #'
@@ -529,6 +534,7 @@ gene2gg <- function
  vjust=0,
  compressGaps=TRUE,
  tx2geneDF=NULL,
+ label_coords=NULL,
  verbose=FALSE,
  ...)
 {
@@ -615,16 +621,26 @@ gene2gg <- function
    #showColors(colorSubSubclass);
    #colorSubSubclass <- c(cds="navy", noncds="dodgerblue", gap="grey30");
    ## Make a data.frame to label each exon
+   exonLabelDF <- NULL;
    if (labelExons) {
       exonLabelDF <- renameColumn(
          from="groupBy",
          to="gene_nameExon",
          shrinkMatrix(grl1a1df[,c("x","y")],
             groupBy=grl1a1df[,"gene_nameExon"]));
+
       exonLabelDF$y <- shrinkMatrix(grl1a1df[,c("x","y")],
          groupBy=grl1a1df[,"gene_nameExon"],
          shrinkFunc=min)$y;
-      exonLabelDF <- subset(exonLabelDF, !grepl("^gap$|,", gene_nameExon));
+      # Remove gap labels
+      exonLabelDF <- subset(exonLabelDF,
+         !grepl("^gap$|,", gene_nameExon));
+      # Optionally remove labels outside the label_coords range
+      if (length(label_coords) > 0 && nrow(exonLabelDF) > 0) {
+         exonLabelDF <- subset(exonLabelDF,
+            x >= min(label_coords) &
+               x <= max(label_coords));
+      }
    }
    if (length(ref2c) == 0) {
       if (compressGaps) {
@@ -678,7 +694,7 @@ gene2gg <- function
       grl1a1gg <- grl1a1gg +
          scale_x_continuous(trans=ref2c$trans_grc);
    }
-   if (labelExons) {
+   if (labelExons && length(exonLabelDF) > 0 && nrow(exonLabelDF) > 0) {
       if (1 == 1 || length(ref2c) == 0) {
          grl1a1gg <- grl1a1gg +
             ggrepel::geom_text_repel(
@@ -686,7 +702,7 @@ gene2gg <- function
                data=exonLabelDF,
                aes(x=x,
                   y=min(y),
-                  text=NULL,
+                  #text=NULL,
                   label=gene_nameExon),
                angle=exonLabelAngle,
                hjust=vjust,
@@ -702,7 +718,7 @@ gene2gg <- function
                data=exonLabelDF,
                aes(x=x,
                   y=min(y),
-                  text=NULL,
+                  #text=NULL,
                   label=gene_nameExon),
                angle=exonLabelAngle,
                hjust=hjust,
@@ -1059,6 +1075,10 @@ stackJunctions <- function
 #'    `ggplot2::facet_wrap()` when `apply_facet=TRUE`.
 #' @param ref2c optional output from `make_ref2compressed()` used to
 #'    compress axis coordinates during junction arc calculations.
+#' @param label_coords numeric vector length 2, optional range of
+#'    genomic coordinates to restrict labels, so labels are not
+#'    arranged by `ggrepel::geom_text_repel()` even when `coord_cartesian()`
+#'    is used to zoom into a specific x-axis range.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are sent to `grl2df()`.
 #'
@@ -1093,6 +1113,7 @@ plotSashimi <- function
  apply_facet=TRUE,
  facet_scales="free_y",
  ref2c=NULL,
+ label_coords=NULL,
  do_highlight=TRUE,
  verbose=FALSE,
  ...)
@@ -1137,7 +1158,10 @@ plotSashimi <- function
          exonLabelDF$color_by <- NA;
 
       }
+   } else {
+      covDF <- NULL;
    }
+
    ## Junction data
    if ("junction" %in% show && "juncDF" %in% names(sashimi)) {
       color_sub_junc <- NULL;
@@ -1195,8 +1219,16 @@ plotSashimi <- function
       color_sub[use_names] <- color_sub_junc_3[use_names];
       junc_alpha <- mean(col2alpha(junc_fill));
 
-      if ("junctionLabels" %in% show && "juncLabelDF" %in% names(sashimi)) {
+      #if ("junctionLabels" %in% show && "juncLabelDF" %in% names(sashimi)) {
+      # for now, include junction labels in the data, even if not rendered
+      # into the visualization
+      if ("juncLabelDF" %in% names(sashimi)) {
          juncLabelDF <- sashimi$juncLabelDF;
+         if (length(label_coords) > 0) {
+            juncLabelDF <- subset(juncLabelDF,
+               x >= min(label_coords) &
+               x <= max(label_coords));
+         }
          juncLabelDF$type <- "junction_label";
          juncLabelDF$name <- pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
          juncLabelDF$feature <- juncLabelDF$nameFromTo;
@@ -1211,12 +1243,16 @@ plotSashimi <- function
             juncLabelDF$color_by <- as.character(juncLabelDF$junction_rank);
          }
          juncLabelDF$text <- scales::comma(round(juncLabelDF$score));
+      } else {
+         juncLabelDF <- NULL;
       }
+   } else {
+      juncDF <- NULL;
    }
 
    # Assemble one data.frame in order to keep ggplot2 data in sync
    cjL <- list();
-   if ("coverage" %in% show) {
+   if ("coverage" %in% show && length(covDF) > 0) {
       covDF$text <- paste0(
          "score:", scales::comma(covDF$y),
          "<br>coord:", scales::comma(covDF$x),
@@ -1225,7 +1261,7 @@ plotSashimi <- function
          "<br>track:", as.character(covDF$cov));
       cjL$coverage <- covDF;
    }
-   if ("junction" %in% show) {
+   if ("junction" %in% show && length(juncDF) > 0) {
       juncDF$text <- paste0(
          "score:", scales::comma(juncDF$score),
          "<br>nameFrom:", juncDF$nameFrom,
@@ -1234,13 +1270,19 @@ plotSashimi <- function
       );
       cjL$junction <- juncDF;
    }
-   if ("junctionLabels" %in% show && !do_highlight) {
+   if ("junctionLabels" %in% show && !do_highlight && length(juncLabelDF) > 0) {
       cjL$junction_label <- juncLabelDF;
+   }
+   if (length(cjL) == 0) {
+      # There is no data available?
+      return(NULL);
    }
    if (length(cjL) == 1) {
       cjDF <- cjL[[1]];
    } else {
+      printDebug("mergeAllXY() start");
       cjDF <- jamba::mergeAllXY(cjL);
+      printDebug("mergeAllXY() complete");
    }
    cjDF <- mixedSortDF(cjDF,
       byCols=c("type","row"));
@@ -1309,7 +1351,7 @@ plotSashimi <- function
    }
 
    # Add junction_labels only for non-plotly
-   if ("junction_label" %in% cjDF$type && !do_highlight) {
+   if ("junctionLabels" %in% show && "junction_label" %in% cjDF$type && !do_highlight) {
       gg_sashimi <- gg_sashimi +
          ggrepel::geom_text_repel(
             data=. %>% filter(type %in% "junction_label"),

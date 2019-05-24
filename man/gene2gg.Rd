@@ -10,7 +10,7 @@ gene2gg(gene = NULL, tx = NULL, flatExonsByGene = NULL,
   newValues = list(feature_type = "gap", subclass = "gap", gene_nameExon
   = "gap"), gene_order = c("first", "last"), return_type = c("grob",
   "df"), ref2c = NULL, hjust = 1.2, vjust = 0, compressGaps = TRUE,
-  tx2geneDF = NULL, verbose = FALSE, ...)
+  tx2geneDF = NULL, label_coords = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{gene}{character string of the gene to plot, compared
@@ -76,6 +76,13 @@ ignored and the supplied \code{ref2c} is used directly.}
 \item{tx2geneDF}{data.frame or NULL, optionally used to help
 identify matching transcripts for the requested \code{gene} value,
 used when \code{"gene_name"} is not present in \code{values(flatExonsByTx)}.}
+
+\item{label_coords}{numeric vector length 2, optional range of
+genomic coordinates to restrict labels, so labels are not
+arranged by \code{ggrepel::geom_text_repel()} even when \code{coord_cartesian()}
+is used to zoom into a specific x-axis range.}
+
+\item{verbose}{logical indicating whether to print verbose output.}
 
 \item{...}{additional arguments are passed to relevant functions
 as needed, including \code{make_ref2compressed()}.}

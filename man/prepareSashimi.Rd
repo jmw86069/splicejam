@@ -88,8 +88,8 @@ and \code{"sample_id"} is used to define the biological \code{sample_id}.}
 
 \item{do_shiny_progress}{logical indicating whether to send
 progress updates to a running shiny app, using the
-\code{shiny::withProgress()} and \code{shiny::incProgress()} methods.
-This function only calls \code{shiny::incProgress()} and
+\code{shiny::withProgress()} and \code{shiny::setProgress()} methods.
+This function only calls \code{shiny::setProgress()} and
 assumes the \code{shiny::withProgress()} has already been
 initialized.}
 

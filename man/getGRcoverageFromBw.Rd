@@ -7,7 +7,8 @@
 getGRcoverageFromBw(gr, bwUrls, addGaps = FALSE,
   gap_feature_type = "gap", default_feature_type = "exon",
   feature_type_colname = "feature_type", use_memoise = FALSE,
-  memoise_coverage_path = "memoise_coverage", verbose = FALSE, ...)
+  memoise_coverage_path = "memoise_coverage",
+  do_shiny_progress = FALSE, verbose = FALSE, ...)
 }
 \arguments{
 \item{gr}{GRanges object}
@@ -48,6 +49,10 @@ By default, the folder is a subfolder of
 the current working directory (see \code{getwd()}) so it should be
 changed to an absolute path if needed for wider re-use in any
 working directory.}
+
+\item{do_shiny_progress}{logical indicating whether to update
+shiny progress bar, using \code{shiny::setProgress()}. It assumes
+the progress bar is already initiated.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 

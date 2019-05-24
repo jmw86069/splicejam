@@ -328,8 +328,8 @@ sashimiAppUI <- function
       tabItems(
          tabItem(tabName="guides", guidesTab),
          tabItem(tabName="sashimiplot", sashimiplotTab),
-         tabItem(tabName="sampleselect", sampleselectTab),
-         tabItem(tabName="samplesdata", samplesdataTab)
+         tabItem(tabName="sampleselect", sampleselectTab)
+         #tabItem(tabName="samplesdata", samplesdataTab)
       )
    );
 

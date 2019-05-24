@@ -933,6 +933,9 @@ exoncov2polygon <- function
 #'    the current working directory (see `getwd()`) so it should be
 #'    changed to an absolute path if needed for wider re-use in any
 #'    working directory.
+#' @param do_shiny_progress logical indicating whether to update
+#'    shiny progress bar, using `shiny::setProgress()`. It assumes
+#'    the progress bar is already initiated.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
@@ -946,6 +949,7 @@ getGRcoverageFromBw <- function
  feature_type_colname="feature_type",
  use_memoise=FALSE,
  memoise_coverage_path="memoise_coverage",
+ do_shiny_progress=FALSE,
  verbose=FALSE,
  ...)
 {
@@ -1007,6 +1011,17 @@ getGRcoverageFromBw <- function
    ## Iterate bwUrls and get coverage from each
    covL <- lapply(nameVectorN(bwUrls), function(iBw){
       bwUrl <- bwUrls[[iBw]];
+      iBwNum <- match(iBw, names(bwUrls));
+      iBwPct <- iBwNum / length(bwUrls);
+      if (do_shiny_progress && !is.na(iBwPct)) {
+         shiny::setProgress(
+            value=0/2 + iBwPct/2,
+            detail=paste0("Importing coverage (",
+               iBwNum,
+               " of ",
+               length(bwUrls),
+               ") for ", gene));
+      }
       if (verbose) {
          printDebug("getGRcoverageFromBw(): ",
             "Importing bwUrl:",
@@ -1241,8 +1256,8 @@ combineGRcoverage <- function
 #' @param verbose logical indicating whether to print verbose output.
 #' @param do_shiny_progress logical indicating whether to send
 #'    progress updates to a running shiny app, using the
-#'    `shiny::withProgress()` and `shiny::incProgress()` methods.
-#'    This function only calls `shiny::incProgress()` and
+#'    `shiny::withProgress()` and `shiny::setProgress()` methods.
+#'    This function only calls `shiny::setProgress()` and
 #'    assumes the `shiny::withProgress()` has already been
 #'    initialized.
 #' @param ... additional arguments are passed to `make_ref2compressed()`,
@@ -1330,7 +1345,7 @@ prepareSashimi <- function
       stop("flatExonsByGene must be GRangesList")
    }
    if (length(sample_id) == 0) {
-      sample_id <- unique(filesDF$sample_id);
+      sample_id <- unique(as.character(filesDF$sample_id));
    }
 
    ############################################
@@ -1410,7 +1425,7 @@ prepareSashimi <- function
       }
       if (do_shiny_progress) {
          ##
-         shiny::incProgress(1/4,
+         shiny::setProgress(1/4,
             detail=paste0("Preparing GR coverage data for ", gene));
       }
       covGRuse <- covGR[names(covGR) %in% names(gr)];
@@ -1447,6 +1462,12 @@ prepareSashimi <- function
             sample_id=covName,
             coord_style="fortify",
             ...);
+         ## Enforce ordered factor levels for sample_id
+         ## which also forces empty factor levels if applicable
+         covDF$sample_id <- factor(
+            as.character(covDF$sample_id),
+            levels=sample_id
+         );
          if (any(c("all", "covDF") %in% return_data)) {
             retVals$covDF <- covDF;
          }
@@ -1462,7 +1483,7 @@ prepareSashimi <- function
       }
       if (do_shiny_progress) {
          ##
-         shiny::incProgress(1/4,
+         shiny::setProgress(1/4,
             detail=paste0("Preparing bw coverage data for ", gene));
       }
       covGR <- getGRcoverageFromBw(gr=gr,
@@ -1473,6 +1494,7 @@ prepareSashimi <- function
          feature_type_colname=feature_type_colname,
          use_memoise=use_memoise,
          memoise_coverage_path=memoise_coverage_path,
+         do_shiny_progress=do_shiny_progress,
          verbose=verbose,
          ...);
       ## Combine coverage per strand
@@ -1514,6 +1536,13 @@ prepareSashimi <- function
             as.character(covDF$gr),
             names(covGR2)),feature_type_colname];
       }
+      ## Enforce ordered factor levels for sample_id
+      ## which also forces empty factor levels if applicable
+      covDF$sample_id <- factor(
+         as.character(covDF$sample_id),
+         levels=sample_id
+      );
+      printDebug("head(covDF$sample_id):");print(head(covDF$sample_id));
 
       ########################################
       ## Optional exon labels
@@ -1598,41 +1627,8 @@ prepareSashimi <- function
       }
    }
    if (length(juncUrls) > 0) {
-      import_juncs <- function
-      (iBed,
-       juncNames,
-       sample_id,
-       scale_factor,
-       gr)
-      {
-         bed1 <- rtracklayer::import(iBed,
-            which=range(gr));
-
-         ## Assign score and apply scale_factor
-         ##
-         ## By default if name has numeric values, use them as scores,
-         ## since the score column is sometimes restricted to integer
-         ## values with a maximum value 1000.
-         if (!any(is.na(as.numeric(as.character(values(bed1)$name))))) {
-            values(bed1)$score <- as.numeric(as.character(values(bed1)$name)) * scale_factor;
-         } else {
-            values(bed1)$score <- as.numeric(as.character(values(bed1)$score)) * scale_factor;
-         }
-         ## Assign annotation values
-         values(bed1)[,c("juncNames")] <- juncNames;
-         values(bed1)[,c("sample_id")] <- sample_id;
-         ## Subset junctions to require either start or end to be contained
-         ## within the region of interest (filters out phantom mega-junctions)
-         bed1 <- subset(bed1,
-            (
-               IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=TRUE), range(gr)) |
-               IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=FALSE), range(gr))
-            )
-         );
-         bed1;
-      }
       if (use_memoise) {
-         import_juncs_m <- memoise::memoise(import_juncs,
+         import_juncs_m <- memoise::memoise(import_juncs_from_bed,
             cache=memoise::cache_filesystem(memoise_junction_path));
       }
       if (do_shiny_progress) {
@@ -1641,11 +1637,12 @@ prepareSashimi <- function
       }
       juncBedGR <- GRangesList(lapply(nameVectorN(juncUrls), function(iBedName){
          iBed <- juncUrls[[iBedName]];
+         iBedNum <- match(iBedName, makeNames(names(juncUrls)));
+         iBedPct <- iBedNum / length(juncUrls);
          if (do_shiny_progress) {
-            iBedNum <- match(iBedName, makeNames(names(juncUrls)));
-            iBedPct <- iBedNum / length(juncUrls);
             if (!is.na(iBedPct)) {
-               shiny::incProgress(2/4 + iBedPct/4,
+               shiny::setProgress(
+                  value=2/4 + iBedPct/4,
                   detail=paste0("Importing junctions (",
                      iBedNum,
                      " of ",
@@ -1655,6 +1652,7 @@ prepareSashimi <- function
          }
          if (verbose) {
             printDebug("prepareSashimi(): ",
+               "progress:", format(digits=2, 2/4 + iBedPct/4),
                "Importing bed:",
                iBed,
                " with scale_factor:",
@@ -1662,13 +1660,29 @@ prepareSashimi <- function
                " for sample_id:", juncSamples[iBedName]);
          }
          if (use_memoise) {
-            bed1 <- import_juncs_m(iBed,
+            import_juncs_m_cached <- memoise::has_cache(import_juncs_m)(
+               iBed,
+               juncNames=iBedName,
+               sample_id=juncSamples[iBedName],
+               scale_factor=juncScaleFactors[iBedName],
+               gr=gr);
+            if (verbose) {
+               printDebug("prepareSashimi():",
+                  "import_juncs_m_cached: ",
+                  import_juncs_m_cached);
+               printDebug("digest(juncScaleFactors[iBedName]):", digest::digest(juncScaleFactors[iBedName]));
+               printDebug("digest(juncSamples[iBedName]):", digest::digest(juncSamples[iBedName]));
+               printDebug("digest(iBed):", digest::digest(iBed));
+               printDebug("digest(gr):", digest::digest(gr));
+            }
+            bed1 <- import_juncs_m(
+               iBed,
                juncNames=iBedName,
                sample_id=juncSamples[iBedName],
                scale_factor=juncScaleFactors[iBedName],
                gr=gr);
          } else {
-            bed1 <- import_juncs(iBed,
+            bed1 <- import_juncs_from_bed(iBed,
                juncNames=iBedName,
                sample_id=juncSamples[iBedName],
                scale_factor=juncScaleFactors[iBedName],
@@ -1682,7 +1696,7 @@ prepareSashimi <- function
             "running spliceGR2junctionDF for juncBedGR()");
       }
       if (do_shiny_progress) {
-         shiny::incProgress(3/4,
+         shiny::setProgress(3/4,
             detail=paste0("Combining junction data for ", gene));
       }
       juncDF1f <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
@@ -1701,9 +1715,19 @@ prepareSashimi <- function
       if (length(minJunctionScore) > 0 && minJunctionScore > 0) {
          juncDF1 <- subset(juncDF1, abs(score) >= minJunctionScore);
       }
+      ## Enforce ordered factor levels for sample_id
+      ## which also forces empty factor levels if applicable
+      juncDF1$sample_id <- factor(
+         as.character(juncDF1$sample_id),
+         levels=sample_id
+      );
    }
    if (exists("juncDF1") && length(juncDF1) > 0 && nrow(juncDF1) > 0) {
-      juncGR <- as(renameColumn(juncDF1, from="ref", to="seqnames"), "GRanges");
+      juncGR <- as(
+         renameColumn(juncDF1,
+            from="ref",
+            to="seqnames"),
+         "GRanges");
       names(juncGR) <- makeNames(values(juncGR)[,"nameFromToSample"]);
       ## Convert junctions to polygons usable by geom_diagonal_wide()
       #      juncPolyDF <- grl2df(setNames(GRangesList(subset(juncGR, score > minJunctionScore)), sample_id),
@@ -1715,12 +1739,10 @@ prepareSashimi <- function
             "calling grl2df() on juncGR");
          print(head(juncGR));
          print(head(GenomicRanges::split(juncGR, values(juncGR)[["sample_id"]])));
-         printDebug("prepareSashimi(): ",
-            "calling grl2df() on juncGR");
       }
       if (do_shiny_progress) {
-         shiny::incProgress(3.5/4,
-            detail=paste0("Calculating junction coords for ", gene));
+         shiny::setProgress(3.5/4,
+            detail=paste0("Calculating junction stacking for ", gene));
       }
       juncDF <- grl2df(
          GenomicRanges::split(juncGR, values(juncGR)[["sample_id"]]),
@@ -1743,6 +1765,12 @@ prepareSashimi <- function
             "dim(juncDF):", dim(juncDF));
       }
       juncDF <- juncDF[,!colnames(juncDF) %in% c("grl_name"),drop=FALSE];
+      ## Enforce ordered factor levels for sample_id
+      ## which also forces empty factor levels if applicable
+      juncDF$sample_id <- factor(
+         as.character(juncDF$sample_id),
+         levels=sample_id
+      );
 
       if (any(c("all", "juncDF") %in% return_data)) {
          retVals$juncGR <- juncGR;
@@ -1754,8 +1782,8 @@ prepareSashimi <- function
       #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
       if (do_shiny_progress) {
          ##
-         shiny::incProgress(3.8/4,
-            detail=paste0("Preparing junction labels for ", gene));
+         shiny::setProgress(3.8/4,
+            detail=paste0("Preparing junction label coordinates for ", gene));
       }
       juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=makeNames(id)),
          grepl("_v1_v[23]$", id_name));
@@ -1770,6 +1798,12 @@ prepareSashimi <- function
          strsplit(juncLabelDF[,"nameFromToSample"], ":!:"));
       juncLabelDF[,c("nameFrom", "nameTo")] <- rbindList(
          strsplit(juncLabelDF[,"nameFromTo"], " "));
+      ## Enforce ordered factor levels for sample_id
+      ## which also forces empty factor levels if applicable
+      juncLabelDF$sample_id <- factor(
+         as.character(juncLabelDF$sample_id),
+         levels=sample_id
+      );
 
       if (any(c("all", "juncLabelDF") %in% return_data)) {
          retVals$juncLabelDF <- juncLabelDF;
@@ -1781,7 +1815,7 @@ prepareSashimi <- function
    }
    if (do_shiny_progress) {
       ##
-      shiny::incProgress(4/4,
+      shiny::setProgress(4/4,
          detail=paste0("Sashimi data is ready for ", gene));
    }
 
@@ -1863,7 +1897,8 @@ internal_junc_score <- function
          "dim(fo1df):", dim(fo1df));
    }
    if (nrow(fo1df) == 0) {
-      intScore <- nameVector(rep(0, length(juncGR)),
+      intScore <- nameVector(
+         rep(0, length(juncGR)),
          names(juncGR));
    } else {
       fo1df$qSample <- values(juncGR[fo1df$q])[[sampleColname]];
@@ -1872,10 +1907,91 @@ internal_junc_score <- function
 
       fo1dfuse <- subset(fo1df,
          qSample == sSample);
-
-      intScore <- rmNA(naValue=0,
-         max(List(split(fo1dfuse$sScore, fo1dfuse$q)))[as.character(seq_along(juncGR))]);
-      names(intScore) <- names(juncGR);
+      if (verbose) {
+         printDebug("internal_junc_score(): ",
+            "dim(fo1dfuse):", dim(fo1dfuse));
+      }
+      if (nrow(fo1dfuse) == 0) {
+         intScore <- nameVector(
+            rep(0, length(juncGR)),
+            names(juncGR));
+      } else {
+         intScore <- rmNA(naValue=0,
+            max(
+               List(
+                  split(fo1dfuse$sScore, fo1dfuse$q)
+               )
+            )[as.character(seq_along(juncGR))]);
+         names(intScore) <- names(juncGR);
+      }
    }
    return(intScore);
 }
+
+#' Import splice junction data from BED file
+#'
+#' Import splice junction data from BED file
+#'
+#' This function is intended to be called internally by
+#' `prepareSashimi()`, and is provided primarily to enable
+#' use of `memoise::memoise()` to cache results.
+#'
+#' This function uses `rtracklayer::import()` to import data,
+#' so any file or URL compatible with that function is acceptable.
+#' Also, any compatible file format can be used, for example
+#' a gzipped BED file. However, "bigBed" format cannot be used,
+#' since the rtracklayer package does not support that format.
+#'
+#' @family jam data import functions
+#'
+#' @param iBed path or URL to one BED file containing splice
+#'    junction data. The score is expected to be stored in the
+#'    name column (column 3), primarily because the score column
+#'    is sometimes restricted to maximum value 1000. However if
+#'    the name column cannot be converted to numeric without
+#'    creating NA values, then the score column will be used.
+#' @param juncNames the name of the junction source file
+#' @param sample_id character string representing the sample
+#'    identifier.
+#' @param scale_factor numeric value used to adjust the raw
+#'    score, applied by multiplying the scale_factor by each score.
+#' @param gr GRanges representing the overall range for which
+#'    junction data will be retrieved. Note that any junctions
+#'    that span this range, but do not start or end inside this
+#'    range, will be removed.
+#'
+#' @export
+import_juncs_from_bed <- function
+(iBed,
+ juncNames,
+ sample_id,
+ scale_factor,
+ gr)
+{
+   bed1 <- rtracklayer::import(iBed,
+      which=range(gr));
+
+   ## Assign score and apply scale_factor
+   ##
+   ## By default if name has numeric values, use them as scores,
+   ## since the score column is sometimes restricted to integer
+   ## values with a maximum value 1000.
+   if (!any(is.na(as.numeric(as.character(values(bed1)$name))))) {
+      values(bed1)$score <- as.numeric(as.character(values(bed1)$name)) * scale_factor;
+   } else {
+      values(bed1)$score <- as.numeric(as.character(values(bed1)$score)) * scale_factor;
+   }
+   ## Assign annotation values
+   values(bed1)[,c("juncNames")] <- juncNames;
+   values(bed1)[,c("sample_id")] <- sample_id;
+   ## Subset junctions to require either start or end to be contained
+   ## within the region of interest (filters out phantom mega-junctions)
+   bed1 <- subset(bed1,
+      (
+         IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=TRUE), range(gr)) |
+         IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=FALSE), range(gr))
+      )
+   );
+   bed1;
+}
+
