@@ -24,14 +24,18 @@ Farris et all data from the \code{farrisdata} package.
 \itemize{
 \item filesDF
 \item color_sub
+\item txdb (used to derive exonsByTx, cdsByTx if either does not exist)
 \item tx2geneDF
 \item gtf (used if tx2geneDF or exonsByTx are not available)
 \item exonsByTx
 \item cdsByTx
-\item detectedTx
-\item detectedGenes, inferred from tx2geneDF and detectedTx
-\item flatExonsByGene
-\item flatExonsByTx
+\item detectedTx (derived either from farrisdata::farrisTxSE
+\code{"TxDetectedByTPM"} or using all entries in \code{tx2geneDF$transcript_id})
+\item detectedGenes (inferred using tx2geneDF and detectedTx)
+\item flatExonsByGene (defined using exonsByTx, cdsByTx, detectedTx,
+tx2geneDF)
+\item flatExonsByTx (defined using exonsByTx, cdsByTx, detectedTx,
+tx2geneDF)
 }
 }
 \concept{SALSA Shiny functions}

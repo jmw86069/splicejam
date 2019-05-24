@@ -1234,7 +1234,7 @@ plotSashimi <- function
       );
       cjL$junction <- juncDF;
    }
-   if ("junctionLabels" %in% show) {
+   if ("junctionLabels" %in% show && !do_highlight) {
       cjL$junction_label <- juncLabelDF;
    }
    if (length(cjL) == 1) {
@@ -1308,8 +1308,8 @@ plotSashimi <- function
          );
    }
 
-   # Add junction_labels
-   if ("junction_label" %in% cjDF$type) {
+   # Add junction_labels only for non-plotly
+   if ("junction_label" %in% cjDF$type && !do_highlight) {
       gg_sashimi <- gg_sashimi +
          ggrepel::geom_text_repel(
             data=. %>% filter(type %in% "junction_label"),

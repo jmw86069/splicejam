@@ -904,7 +904,11 @@ exoncov2polygon <- function
 #'    to bigWig files, suitable for use by `rtracklayer::import()`.
 #' @param addGaps logical indicating whether gaps between GRanges
 #'    should be added to the query. Gaps are determined using
-#'    `getGRgaps()`.
+#'    `getGRgaps()`. Practically, when `addGaps=TRUE` loads the
+#'    coverage data between exons, which can be a substantially
+#'    larger region than exons. When `addGaps=FALSE` the coverage
+#'    data is not loaded in intron/gap regions, and therefore is
+#'    not displayed in downstream plots like sashimi plots.
 #' @param feature_type_colname,gap_feature_type,default_feature_type
 #'    When `addGaps=TRUE` a
 #'    new column named using `feature_type_colname` is added to `values(gr)`,
@@ -913,6 +917,22 @@ exoncov2polygon <- function
 #'    otherwise the column is created with value `default_feature_type`.
 #'    By default, this function adds a column `"feature_type"` with
 #'    value `"gap"`.
+#' @param use_memoise logical indicating whether to use `memoise::memoise()`
+#'    to store coverage data in cache files, which can be re-used in
+#'    subsequent R sessions, given consistent values for
+#'    `memoise_coverage_path`.
+#'    Note that the primary reason to use memoise during this step,
+#'    is that cache files will be stored *for each bigWig file* and
+#'    not for the set of bigWig files. For example, adding one bigWig
+#'    file to `bwUrls` will cause creating of one new memoise cache file,
+#'    but will re-use any pre-existing memoise cache files for the
+#'    previously cached `bwUrls` entries.
+#' @param memoise_coverage_path character path to file folder
+#'    used to store coverage data in memoise cache files.
+#'    By default, the folder is a subfolder of
+#'    the current working directory (see `getwd()`) so it should be
+#'    changed to an absolute path if needed for wider re-use in any
+#'    working directory.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
@@ -924,6 +944,8 @@ getGRcoverageFromBw <- function
  gap_feature_type="gap",
  default_feature_type="exon",
  feature_type_colname="feature_type",
+ use_memoise=FALSE,
+ memoise_coverage_path="memoise_coverage",
  verbose=FALSE,
  ...)
 {
@@ -959,6 +981,29 @@ getGRcoverageFromBw <- function
          newValues=newValues,
          ...);
    }
+   import_or_null <- function
+   (bwUrl,
+    gr) {
+      cov1 <- tryCatch({
+         rtracklayer::import(bwUrl,
+            selection=rtracklayer::BigWigSelection(gr),
+            as="NumericList");
+      }, error=function(e){
+         ## Note: errors occur most commonly when the file is not available
+         warnText <- paste0("getGRcoverageFromBw():",
+            "import_or_null() error:",
+            "BigWig file not accessible:'",
+            bwUrl,
+            "', returning NULL.");
+         warning(warnText);
+         NULL;
+      });
+      cov1;
+   }
+   if (use_memoise) {
+      import_or_null_m <- memoise::memoise(import_or_null,
+         cache=memoise::cache_filesystem(memoise_coverage_path));
+   }
    ## Iterate bwUrls and get coverage from each
    covL <- lapply(nameVectorN(bwUrls), function(iBw){
       bwUrl <- bwUrls[[iBw]];
@@ -967,21 +1012,16 @@ getGRcoverageFromBw <- function
             "Importing bwUrl:",
             bwUrl);
       }
-      cov1 <- tryCatch({
-         rtracklayer::import(bwUrl,
-            selection=rtracklayer::BigWigSelection(gr),
-            as="NumericList");
-      }, error=function(e){
-         ## Note: errors occur most commonly when the file is not available
-         warnText <- paste0("getGRcoverageFromBw(): ",
-            "BigWig file not accessible:'",
-            iBw,
-            "', returning NULL.");
-         warning(warnText);
-         NULL;
-      })
+      if (use_memoise) {
+         cov1 <- import_or_null_m(bwUrl,
+            gr=gr);
+      } else {
+         cov1 <- import_or_null(bwUrl,
+            gr=gr);
+      }
+      cov1;
    });
-   values(gr)[,names(covL)] <-S4Vectors::DataFrame(covL);
+   values(gr)[,names(covL)] <- S4Vectors::DataFrame(covL);
    return(gr);
 }
 
@@ -1257,6 +1297,9 @@ prepareSashimi <- function
  scoreArcMinimum=100,
  covGR=NULL,
  juncGR=NULL,
+ use_memoise=FALSE,
+ memoise_coverage_path="coverage_memoise",
+ memoise_junction_path="junctions_memoise",
  do_shiny_progress=FALSE,
  verbose=FALSE,
  ...)
@@ -1356,6 +1399,9 @@ prepareSashimi <- function
       printDebug("GRanges:");
       print(gr);
    }
+   ##
+   ## Where possible, re-use covGR coverage supplied as GRanges
+   ##
    if (length(covGR) > 0) {
       ## Input is pre-processed coverage data
       if (verbose) {
@@ -1406,6 +1452,9 @@ prepareSashimi <- function
          }
       }
    }
+   ##
+   ## load coverage from bigWig files defined in filesDF
+   ##
    if (length(bwUrls) > 0) {
       if (verbose) {
          printDebug("prepareSashimi(): ",
@@ -1422,6 +1471,8 @@ prepareSashimi <- function
          gap_feature_type=gap_feature_type,
          default_feature_type=default_feature_type,
          feature_type_colname=feature_type_colname,
+         use_memoise=use_memoise,
+         memoise_coverage_path=memoise_coverage_path,
          verbose=verbose,
          ...);
       ## Combine coverage per strand
@@ -1443,6 +1494,10 @@ prepareSashimi <- function
       }
 
       ## Create polygon data.frame
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "Calling exoncov2polygon()");
+      }
       covDF <- exoncov2polygon(covGR2,
          ref2c=ref2c,
          covNames=covNames,
@@ -1543,13 +1598,61 @@ prepareSashimi <- function
       }
    }
    if (length(juncUrls) > 0) {
-      if (do_shiny_progress) {
+      import_juncs <- function
+      (iBed,
+       juncNames,
+       sample_id,
+       scale_factor,
+       gr)
+      {
+         bed1 <- rtracklayer::import(iBed,
+            which=range(gr));
+
+         ## Assign score and apply scale_factor
          ##
+         ## By default if name has numeric values, use them as scores,
+         ## since the score column is sometimes restricted to integer
+         ## values with a maximum value 1000.
+         if (!any(is.na(as.numeric(as.character(values(bed1)$name))))) {
+            values(bed1)$score <- as.numeric(as.character(values(bed1)$name)) * scale_factor;
+         } else {
+            values(bed1)$score <- as.numeric(as.character(values(bed1)$score)) * scale_factor;
+         }
+         ## Assign annotation values
+         values(bed1)[,c("juncNames")] <- juncNames;
+         values(bed1)[,c("sample_id")] <- sample_id;
+         ## Subset junctions to require either start or end to be contained
+         ## within the region of interest (filters out phantom mega-junctions)
+         bed1 <- subset(bed1,
+            (
+               IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=TRUE), range(gr)) |
+               IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=FALSE), range(gr))
+            )
+         );
+         bed1;
+      }
+      if (use_memoise) {
+         import_juncs_m <- memoise::memoise(import_juncs,
+            cache=memoise::cache_filesystem(memoise_junction_path));
+      }
+      if (do_shiny_progress) {
          shiny::incProgress(2/4,
-            detail=paste0("Preparing BED junction data for ", gene));
+            detail=paste0("Importing junctions for ", gene));
       }
       juncBedGR <- GRangesList(lapply(nameVectorN(juncUrls), function(iBedName){
          iBed <- juncUrls[[iBedName]];
+         if (do_shiny_progress) {
+            iBedNum <- match(iBedName, makeNames(names(juncUrls)));
+            iBedPct <- iBedNum / length(juncUrls);
+            if (!is.na(iBedPct)) {
+               shiny::incProgress(2/4 + iBedPct/4,
+                  detail=paste0("Importing junctions (",
+                     iBedNum,
+                     " of ",
+                     length(juncUrls),
+                     ") for ", gene));
+            }
+         }
          if (verbose) {
             printDebug("prepareSashimi(): ",
                "Importing bed:",
@@ -1558,28 +1661,29 @@ prepareSashimi <- function
                format(digits=1, juncScaleFactors[iBedName]),
                " for sample_id:", juncSamples[iBedName]);
          }
-         bed1 <- rtracklayer::import(iBed,
-            which=range(gr));
-         ## Assign score, apply scale_factor
-         ## Consider rounding the score to integer value?
-         values(bed1)$score <- as.numeric(as.character(values(bed1)$name)) * juncScaleFactors[iBedName];
-
-         values(bed1)[,c("juncNames")] <- iBedName;
-         values(bed1)[,c("sample_id")] <- juncSamples[iBedName];
-
-         ## Subset junctions to require one end within the region of interest
-         bed1 <- subset(bed1,
-            (
-               overlapsAny(flank(bed1, -1, start=TRUE), range(gr)) |
-               overlapsAny(flank(bed1, -1, start=FALSE), range(gr))
-            )
-         );
+         if (use_memoise) {
+            bed1 <- import_juncs_m(iBed,
+               juncNames=iBedName,
+               sample_id=juncSamples[iBedName],
+               scale_factor=juncScaleFactors[iBedName],
+               gr=gr);
+         } else {
+            bed1 <- import_juncs(iBed,
+               juncNames=iBedName,
+               sample_id=juncSamples[iBedName],
+               scale_factor=juncScaleFactors[iBedName],
+               gr=gr);
+         }
          bed1;
       }))@unlistData;
       ## Create junction summary data.frame
       if (verbose) {
          printDebug("prepareSashimi(): ",
             "running spliceGR2junctionDF for juncBedGR()");
+      }
+      if (do_shiny_progress) {
+         shiny::incProgress(3/4,
+            detail=paste0("Combining junction data for ", gene));
       }
       juncDF1f <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
          exonsGR=gr,
@@ -1614,6 +1718,10 @@ prepareSashimi <- function
          printDebug("prepareSashimi(): ",
             "calling grl2df() on juncGR");
       }
+      if (do_shiny_progress) {
+         shiny::incProgress(3.5/4,
+            detail=paste0("Calculating junction coords for ", gene));
+      }
       juncDF <- grl2df(
          GenomicRanges::split(juncGR, values(juncGR)[["sample_id"]]),
          shape="junction",
@@ -1625,10 +1733,6 @@ prepareSashimi <- function
          doStackJunctions=doStackJunctions,
          verbose=verbose,
          ...);
-      if (verbose) {
-         printDebug("prepareSashimi(): ",
-            "called grl2df() on juncGR");
-      }
       if (!"sample_id" %in% colnames(juncDF)) {
          juncDF <- renameColumn(juncDF,
             from="grl_name",
@@ -1650,7 +1754,7 @@ prepareSashimi <- function
       #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
       if (do_shiny_progress) {
          ##
-         shiny::incProgress(3/4,
+         shiny::incProgress(3.8/4,
             detail=paste0("Preparing junction labels for ", gene));
       }
       juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=makeNames(id)),

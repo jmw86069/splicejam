@@ -154,6 +154,9 @@ sashimiAppServer <- function
       if (!exists("verbose")) {
          verbose <- FALSE;
       }
+      if (!exists("use_memoise")) {
+         use_memoise <- TRUE;
+      }
       withProgress(
          message="Preparing Sashimi data.",
          value=0,
@@ -165,6 +168,7 @@ sashimiAppServer <- function
                filesDF=filesDF,
                include_strand=include_strand,
                verbose=verbose,
+               use_memoise=use_memoise,
                do_shiny_progress=TRUE);
             sashimi_data;
          }
@@ -192,12 +196,17 @@ sashimiAppServer <- function
          } else {
             facet_scales <- "free_y";
          }
+         if (!isolate(input$do_plotly)) {
+            do_highlight <- FALSE;
+         } else {
+            do_highlight <- TRUE;
+         }
          gg_sashimi <- plotSashimi(sashimi_data,
             color_sub=color_sub,
-            do_highlight=TRUE,
+            do_highlight=do_highlight,
             facet_scales=facet_scales,
             fill_scheme="sample_id");
-         sashimi_data <- sashimi_data;
+         #sashimi_data <- sashimi_data;
 
          # Check layout_ncol
          layout_ncol <- isolate(input$layout_ncol);

@@ -1,3 +1,25 @@
+# splicejam version 0.0.42.900
+
+## changes
+
+* `prepareSashimiData()` argument `use_memoise` enables memoise caching
+of individual bigWig files per gene, and individual junction files per gene.
+The file paths are defined by `memoise_coverage_path` and
+`memoise_junction_path`. These options should greatly enhance the
+success rate of caching, at the expense of creating more cache files.
+* `getGRcoverageFromBw()` now has arguments `use_memoise` and
+`memoise_coverage_path` to cache at the level of each bigWig file
+and genomic range.
+* R-shiny by default caches sashimi data, so repeated calls for the
+same `gene` and same set of `sample_id` will retrieve the full cached
+sashimi data. However, if any smaller argument changes, including
+changes to any bigWig coverage or junction BED file, each individual
+step is also cached to prevent retrieving the same coverage or junction
+data repeatedly. For practical R-shiny usage, where `sample_id` is
+frequently changed, this update should be a substantial improvement.
+* Changed default R-shiny to non-interactive. One day will switch it
+back, but need plotly ninja skills meanwhile.
+
 # splicejam version 0.0.41.900
 
 ## R-shiny app updates

@@ -6,7 +6,8 @@
 \usage{
 getGRcoverageFromBw(gr, bwUrls, addGaps = FALSE,
   gap_feature_type = "gap", default_feature_type = "exon",
-  feature_type_colname = "feature_type", verbose = FALSE, ...)
+  feature_type_colname = "feature_type", use_memoise = FALSE,
+  memoise_coverage_path = "memoise_coverage", verbose = FALSE, ...)
 }
 \arguments{
 \item{gr}{GRanges object}
@@ -16,7 +17,11 @@ to bigWig files, suitable for use by \code{rtracklayer::import()}.}
 
 \item{addGaps}{logical indicating whether gaps between GRanges
 should be added to the query. Gaps are determined using
-\code{getGRgaps()}.}
+\code{getGRgaps()}. Practically, when \code{addGaps=TRUE} loads the
+coverage data between exons, which can be a substantially
+larger region than exons. When \code{addGaps=FALSE} the coverage
+data is not loaded in intron/gap regions, and therefore is
+not displayed in downstream plots like sashimi plots.}
 
 \item{feature_type_colname, gap_feature_type, default_feature_type}{When \code{addGaps=TRUE} a
 new column named using \code{feature_type_colname} is added to \code{values(gr)},
@@ -25,6 +30,24 @@ whose value for gap regions is \code{gap_feature_type}. When
 otherwise the column is created with value \code{default_feature_type}.
 By default, this function adds a column \code{"feature_type"} with
 value \code{"gap"}.}
+
+\item{use_memoise}{logical indicating whether to use \code{memoise::memoise()}
+to store coverage data in cache files, which can be re-used in
+subsequent R sessions, given consistent values for
+\code{memoise_coverage_path}.
+Note that the primary reason to use memoise during this step,
+is that cache files will be stored \emph{for each bigWig file} and
+not for the set of bigWig files. For example, adding one bigWig
+file to \code{bwUrls} will cause creating of one new memoise cache file,
+but will re-use any pre-existing memoise cache files for the
+previously cached \code{bwUrls} entries.}
+
+\item{memoise_coverage_path}{character path to file folder
+used to store coverage data in memoise cache files.
+By default, the folder is a subfolder of
+the current working directory (see \code{getwd()}) so it should be
+changed to an absolute path if needed for wider re-use in any
+working directory.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 

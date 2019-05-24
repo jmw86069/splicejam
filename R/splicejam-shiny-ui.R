@@ -195,7 +195,7 @@ sashimiAppUI <- function
                   tags$b("Plot Style:"),
                   shinyWidgets::prettyCheckbox(
                      inputId="do_plotly",
-                     value=TRUE,
+                     value=FALSE,
                      icon=icon("check"),
                      status="primary",
                      label="Interactive plot"),

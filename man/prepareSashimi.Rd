@@ -16,7 +16,10 @@ prepareSashimi(flatExonsByGene = NULL, filesDF = NULL, gene,
   junc_fill = alpha2col("goldenrod1", 0.4), doStackJunctions = TRUE,
   coord_method = c("coord", "scale", "none"), scoreFactor = 1,
   scoreArcFactor = 0.2, scoreArcMinimum = 100, covGR = NULL,
-  juncGR = NULL, do_shiny_progress = FALSE, verbose = FALSE, ...)
+  juncGR = NULL, use_memoise = FALSE,
+  memoise_coverage_path = "coverage_memoise",
+  memoise_junction_path = "junctions_memoise",
+  do_shiny_progress = FALSE, verbose = FALSE, ...)
 }
 \arguments{
 \item{flatExonsByGene}{GRangesList named by gene, whose GRanges
