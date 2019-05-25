@@ -1020,7 +1020,7 @@ getGRcoverageFromBw <- function
                iBwNum,
                " of ",
                length(bwUrls),
-               ") for ", gene));
+               ")"));
       }
       if (verbose) {
          printDebug("getGRcoverageFromBw(): ",
@@ -1425,7 +1425,7 @@ prepareSashimi <- function
       }
       if (do_shiny_progress) {
          ##
-         shiny::setProgress(1/4,
+         shiny::setProgress(0/4,
             detail=paste0("Preparing GR coverage data for ", gene));
       }
       covGRuse <- covGR[names(covGR) %in% names(gr)];

@@ -40,11 +40,11 @@ sashimiAppUI <- function
          menuItem(
             text="Sample Selection",
             tabName="sampleselect",
-            icon=icon("clipboard-list")),
-         menuItem(
-            text="Samples and Data",
-            tabName="samplesdata",
-            icon=icon("table"))
+            icon=icon("clipboard-list"))
+         #menuItem(
+         #   text="Samples and Data",
+         #   tabName="samplesdata",
+         #   icon=icon("table"))
       )
    );
 

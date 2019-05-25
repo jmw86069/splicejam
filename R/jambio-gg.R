@@ -593,6 +593,9 @@ gene2gg <- function
    } else {
       grl1 <- NULL;
    }
+   if (length(grl1) == 0 && length(grl1a) == 0) {
+      return(NULL);
+   }
    if ("first" %in% gene_order) {
       grl1a1 <- GRangesList(c(grl1, grl1a));
    } else {

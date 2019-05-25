@@ -124,19 +124,8 @@ sashimiAppServer <- function
       }
    })
 
-   get_sashimi_data <- reactive({
+   get_sample_id <- reactive({
       input$calc_gene_params;
-      shinyjs::disable("calc_gene_params");
-      gene <- isolate(input$gene);
-      if (!exists("flatExonsByGene") ||
-            !exists("filesDF")) {
-         return(NULL);
-      }
-
-      ## Wrap the workflow in a progress bar
-      prepareSashimi_m <- memoise::memoise(prepareSashimi,
-         cache=memoise::cache_filesystem("sashimidata_memoise"));
-
       ## Define sample_id from sample selection
       sample_order <- isolate(input$selectionto_order);
       if (!exists("sample_id")) {
@@ -148,7 +137,30 @@ sashimiAppServer <- function
       } else if (length(sample_order) > 0) {
          sample_id <- sample_order;
       }
+      printDebug("get_sample_id() sample_id:", sample_id);
+      sample_id;
+   });
+
+   get_sashimi_data <- reactive({
+      input$calc_gene_params;
+      shinyjs::disable("calc_gene_params");
+      gene <- isolate(input$gene);
+      if (length(gene) == 0) {
+         return(NULL);
+      }
+      if (!exists("flatExonsByGene") ||
+            !exists("filesDF")) {
+         return(NULL);
+      }
+
+      ## Wrap the workflow in a progress bar
+      prepareSashimi_m <- memoise::memoise(prepareSashimi,
+         cache=memoise::cache_filesystem("sashimidata_memoise"));
+
+      ## Define sample_id from sample selection
+      sample_id <- get_sample_id();
       printDebug("Using sample_id:", sample_id);
+
       min_junction_reads <- isolate(input$min_junction_reads);
       include_strand <- isolate(input$include_strand);
       if (!exists("verbose")) {
@@ -174,11 +186,15 @@ sashimiAppServer <- function
          }
       );
    });
+   #get_sample_id <- eventReactive(input$calc_gene_params, {
+   #   runif(input$sample_id)
+   #})
 
    output$sashimiplot_output <- renderUI({
       sashimi_data <- get_sashimi_data();
+
       # Update in parent environment
-      sashimi_data <<- sashimi_data;
+      #sashimi_data <- sashimi_data;
       if (length(sashimi_data) == 0) {
          ## Todo: make empty plot a minimum height in pixels
          tagList(
@@ -234,7 +250,7 @@ sashimiAppServer <- function
                   ncol=layout_ncol,
                   scales=facet_scales);
          }
-         gg_sashimi <<- gg_sashimi;
+         #gg_sashimi <<- gg_sashimi;
          ## Optionally prepare gene-exon model
          if (show_gene_model_d()) {
             printDebug("Getting gene model with label_coords:", gene_coords);
@@ -277,6 +293,9 @@ sashimiAppServer <- function
          #sample_id <- unique(filesDF$sample_id);
          #num_samples <- max(c(length(sample_id), 1)) + 1;
          #num_samples <- 2;
+         ## Define sample_id from sample selection
+         sample_id <- get_sample_id();
+
          num_samples <- length(unique(sample_id));
          panel_height <- panel_height_d();
          # adjust base_size for fonts using exponent based upon panel height
@@ -302,7 +321,7 @@ sashimiAppServer <- function
          if (do_plotly_d()) {
             if (show_gene_model_d()) {
                ## use plotly, showing gene model
-               ggly1 <<- plotly::ggplotly(
+               ggly1 <- plotly::ggplotly(
                   gg_sashimi +
                      theme_jam(base_size=base_size) +
                      theme(axis.text.x=element_blank()) +
@@ -321,14 +340,14 @@ sashimiAppServer <- function
                         selected=attrs_selected(
                            line=list(color="#444444")));
                }
-               ggly2 <<- plotly::ggplotly(
+               ggly2 <- plotly::ggplotly(
                   gg_gene +
                      theme_jam(base_size=base_size) +
                      ggtitle(NULL) +
                      xlab(ref_name) +
                      coord_cartesian(xlim=gene_coords),
                   tooltip="text");
-               gg_ly <<- suppressMessages(
+               gg_ly <- suppressMessages(
                   plotly::subplot(
                      ggly1,
                      ggly2,
@@ -520,6 +539,7 @@ sashimiAppServer <- function
       } else {
          sample_items <- NULL;
       }
+      sample_id <- get_sample_id();
       if (exists("sample_id") && length(sample_id) > 0) {
          display_items <- unique(sample_id);
          sample_items <- setdiff(sample_items, display_items);

@@ -1,3 +1,12 @@
+# splicejam version 0.0.44.900
+
+## bug fixes
+
+* Fixed regression in R-shiny, updating the progress bar
+using gene in the caption, but the function did not need
+to know the gene.
+* Improved overall handling of reactive gene, sample_id values.
+
 # splicejam version 0.0.43.900
 
 ## changes
