@@ -30,14 +30,25 @@ sashimiAppServer <- function
    updateSelectizeInput(session,
       "gene",
       choices=detectedGenes,
-      selected="Gria1",
+      selected=head(
+         jamba::provigrep(c("Gria1", "Ntrk2", "^[A-Z][a-z]{3}", "."),
+            detectedGenes), 1),
       server=TRUE);
 
    output$gene_coords_label <- renderText({"Genome coordinate range"});
 
+   # Define verbose flag
+   if (!exists("verbose")) {
+      verbose <- FALSE;
+      printDebug("verbose:", verbose);
+   }
 
    # use debounce to slow down rendering a plot while changing parameters
    debounce_ms <- 1000;
+   junction_alpha <- reactive({
+      input$junction_alpha;
+   });
+   junction_alpha_d <- debounce(junction_alpha, debounce_ms);
    share_y_axis <- reactive({
       input$share_y_axis;
    });
@@ -91,15 +102,19 @@ sashimiAppServer <- function
    # Update the slider bar for each gene, or when slider type is changed
    observe({
       gene <- input$gene;
-      printDebug("updateInputSlider gene:", gene);
+      if (verbose) {
+         printDebug("updateInputSlider gene:",
+            gene);
+      }
       if (length(gene) > 0 && nchar(gene) > 0) {
          chr_range <- as.data.frame(range(flatExonsByGene[[gene]]))[,c("start", "end")];
          if (length(chr_range) > 0) {
             ## Update slider text label
+            coords_label <- paste0("Coordinate range ",
+               as.character(seqnames(head(flatExonsByGene[[gene]], 1))),
+               ":");
             output$gene_coords_label <- renderText({
-               paste0("Coordinate range ",
-                  as.character(seqnames(head(flatExonsByGene[[gene]], 1))),
-                  ":")
+               coords_label
             });
             ## Update sliderInput for gene_coords
             updateSliderInput(session,
@@ -122,6 +137,35 @@ sashimiAppServer <- function
             }
          }
       }
+   });
+
+   get_gene_coords <- reactive({
+      input$calc_gene_params;
+      gene <- isolate(input$gene);
+      ## get gene coordinate range
+      use_exon_names <- isolate(input$use_exon_names);
+      if (use_exon_names %in% "exon names") {
+         exon_range <- isolate(input$exon_range);
+         # Convert exon names to coordinates
+         gene_coords <- range(as.data.frame(range(
+            subset(flatExonsByGene[[gene]], gene_nameExon %in% exon_range)
+         ))[,c("start", "end")]);
+         if (verbose) {
+            printDebug("gene_coords inferred from input$exon_range:", gene_coords);
+         }
+      } else {
+         gene_coords <- isolate(input$gene_coords);
+         if (length(gene_coords) == 0 || all(gene_coords %in% c(28,117))) {
+            # default has not been initialized yet, so take full gene range
+            gene_coords <- range(as.data.frame(range(
+               flatExonsByGene[[gene]]
+            ))[,c("start", "end")]);
+         }
+         if (verbose) {
+            printDebug("gene_coords from input$gene_coords:", gene_coords);
+         }
+      }
+      gene_coords;
    })
 
    get_sample_id <- reactive({
@@ -137,7 +181,10 @@ sashimiAppServer <- function
       } else if (length(sample_order) > 0) {
          sample_id <- sample_order;
       }
-      printDebug("get_sample_id() sample_id:", sample_id);
+      if (verbose) {
+         printDebug("get_sample_id():",
+            "sample_id:", sample_id);
+      }
       sample_id;
    });
 
@@ -159,13 +206,13 @@ sashimiAppServer <- function
 
       ## Define sample_id from sample selection
       sample_id <- get_sample_id();
-      printDebug("Using sample_id:", sample_id);
+      if (verbose) {
+         printDebug("Using sample_id:", sample_id,
+            ", gene:", gene);
+      }
 
       min_junction_reads <- isolate(input$min_junction_reads);
       include_strand <- isolate(input$include_strand);
-      if (!exists("verbose")) {
-         verbose <- FALSE;
-      }
       if (!exists("use_memoise")) {
          use_memoise <- TRUE;
       }
@@ -173,7 +220,22 @@ sashimiAppServer <- function
          message="Preparing Sashimi data.",
          value=0,
          {
-            sashimi_data <- prepareSashimi_m(gene=gene,
+            if (verbose) {
+               gene_has_cache <- memoise::has_cache(prepareSashimi_m)(
+                  gene=gene,
+                  flatExonsByGene=flatExonsByGene,
+                  minJunctionScore=min_junction_reads,
+                  sample_id=sample_id,
+                  filesDF=filesDF,
+                  include_strand=include_strand,
+                  verbose=verbose,
+                  use_memoise=use_memoise,
+                  do_shiny_progress=TRUE);
+               printDebug("gene:", gene,
+                  ", gene_has_cache:", gene_has_cache);
+            }
+            sashimi_data <- prepareSashimi_m(
+               gene=gene,
                flatExonsByGene=flatExonsByGene,
                minJunctionScore=min_junction_reads,
                sample_id=sample_id,
@@ -182,13 +244,14 @@ sashimiAppServer <- function
                verbose=verbose,
                use_memoise=use_memoise,
                do_shiny_progress=TRUE);
-            sashimi_data;
+            if (verbose) {
+               printDebug("sdim(sashimi_data):");
+               print(sdim(sashimi_data));
+            }
          }
       );
+      sashimi_data;
    });
-   #get_sample_id <- eventReactive(input$calc_gene_params, {
-   #   runif(input$sample_id)
-   #})
 
    output$sashimiplot_output <- renderUI({
       sashimi_data <- get_sashimi_data();
@@ -218,24 +281,14 @@ sashimiAppServer <- function
             do_highlight <- TRUE;
          }
 
-         ## Optionally get gene coordinate range
-         if (isolate(input$use_exon_names) %in% "exon names") {
-            exon_range <- isolate(input$exon_range);
-            # Convert exon names to coordinates
-            gene_coords <- range(as.data.frame(range(
-               subset(flatExonsByGene[[gene]], gene_nameExon %in% exon_range)
-            ))[,c("start", "end")]);
-         } else {
-            gene_coords <- isolate(input$gene_coords);
-         }
-
          ## Obtain the baseline ggplot object
          gg_sashimi <- plotSashimi(sashimi_data,
             show=c("coverage", "junction", "junctionLabels"),
             color_sub=color_sub,
             do_highlight=do_highlight,
             facet_scales=facet_scales,
-            label_coords=gene_coords,
+            junc_alpha=junction_alpha_d(),
+            label_coords=get_gene_coords(),
             fill_scheme="sample_id");
          #sashimi_data <- sashimi_data;
 
@@ -243,8 +296,10 @@ sashimiAppServer <- function
          layout_ncol <- isolate(input$layout_ncol);
          if (length(layout_ncol) > 0 && layout_ncol > 1) {
             # change from facet_grid to facet_wrap()
-            printDebug("Applying facet_wrap() with ncol:",
-               layout_ncol);
+            if (verbose) {
+               printDebug("Applying facet_wrap() with ncol:",
+                  layout_ncol);
+            }
             gg_sashimi <- gg_sashimi +
                facet_wrap(~sample_id,
                   ncol=layout_ncol,
@@ -253,25 +308,28 @@ sashimiAppServer <- function
          #gg_sashimi <<- gg_sashimi;
          ## Optionally prepare gene-exon model
          if (show_gene_model_d()) {
-            printDebug("Getting gene model with label_coords:", gene_coords);
+            if (verbose) {
+               printDebug("Getting gene model with label_coords:",
+                  get_gene_coords());
+            }
             if (show_tx_model_d() && length(flatExonsByTx) > 0) {
                if (show_detected_tx_d()) {
                   gg_gene <- gene2gg(gene=gene,
                      flatExonsByGene=flatExonsByGene,
                      flatExonsByTx=flatExonsByTx[names(flatExonsByTx) %in% detectedTx],
-                     label_coords=gene_coords,
+                     label_coords=get_gene_coords(),
                      exonLabelSize=exon_label_size_d());
                } else {
                   gg_gene <- gene2gg(gene=gene,
                      flatExonsByGene=flatExonsByGene,
                      flatExonsByTx=flatExonsByTx,
-                     label_coords=gene_coords,
+                     label_coords=get_gene_coords(),
                      exonLabelSize=exon_label_size_d());
                }
             } else {
                gg_gene <- gene2gg(gene=gene,
                   flatExonsByGene=flatExonsByGene,
-                  label_coords=gene_coords,
+                  label_coords=get_gene_coords(),
                   exonLabelSize=exon_label_size_d());
             }
             gg_gene <- gg_gene;
@@ -282,7 +340,7 @@ sashimiAppServer <- function
          coord_label <- paste0(
             ref_name,
             ":",
-            paste(gene_coords, collapse="-")
+            paste(get_gene_coords(), collapse="-")
          );
          output$sashimitext_output <- renderText({
             HTML(paste0("Region ",
@@ -303,7 +361,7 @@ sashimiAppServer <- function
          font_sizing <- font_sizing_d();
          base_font_size <- dplyr::case_when(
             igrepHas("-2", font_sizing) ~ 8,
-            igrepHas("-1", font_sizing) ~ 8,
+            igrepHas("-1", font_sizing) ~ 10,
             igrepHas("Default", font_sizing) ~ 12,
             igrepHas("+1", font_sizing) ~ 14,
             igrepHas("+2", font_sizing) ~ 16,
@@ -311,27 +369,29 @@ sashimiAppServer <- function
          )
          base_size <- base_font_size * (panel_height^font_exp)/(250^font_exp);
          plot_height <- panel_height * (num_samples + show_gene_model_d());
-         printDebug("num_samples:", num_samples,
-            ", panel_height:", panel_height,
-            ", base_size:", format(digits=1, base_size),
-            ", base_font_size:", base_font_size,
-            ", font_sizing:", font_sizing,
-            ", layout_ncol:", layout_ncol,
-            ", plot_height:", plot_height);
+         if (verbose) {
+            printDebug("num_samples:", num_samples,
+               ", panel_height:", panel_height,
+               ", base_size:", format(digits=1, base_size),
+               ", base_font_size:", base_font_size,
+               ", font_sizing:", font_sizing,
+               ", layout_ncol:", layout_ncol,
+               ", plot_height:", plot_height);
+         }
          if (do_plotly_d()) {
             if (show_gene_model_d()) {
                ## use plotly, showing gene model
                ggly1 <- plotly::ggplotly(
                   gg_sashimi +
-                     theme_jam(base_size=base_size) +
+                     colorjam::theme_jam(base_size=base_size) +
                      theme(axis.text.x=element_blank()) +
                      xlab(NULL) +
-                     coord_cartesian(xlim=gene_coords),
-                  tooltip="name") %>%
-                  plotly::style(
-                     hoveron="fill"
-                  );
-               if (enable_highlights_d()) {
+                     coord_cartesian(xlim=get_gene_coords()),
+                  tooltip="text")# %>%
+                  #plotly::style(
+                  #   hoveron="fill"
+                  #);
+               if (1 == 2 && enable_highlights_d()) {
                   ggly1 <- ggly1 %>%
                      plotly::highlight(
                         on="plotly_hover",
@@ -342,10 +402,10 @@ sashimiAppServer <- function
                }
                ggly2 <- plotly::ggplotly(
                   gg_gene +
-                     theme_jam(base_size=base_size) +
+                     colorjam::theme_jam(base_size=base_size) +
                      ggtitle(NULL) +
                      xlab(ref_name) +
-                     coord_cartesian(xlim=gene_coords),
+                     coord_cartesian(xlim=get_gene_coords()),
                   tooltip="text");
                gg_ly <- suppressMessages(
                   plotly::subplot(
@@ -356,21 +416,23 @@ sashimiAppServer <- function
                      shareX=TRUE
                   ) %>% layout(height=plot_height)
                );
-               gg_ly <- gg_ly %>%
-                  plotly::highlight("plotly_hover",
-                     opacityDim=0.8,
-                     selected=attrs_selected(
-                        line=list(color="#444444")));
+               if (enable_highlights_d()) {
+                  gg_ly <- gg_ly %>%
+                     plotly::highlight("plotly_hover",
+                        opacityDim=0.8,
+                        selected=attrs_selected(
+                           line=list(color="#444444")));
+               }
             } else {
                ## use plotly, showing gene model
                gg_ly <- plotly::ggplotly(
                   gg_sashimi +
-                     theme_jam(base_size=base_size) +
+                     colorjam::theme_jam(base_size=base_size) +
                      xlab(ref_name) +
-                     coord_cartesian(xlim=gene_coords),
-                  tooltip="name",
+                     coord_cartesian(xlim=get_gene_coords()),
+                  tooltip="text",
                   height=plot_height
-               ) %>% style(hoveron="fill");
+               )# %>% style(hoveron="fill");
                if (enable_highlights_d()) {
                   gg_ly <- gg_ly %>%
                      highlight("plotly_hover",
@@ -379,8 +441,10 @@ sashimiAppServer <- function
                }
             }
             ## Remove the color legend (again)
-            gg_ly <- gg_ly %>%
-               layout(showlegend=FALSE);
+            if (!input$plotly_legend) {
+               gg_ly <- gg_ly %>%
+                  layout(showlegend=FALSE);
+            }
             # Try converting to plotlyOutput to define a fixed plot height
             output$plotly <- renderPlotly({
                gg_ly %>%
@@ -395,22 +459,22 @@ sashimiAppServer <- function
             #);
          } else {
             ## Non-plotly static plot output
-            if (length(gene_coords) > 0) {
+            if (length(get_gene_coords()) > 0) {
                if (show_gene_model_d()) {
                   tagList(renderPlot(
                      height=plot_height,
                      suppressMessages(
                         cowplot::plot_grid(
                            gg_sashimi +
-                              theme_jam(base_size=base_size) +
+                              colorjam::theme_jam(base_size=base_size) +
                               theme(axis.text.x=element_blank()) +
                               xlab(NULL) +
-                              coord_cartesian(xlim=gene_coords),
+                              coord_cartesian(xlim=get_gene_coords()),
                            gg_gene +
-                              theme_jam(base_size=base_size) +
+                              colorjam::theme_jam(base_size=base_size) +
                               ggtitle(NULL) +
                               xlab(ref_name) +
-                              coord_cartesian(xlim=gene_coords),
+                              coord_cartesian(xlim=get_gene_coords()),
                            ncol=1,
                            align="v",
                            axis="lr",
@@ -423,9 +487,9 @@ sashimiAppServer <- function
                      height=plot_height,
                      suppressMessages(
                         gg_sashimi +
-                           theme_jam(base_size=base_size) +
+                           colorjam::theme_jam(base_size=base_size) +
                            xlab(ref_name) +
-                           coord_cartesian(xlim=gene_coords)
+                           coord_cartesian(xlim=get_gene_coords())
                      )
                   ));
                }
@@ -433,7 +497,7 @@ sashimiAppServer <- function
                tagList(renderPlot(
                   height=plot_height,
                   gg_sashimi +
-                     theme_jam(base_size=base_size)
+                     colorjam::theme_jam(base_size=base_size)
                ));
             }
          }

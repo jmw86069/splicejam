@@ -30,17 +30,17 @@ sashimiAppUI <- function
       sidebarMenu(
          id="tabs",
          menuItem(
-            text="Guides",
-            tabName="guides",
-            icon=icon("info")),
-         menuItem(
             text="Sashimi Plot",
             tabName="sashimiplot",
             icon=icon("map")),
          menuItem(
             text="Sample Selection",
             tabName="sampleselect",
-            icon=icon("clipboard-list"))
+            icon=icon("clipboard-list")),
+         menuItem(
+            text="Guides",
+            tabName="guides",
+            icon=icon("info"))
          #menuItem(
          #   text="Samples and Data",
          #   tabName="samplesdata",
@@ -132,15 +132,15 @@ sashimiAppUI <- function
                ),
                conditionalPanel(
                   condition="input.use_exon_names == 'coordinates'",
-                  htmltools::em(textOutput("gene_coords_label",
+                  tags$strong(textOutput("gene_coords_label",
                      inline=FALSE)),
                   sliderInput(
                      "gene_coords",
                      label=NULL,#"Genome coordinate range",
-                     min=1,
-                     max=2000,
+                     min=28,
+                     max=117,
                      #width="80%",
-                     value=c(2, 2000),
+                     value=c(28, 117),
                      step=1,
                      round=TRUE
                   )
@@ -192,6 +192,14 @@ sashimiAppUI <- function
                      selected="Default",
                      grid=TRUE
                   ),
+                  shiny::sliderInput(
+                     inputId="junction_alpha",
+                     label="Junction transparency:",
+                     min=0.1,
+                     max=1.0,
+                     step=0.1,
+                     value=1.0
+                  ),
                   tags$b("Plot Style:"),
                   shinyWidgets::prettyCheckbox(
                      inputId="do_plotly",
@@ -209,7 +217,17 @@ sashimiAppUI <- function
                         value=TRUE,
                         icon=icon("check"),
                         status="primary",
-                        label="Enable highlighting")
+                        label="Enable highlighting"),
+                     tags$br(),
+                     nbsp3,
+                     nbsp3,
+                     shinyWidgets::prettyCheckbox(
+                        inputId="plotly_legend",
+                        inline=TRUE,
+                        value=FALSE,
+                        icon=icon("check"),
+                        status="primary",
+                        label="Display filter legend")
                   ),
                   tags$b("Exon Models:"),
                   shinyWidgets::prettyCheckbox(
@@ -219,27 +237,32 @@ sashimiAppUI <- function
                      status="warning",
                      label="Show gene-exon model"
                   ),
-                  shinyWidgets::prettyCheckbox(
-                     inputId="show_tx_model",
-                     inline=TRUE,
-                     value=FALSE,
-                     icon=icon("check"),
-                     status="warning",
-                     label="Show transcript-exon model"
-                  ),
                   conditionalPanel(
-                     condition="input.show_tx_model == true",
-                     nbsp3,
+                     condition="input.show_gene_model == true",
                      nbsp3,
                      shinyWidgets::prettyCheckbox(
-                        inputId="show_detected_tx",
+                        inputId="show_tx_model",
                         inline=TRUE,
-                        value=TRUE,
+                        value=FALSE,
                         icon=icon("check"),
                         status="warning",
-                        label="Detected transcripts only"
+                        label="Show transcript-exon model"
+                     ),
+                     conditionalPanel(
+                        condition="input.show_tx_model == true",
+                        nbsp3,
+                        nbsp3,
+                        shinyWidgets::prettyCheckbox(
+                           inputId="show_detected_tx",
+                           inline=TRUE,
+                           value=TRUE,
+                           icon=icon("check"),
+                           status="warning",
+                           label="Detected transcripts only"
+                        )
                      )
                   ),
+                  br(),
                   tags$b("Axis Settings:"),
                   shinyWidgets::prettyCheckbox(
                      inputId="share_y_axis",

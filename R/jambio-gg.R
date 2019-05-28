@@ -123,7 +123,7 @@ grl2df <- function
  shape=c("rectangle", "junction"),
  baseline=NULL,
  scoreColname="score",
- scoreArcMinimum=100,
+ scoreArcMinimum=200,
  scoreFactor=1,
  scoreArcFactor=0.5,
  doStackJunctions=TRUE,
@@ -667,23 +667,16 @@ gene2gg <- function
    grl1a1gg <- ggplot2::ggplot(grl1a1df,
          aes(x=x,
             y=y,
+            fill=subclass,
+            color=subclass,
             text=paste0(sub("_", "<br>", gr_name),
                "<br>",subclass,
                "<br>",
                seqnames,
-               ":", scales::comma(x)
+               ":", paste(scales::comma(range(x)), collapse="-")
             ),
             group=id)) +
-      ggforce::geom_shape(show.legend=FALSE,
-         aes(fill=subclass,
-            #text=paste0(gr_name,
-            #   "<br>", grl_name,
-            #   "<br>",subclass,
-            #   "<br>coord:", scales::comma(x)
-            #),
-            color=subclass
-         )
-      ) +
+      ggforce::geom_shape(show.legend=FALSE) +
       colorjam::theme_jam() +
       ylab("") +
       scale_color_manual(values=makeColorDarker(colorSubV,
@@ -1053,6 +1046,9 @@ stackJunctions <- function
 #'    used for junction outline, and fill, for the junction arc
 #'    polygon. Alpha transparency is recommended for `junc_fill`
 #'    so overlapping junction arcs are visible.
+#' @param junc_alpha numeric value between 0 and 1, to define the
+#'    alpha transparency used for junction colors, where 0 is
+#'    fully transparent, and 1 is completely non-transparent.
 #' @param fill_scheme character string for how the exon coverages
 #'    will be color-filled: `"exon"` will define colors for each
 #'    distinct exon, using the GRanges names from `flatExonsByGene`;
@@ -1109,6 +1105,7 @@ plotSashimi <- function
  exonsGrl=NULL,
  junc_color=alpha2col("goldenrod2", 0.3),
  junc_fill=alpha2col("goldenrod2", 0.9),
+ junc_alpha=1,
  fill_scheme=c("sample_id", "exon"),
  color_sub=NULL,
  ylabel="score",
@@ -1187,21 +1184,22 @@ plotSashimi <- function
       juncDF <- juncDF[order(-juncDF$junction_rank),,drop=FALSE];
 
       ## gradually transparent white to shade by junction_rank
-      junc_blank_3 <- nameVector(
-         alpha2col(rep("#DDDDDD", 3), alpha=c(0.3, 0.67, 0.8)),
+      junc_blank_3 <- jamba::nameVector(
+         jamba::alpha2col(rep("#DDDDDD", 3), alpha=c(0.3, 0.67, 0.8)),
          c(3, 2, 1));
       if (fill_scheme %in% "sample_id") {
          if (all(unique(juncDF$sample_id) %in% names(color_sub))) {
             color_sub_samples <- color_sub[intersect(juncDF$sample_id, names(color_sub))];
          } else {
-            color_sub_samples <- group2colors(unique(juncDF$sample_id));
+            color_sub_samples <- colorjam::group2colors(unique(juncDF$sample_id));
          }
          # blend with gradually transparent white
          color_sub_junc_3 <- colorspace::hex(
             colorspace::mixcolor(
-               hex2RGB(rgb2col(col2rgb(rep(color_sub_samples, each=3)))),
-               hex2RGB(junc_blank_3),
-               alpha=col2alpha(junc_blank_3)
+               colorspace::hex2RGB(jamba::rgb2col(col2rgb(
+                  rep(color_sub_samples, each=3)))),
+               colorspace::hex2RGB(junc_blank_3),
+               alpha=jamba::col2alpha(junc_blank_3)
             )
          );
          names(color_sub_junc_3) <- paste(names(color_sub_junc_3),
@@ -1211,46 +1209,53 @@ plotSashimi <- function
          # Otherwise blend junc_fill with white
          color_sub_junc_3 <- colorspace::hex(
             colorspace::mixcolor(
-               hex2RGB(rgb2col(col2rgb(rep(junc_fill[1], each=3)))),
-               hex2RGB(junc_blank_3),
-               alpha=col2alpha(junc_blank_3)
+               colorspace::hex2RGB(jamba::rgb2col(col2rgb(rep(junc_fill[1], each=3)))),
+               colorspace::hex2RGB(junc_blank_3),
+               alpha=jamba::col2alpha(junc_blank_3)
             )
          );
          names(color_sub_junc_3) <- names(junc_blank_3);
       }
       use_names <- setdiff(names(color_sub_junc_3), names(color_sub));
       color_sub[use_names] <- color_sub_junc_3[use_names];
-      junc_alpha <- mean(col2alpha(junc_fill));
+      color_sub[names(color_sub_junc_3)] <- jamba::alpha2col(
+         color_sub[names(color_sub_junc_3)],
+         alpha=junc_alpha);
 
       #if ("junctionLabels" %in% show && "juncLabelDF" %in% names(sashimi)) {
       # for now, include junction labels in the data, even if not rendered
       # into the visualization
       if ("juncLabelDF" %in% names(sashimi)) {
          juncLabelDF <- sashimi$juncLabelDF;
+         printDebug("head(juncLabelDF):");print(head(juncLabelDF), 2);
          if (length(label_coords) > 0) {
             juncLabelDF <- subset(juncLabelDF,
                x >= min(label_coords) &
                x <= max(label_coords));
          }
-         juncLabelDF$type <- "junction_label";
-         juncLabelDF$name <- pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
-         juncLabelDF$feature <- juncLabelDF$nameFromTo;
-         juncLabelDF$row <- seq_len(nrow(juncLabelDF));
-         if (!"junction_rank" %in% colnames(juncLabelDF)) {
-            juncLabelDF$junction_rank <- "3";
+         if (nrow(juncLabelDF) > 0) {
+            juncLabelDF$type <- "junction_label";
+            printDebug("head(juncLabelDF):");print(head(juncLabelDF), 2);
+            juncLabelDF$name <- pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
+            juncLabelDF$feature <- juncLabelDF$nameFromTo;
+            juncLabelDF$row <- seq_len(nrow(juncLabelDF));
+            if (!"junction_rank" %in% colnames(juncLabelDF)) {
+               juncLabelDF$junction_rank <- "3";
+            }
+            if (fill_scheme %in% "sample_id") {
+               juncLabelDF$color_by <- pasteByRow(juncLabelDF[,c("sample_id","junction_rank")], sep=".");
+            } else {
+               #juncDF$color_by <- juncDF$nameFromToSample;
+               juncLabelDF$color_by <- as.character(juncLabelDF$junction_rank);
+            }
+            juncLabelDF$text <- scales::comma(round(juncLabelDF$score));
          }
-         if (fill_scheme %in% "sample_id") {
-            juncLabelDF$color_by <- pasteByRow(juncLabelDF[,c("sample_id","junction_rank")], sep=".");
-         } else {
-            #juncDF$color_by <- juncDF$nameFromToSample;
-            juncLabelDF$color_by <- as.character(juncLabelDF$junction_rank);
-         }
-         juncLabelDF$text <- scales::comma(round(juncLabelDF$score));
       } else {
          juncLabelDF <- NULL;
       }
    } else {
       juncDF <- NULL;
+      juncLabelDF <- NULL;
    }
 
    # Assemble one data.frame in order to keep ggplot2 data in sync

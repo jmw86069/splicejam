@@ -9,7 +9,7 @@ grl2df(grl, keepGRvalues = TRUE, keepGRLvalues = FALSE,
   noncds = 0.3, intron = 0.01, gap = 0.01, `NA` = 0.01),
   width_colname = c("subclass", "feature_type"), shape = c("rectangle",
   "junction"), baseline = NULL, scoreColname = "score",
-  scoreArcMinimum = 100, scoreFactor = 1, scoreArcFactor = 0.5,
+  scoreArcMinimum = 200, scoreFactor = 1, scoreArcFactor = 0.5,
   doStackJunctions = TRUE, strandedScore = TRUE, ref2c = NULL,
   verbose = FALSE, ...)
 }

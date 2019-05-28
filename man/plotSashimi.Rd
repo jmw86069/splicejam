@@ -7,7 +7,7 @@
 plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   coord_method = c("scale", "coord", "none"), exonsGrl = NULL,
   junc_color = alpha2col("goldenrod2", 0.3),
-  junc_fill = alpha2col("goldenrod2", 0.9),
+  junc_fill = alpha2col("goldenrod2", 0.9), junc_alpha = 1,
   fill_scheme = c("sample_id", "exon"), color_sub = NULL,
   ylabel = "score", use_jam_themes = TRUE, apply_facet = TRUE,
   facet_scales = "free_y", ref2c = NULL, label_coords = NULL,
@@ -41,6 +41,10 @@ overlapping.)}
 used for junction outline, and fill, for the junction arc
 polygon. Alpha transparency is recommended for \code{junc_fill}
 so overlapping junction arcs are visible.}
+
+\item{junc_alpha}{numeric value between 0 and 1, to define the
+alpha transparency used for junction colors, where 0 is
+fully transparent, and 1 is completely non-transparent.}
 
 \item{fill_scheme}{character string for how the exon coverages
 will be color-filled: \code{"exon"} will define colors for each

@@ -1028,7 +1028,14 @@ getGRcoverageFromBw <- function
             bwUrl);
       }
       if (use_memoise) {
-         cov1 <- import_or_null_m(bwUrl,
+         if (verbose) {
+            cov_has_cache <- memoise::has_cache(import_or_null_m)(
+               bwUrl,
+               gr=gr);
+            printDebug("   cov_has_cache:", cov_has_cache);
+         }
+         cov1 <- import_or_null_m(
+            bwUrl,
             gr=gr);
       } else {
          cov1 <- import_or_null(bwUrl,
@@ -1660,26 +1667,24 @@ prepareSashimi <- function
                " for sample_id:", juncSamples[iBedName]);
          }
          if (use_memoise) {
-            import_juncs_m_cached <- memoise::has_cache(import_juncs_m)(
-               iBed,
-               juncNames=iBedName,
-               sample_id=juncSamples[iBedName],
-               scale_factor=juncScaleFactors[iBedName],
-               gr=gr);
             if (verbose) {
+               import_juncs_m_cached <- memoise::has_cache(import_juncs_m)(
+                  iBed,
+                  juncNames=iBedName,
+                  sample_id=juncSamples[iBedName],
+                  scale_factor=juncScaleFactors[iBedName],
+                  gr=gr);
                printDebug("prepareSashimi():",
                   "import_juncs_m_cached: ",
                   import_juncs_m_cached);
-               printDebug("digest(juncScaleFactors[iBedName]):", digest::digest(juncScaleFactors[iBedName]));
-               printDebug("digest(juncSamples[iBedName]):", digest::digest(juncSamples[iBedName]));
-               printDebug("digest(iBed):", digest::digest(iBed));
-               printDebug("digest(gr):", digest::digest(gr));
             }
             bed1 <- import_juncs_m(
                iBed,
                juncNames=iBedName,
                sample_id=juncSamples[iBedName],
                scale_factor=juncScaleFactors[iBedName],
+               use_memoise=TRUE,
+               memoise_junction_path=memoise_junction_path,
                gr=gr);
          } else {
             bed1 <- import_juncs_from_bed(iBed,
@@ -1804,7 +1809,6 @@ prepareSashimi <- function
          as.character(juncLabelDF$sample_id),
          levels=sample_id
       );
-
       if (any(c("all", "juncLabelDF") %in% return_data)) {
          retVals$juncLabelDF <- juncLabelDF;
       }
@@ -1966,10 +1970,29 @@ import_juncs_from_bed <- function
  juncNames,
  sample_id,
  scale_factor,
- gr)
+ use_memoise=FALSE,
+ memoise_junction_path="junctions_memoise",
+ gr,
+ verbose=FALSE,
+ ...)
 {
-   bed1 <- rtracklayer::import(iBed,
-      which=range(gr));
+   # use_memoise=TRUE invokes slightly different cache strategy:
+   # - load fill iBed data (using cached version if present)
+   # - subset by range(gr)
+   if (use_memoise) {
+      import_m <- memoise::memoise(rtracklayer::import.bed,
+         cache=memoise::cache_filesystem(memoise_junction_path));
+      if (verbose) {
+         import_has_cache <- memoise::has_cache(import_m)(iBed);
+         printDebug("import_juncs_from_bed():",
+            "import_has_cache:", import_has_cache);
+      }
+      bed1 <- subsetByOverlaps(import_m(iBed),
+         ranges=range(gr));
+   } else {
+      bed1 <- rtracklayer::import(iBed,
+         which=range(gr));
+   }
 
    ## Assign score and apply scale_factor
    ##

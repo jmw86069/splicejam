@@ -1,3 +1,30 @@
+# splicejam version 0.0.45.900
+
+## R-shiny changes
+
+* Made Sashimi plot the default tab. Fixed regression caused by
+page load with partially initialized input values.
+* Added `aboutExtra` as optional text to describe the data used
+in the R-shiny app.
+* Added R package versions to the Guides tab.
+* Added option to show legend in plotly interactive plots, which
+allows for some interesting filtering options, like hiding coverage,
+or junctions, or subsets of junctions based on predominance
+(.1 is minor, .2 is mixed, and .3 is major predominance.) Junction
+ranks are based upon having the highest score at each junction end,
+typically the predominant junction represents the predominant
+transcript isoform.
+
+## changes
+
+* `plotSashimi()` new argument `junc_alpha` to control the alpha
+transparency of junctions, to allow transparency in cases where
+the intron coverage may be obscured by the junction arc.
+* Increased default minimum junction arc height from 100 to 200,
+the effect should be slightly higher junction arcs. In future,
+will consider inspecting intervening coverage max height as perhaps
+better estimate of a minimum junction arc, plus some buffer height.
+
 # splicejam version 0.0.44.900
 
 ## bug fixes

@@ -4,7 +4,9 @@
 \alias{import_juncs_from_bed}
 \title{Import splice junction data from BED file}
 \usage{
-import_juncs_from_bed(iBed, juncNames, sample_id, scale_factor, gr)
+import_juncs_from_bed(iBed, juncNames, sample_id, scale_factor,
+  use_memoise = FALSE, memoise_junction_path = "junctions_memoise", gr,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{iBed}{path or URL to one BED file containing splice

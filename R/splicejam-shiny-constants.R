@@ -41,12 +41,29 @@ sashimiAppConstants <- function
 (...)
 {
    ## Define filesDF here
+   if (!exists("aboutExtra")) {
+      aboutExtra <- NULL;
+      aboutExtra <<- aboutExtra;
+   }
    if (!exists("filesDF")) {
       if (suppressPackageStartupMessages(require(farrisdata))) {
          printDebug("Using filesDF from ",
             "farrisdata::farris_sashimi_files_df");
          data(farris_sashimi_files_df);
-         filesDF <<- farris_sashimi_files_df;
+         filesDF <- farris_sashimi_files_df;
+         filesDF <<- filesDF;
+         aboutExtra <- tags$p("Data is provided by the farrisdata
+            package, which provides mouse hippocampal subregion-
+            and compartment-specific RNA-seq data described in
+            Farris et al 2019. Each 'sample_id' represents the
+            normalized RNA-seq aligned sequence coverage after
+            combining three biological replicates per sample group.
+            The purpose of this resource is to provide the community
+            with a user-friendly interface to mine the data for
+            isoform-specific differences across hippocampal subregions
+            (CA1, CA2, CA3, DG) and subcellular compartments
+            (Cell Body, Dendrites).")
+         aboutExtra <<- aboutExtra;
       }
    }
 
@@ -276,7 +293,7 @@ sashimiAppConstants <- function
             tabBox(
                width=12,
                tabPanel(
-                  title="What is a Sashimi Plot?",
+                  title="About Sashimi Plots",
                   uiOutput("sashimiplot_guide")
                ),
                tabPanel(
@@ -296,7 +313,7 @@ sashimiAppConstants <- function
                      "The methods were developed in support of:"),
                   br(),
                   a("S. Farris, J. M. Ward, K.E. Carstens, M. Samadi, Y. Wang and S. M. Dudek, 2019:",
-                     em("Hippocampal subregions express distinct dendritic transcriptomes that reveal an unexpected role for enhanced mitochondrial function in CA2"),
+                     em("Hippocampal subregions express distinct dendritic transcriptomes that reveal unexpected differences in mitochondrial function in CA2"),
                      href="https://github.com/jmw86069/jampack")
                ),
                tags$li(
@@ -307,6 +324,33 @@ sashimiAppConstants <- function
                      em("Sashimi plots: Quantitative visualization of alternative isoform expression from RNA-seq data."),
                      href="http://biorxiv.org/content/early/2014/02/11/002576")
                )
+            ),
+            tags$p("Relevant R package versions:"),
+            tags$ul(
+               tags$li(
+                  strong(style="color:black", "jampack:"),
+                  as.character(packageVersion("jampack"))
+               ),
+               tags$li(
+                  strong(style="color:black", "splicejam:"),
+                  as.character(packageVersion("splicejam"))
+               ),
+               tags$li(
+                  strong(style="color:black", "jamba:"),
+                  as.character(packageVersion("jamba"))
+               ),
+               tags$li(
+                  strong(style="color:black", "colorjam:"),
+                  as.character(packageVersion("colorjam"))
+               ),
+               tags$li(
+                  strong(style="color:black", "ggplot2:"),
+                  as.character(packageVersion("ggplot2"))
+               ),
+               tags$li(
+                  strong(style="color:black", "plotly:"),
+                  as.character(packageVersion("plotly"))
+               )
             )
          )
       )
@@ -314,13 +358,14 @@ sashimiAppConstants <- function
 
    # sashimiplot_guide
    sashimiplot_guide <<- fluidPage(
-      h1("What is a Sashimi Plot?",
+      h1("About Sashimi Plots",
          style="color:firebrick"),
       shinydashboard::box(
          width=12,
          status="primary",
          style="background-color:aliceblue",
-         tags$p("The Sashimi Plot tab provides a visualization of
+         aboutExtra,
+         tags$p("The ", em("Sashimi Plot"), " tab provides a visualization of
             gene transcript data from one or more biological samples,
             specific for RNA-seq (RNA sequencing of gene transcripts.)
             It combines several types of data important for insightful
