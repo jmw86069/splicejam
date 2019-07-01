@@ -1823,6 +1823,52 @@ prepareSashimi <- function
          detail=paste0("Sashimi data is ready for ", gene));
    }
 
+   ## Merge data.frame entries together
+   ## exon coverage
+   covDF$type <- "coverage";
+   covDF$name <- pasteByRow(covDF[,c("gr", "cov", "sample_id")], sep=" ");
+   covDF$feature <- covDF$gr;
+   covDF$row <- seq_len(nrow(covDF));
+   ## unclear how best to define "color_by" column at this step
+   ## exon labels
+   exonLabelDF$type <- "exon_label";
+   exonLabelDF$name <- pasteByRow(exonLabelDF[,c("gr","sample_id")], sep=" ");
+   exonLabelDF$feature <- exonLabelDF$gr;
+   exonLabelDF$row <- seq_len(nrow(exonLabelDF));
+   exonLabelDF$color_by <- NA;
+   ## junctions
+   juncDF$type <- "junction";
+   juncDF$name <- pasteByRow(juncDF[,c("nameFromTo", "sample_id")], sep=" ");
+   juncDF$feature <- juncDF$nameFromTo;
+   juncDF$row <- seq_len(nrow(juncDF));
+   ## junction labels
+   juncLabelDF$type <- "junction_label";
+   juncLabelDF$name <- pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
+   juncLabelDF$feature <- juncLabelDF$nameFromTo;
+   juncLabelDF$row <- seq_len(nrow(juncLabelDF));
+   ## create a list of data.frames
+   cjL <- list();
+   cjL$coverage <- covDF;
+   cjL$junction <- juncDF;
+   cjL$junction_label <- juncLabelDF;
+   cjL$exon_label <- exonLabelDF;
+   ## Merge into one data.frame, then re-order
+   if (length(cjL) == 0) {
+      cjDF <- NULL;
+   } else if (length(cjL) == 1) {
+      cjDF <- cjL[[1]];
+   } else {
+      cjDF <- jamba::mergeAllXY(cjL);
+      cjDF <- mixedSortDF(cjDF,
+         byCols=c("type","row"));
+   }
+   ## order columns by presence of NA values
+   na_ct <- apply(cjDF, 2, function(i){
+      sum(is.na(i))
+   });
+   cjDF <- cjDF[,order(na_ct),drop=FALSE];
+   retVals$df <- cjDF;
+
    return(retVals);
 }
 

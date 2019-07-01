@@ -1,5 +1,16 @@
 # splicejam version 0.0.45.900
 
+## Bug fixes and updates
+
+* Updated `groups2contrasts()` to detect when any factor level
+contains `"-"`, and converts the `"-"` to `"."` prior to
+detecting contrasts. Previously the `"-"` interfered and
+resulted in fewer reported contrasts.
+Also, the `"-"` interferes with other R methods that
+interpret the `"-"` as subtraction. For now, this method avoids
+using `base::make.names()` which aggressively converts other
+valid characters to `"."`.
+
 ## R-shiny changes
 
 * Made Sashimi plot the default tab. Fixed regression caused by
@@ -17,6 +28,14 @@ transcript isoform.
 
 ## changes
 
+* `prepareSashimi()` now returns list item `"df"` which contains
+the merged coordinates for coverage, junctions, and labels. This
+data.frame overrides the need for `plotSashimi()` to merge this
+data on the fly, and takes some extra logic away regarding
+junction rank, label positions, etc.
+* `plotSashimi()` now expects the input `sashimi` object to
+contain list element named `"df"` to include the full coordinate
+data.frame used for plotting.
 * `plotSashimi()` new argument `junc_alpha` to control the alpha
 transparency of junctions, to allow transparency in cases where
 the intron coverage may be obscured by the junction arc.

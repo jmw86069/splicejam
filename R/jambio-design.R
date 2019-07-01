@@ -346,6 +346,14 @@ groups2contrasts <- function
    }
 
    ##########################################################
+   ## Check to make sure no factor levels contain "-"
+   for (i in colnames(iFactors)) {
+      if (igrepHas("-", iFactors[,i])) {
+         iFactors[,i] <- gsub("-", ".", iFactors[,i]);
+      }
+   }
+
+   ##########################################################
    ## First check to make sure the iFactors values are unique
    ## and if not, use only unique entries
    iContrastGroupsUse <- colnames(iFactors);
