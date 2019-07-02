@@ -88,6 +88,36 @@ This function is intended to define statistical contrasts
 that compare one factor at a time. For two-factor designs,
 it will create two-way contrasts, defined as the contrast
 of pairwise contrasts.
+
+Input can be a character vector of group names, where by
+default each factor is separated by an underscore \code{"_"}.
+An example might be:
+
+\code{iFactors <- c("Control_Wildtype", "Control_Knockout", "Treated_Wildtype", "Treated_Knockout")}
+
+In that case, there are two factors. The first factor
+contains factor levels \code{c("Control", "Treated")}, and
+the second factor contains factor levels
+\code{c("Wildtype", "Knockout")}.
+
+Input can also be a \code{data.frame} (or compatible table-like
+object including \code{data.table} and \code{tibble}). Each column
+is considered a factor. From the example above, we can
+create a \code{data.frame} using \code{jamba::rbindList()},
+see the Examples for more detail.
+
+\code{jamba::rbindList(strsplit(iFactors, "_"))}
+
+Lastly, if the input is a named vector, or a \code{data.frame}
+with rownames,
+
+This function will change any \code{"-"} in a factor name to
+\code{"."} prior to detecting valid contrasts. Note that
+\code{groups2contrasts()} does not call \code{base::make.names()}
+because that function too aggressively converts characters
+to \code{"."}. If data must be compliant with the rules used
+by \code{base::make.names()}, run that function prior to calling
+\code{groups2contrasts()}.
 }
 \examples{
 # first define a vector of sample groups

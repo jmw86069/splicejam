@@ -4,11 +4,12 @@
 \alias{sortSamples}
 \title{Sort biological sample labels for experimental design}
 \usage{
-sortSamples(x, controlTerms = c("WT", "(^|[-_ ])NT($|[-_ ]|[0-9])",
-  "ETOH", "control|ctrl|ctl", "ntc", "Vehicle|veh", "none|empty|blank",
-  "scramble", "ttx", "PBS"), sortFunc = jamba::mixedSort,
-  preControlTerms = NULL, postControlTerms = NULL,
-  keepFactorsAsIs = TRUE, ...)
+sortSamples(x, controlTerms = c("WT|wildtype",
+  "(^|[-_ ])(NT|NTC)($|[-_ ]|[0-9])", "ETOH", "control|ctrl|ctl",
+  "Vehicle|veh", "none|empty|blank", "scramble", "ttx", "PBS", "knockout",
+  "mutant"), sortFunc = jamba::mixedSort, preControlTerms = NULL,
+  postControlTerms = NULL, ignore.case = TRUE, boundary = TRUE,
+  perl = boundary, keepFactorsAsIs = TRUE, ...)
 }
 \arguments{
 \item{x}{character vector or factor}
@@ -26,6 +27,17 @@ default terms.}
 terms or regular expressions to use after the \code{controlTerms}
 above. This argument is used as a convenient suffix to the
 default terms.}
+
+\item{ignore.case}{logical passed to \code{jamba::provigrep()} indicating
+whether to ignore case-sensitive matching.}
+
+\item{boundary}{logical indicating whether to require a word
+boundary surrounding the control terms. When TRUE, it uses
+\code{perl=TRUE} by default, and allows either perl boundary or
+an underscore \code{"_"}.}
+
+\item{perl}{logical indicating whether to use Perl regular
+expression pattern matching.}
 
 \item{keepFactorsAsIs}{logical indicating whether to maintain
 factor level order, if \code{x} is supplied as a factor. If

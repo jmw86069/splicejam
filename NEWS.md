@@ -1,15 +1,45 @@
-# splicejam version 0.0.45.900
+# splicejam version 0.0.46.900
 
-## Bug fixes and updates
+## Bug fixes
 
 * Updated `groups2contrasts()` to detect when any factor level
 contains `"-"`, and converts the `"-"` to `"."` prior to
-detecting contrasts. Previously the `"-"` interfered and
-resulted in fewer reported contrasts.
-Also, the `"-"` interferes with other R methods that
-interpret the `"-"` as subtraction. For now, this method avoids
-using `base::make.names()` which aggressively converts other
-valid characters to `"."`.
+detecting contrasts. Previously the `"-"` interfered with
+proper contrast names, and resulted in some contrasts
+not being returned by this function. Note that this function
+avoids using `base::make.names()` because that function
+aggressively converts other valid characters to `"."`.
+However, if downstream functions require `base::make.names()`
+compliant names, run that function prior to calling
+`groups2contrasts()`.
+* `sortSamples()` was updated to match `"wildtype"` as a control term.
+* `groups2contrasts()` was updated to check for specific scenarios
+where iFactors and iSamples may be missing, to cover a variety
+of common scenarios. Error messages were updated to be specific
+to the expected input.
+* `flattenExonsBy()` removed the `...` dots argument, to
+try to appease the memoise caching logic, which is suspected to
+be comparing the `...` data when invalidating the cached files.
+Ironically, this change itself will invalidate existing cached
+files.
+
+## changes to Sashimi workflow
+
+* `prepareSashimi()` now returns list item `"df"` which contains
+the merged coordinates for coverage, junctions, and labels. This
+`data.frame` overrides the need for `plotSashimi()` to merge this
+data on the fly, and takes some extra logic away regarding
+junction rank, label positions, etc.
+* `plotSashimi()` now expects the input `sashimi` object to
+contain list element named `"df"` to include the full coordinate
+`data.frame` used for plotting. Note that `plotSashimi()` will
+now require output from `prepareSashimi()` in version 46 or higher.
+Fortunately, memoise already invalidates the cache for even the
+slightest change in any molecule in the world, so caching should
+not be problematic.
+
+
+# splicejam version 0.0.45.900
 
 ## R-shiny changes
 
@@ -28,14 +58,6 @@ transcript isoform.
 
 ## changes
 
-* `prepareSashimi()` now returns list item `"df"` which contains
-the merged coordinates for coverage, junctions, and labels. This
-data.frame overrides the need for `plotSashimi()` to merge this
-data on the fly, and takes some extra logic away regarding
-junction rank, label positions, etc.
-* `plotSashimi()` now expects the input `sashimi` object to
-contain list element named `"df"` to include the full coordinate
-data.frame used for plotting.
 * `plotSashimi()` new argument `junc_alpha` to control the alpha
 transparency of junctions, to allow transparency in cases where
 the intron coverage may be obscured by the junction arc.

@@ -3682,7 +3682,6 @@ getGRLgaps <- function
 #'    from `TxDb` data using `GenomicFeatures::cdsBy(...,by="gene")`.
 #'    Note this input is only used when `by="gene"`.
 #' @param verbose logical indicating whether to print verbose output.
-#' @param ... additional arguments are ignored.
 #'
 #' @export
 flattenExonsBy <- function
@@ -3695,8 +3694,7 @@ flattenExonsBy <- function
  geneColname="gene_name",
  cdsByTx=NULL,
  cdsByGene=NULL,
- verbose=FALSE,
- ...)
+ verbose=FALSE)
 {
    ##
    if (!suppressPackageStartupMessages(require(GenomicRanges))) {

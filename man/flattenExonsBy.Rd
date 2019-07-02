@@ -7,7 +7,7 @@
 flattenExonsBy(exonsByTx, tx2geneDF, by = c("gene", "tx"),
   detectedTx = NULL, genes = NULL, txColname = "transcript_id",
   geneColname = "gene_name", cdsByTx = NULL, cdsByGene = NULL,
-  verbose = FALSE, ...)
+  verbose = FALSE)
 }
 \arguments{
 \item{exonsByTx}{GRangesList named by transcript, containing one or
@@ -49,8 +49,6 @@ from \code{TxDb} data using \code{GenomicFeatures::cdsBy(...,by="gene")}.
 Note this input is only used when \code{by="gene"}.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
-
-\item{...}{additional arguments are ignored.}
 }
 \value{
 GRangesList named by gene when \code{by="gene"} or transcript when
