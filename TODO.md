@@ -26,6 +26,19 @@ many columns are used for layout.
 is not usable. Consider making plot rendering asynchronous to decouple
 the visualization from the use of the R-shiny app.
 
+### data.frame versus tibble
+
+* Evaluated tibble as possible replacement for data.frame in
+`prepareSashimi()`. It shrinks data volume to about 7 times smaller,
+reducing duplicated annotations per row for polygon coordinates.
+However, ggplot2 still requires unnesting the tibble into a tall
+format for plotting, it is unclear whether that step will incur
+its own performance hit.
+* ggplot2 polygon rendering should be faster -- possibly needs to
+reduce the polygon detail prior to plotting, but unclear whether that
+can happen since ggplot2 already chops polygons into multiple small
+segments in order to handle transformed axis coordinates.
+
 ### R-shiny caching
 
 * Review flatExonsByTx caching, which gets invalidated too frequently.
