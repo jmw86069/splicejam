@@ -6,7 +6,8 @@
 hybridizations: Calm1, Cam2ka, Cam2kb, Actb, which show little to
 no change.
 * Debug errors with certain genes: Arc, Pdgfa, Pdgfb. The error message
-is "cannot coerce "list" to DataFrame".
+is "cannot coerce "list" to DataFrame". This bug appears to be resolved
+after refactoring `prepSashimi()` to return the full data.frame.
 * Enable searching all genes, not just the detected genes.
 * Allow option to specify the searchable genes: "Detected", "All",
 then eventually subset of genes based upon statistical hits in each
@@ -25,6 +26,15 @@ many columns are used for layout.
 * Gria1 takes a while to display the first time, during which the app
 is not usable. Consider making plot rendering asynchronous to decouple
 the visualization from the use of the R-shiny app.
+
+### Vignettes
+
+* New vignette describing how to start a new R-shiny Sashimi App.
+
+### Testing
+
+* Implement methods in the testthat package to ensure a consistent
+suite of tests to confirm full functionality with updates.
 
 ### data.frame versus tibble
 
@@ -93,11 +103,6 @@ in value columns.
 * Expand junction input to allow BAM files, from which junctions
 can be inferred. (Check existing Bioconductor packages for
 any that convert BAM to junctions.)
-
-### Testing
-
-* include testthat into the package development workflow to help
-test and confirm specific input and output criteria.
 
 ### Vignettes
 
