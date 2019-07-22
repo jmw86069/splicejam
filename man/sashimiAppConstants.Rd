@@ -2,40 +2,102 @@
 % Please edit documentation in R/splicejam-shiny-constants.R
 \name{sashimiAppConstants}
 \alias{sashimiAppConstants}
-\title{SALSA Shiny app constants}
+\title{Sashimi Shiny app constants}
 \usage{
 sashimiAppConstants(...)
 }
 \description{
-SALSA Shiny app constants
+Sashimi Shiny app constants
 }
 \details{
-This function is intended to define constant values used in
-the creation of the SALSA shiny UI.
+This function defines several constant values
+used by the R-shiny Splicejam Sashimi viewer,
+typically taking from the global environment
+where possible.
+
+The R-shiny app is started by \code{launchSashimiApp()}, which
+calls \code{shiny::shinyApp()}, using arguments \code{server}, \code{ui},
+\code{onStart}, and \code{options}. This function fulfills the
+argument \code{onStart}.
 
 This function is intended to be called only from within
 an R-shiny app, since it defines several variables in the
 parent (global) environment.
 
-Specifically, this function will attempt to re-use several
-R data objects by name if they exist in any parent environment.
-If they do not exist, defaults will be used based upon the
-Farris et all data from the \code{farrisdata} package.
+The following values will be used from the environment,
+searching up the environment parent chain until it finds
+a match, until searching the global environment. Similarly,
+this function also defines variables in the environment using
+the \code{<<-} operator, which by default also searches up the
+environment chain until it finds a match, otherwise
+populating the global environment.
+
+If a variable is not found, the corresponding default
+from the \code{farrisdata} package will be used.
 \itemize{
-\item filesDF
-\item color_sub
-\item txdb (used to derive exonsByTx, cdsByTx if either does not exist)
-\item tx2geneDF
-\item gtf (used if tx2geneDF or exonsByTx are not available)
-\item exonsByTx
-\item cdsByTx
-\item detectedTx (derived either from farrisdata::farrisTxSE
-\code{"TxDetectedByTPM"} or using all entries in \code{tx2geneDF$transcript_id})
-\item detectedGenes (inferred using tx2geneDF and detectedTx)
-\item flatExonsByGene (defined using exonsByTx, cdsByTx, detectedTx,
-tx2geneDF)
-\item flatExonsByTx (defined using exonsByTx, cdsByTx, detectedTx,
-tx2geneDF)
+\item \strong{filesDF}: \code{data.frame} with colnames: \code{"sample_id"},
+\code{"type"}, \code{"url"}, \code{"scale_factor"}. When \code{"filesDF"} does
+not exist, it is taken from \code{farrisdata::farris_sashimi_files_df},
+and the default \code{"aboutExtra"} text is used.
+\item \strong{color_sub}: character vector of R colors, whose names are
+used to match \code{"sample_id"} or other values used to colorize
+ggplot visualizations. It is either populated from
+\code{farrisdata::colorSub}, or \code{colorjam::group2colors()} is called
+using the unique \code{sample_id} values in \code{filesDF}.
+\item \strong{txdb}: TxDb object used to derive \code{exonsByTx}, and \code{cdsByTx}
+if either does not exist. If the TxDb object does not exist,
+it is created from the \code{gtf} file using
+\code{GenomicFeatures::makeTxDbFromGFF()}.
+\item \strong{tx2geneDF}: \code{data.frame} with colnames: \code{"transcript_id"},
+\code{"gene_name"}. This data is used to convert \code{"gene_name"} to
+a vector of \code{"transcript_id"} values.
+\item \strong{gtf}: character path to a GTF/GFF/GFF3 file, suitable for
+\code{GenomicFeatures::makeTxDbFromGFF()}. The \code{gtf} is only used
+if \code{tx2geneDF} or \code{exonsByTx} are not available. Note that
+when \code{gtf} points to a remote server, the file is copied to
+the current working directory. If the file already exists in
+the local directory, it is re-used.
+\item \strong{exonsByTx}: \code{GRangesList} object, named by \code{"transcript_id"},
+containing all exons for each transcript.
+\item \strong{cdsByTx}: \code{GRangesList} object, named by \code{"transcript_id"},
+containing only CDS (protein-coding) exons for each transcript.
+\item \strong{detectedTx}: character vector of \code{"transcript_id"} values,
+representing the subset of transcripts detected above background.
+If it does not exist, it is derived from \code{farrisdata::farrisTxSE}
+\code{"TxDetectedByTPM"}. If those values are not all present in
+\code{tx2geneDF} then \code{detectedTx} is defined by all transcripts
+present in \code{tx2geneDF$transcript_id}.
+\item \strong{detectedGenes}: inferred using tx2geneDF and detectedTx.
+\item \strong{flatExonsByGene}: \code{GRangesList} object containing non-overlapping
+exons for each gene, or it is derived from \code{exonsByTx},
+\code{cdsByTx}, \code{detectedTx}, and \code{tx2geneDF}, using
+\code{flattenExonsBy()}.
+\item \strong{flatExonsByTx}: \code{GRangesList} object containing non-overlapping
+exons for each gene, or it is derived from \code{exonsByTx},
+\code{cdsByTx}, \code{detectedTx}, and \code{tx2geneDF}, using
+\code{flattenExonsBy()}.
 }
+
+Several R objects are cached using \code{memoise::memoise()}, to
+avoid having to create the R object each time the R-shiny app
+is started:
+\itemize{
+\item \strong{flatExonsByGene}
+\item \strong{flatExonsByTx}
+\item \strong{exonsByTx}
+\item \strong{cdsByTx}
 }
-\concept{SALSA Shiny functions}
+
+A special custom variable is used to describe the specific
+data included with the R-shiny app, \code{"aboutExtra"}. The
+\code{"aboutExtra"} variable is expected to contain HTML tags,
+for example from \code{htmltools::tags()} to format the text.
+The \code{"aboutExtra"} content is displayed on the tab
+\code{"About Sashimi Plots"} at the top.
+}
+\seealso{
+Other splicejam R-shiny functions: \code{\link{launchSashimiApp}},
+  \code{\link{sashimiAppServer}},
+  \code{\link{sashimiAppUI}}
+}
+\concept{splicejam R-shiny functions}

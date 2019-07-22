@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -138,7 +138,7 @@
       <th>data, prestats_data, layout, params, p, ...</th>
       <td><p>arguments provided
 by plotly during rendering, after stats have been applied.
-Currently only <code>data</code> is passed to <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot2-ggproto'>ggplot2::GeomPolygon</a></code>.</p></td>
+Currently only <code>data</code> is passed to <code><a href='https://ggplot2.tidyverse.org/reference/ggplot2-ggproto.html'>ggplot2::GeomPolygon</a></code>.</p></td>
     </tr>
     </table>
     
@@ -147,13 +147,14 @@ Currently only <code>data</code> is passed to <code><a href='https://www.rdocume
     <p>This function is a helper function intended to provide a simple
 but not fully-equivalent link between <code><a href='https://ggforce.data-imaginist.com/reference/geom_shape.html'>ggforce::geom_shape()</a></code> and
 <code><a href='https://www.rdocumentation.org/packages/plotly/topics/ggplotly'>plotly::ggplotly()</a></code>. This function converts data to
-<code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_polygon'>ggplot2::geom_polygon</a></code> which is sufficient for the splicejam
+<code><a href='https://ggplot2.tidyverse.org/reference/geom_polygon.html'>ggplot2::geom_polygon</a></code> which is sufficient for the splicejam
 package, but which does not provide the extra effects from
 <code><a href='https://ggforce.data-imaginist.com/reference/geom_shape.html'>ggforce::geom_shape()</a></code> such as rounded corners or resizing.
 This function may be extended then submitted to
 the <code>ggforce</code> package to assist plotly support.</p>
-<p>This function is not exported, as it is only used by plotly
-specifically during conversion of a ggplot object to plotly object.</p>
+<p>This function is exported, since otherwise it caused problems
+when invoking <code><a href='https://www.rdocumentation.org/packages/plotly/topics/ggplotly'>plotly::ggplotly()</a></code> and this function was not
+consistently used in that process for some reason.</p>
     
 
   </div>

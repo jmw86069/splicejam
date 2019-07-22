@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -249,6 +249,29 @@ data.frame.</p>
 that compare one factor at a time. For two-factor designs,
 it will create two-way contrasts, defined as the contrast
 of pairwise contrasts.</p>
+<p>Input can be a character vector of group names, where by
+default each factor is separated by an underscore <code>"_"</code>.
+An example might be:</p>
+<p><code>iFactors &lt;- c("Control_Wildtype", "Control_Knockout", "Treated_Wildtype", "Treated_Knockout")</code></p>
+<p>In that case, there are two factors. The first factor
+contains factor levels <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c("Control", "Treated")</a></code>, and
+the second factor contains factor levels
+<code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c("Wildtype", "Knockout")</a></code>.</p>
+<p>Input can also be a <code>data.frame</code> (or compatible table-like
+object including <code>data.table</code> and <code>tibble</code>). Each column
+is considered a factor. From the example above, we can
+create a <code>data.frame</code> using <code><a href='https://www.rdocumentation.org/packages/jamba/topics/rbindList'>jamba::rbindList()</a></code>,
+see the Examples for more detail.</p>
+<p><code><a href='https://www.rdocumentation.org/packages/jamba/topics/rbindList'>jamba::rbindList(strsplit(iFactors, "_"))</a></code></p>
+<p>Lastly, if the input is a named vector, or a <code>data.frame</code>
+with rownames,</p>
+<p>This function will change any <code>"-"</code> in a factor name to
+<code>"."</code> prior to detecting valid contrasts. Note that
+<code>groups2contrasts()</code> does not call <code><a href='https://www.rdocumentation.org/packages/base/topics/make.names'>base::make.names()</a></code>
+because that function too aggressively converts characters
+to <code>"."</code>. If data must be compliant with the rules used
+by <code><a href='https://www.rdocumentation.org/packages/base/topics/make.names'>base::make.names()</a></code>, run that function prior to calling
+<code>groups2contrasts()</code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -280,7 +303,7 @@ of pairwise contrasts.</p>
 #&gt; KO_Treated_v2 KO_Treated_v3 
 #&gt;    KO_Treated    KO_Treated 
 #&gt; Levels: WT_Control WT_Treated KO_Control KO_Treated</div><div class='input'>
-<span class='no'>iDesignL</span> <span class='kw'>&lt;-</span> <span class='fu'>groups2contrasts</span>(<span class='no'>iGroups</span>, <span class='kw'>returnDesign</span><span class='kw'>=</span><span class='fl'>TRUE</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘arules’ was built under R version 3.5.2</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘Matrix’ was built under R version 3.5.2</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘data.table’ was built under R version 3.5.2</span></div><div class='input'><span class='no'>iDesignL</span>$<span class='no'>iDesign</span>;</div><div class='output co'>#&gt;               WT_Control WT_Treated KO_Control KO_Treated
+<span class='no'>iDesignL</span> <span class='kw'>&lt;-</span> <span class='fu'>groups2contrasts</span>(<span class='no'>iGroups</span>, <span class='kw'>returnDesign</span><span class='kw'>=</span><span class='fl'>TRUE</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘arules’ was built under R version 3.5.2</span></div><div class='input'><span class='no'>iDesignL</span>$<span class='no'>iDesign</span>;</div><div class='output co'>#&gt;               WT_Control WT_Treated KO_Control KO_Treated
 #&gt; WT_Control_v1          1          0          0          0
 #&gt; WT_Control_v2          1          0          0          0
 #&gt; WT_Control_v3          1          0          0          0

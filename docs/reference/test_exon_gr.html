@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -157,10 +157,10 @@ stored as a GRangesList.</p>
    <span class='kw'>suffix</span><span class='kw'>=</span><span class='st'>""</span>);
 
 <span class='co'># To plot a simple GRanges object</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>test_exon_gr</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_polygon'>geom_polygon</a></span>() +
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>test_exon_gr</span>), <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_polygon.html'>geom_polygon</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
-   <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>()</div><div class='img'><img src='test_exon_gr-1.png' alt='' width='700' height='433' /></div></pre>
+   <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>()</div><div class='output co'>#&gt; <span class='warning'>Warning: failed to set names on the unlisted CompressedRleList object</span></div><div class='img'><img src='test_exon_gr-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

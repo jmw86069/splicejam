@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -170,12 +170,14 @@ each column is independently colorized.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>colorSub1</span> <span class='kw'>&lt;-</span> <span class='fu'>group2colors</span>(<span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>6</span>]);</div><div class='output co'>#&gt; <span class='error'>Error in group2colors(LETTERS[1:6]): could not find function "group2colors"</span></div><div class='input'><span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>one</span><span class='kw'>=</span><span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>6</span>],
+    <pre class="examples"><div class='input'><span class='no'>colorSub1</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/group2colors'>group2colors</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>6</span>]);
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>one</span><span class='kw'>=</span><span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>6</span>],
    <span class='kw'>two</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>3</span>:<span class='fl'>4</span>], <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>),
    <span class='kw'>three</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>5</span>:<span class='fl'>6</span>], <span class='fl'>3</span>));
-<span class='no'>dfColors</span> <span class='kw'>&lt;-</span> <span class='fu'>df2colorSub</span>(<span class='no'>df</span>, <span class='no'>colorSub1</span>);</div><div class='output co'>#&gt; <span class='error'>Error in group2colors(j, colorSub = colorSub, ...): could not find function "group2colors"</span></div><div class='input'><span class='fu'>imageByColors</span>(<span class='no'>dfColors</span>, <span class='kw'>cellnote</span><span class='kw'>=</span><span class='no'>df</span>);</div><div class='output co'>#&gt; <span class='error'>Error in imageByColors(dfColors, cellnote = df): could not find function "imageByColors"</span></div><div class='input'>
+<span class='no'>dfColors</span> <span class='kw'>&lt;-</span> <span class='fu'>df2colorSub</span>(<span class='no'>df</span>, <span class='no'>colorSub1</span>);
+<span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/jamba/topics/imageByColors'>imageByColors</a></span>(<span class='no'>dfColors</span>, <span class='kw'>cellnote</span><span class='kw'>=</span><span class='no'>df</span>);</div><div class='img'><img src='df2colorSub-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Or in one step</span>
-<span class='fu'>imageByColors</span>(<span class='fu'>df2colorSub</span>(<span class='no'>df</span>), <span class='kw'>cellnote</span><span class='kw'>=</span><span class='no'>df</span>);</div><div class='output co'>#&gt; <span class='error'>Error in imageByColors(df2colorSub(df), cellnote = df): could not find function "imageByColors"</span></div><div class='input'>
+<span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/jamba/topics/imageByColors'>imageByColors</a></span>(<span class='fu'>df2colorSub</span>(<span class='no'>df</span>), <span class='kw'>cellnote</span><span class='kw'>=</span><span class='no'>df</span>);</div><div class='img'><img src='df2colorSub-2.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

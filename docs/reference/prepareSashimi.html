@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -134,12 +134,15 @@
   <span class='kw'>gap_feature_type</span> <span class='kw'>=</span> <span class='st'>"intron"</span>, <span class='kw'>default_feature_type</span> <span class='kw'>=</span> <span class='st'>"exon"</span>,
   <span class='kw'>feature_type_colname</span> <span class='kw'>=</span> <span class='st'>"feature_type"</span>, <span class='kw'>exon_label_type</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"none"</span>,
   <span class='st'>"repel"</span>, <span class='st'>"mark"</span>), <span class='kw'>junc_label_type</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"repel"</span>, <span class='st'>"mark"</span>, <span class='st'>"none"</span>),
-  <span class='kw'>return_data</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"ggCov"</span>, <span class='st'>"ggJunc"</span>, <span class='st'>"ggSashimi"</span>, <span class='st'>"covDF"</span>, <span class='st'>"juncDF"</span>,
-  <span class='st'>"ref2c"</span>, <span class='st'>"all"</span>), <span class='kw'>junc_color</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod3"</span>, <span class='fl'>0.7</span>),
+  <span class='kw'>return_data</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"df"</span>, <span class='st'>"ref2c"</span>), <span class='kw'>include_strand</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"both"</span>, <span class='st'>"+"</span>, <span class='st'>"-"</span>),
+  <span class='kw'>junc_color</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod3"</span>, <span class='fl'>0.7</span>),
   <span class='kw'>junc_fill</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod1"</span>, <span class='fl'>0.4</span>), <span class='kw'>doStackJunctions</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>coord_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"coord"</span>, <span class='st'>"scale"</span>, <span class='st'>"none"</span>), <span class='kw'>scoreFactor</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>scoreArcFactor</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>scoreArcMinimum</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>covGR</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>juncGR</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>do_shiny_progress</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>juncGR</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>use_memoise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>memoise_coverage_path</span> <span class='kw'>=</span> <span class='st'>"coverage_memoise"</span>,
+  <span class='kw'>memoise_junction_path</span> <span class='kw'>=</span> <span class='st'>"junctions_memoise"</span>,
+  <span class='kw'>do_shiny_progress</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -206,6 +209,17 @@ using compressed coordinates.</p></td>
 gaps when <code>addGaps=TRUE</code>.</p></td>
     </tr>
     <tr>
+      <th>include_strand</th>
+      <td><p>character value, one of <code>"both"</code>, <code>"+"</code>,
+<code>"-"</code> indicating the strandedness of coverage and junctions
+to display. The default <code>"both"</code> shows coverage on both strands,
+otherwise coverage is filtered either by filename (presence of
+<code>"pos"</code>, <code>"+"</code>, or <code>"plus"</code> indicates positive strand), or
+by detecting strandedness by positive/negative coverage scores.
+Detecting by filename is intended to avoid retrieving coverage
+in the R-shiny app, to help efficiency.</p></td>
+    </tr>
+    <tr>
       <th>doStackJunctions</th>
       <td><p>logical indicating whether to stack
 junction arcs at each end, this argument is passed to
@@ -227,8 +241,8 @@ and <code>"sample_id"</code> is used to define the biological <code>sample_id</c
       <th>do_shiny_progress</th>
       <td><p>logical indicating whether to send
 progress updates to a running shiny app, using the
-<code><a href='https://www.rdocumentation.org/packages/shiny/topics/withProgress'>shiny::withProgress()</a></code> and <code><a href='https://www.rdocumentation.org/packages/shiny/topics/withProgress'>shiny::incProgress()</a></code> methods.
-This function only calls <code><a href='https://www.rdocumentation.org/packages/shiny/topics/withProgress'>shiny::incProgress()</a></code> and
+<code><a href='https://www.rdocumentation.org/packages/shiny/topics/withProgress'>shiny::withProgress()</a></code> and <code><a href='https://www.rdocumentation.org/packages/shiny/topics/withProgress'>shiny::setProgress()</a></code> methods.
+This function only calls <code><a href='https://www.rdocumentation.org/packages/shiny/topics/withProgress'>shiny::setProgress()</a></code> and
 assumes the <code><a href='https://www.rdocumentation.org/packages/shiny/topics/withProgress'>shiny::withProgress()</a></code> has already been
 initialized.</p></td>
     </tr>
@@ -298,8 +312,8 @@ of secure web requests, but this requirement varies by country.</p>
     <div class='dont-index'><p>Other RNA-seq functions: <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw</a></code></p>
 <p>Other jam plot functions: <code><a href='bgaPlotly3d.html'>bgaPlotly3d</a></code>,
   <code><a href='factor2label.html'>factor2label</a></code>, <code><a href='gene2gg.html'>gene2gg</a></code>,
-  <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='plotSashimi.html'>plotSashimi</a></code>,
-  <code><a href='stackJunctions.html'>stackJunctions</a></code></p>
+  <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='jitter_norm.html'>jitter_norm</a></code>,
+  <code><a href='plotSashimi.html'>plotSashimi</a></code>, <code><a href='stackJunctions.html'>stackJunctions</a></code></p>
 <p>Other splicejam core functions: <code><a href='exoncov2polygon.html'>exoncov2polygon</a></code>,
   <code><a href='gene2gg.html'>gene2gg</a></code>, <code><a href='grl2df.html'>grl2df</a></code>,
   <code><a href='make_ref2compressed.html'>make_ref2compressed</a></code>,
@@ -320,9 +334,7 @@ of secure web requests, but this requirement varies by country.</p>
    <span class='kw'>filesDF</span><span class='kw'>=</span><span class='no'>filesDF</span>,
    <span class='kw'>gene</span><span class='kw'>=</span><span class='st'>"TestGene1"</span>,
    <span class='kw'>covGR</span><span class='kw'>=</span><span class='no'>test_cov_gr</span>,
-   <span class='kw'>juncGR</span><span class='kw'>=</span><span class='no'>test_junc_gr</span>);
-<span class='fu'><a href='plotSashimi.html'>plotSashimi</a></span>(<span class='no'>sh1</span>);</div><div class='output co'>#&gt; <span class='message'>Scale for 'fill' is already present. Adding another scale for 'fill', which</span>
-#&gt; <span class='message'>will replace the existing scale.</span></div><div class='img'><img src='prepareSashimi-1.png' alt='' width='700' height='433' /></div><div class='input'>
+   <span class='kw'>juncGR</span><span class='kw'>=</span><span class='no'>test_junc_gr</span>);</div><div class='output co'>#&gt; <span class='error'>Error in `[.data.frame`(filesDF, filesDF$type %in% "junction" &amp; filesDF$sample_id %in%     sample_id, c("url", "sample_id", "scale_factor"), drop = FALSE): undefined columns selected</span></div><div class='input'><span class='fu'><a href='plotSashimi.html'>plotSashimi</a></span>(<span class='no'>sh1</span>);</div><div class='output co'>#&gt; <span class='error'>Error in "ref2c" %in% names(sashimi): object 'sh1' not found</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

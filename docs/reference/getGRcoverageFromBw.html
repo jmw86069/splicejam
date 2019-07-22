@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -130,7 +130,9 @@
 
     <pre class="usage"><span class='fu'>getGRcoverageFromBw</span>(<span class='no'>gr</span>, <span class='no'>bwUrls</span>, <span class='kw'>addGaps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>gap_feature_type</span> <span class='kw'>=</span> <span class='st'>"gap"</span>, <span class='kw'>default_feature_type</span> <span class='kw'>=</span> <span class='st'>"exon"</span>,
-  <span class='kw'>feature_type_colname</span> <span class='kw'>=</span> <span class='st'>"feature_type"</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>feature_type_colname</span> <span class='kw'>=</span> <span class='st'>"feature_type"</span>, <span class='kw'>use_memoise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>memoise_coverage_path</span> <span class='kw'>=</span> <span class='st'>"memoise_coverage"</span>,
+  <span class='kw'>do_shiny_progress</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -148,7 +150,11 @@ to bigWig files, suitable for use by <code><a href='https://www.rdocumentation.o
       <th>addGaps</th>
       <td><p>logical indicating whether gaps between GRanges
 should be added to the query. Gaps are determined using
-<code><a href='getGRgaps.html'>getGRgaps()</a></code>.</p></td>
+<code><a href='getGRgaps.html'>getGRgaps()</a></code>. Practically, when <code>addGaps=TRUE</code> loads the
+coverage data between exons, which can be a substantially
+larger region than exons. When <code>addGaps=FALSE</code> the coverage
+data is not loaded in intron/gap regions, and therefore is
+not displayed in downstream plots like sashimi plots.</p></td>
     </tr>
     <tr>
       <th>feature_type_colname, gap_feature_type, default_feature_type</th>
@@ -159,6 +165,34 @@ whose value for gap regions is <code>gap_feature_type</code>. When
 otherwise the column is created with value <code>default_feature_type</code>.
 By default, this function adds a column <code>"feature_type"</code> with
 value <code>"gap"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>use_memoise</th>
+      <td><p>logical indicating whether to use <code><a href='https://www.rdocumentation.org/packages/memoise/topics/memoise'>memoise::memoise()</a></code>
+to store coverage data in cache files, which can be re-used in
+subsequent R sessions, given consistent values for
+<code>memoise_coverage_path</code>.
+Note that the primary reason to use memoise during this step,
+is that cache files will be stored <em>for each bigWig file</em> and
+not for the set of bigWig files. For example, adding one bigWig
+file to <code>bwUrls</code> will cause creating of one new memoise cache file,
+but will re-use any pre-existing memoise cache files for the
+previously cached <code>bwUrls</code> entries.</p></td>
+    </tr>
+    <tr>
+      <th>memoise_coverage_path</th>
+      <td><p>character path to file folder
+used to store coverage data in memoise cache files.
+By default, the folder is a subfolder of
+the current working directory (see <code><a href='https://www.rdocumentation.org/packages/base/topics/getwd'>getwd()</a></code>) so it should be
+changed to an absolute path if needed for wider re-use in any
+working directory.</p></td>
+    </tr>
+    <tr>
+      <th>do_shiny_progress</th>
+      <td><p>logical indicating whether to update
+shiny progress bar, using <code><a href='https://www.rdocumentation.org/packages/shiny/topics/withProgress'>shiny::setProgress()</a></code>. It assumes
+the progress bar is already initiated.</p></td>
     </tr>
     <tr>
       <th>verbose</th>

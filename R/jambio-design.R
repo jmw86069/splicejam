@@ -343,14 +343,22 @@ groups2contrasts <- function
                }
             }
          }
+         if (verbose) {
+            printDebug("groups2contrasts(): ",
+               "head(iFactors):");
+            print(head(iFactors, 100));
+         }
       }
       if (length(groupColumns) == 0) {
          if (length(colnames(iFactors)) == 0) {
             ## Create colnames
             groupColumns <- jamba::makeNames(
+               renameOnes=TRUE,
                rep("factor",
                   length.out=ncol(iFactors)));
             colnames(iFactors) <- groupColumns;
+         } else {
+            groupColumns <- colnames(iFactors);
          }
       } else {
          if (!all(groupColumns %in% colnames(iFactors))) {
@@ -358,13 +366,13 @@ groups2contrasts <- function
          }
          ## Use iFactors as-is
          #iFactors <- iFactors[,groupColumns,drop=FALSE];
-         if (1 == 2 && verbose) {
-            jamba::printDebug("groups2contrasts(): ",
-               "Specifying iFactors[,groupColumns,drop=FALSE]");
-            jamba::printDebug("groups2contrasts(): ",
-               "groupColumns:",
-               groupColumns);
-         }
+      }
+      if (verbose) {
+         jamba::printDebug("groups2contrasts(): ",
+            "Specifying iFactors[,groupColumns,drop=FALSE]");
+         jamba::printDebug("groups2contrasts(): ",
+            "groupColumns:",
+            groupColumns);
       }
 
       ## Use mixedSortDF() to sort the data.frame,
@@ -389,6 +397,8 @@ groups2contrasts <- function
          iFactors_names <- jamba::makeNames(rowGroups,
             suffix="_rep");
          rownames(iFactors) <- iFactors_names;
+      } else {
+         iFactors_names <- rownames(iFactors);
       }
       ## Assume for now sample rows and group columns
       sample2group <- split(iFactors_names, rowGroups);

@@ -1,7 +1,16 @@
 
 #' Sashimi Shiny app server
 #'
-#' Sashimi Shiny app sserver
+#' Sashimi Shiny app server
+#'
+#' This function contains the server logic for the R-shiny
+#' Splicejam Sashimi viewer.
+#'
+#' The R-shiny app is started by `launchSashimiApp()`, which
+#' calls `shiny::shinyApp()`, using arguments `server`, `ui`,
+#' `onStart`, and `options`. This function fulfills the
+#' argument `server`.
+#'
 #'
 #' @param input provided by shiny
 #' @param output provided by shiny
@@ -25,11 +34,39 @@ sashimiAppServer <- function
    output$sashimiplot_guide <- renderUI(sashimiplot_guide);
    output$sashimiplotviz_guide <- renderUI(sashimiplotviz_guide);
 
+   ## Update gene_choices
+   get_gene_choices <- reactive({
+      search_genelist <- input$search_genelist;
+      if (length(search_genelist) > 0 && igrepHas("detected", search_genelist)) {
+         gene_choices <- detectedGenes;
+      } else {
+         gene_choices <- jamba::mixedSort(unique(
+            tx2geneDF$gene_name));
+      }
+      return(gene_choices);
+   });
+   observe({
+      search_genelist <- input$search_genelist;
+      gene_choices <- get_gene_choices();
+      if (verbose) {
+         printDebug("updateSelectizeInput gene:",
+            gene);
+      }
+      updateSelectizeInput(session,
+         "gene",
+         choices=gene_choices,
+         selected=head(
+            jamba::provigrep(c("Gria1", "Ntrk2", "^[A-Z][a-z]{3}", "."),
+               detectedGenes), 1),
+         server=TRUE);
+   });
+
    ## server-side selectize gene list
    printDebug("length(detectedGenes):", length(detectedGenes));
    updateSelectizeInput(session,
       "gene",
       choices=detectedGenes,
+      #choices=get_gene_choices(),
       selected=head(
          jamba::provigrep(c("Gria1", "Ntrk2", "^[A-Z][a-z]{3}", "."),
             detectedGenes), 1),
@@ -107,12 +144,23 @@ sashimiAppServer <- function
             gene);
       }
       if (length(gene) > 0 && nchar(gene) > 0) {
-         chr_range <- as.data.frame(range(flatExonsByGene[[gene]]))[,c("start", "end")];
+         ## Handle "All Genes" where it is not present in flatExonsByGene
+         flatExonsByGene1 <- get_flat_gene_exons();
+         printDebug("update gene slider bar, gene:", gene);
+         printDebug("update gene slider bar, length(flatExonsByGene1):", length(flatExonsByGene1));
+         printDebug("update gene slider bar, length(flatExonsByGene1[[gene]]):", length(flatExonsByGene1[[gene]]));
+         chr_range <- as.data.frame(range(flatExonsByGene1[[gene]]))[,c("start", "end")];
+         coords_label <- paste0("Coordinate range ",
+            as.character(seqnames(head(flatExonsByGene1[[gene]], 1))),
+            ":");
+         if ("gene_nameExon" %in% colnames(values(flatExonsByGene1[[gene]]))) {
+            exon_names <- jamba::mixedSort(
+               values(flatExonsByGene1[[gene]])$gene_nameExon);
+         } else {
+            exon_names <- NULL;
+         }
          if (length(chr_range) > 0) {
             ## Update slider text label
-            coords_label <- paste0("Coordinate range ",
-               as.character(seqnames(head(flatExonsByGene[[gene]], 1))),
-               ":");
             output$gene_coords_label <- renderText({
                coords_label
             });
@@ -125,18 +173,57 @@ sashimiAppServer <- function
             );
          }
          ## update exon name range slider
-         if ("gene_nameExon" %in% colnames(values(flatExonsByGene[[gene]]))) {
-            exon_names <- jamba::mixedSort(
-               values(flatExonsByGene[[gene]])$gene_nameExon);
-            if (length(exon_names) > 0) {
-               updateSliderTextInput(session,
-                  "exon_range",
-                  choices=exon_names,
-                  selected=c(head(exon_names, 1), tail(exon_names, 1))
-               );
-            }
+         if (length(exon_names) > 0) {
+            updateSliderTextInput(session,
+               "exon_range",
+               choices=exon_names,
+               selected=c(head(exon_names, 1), tail(exon_names, 1))
+            );
          }
       }
+   });
+
+   get_flat_gene_exons <- reactive({
+      gene <- input$gene;
+      if (length(gene) > 0 && nchar(gene) > 0) {
+         ## Handle "All Genes" where it is not present in flatExonsByGene
+         if (!gene %in% names(flatExonsByGene)) {
+            printDebug("Creating flat exons for gene:", gene);
+            flatExonsByGene1 <- flattenExonsBy(genes=gene,
+               by="gene",
+               exonsByTx=exonsByTx,
+               cdsByTx=cdsByTx,
+               tx2geneDF=tx2geneDF);
+         } else {
+            #flatExonsByGene1 <- flatExonsByGene;
+            flatExonsByGene1 <- flatExonsByGene[gene];
+         }
+      } else {
+         flatExonsByGene1 <- flatExonsByGene;
+      }
+      return(flatExonsByGene1);
+   });
+
+   get_flat_gene_exons_plot <- reactive({
+      input$calc_gene_params;
+      gene <- isolate(input$gene);
+      if (length(gene) > 0 && nchar(gene) > 0) {
+         ## Handle "All Genes" where it is not present in flatExonsByGene
+         if (!gene %in% names(flatExonsByGene)) {
+            printDebug("Creating flat exons for gene:", gene);
+            flatExonsByGene1 <- flattenExonsBy(genes=gene,
+               by="gene",
+               exonsByTx=exonsByTx,
+               cdsByTx=cdsByTx,
+               tx2geneDF=tx2geneDF);
+         } else {
+            #flatExonsByGene1 <- flatExonsByGene;
+            flatExonsByGene1 <- flatExonsByGene[gene];
+         }
+      } else {
+         flatExonsByGene1 <- flatExonsByGene;
+      }
+      return(flatExonsByGene1);
    });
 
    get_gene_coords <- reactive({
@@ -144,11 +231,12 @@ sashimiAppServer <- function
       gene <- isolate(input$gene);
       ## get gene coordinate range
       use_exon_names <- isolate(input$use_exon_names);
+      flatExonsByGene1 <- get_flat_gene_exons_plot();
       if (use_exon_names %in% "exon names") {
          exon_range <- isolate(input$exon_range);
          # Convert exon names to coordinates
          gene_coords <- range(as.data.frame(range(
-            subset(flatExonsByGene[[gene]], gene_nameExon %in% exon_range)
+            subset(flatExonsByGene1[[gene]], gene_nameExon %in% exon_range)
          ))[,c("start", "end")]);
          if (verbose) {
             printDebug("gene_coords inferred from input$exon_range:", gene_coords);
@@ -158,7 +246,7 @@ sashimiAppServer <- function
          if (length(gene_coords) == 0 || all(gene_coords %in% c(28,117))) {
             # default has not been initialized yet, so take full gene range
             gene_coords <- range(as.data.frame(range(
-               flatExonsByGene[[gene]]
+               flatExonsByGene1[[gene]]
             ))[,c("start", "end")]);
          }
          if (verbose) {
@@ -192,6 +280,7 @@ sashimiAppServer <- function
       input$calc_gene_params;
       shinyjs::disable("calc_gene_params");
       gene <- isolate(input$gene);
+      flatExonsByGene1 <- get_flat_gene_exons_plot();
       if (length(gene) == 0) {
          return(NULL);
       }
@@ -223,7 +312,7 @@ sashimiAppServer <- function
             if (verbose) {
                gene_has_cache <- memoise::has_cache(prepareSashimi_m)(
                   gene=gene,
-                  flatExonsByGene=flatExonsByGene,
+                  flatExonsByGene=flatExonsByGene1,
                   minJunctionScore=min_junction_reads,
                   sample_id=sample_id,
                   filesDF=filesDF,
@@ -236,7 +325,7 @@ sashimiAppServer <- function
             }
             sashimi_data <- prepareSashimi_m(
                gene=gene,
-               flatExonsByGene=flatExonsByGene,
+               flatExonsByGene=flatExonsByGene1,
                minJunctionScore=min_junction_reads,
                sample_id=sample_id,
                filesDF=filesDF,
@@ -255,6 +344,15 @@ sashimiAppServer <- function
 
    output$sashimiplot_output <- renderUI({
       sashimi_data <- get_sashimi_data();
+      if ("ref2c" %in% names(attributes(sashimi_data))) {
+         ref2c <- attr(sashimi_data, "ref2c");
+      } else if ("ref2c" %in% names(sashimi_data)) {
+         ref2c <- sashimi_data$ref2c;
+      } else {
+         ref2c <- NULL;
+      }
+
+      flatExonsByGene1 <- get_flat_gene_exons_plot();
 
       # Update in parent environment
       #sashimi_data <- sashimi_data;
@@ -289,6 +387,7 @@ sashimiAppServer <- function
             facet_scales=facet_scales,
             junc_alpha=junction_alpha_d(),
             label_coords=get_gene_coords(),
+            ref2c=ref2c,
             fill_scheme="sample_id");
          #sashimi_data <- sashimi_data;
 
@@ -315,28 +414,31 @@ sashimiAppServer <- function
             if (show_tx_model_d() && length(flatExonsByTx) > 0) {
                if (show_detected_tx_d()) {
                   gg_gene <- gene2gg(gene=gene,
-                     flatExonsByGene=flatExonsByGene,
+                     flatExonsByGene=flatExonsByGene1,
                      flatExonsByTx=flatExonsByTx[names(flatExonsByTx) %in% detectedTx],
                      label_coords=get_gene_coords(),
+                     ref2c=ref2c,
                      exonLabelSize=exon_label_size_d());
                } else {
                   gg_gene <- gene2gg(gene=gene,
-                     flatExonsByGene=flatExonsByGene,
+                     flatExonsByGene=flatExonsByGene1,
                      flatExonsByTx=flatExonsByTx,
                      label_coords=get_gene_coords(),
+                     ref2c=ref2c,
                      exonLabelSize=exon_label_size_d());
                }
             } else {
                gg_gene <- gene2gg(gene=gene,
-                  flatExonsByGene=flatExonsByGene,
+                  flatExonsByGene=flatExonsByGene1,
                   label_coords=get_gene_coords(),
+                  ref2c=ref2c,
                   exonLabelSize=exon_label_size_d());
             }
             gg_gene <- gg_gene;
          }
 
          ## Prepare text label with genome coordinates
-         ref_name <- as.character(head(seqnames(flatExonsByGene[[gene]]), 1));
+         ref_name <- as.character(head(seqnames(flatExonsByGene1[[gene]]), 1));
          coord_label <- paste0(
             ref_name,
             ":",

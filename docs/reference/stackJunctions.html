@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -128,9 +128,9 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>stackJunctions</span>(<span class='no'>gr</span>, <span class='kw'>scoreColname</span> <span class='kw'>=</span> <span class='st'>"score"</span>, <span class='kw'>scoreFactor</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>matchFrom</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>matchTo</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strandedScore</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>baseline</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>stackJunctions</span>(<span class='no'>gr</span>, <span class='kw'>scoreColname</span> <span class='kw'>=</span> <span class='st'>"score"</span>, <span class='kw'>sampleColname</span> <span class='kw'>=</span> <span class='st'>"sample_id"</span>,
+  <span class='kw'>scoreFactor</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>matchFrom</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>matchTo</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>strandedScore</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>baseline</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -144,6 +144,13 @@
       <td><p>character string matching one of <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(values(gr))</a></code>
 that contains a numeric value representing the abundance of
 each splice junction observed.</p></td>
+    </tr>
+    <tr>
+      <th>sampleColname</th>
+      <td><p>character string with the column or columns
+that contain biological sample identifier, used to ensure junctions
+are only stacked within a sample, and not across samples. When
+<code>sampleColname</code> is <code>NULL</code>, all junctions are stacked.</p></td>
     </tr>
     <tr>
       <th>scoreFactor</th>
@@ -164,7 +171,10 @@ default <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c(
 <code>matchFrom</code>, and <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c("seqnames", "end", "strand")</a></code> is used
 for <code>matchTo</code>. That said, if <code>matchFrom</code> or <code>matchTo</code> are supplied,
 those colnames are used from <code><a href='https://www.rdocumentation.org/packages/base/topics/as.data.frame'>as.data.frame(gr)</a></code>. Multiple colnames
-are allowed.</p></td>
+are allowed.
+Note also that <code>sampleColname</code> is appended to <code>matchFrom</code> and <code>matchTo</code>
+to ensure that matching is only performed within each
+<code>sampleColname</code> value.</p></td>
     </tr>
     <tr>
       <th>strandedScore</th>
@@ -219,8 +229,8 @@ the columns <code>"nameFrom"</code> and <code>"nameTo"</code>, see examples belo
 
     <div class='dont-index'><p>Other jam plot functions: <code><a href='bgaPlotly3d.html'>bgaPlotly3d</a></code>,
   <code><a href='factor2label.html'>factor2label</a></code>, <code><a href='gene2gg.html'>gene2gg</a></code>,
-  <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='plotSashimi.html'>plotSashimi</a></code>,
-  <code><a href='prepareSashimi.html'>prepareSashimi</a></code></p>
+  <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='jitter_norm.html'>jitter_norm</a></code>,
+  <code><a href='plotSashimi.html'>plotSashimi</a></code>, <code><a href='prepareSashimi.html'>prepareSashimi</a></code></p>
 <p>Other jam GRanges functions: <code><a href='addGRLgaps.html'>addGRLgaps</a></code>,
   <code><a href='addGRgaps.html'>addGRgaps</a></code>,
   <code><a href='annotateGRLfromGRL.html'>annotateGRLfromGRL</a></code>,
@@ -241,7 +251,8 @@ the columns <code>"nameFrom"</code> and <code>"nameTo"</code>, see examples belo
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>GenomicRanges</span>);
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggplot2</span>);
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggforce</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘ggforce’ was built under R version 3.5.2</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>colorjam</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggforce</span>);
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>colorjam</span>);
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>jamba</span>);
 <span class='no'>grExons</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRanges-class'>GRanges</a></span>(<span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"chr1"</span>, <span class='fl'>4</span>),
    <span class='kw'>ranges</span><span class='kw'>=</span><span class='fu'>IRanges</span>(
@@ -263,32 +274,53 @@ the columns <code>"nameFrom"</code> and <code>"nameTo"</code>, see examples belo
    <span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRangesList-class'>GRangesList</a></span>(<span class='kw'>exons</span><span class='kw'>=</span><span class='no'>grExons</span>),
    <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/split'>split</a></span>(<span class='no'>grJunc</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grJunc</span>))
    );
-<span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grl</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grl</span>), <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>id</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>feature_type</span>)) +
    <span class='kw pkg'>ggforce</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggforce.data-imaginist.com/reference/geom_shape.html'>geom_shape</a></span>() +
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous'>scale_y_continuous</a></span>(<span class='kw'>breaks</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_along</a></span>(<span class='no'>grl</span>)-<span class='fl'>1</span>, <span class='kw'>labels</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grl</span>)) +
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_continuous</a></span>(<span class='kw'>breaks</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_along</a></span>(<span class='no'>grl</span>)-<span class='fl'>1</span>, <span class='kw'>labels</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>grl</span>)) +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Schematic of exons and junctions GRanges"</span>);</div><div class='img'><img src='stackJunctions-1.png' alt='' width='700' height='433' /></div><div class='input'>
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span>(<span class='st'>"Schematic of exons and junctions GRanges"</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: failed to set names on the unlisted CompressedRleList object</span></div><div class='img'><img src='stackJunctions-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># add annotation for closest known exon</span>
 <span class='no'>grJunc</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='closestExonToJunctions.html'>closestExonToJunctions</a></span>(<span class='no'>grJunc</span>, <span class='no'>grExons</span>)$<span class='no'>spliceGRgene</span>;
 
 <span class='co'># The un-stacked junctions</span>
 <span class='no'>grlJunc2df1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grJunc</span>,
    <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>,
-   <span class='kw'>doStackJunctions</span><span class='kw'>=</span><span class='fl'>FALSE</span>);</div><div class='output co'>#&gt; <span class='error'>Error: subscript contains invalid names</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>grlJunc2df1</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>gr_name</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
+   <span class='kw'>doStackJunctions</span><span class='kw'>=</span><span class='fl'>FALSE</span>);
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='no'>grlJunc2df1</span>, <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>gr_name</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
    <span class='fu'><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.7</span>) +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Junctions not stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df1, aes(x = x, y = y, group = gr_name, fill = gr_name)): object 'grlJunc2df1' not found</span></div><div class='input'>
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span>(<span class='st'>"Junctions not stacked at boundaries"</span>)</div><div class='img'><img src='stackJunctions-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># The stacked junctions</span>
-<span class='no'>grJunc2</span> <span class='kw'>&lt;-</span> <span class='fu'>stackJunctions</span>(<span class='no'>grJunc</span>);
-<span class='no'>grlJunc2df2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grJunc2</span>,
+<span class='no'>grJunc2</span> <span class='kw'>&lt;-</span> <span class='fu'>stackJunctions</span>(<span class='no'>grJunc</span>);</div><div class='output co'>#&gt; <span class='error'>Error: subscript contains invalid names</span></div><div class='input'><span class='no'>grlJunc2df2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grJunc2</span>,
    <span class='kw'>scoreArcMinimum</span><span class='kw'>=</span><span class='fl'>20</span>,
-   <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>);</div><div class='output co'>#&gt; <span class='error'>Error: subscript contains invalid names</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>grlJunc2df2</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>gr_name</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
+   <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>);</div><div class='output co'>#&gt; <span class='error'>Error in "GRanges" %in% class(grl): object 'grJunc2' not found</span></div><div class='input'><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='no'>grlJunc2df2</span>, <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>gr_name</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
    <span class='fu'><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.7</span>) +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
    <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/labs'>ggtitle</a></span>(<span class='st'>"Junctions stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df2, aes(x = x, y = y, group = gr_name, fill = gr_name)): object 'grlJunc2df2' not found</span></div><div class='input'>
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span>(<span class='st'>"Junctions stacked at boundaries"</span>);</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df2, aes(x = x, y = y, group = gr_name, fill = gr_name)): object 'grlJunc2df2' not found</span></div><div class='input'>
+<span class='co'>## Another view showing the junction_rank</span>
+<span class='co'>## based upon max reads entering and exiting each exon edge</span>
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='no'>grlJunc2df2</span>, <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
+   <span class='fu'><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='no'>junction_rank</span>), <span class='kw'>fill</span><span class='kw'>=</span><span class='st'>"orange"</span>) +
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_alpha_manual</a></span>(<span class='kw'>values</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>`1`</span><span class='kw'>=</span><span class='fl'>0.4</span>, <span class='kw'>`2`</span><span class='kw'>=</span><span class='fl'>0.6</span>, <span class='kw'>`3`</span><span class='kw'>=</span><span class='fl'>0.7</span>)) +
+   <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
+   <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span>(<span class='st'>"Junctions stacked at boundaries"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(grlJunc2df2, aes(x = x, y = y, group = gr_name)): object 'grlJunc2df2' not found</span></div><div class='input'>
+<span class='co'>## Last example showing how two samples are kept separate</span>
+<span class='no'>grJunc_samples</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>grJunc</span>, <span class='no'>grJunc</span>);
+<span class='fu'>values</span>(<span class='no'>grJunc_samples</span>[<span class='fl'>6</span>:<span class='fl'>10</span>])[,<span class='st'>"sample_id"</span>] <span class='kw'>&lt;-</span> <span class='st'>"SampleB"</span>;</div><div class='output co'>#&gt; <span class='error'>Error in replaceROWS(mcols(x, use.names = FALSE), i, mcols(value, use.names = FALSE)): provided 7 variables to replace 6 variables</span></div><div class='input'><span class='no'>grlJunc2df_samples</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='grl2df.html'>grl2df</a></span>(<span class='no'>grJunc_samples</span>,
+   <span class='kw'>scoreArcMinimum</span><span class='kw'>=</span><span class='fl'>20</span>,
+   <span class='kw'>shape</span><span class='kw'>=</span><span class='st'>"junction"</span>);
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='no'>grlJunc2df_samples</span>, <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>gr_name</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr_name</span>)) +
+   <span class='fu'><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.7</span>) +
+   <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam'>scale_fill_jam</a></span>() +
+   <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/theme_jam'>theme_jam</a></span>() +
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle</a></span>(<span class='st'>"Junctions stacked at boundaries"</span>) +
+   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span>(~<span class='no'>sample_id</span>)</div><div class='output co'>#&gt; <span class='error'>Error: At least one layer must contain all faceting variables: `sample_id`.</span>
+#&gt; <span class='error'>* Plot is missing `sample_id`</span>
+#&gt; <span class='error'>* Layer 1 is missing `sample_id`</span></div><div class='img'><img src='stackJunctions-3.png' alt='' width='700' height='433' /></div><div class='input'>
 
 </div></pre>
   </div>

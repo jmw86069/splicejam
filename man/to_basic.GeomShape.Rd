@@ -24,6 +24,7 @@ package, but which does not provide the extra effects from
 This function may be extended then submitted to
 the \code{ggforce} package to assist plotly support.
 
-This function is not exported, as it is only used by plotly
-specifically during conversion of a ggplot object to plotly object.
+This function is exported, since otherwise it caused problems
+when invoking \code{plotly::ggplotly()} and this function was not
+consistently used in that process for some reason.
 }

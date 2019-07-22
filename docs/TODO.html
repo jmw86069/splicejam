@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -120,20 +120,87 @@
 <div id="todo-for-jambio" class="section level2">
 <h2 class="hasAnchor">
 <a href="#todo-for-jambio" class="anchor"></a>TODO for jambio</h2>
+<div id="farris-r-shiny-feedback" class="section level3">
+<h3 class="hasAnchor">
+<a href="#farris-r-shiny-feedback" class="anchor"></a>Farris R-shiny feedback</h3>
+<ul>
+<li>Recalculate scale factors, use reference genes from in situ hybridizations: Calm1, Camk2a, Camk2b, Actb, which show little to no change.</li>
+<li>Debug errors with certain genes: Arc, Pdgfa, Pdgfb. The error message is “cannot coerce”list" to DataFrame“. This bug appears to be resolved after refactoring <code>prepSashimi()</code> to return the full data.frame.</li>
+<li>Enable searching all genes, not just the detected genes.</li>
+<li>Allow option to specify the searchable genes: “Detected”, “All”, then eventually subset of genes based upon statistical hits in each comparison. Genes to test: Mpo, Hcar1.</li>
+<li>Debug <code><a href="reference/stackJunctions.html">stackJunctions()</a></code> in gene “Camk2d” at exons 14-15 and exons 17-18. The stacking appears to be mis-applied.</li>
+<li>Fix the display of plotly gene-exon models, currently shows an empty panel on some servers, but not in local development testing. Likely due to data.frame not containing some column or non-NA values when comparing the gene-exon model data.frame to the data.frame used to display sashimi data.</li>
+<li>Plotly two-column layout does not keep all columns of panels in sync when the x-axis is zoomed, the desired effect is to have the x-axis of each sashimi panel zoomed consistently, across however many columns are used for layout.</li>
+<li>Gria1 takes a while to display the first time, during which the app is not usable. Consider making plot rendering asynchronous to decouple the visualization from the use of the R-shiny app.</li>
+<li>The plotly exon coordinates show the overall coordinate range and not the specific exon.</li>
+</ul>
+</div>
+<div id="vignettes" class="section level3">
+<h3 class="hasAnchor">
+<a href="#vignettes" class="anchor"></a>Vignettes</h3>
+<ul>
+<li>New vignette describing how to start a new R-shiny Sashimi App.</li>
+</ul>
+</div>
+<div id="testing" class="section level3">
+<h3 class="hasAnchor">
+<a href="#testing" class="anchor"></a>Testing</h3>
+<ul>
+<li>Implement methods in the testthat package to ensure a consistent suite of tests to confirm full functionality with updates. Highest priority functions, which would break parts of the workflow:
+<ul>
+<li><code><a href="reference/flattenExonsBy.html">flattenExonsBy()</a></code></li>
+<li>
+<code><a href="reference/assignGRLexonNames.html">assignGRLexonNames()</a></code> - dependent upon <code><a href="https://www.rdocumentation.org/packages/jamba/topics/makeNames">jamba::makeNames()</a></code>
+</li>
+<li>
+<code><a href="reference/annotateGRfromGR.html">annotateGRfromGR()</a></code> - dependent upon <code><a href="reference/shrinkMatrix.html">shrinkMatrix()</a></code>
+</li>
+<li><code><a href="reference/shrinkMatrix.html">shrinkMatrix()</a></code></li>
+<li><code><a href="reference/combineGRcoverage.html">combineGRcoverage()</a></code></li>
+<li><code><a href="reference/df2colorSub.html">df2colorSub()</a></code></li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="data-frame-versus-tibble" class="section level3">
+<h3 class="hasAnchor">
+<a href="#data-frame-versus-tibble" class="anchor"></a>data.frame versus tibble</h3>
+<ul>
+<li>Evaluated tibble as possible replacement for data.frame in <code><a href="reference/prepareSashimi.html">prepareSashimi()</a></code>. It shrinks data volume to about 7 times smaller, reducing duplicated annotations per row for polygon coordinates. However, ggplot2 still requires unnesting the tibble into a tall format for plotting, it is unclear whether that step will incur its own performance hit.</li>
+<li>ggplot2 polygon rendering should be faster – possibly needs to reduce the polygon detail prior to plotting, but unclear whether that can happen since ggplot2 already chops polygons into multiple small segments in order to handle transformed axis coordinates.</li>
+</ul>
+</div>
+<div id="r-shiny-caching" class="section level3">
+<h3 class="hasAnchor">
+<a href="#r-shiny-caching" class="anchor"></a>R-shiny caching</h3>
+<ul>
+<li>Review flatExonsByTx caching, which gets invalidated too frequently. Consider using a fixed caching strategy, using defined keys instead of the memoise default.</li>
+</ul>
+</div>
+<div id="r-shiny-launchsashimiapp" class="section level3">
+<h3 class="hasAnchor">
+<a href="#r-shiny-launchsashimiapp" class="anchor"></a>R-shiny launchSashimiApp()</h3>
+<ul>
+<li>Better error message for gene symbol not recognized.</li>
+<li>
+<p>Plotly tooltips are so finicky, but try anyway:</p>
+<ul>
+<li>coverage tooltip: y-position (coverage score), exon name (gr_name), track name (cov_name), preferably the coordinate range of the feature.</li>
+<li>junction tooltip: junction score, name “gene_exonFrom gene_exonTo”, and start-end coordinates of the junction.</li>
+<li>plotly_onclick: show junction score or exon name in the middle of the respective polygon?</li>
+</ul>
+</li>
+<li>Make font sizes more configurable.</li>
+<li>Add gene symbol somewhere, otherwise without the gene model shown, there is no indication what gene is being displayed.</li>
+<li><p>Add a vignette describing how to set up an R-shiny splicejam.</p></li>
+</ul>
+</div>
 <div id="sashimi-plot-functionality" class="section level3">
 <h3 class="hasAnchor">
 <a href="#sashimi-plot-functionality" class="anchor"></a>Sashimi plot functionality</h3>
 <ul>
-<li>
-<p>Need ability to zoom without polygon clipping issues in ggplot2. Ideas:</p>
-<ul>
-<li>Provide zoom in <code><a href="reference/prepareSashimi.html">prepareSashimi()</a></code> based upon GRanges, or range of exons. However in testing it still displays junctions whose ends are in range, extending outside of the intended range.</li>
-</ul>
-</li>
-<li>Exploit ggforce::facet_zoom() that somehow manages zoom without clipping issues. Does require the facet stage of rendering? It removes all previous faceting, which is problematic.</li>
-<li>
-<code><a href="https://ggforce.data-imaginist.com/reference/facet_zoom.html">ggforce::facet_zoom()</a></code> keeps all labels that use <code><a href="https://www.rdocumentation.org/packages/ggrepel/topics/geom_text_repel">ggrepel::geom_text_repel()</a></code>, which makes no sense. Hide labels outside the plot range.</li>
-<li><p>Evaluate using <code>coords_cartesian(xlim=, ylim=)</code> which supposedly does not crop data points prior to applying axis limits.</p></li>
+<li>refactor prepareSashimi() to create full merged data.frame, thus removing it from plotSashimi(); it should make plot faster.</li>
+<li>geom_diagonal_wide_arc(): new argument calc_midpoint=TRUE will calculate the appropriate middle x-position using the active x-axis transformation so the mid-point is the visible middle. Optionally specify the fraction, 0.5 is middle, 0.25 is the first quartile near the left edge, etc.</li>
 <li>
 <p>Transformed axis:</p>
 <ul>
@@ -141,51 +208,20 @@
 <li>Transformed axis line: x-axis line indicating compresssed status, solid line = uncompressed, dotted line = compressed. It might need a new own geom.</li>
 </ul>
 </li>
-<li>
-<p>Junction arc:</p>
-<ul>
-<li>Remove the seam in the middle of each junction arc.</li>
-<li>Make arcs correctly center during x-axis transforms.</li>
-<li>Consider a custom geom “geom_diagonal_arc_wide()”, effectively a two-sided “ggforce::geom_diagonal_wide()”.</li>
-</ul>
-</li>
 </ul>
 </div>
-<div id="portability" class="section level3">
+<div id="portabilityusability" class="section level3">
 <h3 class="hasAnchor">
-<a href="#portability" class="anchor"></a>Portability</h3>
+<a href="#portabilityusability" class="anchor"></a>Portability/Usability</h3>
 <ul>
-<li>Verify handling of gzip files across architectures, specifically for makeTx2geneFromGtf(). Fallback plan is to exit gracefully with an informative message. It appears that data.table::fread() can accept a command as input, in which case it runs the command and imports the data stream.</li>
-<li>
-<p>Coverage data on Windows platform:</p>
-<ul>
-<li>Can Windows users load coverage data? Package “rtracklayer” cannot import bigWig format.</li>
-<li>What is Plan B for coverage data?</li>
-</ul>
-</li>
+<li>Verify “Plan B for Windows users.” Test and confirm whether using Windows Subsystem for Linux (WSL) will enable bigWig import.</li>
+<li>Expand input types to allow BAM files, from which coverage will be calculated. Will need an appropriate caching strategy, probably at the level of covGR GRanges with RleList to store coverage in value columns.</li>
+<li>Expand junction input to allow BAM files, from which junctions can be inferred. (Check existing Bioconductor packages for any that convert BAM to junctions.)</li>
 </ul>
 </div>
-<div id="example-data" class="section level3">
+<div id="vignettes-1" class="section level3">
 <h3 class="hasAnchor">
-<a href="#example-data" class="anchor"></a>Example data</h3>
-<ul>
-<li>Define a small subset of transcript gene models to use in examples for each function for improved documentation. <strong>COMPLETE</strong>
-</li>
-<li>Add “mouse_codon_usage.txt” raw text file as example input for codon usage analysis. <strong>COMPLETE</strong>
-</li>
-<li>Small bigWig file?</li>
-</ul>
-</div>
-<div id="testing" class="section level3">
-<h3 class="hasAnchor">
-<a href="#testing" class="anchor"></a>Testing</h3>
-<ul>
-<li>include testthat into the package development workflow to help test and confirm specific input and output criteria.</li>
-</ul>
-</div>
-<div id="vignettes" class="section level3">
-<h3 class="hasAnchor">
-<a href="#vignettes" class="anchor"></a>Vignettes</h3>
+<a href="#vignettes-1" class="anchor"></a>Vignettes</h3>
 <ul>
 <li>
 <p>More Sashimi examples:</p>
@@ -196,26 +232,6 @@
 </li>
 <li>ALE-specific RNA-seq analysis workflow.</li>
 <li><p>Codon usage analysis workflow.</p></li>
-</ul>
-</div>
-<div id="feature-creep-testing-new-ideas" class="section level3">
-<h3 class="hasAnchor">
-<a href="#feature-creep-testing-new-ideas" class="anchor"></a>Feature creep (testing new ideas):</h3>
-<ul>
-<li>
-<p>Test other labeling methods:</p>
-<ul>
-<li>geom_mark_hull() worked for exon polygons, not ideal label placement</li>
-<li>geom_text() direct label placement, no overlap management</li>
-<li>geom_text_repel() need method to hide labels outside zoom range</li>
-</ul>
-</li>
-<li>
-<p>Sashimi panels:</p>
-<ul>
-<li>Add flattened exon model at the baseline position for each exon, perhaps using the GRanges used by <code>make_ref2compresssed()</code> as an x-axis alternative?</li>
-</ul>
-</li>
 </ul>
 </div>
 </div>

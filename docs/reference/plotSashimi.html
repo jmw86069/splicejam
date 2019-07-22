@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -130,10 +130,12 @@
 
     <pre class="usage"><span class='fu'>plotSashimi</span>(<span class='no'>sashimi</span>, <span class='kw'>show</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"coverage"</span>, <span class='st'>"junction"</span>, <span class='st'>"junctionLabels"</span>),
   <span class='kw'>coord_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"scale"</span>, <span class='st'>"coord"</span>, <span class='st'>"none"</span>), <span class='kw'>exonsGrl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>junc_color</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod3"</span>, <span class='fl'>0.7</span>),
-  <span class='kw'>junc_fill</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod1"</span>, <span class='fl'>0.4</span>), <span class='kw'>fill_scheme</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exon"</span>,
-  <span class='st'>"sample_id"</span>), <span class='kw'>use_jam_themes</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>apply_facet</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>facet_scales</span> <span class='kw'>=</span> <span class='st'>"free_y"</span>, <span class='kw'>ref2c</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>junc_color</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod2"</span>, <span class='fl'>0.3</span>),
+  <span class='kw'>junc_fill</span> <span class='kw'>=</span> <span class='fu'>alpha2col</span>(<span class='st'>"goldenrod2"</span>, <span class='fl'>0.9</span>), <span class='kw'>junc_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>fill_scheme</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"sample_id"</span>, <span class='st'>"exon"</span>), <span class='kw'>color_sub</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"score"</span>, <span class='kw'>use_jam_themes</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>apply_facet</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>facet_scales</span> <span class='kw'>=</span> <span class='st'>"free_y"</span>, <span class='kw'>ref2c</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>label_coords</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>do_highlight</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -159,8 +161,8 @@ transform genomic coordinates.</p></td>
       <th>coord_method</th>
       <td><p>character value indicating the type of
 coordinate scaling to use:
-<code>"scale"</code> uses <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous'>ggplot2::scale_x_continuous()</a></code>;
-<code>"coord"</code> uses <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/coord_trans'>ggplot2::coord_trans()</a></code>;
+<code>"scale"</code> uses <code><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>ggplot2::scale_x_continuous()</a></code>;
+<code>"coord"</code> uses <code><a href='https://ggplot2.tidyverse.org/reference/coord_trans.html'>ggplot2::coord_trans()</a></code>;
 <code>"none"</code> does not compress genomic coordinates.</p></td>
     </tr>
     <tr>
@@ -177,11 +179,35 @@ polygon. Alpha transparency is recommended for <code>junc_fill</code>
 so overlapping junction arcs are visible.</p></td>
     </tr>
     <tr>
+      <th>junc_alpha</th>
+      <td><p>numeric value between 0 and 1, to define the
+alpha transparency used for junction colors, where 0 is
+fully transparent, and 1 is completely non-transparent.</p></td>
+    </tr>
+    <tr>
       <th>fill_scheme</th>
       <td><p>character string for how the exon coverages
 will be color-filled: <code>"exon"</code> will define colors for each
 distinct exon, using the GRanges names from <code>flatExonsByGene</code>;
 <code>"sample_id"</code> to color all exons the same by sample_id.</p></td>
+    </tr>
+    <tr>
+      <th>color_sub</th>
+      <td><p>optional character vector of R compatible colors
+or hex strings, whose names are used to color or fill features
+in the ggplot object. For example, if <code>fill_sheme="sample_id"</code>
+the <code>color_sub</code> should have names for each <code>"sample_id"</code> value.
+If any values are missing, they will be filled in using
+<code><a href='https://www.rdocumentation.org/packages/colorjam/topics/rainbowJam'>colorjam::rainbowJam()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>ylabel</th>
+      <td><p>character string used as the y-axis label, by default
+<code>"score"</code> reflects the coverage score and junction score,
+respectively for coverage and junction data. Scores are
+also adjusted using the <code>scale_factor</code> value for each
+<code>sample_id</code> as defined in the <code>filesDF</code>. Set to <code>NULL</code> to
+hide the y-axis label completely.</p></td>
     </tr>
     <tr>
       <th>use_jam_themes</th>
@@ -191,18 +217,25 @@ distinct exon, using the GRanges names from <code>flatExonsByGene</code>;
     <tr>
       <th>apply_facet</th>
       <td><p>logical indicating whether to apply
-<code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap'>ggplot2::facet_wrap()</a></code> with <code>"~sample_id"</code> defining each
+<code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code> with <code>"~sample_id"</code> defining each
 panel.</p></td>
     </tr>
     <tr>
       <th>facet_scales</th>
       <td><p>character value used as <code>"scales"</code> argument in
-<code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap'>ggplot2::facet_wrap()</a></code> when <code>apply_facet=TRUE</code>.</p></td>
+<code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code> when <code>apply_facet=TRUE</code>.</p></td>
     </tr>
     <tr>
       <th>ref2c</th>
       <td><p>optional output from <code><a href='make_ref2compressed.html'>make_ref2compressed()</a></code> used to
 compress axis coordinates during junction arc calculations.</p></td>
+    </tr>
+    <tr>
+      <th>label_coords</th>
+      <td><p>numeric vector length 2, optional range of
+genomic coordinates to restrict labels, so labels are not
+arranged by <code><a href='https://www.rdocumentation.org/packages/ggrepel/topics/geom_text_repel'>ggrepel::geom_text_repel()</a></code> even when <code>coord_cartesian()</code>
+is used to zoom into a specific x-axis range.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -225,7 +258,8 @@ customize the visualization.</p>
 
     <div class='dont-index'><p>Other jam plot functions: <code><a href='bgaPlotly3d.html'>bgaPlotly3d</a></code>,
   <code><a href='factor2label.html'>factor2label</a></code>, <code><a href='gene2gg.html'>gene2gg</a></code>,
-  <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='prepareSashimi.html'>prepareSashimi</a></code>,
+  <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='jitter_norm.html'>jitter_norm</a></code>,
+  <code><a href='prepareSashimi.html'>prepareSashimi</a></code>,
   <code><a href='stackJunctions.html'>stackJunctions</a></code></p>
 <p>Other jam ggplot2 functions: <code><a href='gene2gg.html'>gene2gg</a></code>,
   <code><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc</a></code>,
@@ -248,9 +282,7 @@ customize the visualization.</p>
    <span class='kw'>filesDF</span><span class='kw'>=</span><span class='no'>filesDF</span>,
    <span class='kw'>gene</span><span class='kw'>=</span><span class='st'>"TestGene1"</span>,
    <span class='kw'>covGR</span><span class='kw'>=</span><span class='no'>test_cov_gr</span>,
-   <span class='kw'>juncGR</span><span class='kw'>=</span><span class='no'>test_junc_gr</span>);
-<span class='fu'>plotSashimi</span>(<span class='no'>sh1</span>);</div><div class='output co'>#&gt; <span class='message'>Scale for 'fill' is already present. Adding another scale for 'fill', which</span>
-#&gt; <span class='message'>will replace the existing scale.</span></div><div class='img'><img src='plotSashimi-1.png' alt='' width='700' height='433' /></div><div class='input'>
+   <span class='kw'>juncGR</span><span class='kw'>=</span><span class='no'>test_junc_gr</span>);</div><div class='output co'>#&gt; <span class='error'>Error in `[.data.frame`(filesDF, filesDF$type %in% "junction" &amp; filesDF$sample_id %in%     sample_id, c("url", "sample_id", "scale_factor"), drop = FALSE): undefined columns selected</span></div><div class='input'><span class='fu'>plotSashimi</span>(<span class='no'>sh1</span>);</div><div class='output co'>#&gt; <span class='error'>Error in "ref2c" %in% names(sashimi): object 'sh1' not found</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -22,6 +22,20 @@ try to appease the memoise caching logic, which is suspected to
 be comparing the `...` data when invalidating the cached files.
 Ironically, this change itself will invalidate existing cached
 files.
+* `internal_junc_score()` was updated to handle data with no
+`sampleColname` column, which fixed an issue with the example
+code.
+* `stackJunctions()` was updated to handle multiple sample_id
+in the same operation, keeping each sample_id independent during
+stacking. This update should fix the edge cases where
+junctions appeared to be improperly stacked.
+* `to_basic.GeomShape()` is now exported, since it was causing
+problems during the call to `plotly::ggplotly()` when converting
+`ggforce::geom_shape()` to plotly format. Somehow it worked for
+the Sashimi coverage `ggforce::geom_shape()` but not for
+gene exon `ggforce::geom_shape()`. I am not always here to
+understand fully, but to make things work.
+
 
 ## changes to Sashimi workflow
 
@@ -29,7 +43,11 @@ files.
 the merged coordinates for coverage, junctions, and labels. This
 `data.frame` overrides the need for `plotSashimi()` to merge this
 data on the fly, and takes some extra logic away regarding
-junction rank, label positions, etc.
+junction rank, label positions, etc. It also returns `"ref2c"`
+as an attribute to the `"df"`, to make sure it is available
+even when requesting only the `"df"` format. The `"ref2c"`
+contains the functions used to compress the introns on
+the x-axis scale.
 * `plotSashimi()` now expects the input `sashimi` object to
 contain list element named `"df"` to include the full coordinate
 `data.frame` used for plotting. Note that `plotSashimi()` will

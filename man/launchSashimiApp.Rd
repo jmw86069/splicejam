@@ -14,9 +14,46 @@ Launch Sashimi R-shiny application
 }
 \details{
 This function launches the Sashimi visualization
-R-shiny app. Input is taken from the global environment,
-otherwise defaults are used from the Farris et al data
-in the \code{farrisdata} R package at https://github.com/jmw86069/farrisdata.
+R-shiny app.
+
+The R objects required to prepare sashimi plots are
+defined by the function \code{sashimiAppConstants()}, which
+documents each R object required and how it is used.
+
+Typically, the first time running \code{launchSashimiApp()}
+will populate several R objects in the global environment,
+and they will be re-used during subsequent calls to
+this function. These R objects are intended to be
+available to review, for possible troubleshooting
+operations, or to update the data as needed.
+
+For example, the \code{data.frame} object \code{filesDF} contains
+a colname \code{"scale_factor"} used to help normalize the
+visible height on the y-axis of individual entries.
+The \code{"scale_factor"} values can be edited, then the
+\code{launchSashimiApp()} function will use the existing
+data with the new \code{"scale_factor"} values.
+
+More about using R environments:
+
+One comment about the environment. The \code{sashimiAppConstants()}
+function uses the \code{exists()} function to check for existing
+objects, and the \code{<<-} operator, which updates
+R objects, both these methods search up the parent
+environment chain to find a matching object name.
+
+For most cases, the global environment is used, which
+can be convenient for creating and updating R objects
+for use outside the R-shiny sashimi app. However, to
+avoid populating objects in the global environment,
+variables can be passed through the \code{dots} argument \code{...}
+when calling \code{launchSashimiApp()}.
+
+For example \code{launchSashimiApp(filesDF=farris_sashimi_files_df)}
+will define a local variable \code{filesDF} in the context
+of \code{launchSashimiApp()}. The \code{exists()} function will recognize
+this object and use it as-is. Any updates to \code{filesDF} using
+\code{<<-} will update the object in the local function environment.
 }
 \examples{
 # Note: disabled for web page examples
@@ -24,6 +61,8 @@ in the \code{farrisdata} R package at https://github.com/jmw86069/farrisdata.
 
 }
 \seealso{
-Other splicejam R-shiny functions: \code{\link{sashimiAppServer}}
+Other splicejam R-shiny functions: \code{\link{sashimiAppConstants}},
+  \code{\link{sashimiAppServer}},
+  \code{\link{sashimiAppUI}}
 }
 \concept{splicejam R-shiny functions}

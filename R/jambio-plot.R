@@ -93,7 +93,7 @@ make_ref2compressed <- function
    ## width.
    if (length(gapWidth) == 0) {
       gapWidth <- max(c(10,
-         round(median(width(reduce(gr))) / 2)));
+         round(median(GenomicRanges::width(GenomicRanges::reduce(gr))) / 2)));
       if (verbose) {
          printDebug("make_ref2compressed(): ",
             "determined gapWidth:",
@@ -111,14 +111,14 @@ make_ref2compressed <- function
 
    ## Define the exon-exon distance, to see if they are adjacent or not
    #disGR <- disjoin(gr);
-   disGR <- reduce(gr);
+   disGR <- GenomicRanges::reduce(gr);
    if (is.null(names(disGR))) {
       names(disGR) <- makeNames(rep("disGR", length(disGR)));
    }
    if (length(disGR) > 1) {
       exonGaps <- sapply(head(seq_along(disGR), -1), function(i1){
          i2 <- i1 + 1;
-         distance(disGR[i1], disGR[i2]) > 0;
+         GenomicRanges::distance(disGR[i1], disGR[i2]) > 0;
       });
       names(exonGaps) <- head(names(disGR), -1);
    } else {
@@ -129,7 +129,7 @@ make_ref2compressed <- function
    #newWidths <- head(intercalate(width(disGR),
    #   (gapWidth)*exonGaps), -1);
    newWidths <- suppressWarnings(
-      head(intercalate(width(disGR),
+      head(intercalate(GenomicRanges::width(disGR),
          (gapWidth)*exonGaps),
          length(disGR)*2-1)
       );
@@ -243,7 +243,7 @@ make_ref2compressed <- function
       grlc <- GenomicRanges::split(grlc1,
          factor(
             rep(names(grl), elementNROWS(grl)),
-            levels=names(grl)));
+            levels=unique(names(grl))));
       grlc;
    }
    if (verbose) {
@@ -819,7 +819,8 @@ exoncov2polygon <- function
          compCovPolyML <- lapply(covPolyML, function(iL){
             iML <- compressPolygonM(iL,
                ref2c=ref2c,
-               coord_style=coord_style);
+               coord_style=coord_style,
+               verbose=verbose);
          });
          retVals$compCovPolyML <- compCovPolyML;
          #return(compCovPolyML);
@@ -1308,7 +1309,8 @@ prepareSashimi <- function
  feature_type_colname="feature_type",
  exon_label_type=c("none", "repel", "mark"),
  junc_label_type=c("repel", "mark", "none"),
- return_data=c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF", "ref2c", "all"),
+ #return_data=c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF", "ref2c", "all"),
+ return_data=c("df", "ref2c"),
  include_strand=c("both", "+", "-"),
  junc_color=alpha2col("goldenrod3", 0.7),
  junc_fill=alpha2col("goldenrod1", 0.4),
@@ -1439,18 +1441,18 @@ prepareSashimi <- function
       if (length(covGRuse) == 0) {
          warning("Supplied coverage covGR did not have names matching gr");
       } else {
-         covDF <- filesDF[filesDF$type %in% "coverage_gr" &
+         covfilesDF <- filesDF[filesDF$type %in% "coverage_gr" &
                filesDF$url %in% colnames(values(covGR)) &
                filesDF$sample_id %in% sample_id,,drop=FALSE];
-         if (nrow(covDF) == 0) {
+         if (nrow(covfilesDF) == 0) {
             stop("Supplied coverage covGR does not have colnames in filesDF$url with filesDF$type == 'coverage_gr'");
          }
-         covUrls <- nameVector(covDF[,c("url","url")]);
-         covSamples <- nameVector(covDF[,c("sample_id","url")]);
+         covUrls <- nameVector(covfilesDF[,c("url","url")]);
+         covSamples <- nameVector(covfilesDF[,c("sample_id","url")]);
          covGRuse <- covGRuse[,covUrls];
-         if ("scale_factor" %in% colnames(covDF)) {
+         if ("scale_factor" %in% colnames(covfilesDF)) {
             covScaleFactors <- rmNA(naValue=1,
-               covDF$scale_factor);
+               covfilesDF$scale_factor);
          } else {
             covScaleFactors <- rep(1, length(covUrls));
          }
@@ -1473,10 +1475,28 @@ prepareSashimi <- function
          ## which also forces empty factor levels if applicable
          covDF$sample_id <- factor(
             as.character(covDF$sample_id),
-            levels=sample_id
+            levels=unique(sample_id)
          );
          if (any(c("all", "covDF") %in% return_data)) {
             retVals$covDF <- covDF;
+         }
+         ########################################
+         ## Optional exon labels
+         covDFsub <- (as.character(covDF$gr) %in% names(gr));
+         covDFlab <- covDF[covDFsub,,drop=FALSE];
+
+         exonLabelDF1 <- shrinkMatrix(covDFlab[,c("x","y")],
+            groupBy=pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
+            shrinkFunc=function(x){mean(range(x))});
+         exonLabelDF1[,c("gr","sample_id")] <- rbindList(
+            strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
+         exonLabelDF1$gr <- factor(exonLabelDF1$gr,
+            levels=unique(exonLabelDF1$gr));
+         exonLabelDF <- renameColumn(exonLabelDF1,
+            from="groupBy",
+            to="gr_sample");
+         if (any(c("all", "covDF") %in% return_data)) {
+            retVals$exonLabelDF <- exonLabelDF;
          }
       }
    }
@@ -1532,6 +1552,7 @@ prepareSashimi <- function
          covNames=covNames,
          sample_id=covName,
          coord_style="fortify",
+         verbose=verbose,
          ...);
       if (any(c("all", "covDF") %in% return_data)) {
          retVals$covDF <- covDF;
@@ -1547,9 +1568,13 @@ prepareSashimi <- function
       ## which also forces empty factor levels if applicable
       covDF$sample_id <- factor(
          as.character(covDF$sample_id),
-         levels=sample_id
+         levels=unique(sample_id)
       );
-      printDebug("head(covDF$sample_id):");print(head(covDF$sample_id));
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "head(covDF$sample_id):");
+         print(head(covDF$sample_id));
+      }
 
       ########################################
       ## Optional exon labels
@@ -1561,11 +1586,14 @@ prepareSashimi <- function
          shrinkFunc=function(x){mean(range(x))});
       exonLabelDF1[,c("gr","sample_id")] <- rbindList(
          strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
-      exonLabelDF1$gr <- factor(exonLabelDF1$gr, levels=unique(exonLabelDF1$gr));
+      exonLabelDF1$gr <- factor(exonLabelDF1$gr,
+         levels=unique(exonLabelDF1$gr));
       exonLabelDF <- renameColumn(exonLabelDF1,
          from="groupBy",
          to="gr_sample");
-      retVals$exonLabelDF <- exonLabelDF;
+      if (any(c("all", "covDF") %in% return_data)) {
+         retVals$exonLabelDF <- exonLabelDF;
+      }
 
    }
 
@@ -1724,7 +1752,7 @@ prepareSashimi <- function
       ## which also forces empty factor levels if applicable
       juncDF1$sample_id <- factor(
          as.character(juncDF1$sample_id),
-         levels=sample_id
+         levels=unique(sample_id)
       );
    }
    if (exists("juncDF1") && length(juncDF1) > 0 && nrow(juncDF1) > 0) {
@@ -1774,7 +1802,7 @@ prepareSashimi <- function
       ## which also forces empty factor levels if applicable
       juncDF$sample_id <- factor(
          as.character(juncDF$sample_id),
-         levels=sample_id
+         levels=unique(sample_id)
       );
 
       if (any(c("all", "juncDF") %in% return_data)) {
@@ -1807,7 +1835,7 @@ prepareSashimi <- function
       ## which also forces empty factor levels if applicable
       juncLabelDF$sample_id <- factor(
          as.character(juncLabelDF$sample_id),
-         levels=sample_id
+         levels=unique(sample_id)
       );
       if (any(c("all", "juncLabelDF") %in% return_data)) {
          retVals$juncLabelDF <- juncLabelDF;
@@ -1825,27 +1853,35 @@ prepareSashimi <- function
 
    ## Merge data.frame entries together
    ## exon coverage
-   covDF$type <- "coverage";
-   covDF$name <- pasteByRow(covDF[,c("gr", "cov", "sample_id")], sep=" ");
-   covDF$feature <- covDF$gr;
-   covDF$row <- seq_len(nrow(covDF));
+   if (length(covDF) > 0) {
+      covDF$type <- "coverage";
+      covDF$name <- pasteByRow(covDF[,c("gr", "cov", "sample_id")], sep=" ");
+      covDF$feature <- covDF$gr;
+      covDF$row <- seq_len(nrow(covDF));
+   }
    ## unclear how best to define "color_by" column at this step
    ## exon labels
-   exonLabelDF$type <- "exon_label";
-   exonLabelDF$name <- pasteByRow(exonLabelDF[,c("gr","sample_id")], sep=" ");
-   exonLabelDF$feature <- exonLabelDF$gr;
-   exonLabelDF$row <- seq_len(nrow(exonLabelDF));
-   exonLabelDF$color_by <- NA;
+   if (exists("exonLabelDF") && length(exonLabelDF) > 0) {
+      exonLabelDF$type <- "exon_label";
+      exonLabelDF$name <- pasteByRow(exonLabelDF[,c("gr","sample_id")], sep=" ");
+      exonLabelDF$feature <- exonLabelDF$gr;
+      exonLabelDF$row <- seq_len(nrow(exonLabelDF));
+      exonLabelDF$color_by <- NA;
+   }
    ## junctions
-   juncDF$type <- "junction";
-   juncDF$name <- pasteByRow(juncDF[,c("nameFromTo", "sample_id")], sep=" ");
-   juncDF$feature <- juncDF$nameFromTo;
-   juncDF$row <- seq_len(nrow(juncDF));
+   if (length(juncDF) > 0) {
+      juncDF$type <- "junction";
+      juncDF$name <- pasteByRow(juncDF[,c("nameFromTo", "sample_id")], sep=" ");
+      juncDF$feature <- juncDF$nameFromTo;
+      juncDF$row <- seq_len(nrow(juncDF));
+   }
    ## junction labels
-   juncLabelDF$type <- "junction_label";
-   juncLabelDF$name <- pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
-   juncLabelDF$feature <- juncLabelDF$nameFromTo;
-   juncLabelDF$row <- seq_len(nrow(juncLabelDF));
+   if (length(juncLabelDF) > 0) {
+      juncLabelDF$type <- "junction_label";
+      juncLabelDF$name <- pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
+      juncLabelDF$feature <- juncLabelDF$nameFromTo;
+      juncLabelDF$row <- seq_len(nrow(juncLabelDF));
+   }
    ## create a list of data.frames
    cjL <- list();
    cjL$coverage <- covDF;
@@ -1858,6 +1894,12 @@ prepareSashimi <- function
    } else if (length(cjL) == 1) {
       cjDF <- cjL[[1]];
    } else {
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "Merging ",
+            length(cjL),
+            " data.frames into df.");
+      }
       cjDF <- jamba::mergeAllXY(cjL);
       cjDF <- mixedSortDF(cjDF,
          byCols=c("type","row"));
@@ -1867,7 +1909,13 @@ prepareSashimi <- function
       sum(is.na(i))
    });
    cjDF <- cjDF[,order(na_ct),drop=FALSE];
-   retVals$df <- cjDF;
+
+   ## Add ref2c as an attribute to cjDF just to help keep it available
+   attr(cjDF, "ref2c") <- ref2c;
+
+   if (any(c("all", "df") %in% return_data)) {
+      retVals$df <- cjDF;
+   }
 
    return(retVals);
 }
@@ -1914,6 +1962,13 @@ internal_junc_score <- function
       printDebug("internal_junc_score(): ",
          "Defining flank ends of each junction.");
    }
+   ## If there is no sampleColname column, ignore
+   if (length(sampleColname) > 0 &&
+         !sampleColname %in% colnames(values(juncGR))) {
+      stop(paste0("The sampleColname '",
+         sampleColname,
+         "' is not present in colnames(values(juncGR))."));
+   }
    juncEndsGR <- c(
       flank(juncGR[,c(scoreColname,sampleColname)],
          start=TRUE,
@@ -1924,7 +1979,10 @@ internal_junc_score <- function
    values(juncEndsGR)$side <- rep(c("start", "end"), each=length(juncGR));
    values(juncEndsGR)$id <- rep(seq_along(juncGR), 2);
    juncEndsDF <- as.data.frame(unname(juncEndsGR));
-   juncGroup <- pasteByRow(juncEndsDF[,c(sampleColname, "seqnames", "start", "strand", "side")]);
+   juncGroupColnames <- intersect(
+      c(sampleColname, "seqnames", "start", "strand", "side"),
+      colnames(juncEndsDF));
+   juncGroup <- pasteByRow(juncEndsDF[, juncGroupColnames, drop=FALSE]);
    juncEndsRed <- shrinkMatrix(juncEndsDF[[scoreColname]],
       groupBy=juncGroup,
       shrinkFunc=sum);
@@ -1951,8 +2009,13 @@ internal_junc_score <- function
          rep(0, length(juncGR)),
          names(juncGR));
    } else {
-      fo1df$qSample <- values(juncGR[fo1df$q])[[sampleColname]];
-      fo1df$sSample <- values(juncEndsRefGR[fo1df$s])[[sampleColname]];
+      if (length(sampleColname) == 0) {
+         fo1df$qSample <- rep("sample_id", length(fo1df$q));
+         fo1df$sSample <- rep("sample_id", length(fo1df$q));
+      } else {
+         fo1df$qSample <- values(juncGR[fo1df$q])[[sampleColname]];
+         fo1df$sSample <- values(juncEndsRefGR[fo1df$s])[[sampleColname]];
+      }
       fo1df$sScore <- values(juncEndsRefGR[fo1df$s])[[scoreColname]];
 
       fo1dfuse <- subset(fo1df,

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SALSA Shiny app constants — sashimiAppConstants • splicejam</title>
+<title>Sashimi Shiny app constants — sashimiAppConstants • splicejam</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="SALSA Shiny app constants — sashimiAppConstants" />
+<meta property="og:title" content="Sashimi Shiny app constants — sashimiAppConstants" />
 
-<meta property="og:description" content="SALSA Shiny app constants" />
+<meta property="og:description" content="Sashimi Shiny app constants" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -117,14 +117,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>SALSA Shiny app constants</h1>
+    <h1>Sashimi Shiny app constants</h1>
     <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/splicejam-shiny-constants.R'><code>R/splicejam-shiny-constants.R</code></a></small>
     <div class="hidden name"><code>sashimiAppConstants.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>SALSA Shiny app constants</p>
+    <p>Sashimi Shiny app constants</p>
     
     </div>
 
@@ -132,11 +132,88 @@
         
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function is intended to define constant values used in
-the creation of the SALSA shiny UI.</p>
+    <p>This function defines several constant values
+used by the R-shiny Splicejam Sashimi viewer,
+typically taking from the global environment
+where possible.</p>
+<p>The R-shiny app is started by <code><a href='launchSashimiApp.html'>launchSashimiApp()</a></code>, which
+calls <code><a href='https://www.rdocumentation.org/packages/shiny/topics/shinyApp'>shiny::shinyApp()</a></code>, using arguments <code>server</code>, <code>ui</code>,
+<code>onStart</code>, and <code>options</code>. This function fulfills the
+argument <code>onStart</code>.</p>
 <p>This function is intended to be called only from within
 an R-shiny app, since it defines several variables in the
 parent (global) environment.</p>
+<p>The following values will be used from the environment,
+searching up the environment parent chain until it finds
+a match, until searching the global environment. Similarly,
+this function also defines variables in the environment using
+the <code>&lt;&lt;-</code> operator, which by default also searches up the
+environment chain until it finds a match, otherwise
+populating the global environment.</p>
+<p>If a variable is not found, the corresponding default
+from the <code>farrisdata</code> package will be used.</p><ul>
+<li><p><strong>filesDF</strong>: <code>data.frame</code> with colnames: <code>"sample_id"</code>,
+<code>"type"</code>, <code>"url"</code>, <code>"scale_factor"</code>. When <code>"filesDF"</code> does
+not exist, it is taken from <code><a href='https://www.rdocumentation.org/packages/farrisdata/topics/farris_sashimi_files_df'>farrisdata::farris_sashimi_files_df</a></code>,
+and the default <code>"aboutExtra"</code> text is used.</p></li>
+<li><p><strong>color_sub</strong>: character vector of R colors, whose names are
+used to match <code>"sample_id"</code> or other values used to colorize
+ggplot visualizations. It is either populated from
+<code><a href='https://www.rdocumentation.org/packages/farrisdata/topics/colorSub'>farrisdata::colorSub</a></code>, or <code><a href='https://www.rdocumentation.org/packages/colorjam/topics/group2colors'>colorjam::group2colors()</a></code> is called
+using the unique <code>sample_id</code> values in <code>filesDF</code>.</p></li>
+<li><p><strong>txdb</strong>: TxDb object used to derive <code>exonsByTx</code>, and <code>cdsByTx</code>
+if either does not exist. If the TxDb object does not exist,
+it is created from the <code>gtf</code> file using
+<code><a href='https://www.rdocumentation.org/packages/GenomicFeatures/topics/makeTxDbFromGFF'>GenomicFeatures::makeTxDbFromGFF()</a></code>.</p></li>
+<li><p><strong>tx2geneDF</strong>: <code>data.frame</code> with colnames: <code>"transcript_id"</code>,
+<code>"gene_name"</code>. This data is used to convert <code>"gene_name"</code> to
+a vector of <code>"transcript_id"</code> values.</p></li>
+<li><p><strong>gtf</strong>: character path to a GTF/GFF/GFF3 file, suitable for
+<code><a href='https://www.rdocumentation.org/packages/GenomicFeatures/topics/makeTxDbFromGFF'>GenomicFeatures::makeTxDbFromGFF()</a></code>. The <code>gtf</code> is only used
+if <code>tx2geneDF</code> or <code>exonsByTx</code> are not available. Note that
+when <code>gtf</code> points to a remote server, the file is copied to
+the current working directory. If the file already exists in
+the local directory, it is re-used.</p></li>
+<li><p><strong>exonsByTx</strong>: <code>GRangesList</code> object, named by <code>"transcript_id"</code>,
+containing all exons for each transcript.</p></li>
+<li><p><strong>cdsByTx</strong>: <code>GRangesList</code> object, named by <code>"transcript_id"</code>,
+containing only CDS (protein-coding) exons for each transcript.</p></li>
+<li><p><strong>detectedTx</strong>: character vector of <code>"transcript_id"</code> values,
+representing the subset of transcripts detected above background.
+If it does not exist, it is derived from <code><a href='https://www.rdocumentation.org/packages/farrisdata/topics/farrisTxSE'>farrisdata::farrisTxSE</a></code>
+<code>"TxDetectedByTPM"</code>. If those values are not all present in
+<code>tx2geneDF</code> then <code>detectedTx</code> is defined by all transcripts
+present in <code>tx2geneDF$transcript_id</code>.</p></li>
+<li><p><strong>detectedGenes</strong>: inferred using tx2geneDF and detectedTx.</p></li>
+<li><p><strong>flatExonsByGene</strong>: <code>GRangesList</code> object containing non-overlapping
+exons for each gene, or it is derived from <code>exonsByTx</code>,
+<code>cdsByTx</code>, <code>detectedTx</code>, and <code>tx2geneDF</code>, using
+<code><a href='flattenExonsBy.html'>flattenExonsBy()</a></code>.</p></li>
+<li><p><strong>flatExonsByTx</strong>: <code>GRangesList</code> object containing non-overlapping
+exons for each gene, or it is derived from <code>exonsByTx</code>,
+<code>cdsByTx</code>, <code>detectedTx</code>, and <code>tx2geneDF</code>, using
+<code><a href='flattenExonsBy.html'>flattenExonsBy()</a></code>.</p></li>
+</ul>
+    <p>Several R objects are cached using <code><a href='https://www.rdocumentation.org/packages/memoise/topics/memoise'>memoise::memoise()</a></code>, to
+avoid having to create the R object each time the R-shiny app
+is started:</p><ul>
+<li><p><strong>flatExonsByGene</strong></p></li>
+<li><p><strong>flatExonsByTx</strong></p></li>
+<li><p><strong>exonsByTx</strong></p></li>
+<li><p><strong>cdsByTx</strong></p></li>
+</ul>
+    <p>A special custom variable is used to describe the specific
+data included with the R-shiny app, <code>"aboutExtra"</code>. The
+<code>"aboutExtra"</code> variable is expected to contain HTML tags,
+for example from <code><a href='https://www.rdocumentation.org/packages/htmltools/topics/builder'>htmltools::tags()</a></code> to format the text.
+The <code>"aboutExtra"</code> content is displayed on the tab
+<code>"About Sashimi Plots"</code> at the top.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other splicejam R-shiny functions: <code><a href='launchSashimiApp.html'>launchSashimiApp</a></code>,
+  <code><a href='sashimiAppServer.html'>sashimiAppServer</a></code>,
+  <code><a href='sashimiAppUI.html'>sashimiAppUI</a></code></p></div>
     
 
   </div>
@@ -145,6 +222,8 @@ parent (global) environment.</p>
     <ul class="nav nav-pills nav-stacked">
       
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

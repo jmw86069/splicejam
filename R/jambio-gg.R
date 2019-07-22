@@ -67,6 +67,13 @@
 #'    the score, the scaling factor for score values, and the
 #'    relative height of the arc above the starting y-axis values
 #'    multiplied by the score.
+#' @param sampleColname character string indicating the column
+#'    containing biological sample identifier. This column is only
+#'    used when `type="junction"`, and when `doStackJunctions=TRUE`.
+#'    It is used to ensure the junctions are only stacked within
+#'    each sample. When `sampleColname` is not present in
+#'    `colnames(values(grl@unlistData))` then all junctions are
+#'    stacked.
 #' @param doStackJunctions logical indicating whether to stack junctions
 #'    at the start and end of junctions sharing the same coordinate,
 #'    in order of shortest to longest junction width.
@@ -123,6 +130,7 @@ grl2df <- function
  shape=c("rectangle", "junction"),
  baseline=NULL,
  scoreColname="score",
+ sampleColname="sample_id",
  scoreArcMinimum=200,
  scoreFactor=1,
  scoreArcFactor=0.5,
@@ -284,10 +292,13 @@ grl2df <- function
          if (length(baseline) == 0) {
             baseline <- 0;
          }
+         sampleColname <- intersect(sampleColname,
+            colnames(values(grl@unlistData)));
          grlNew <- GRangesList(
             lapply(grl, function(iGR){
                stackJunctions(gr=iGR,
                   scoreColname=scoreColname,
+                  sampleColname=sampleColname,
                   baseline=baseline,
                   strandedScore=strandedScore,
                   scoreFactor=1,
@@ -333,11 +344,16 @@ grl2df <- function
       if (verbose) {
          printDebug("grl2df(): ",
             "calling internal_junc_score()");
-         print(head(grl@unlistData));
+         print(head(as.data.frame(grl@unlistData), 20));
+         print(tail(as.data.frame(grl@unlistData), 20));
       }
+      ## sampleColname should be empty if there is no sample_id
+      sampleColname <- intersect("sample_id",
+         colnames(values(grl@unlistData)));
+
       internalMaxScore <- internal_junc_score(grl@unlistData,
          scoreColname=scoreColname,
-         sampleColname="sample_id",
+         sampleColname=sampleColname,
          verbose=verbose,
          ...);
       if (verbose) {
@@ -486,7 +502,9 @@ grl2df <- function
 #'    class `"trans"` used in `ggplot2::coord_trans()` or
 #'    `ggplot2::scale_x_continuous()`.
 #' @param hjust,vjust numeric value to position exon labels
-#'    using `ggplot::geom_text()`.
+#'    passed to `ggrepel::geom_text_repel()`.
+#' @param direction argument passed to `ggrepel::geom_text_repel()`
+#'    to restrict placement of labels to one axis direction.
 #' @param compressGaps logical indicating whether to compress gaps
 #'    between exons. When `ref2c` is supplied, this argument is
 #'    ignored and the supplied `ref2c` is used directly.
@@ -530,8 +548,9 @@ gene2gg <- function
  gene_order=c("first","last"),
  return_type=c("grob", "df"),
  ref2c=NULL,
- hjust=1.2,
- vjust=0,
+ hjust=2,
+ vjust=0.5,
+ direction=c("both", "x", "y"),
  compressGaps=TRUE,
  tx2geneDF=NULL,
  label_coords=NULL,
@@ -540,6 +559,7 @@ gene2gg <- function
 {
    ## Purpose is a lightweight wrapper around grl2df() specifically intended
    ## for gene and transcript exon structure
+   direction <- match.arg(direction);
    if (!suppressPackageStartupMessages(require(ggplot2))) {
       stop("gene2gg() requires ggplot2.");
    }
@@ -706,7 +726,7 @@ gene2gg <- function
                segment.color="grey35",
                #fill="white",
                size=exonLabelSize,
-               direction="x");
+               direction=direction);
       } else {
          grl1a1gg <- grl1a1gg +
             geom_text(
@@ -765,6 +785,10 @@ gene2gg <- function
 #' @param scoreColname character string matching one of `colnames(values(gr))`
 #'    that contains a numeric value representing the abundance of
 #'    each splice junction observed.
+#' @param sampleColname character string with the column or columns
+#'    that contain biological sample identifier, used to ensure junctions
+#'    are only stacked within a sample, and not across samples. When
+#'    `sampleColname` is `NULL`, all junctions are stacked.
 #' @param scoreFactor numeric value multiplied by the value in `scoreColname`
 #'    to allow scaling the junctions across samples. Note that
 #'    `scoreFactor` can be a vector, which would be applied to the
@@ -780,6 +804,9 @@ gene2gg <- function
 #'    for `matchTo`. That said, if `matchFrom` or `matchTo` are supplied,
 #'    those colnames are used from `as.data.frame(gr)`. Multiple colnames
 #'    are allowed.
+#'    Note also that `sampleColname` is appended to `matchFrom` and `matchTo`
+#'    to ensure that matching is only performed within each
+#'    `sampleColname` value.
 #' @param strandedScore logical indicating whether to enforce negative
 #'    scores for junctions on the `"-"` strand. Note that when `strandedScore`
 #'    is true, all `"-"` strand scores will be negative, and all other
@@ -849,13 +876,36 @@ gene2gg <- function
 #'    geom_diagonal_wide_arc(alpha=0.7) +
 #'    colorjam::scale_fill_jam() +
 #'    colorjam::theme_jam() +
+#'    ggtitle("Junctions stacked at boundaries");
+#'
+#' ## Another view showing the junction_rank
+#' ## based upon max reads entering and exiting each exon edge
+#' ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name)) +
+#'    geom_diagonal_wide_arc(aes(alpha=junction_rank), fill="orange") +
+#'    scale_alpha_manual(values=c(`1`=0.4, `2`=0.6, `3`=0.7)) +
+#'    colorjam::scale_fill_jam() +
+#'    colorjam::theme_jam() +
 #'    ggtitle("Junctions stacked at boundaries")
+#'
+#' ## Last example showing how two samples are kept separate
+#' grJunc_samples <- c(grJunc, grJunc);
+#' values(grJunc_samples[6:10])[,"sample_id"] <- "SampleB";
+#' grlJunc2df_samples <- grl2df(grJunc_samples,
+#'    scoreArcMinimum=20,
+#'    shape="junction");
+#' ggplot(grlJunc2df_samples, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
+#'    geom_diagonal_wide_arc(alpha=0.7) +
+#'    colorjam::scale_fill_jam() +
+#'    colorjam::theme_jam() +
+#'    ggtitle("Junctions stacked at boundaries") +
+#'    facet_wrap(~sample_id)
 #'
 #'
 #' @export
 stackJunctions <- function
 (gr,
  scoreColname="score",
+ sampleColname="sample_id",
  scoreFactor=1,
  matchFrom=NULL,
  matchTo=NULL,
@@ -878,6 +928,7 @@ stackJunctions <- function
          matchFrom <- c("seqnames", "start");
       }
    }
+   matchFrom <- unique(c(matchFrom, sampleColname));
    if (length(matchTo) == 0) {
       if ("nameTo" %in% colnames(values(gr))) {
          matchTo <- "nameTo";
@@ -885,6 +936,7 @@ stackJunctions <- function
          matchTo <- c("seqnames", "end");
       }
    }
+   matchTo <- unique(c(matchTo, sampleColname));
    ##
    grValueColnames <- colnames(values(gr));
    grValues <- c("seqnames", "start", "end", "width", "strand",
@@ -897,31 +949,36 @@ stackJunctions <- function
    if (length(matchTo) == 0) {
       stop("matchTo must match colnames(as.data.frame(gr))");
    }
-   if (verbose) {
-      printDebug("stackJunctions(): ",
-         "matchFrom:", matchFrom,
-         ", matchTo:", matchTo);
-   }
+
    ## Optionally enforce strandedness
    if (strandedScore) {
       if (verbose) {
          printDebug("stackJunctions(): ",
-            "Adjusting stranded score.");
+            "Adjusting score by strand, using scoreFactor:",
+            scoreFactor);
       }
-      matchFrom <- c(matchFrom, "strand");
-      matchTo <- c(matchTo, "strand");
+      matchFrom <- unique(c(matchFrom, "strand"));
+      matchTo <- unique(c(matchTo, "strand"));
       scoreV <- scoreFactor *
          ifelse(as.character(GenomicRanges::strand(gr)) %in% "-", -1, 1) *
          abs(values(gr)[[scoreColname]]);
    } else {
       if (verbose) {
          printDebug("stackJunctions(): ",
-            "Adjusting unstranded score.");
+            "Adjusting unstranded score, using scoreFactor:",
+            scoreFactor);
       }
       scoreV <- scoreFactor *
          values(gr)[[scoreColname]];
    }
    values(gr)[[scoreColname]] <- scoreV;
+
+   if (verbose) {
+      printDebug("stackJunctions(): ",
+         "matchFrom:", matchFrom,
+         ", matchTo:", matchTo);
+   }
+
    # Combine value colnames and non-value colnames, using only
    # the required colnames since as.data.frame(gr) will fail if
    # any columns are not coercible to data.frame, for example list.
@@ -961,23 +1018,52 @@ stackJunctions <- function
 
    ## Start position
    ## group by exonsFrom which allows the spliceBuffer to work
+   if (verbose) {
+      printDebug("stackJunctions(): ",
+         "Stacking exonsFrom");
+   }
+   if (length(tcount(names(gr), minCount=2)) > 0) {
+      names(gr) <- makeNames(names(gr));
+   }
    order1 <- do.call(order, list(exonsFrom, width(gr)));
-   values(gr)[order1,"yStart"] <- shrinkMatrix(
+   #values(gr)[order1,"yStart"] <- shrinkMatrix(
+   yStart_df <- shrinkMatrix(
       scoreV[order1],
-      #groupBy=start(gr[order1]),
       groupBy=exonsFrom[order1],
-      shrinkFunc=function(x){cumsum(head(c(0,x), length(x)))})$x +
-      baselineV[exonsFrom[order1]];
+      shrinkFunc=function(x){cumsum(head(c(0,x), length(x)))});
+   yRow_df <- shrinkMatrix(
+      names(gr)[order1],
+      groupBy=exonsFrom[order1],
+      shrinkFunc=c);
+   if (verbose) {
+      printDebug("head(yStart_df):");
+      print(head(yStart_df, 20));
+      print(gr[yRow_df$x]);
+      printDebug("exonsFrom:", exonsFrom);
+      printDebug("baselineV:");
+      print(baselineV);
+      printDebug("baselineV[exonsFrom]:", baselineV[exonsFrom]);
+   }
+   order1rev <- match(names(gr), yRow_df$x);
+   values(gr)[,"yStart"] <- yStart_df$x[order1rev] + baselineV[exonsFrom];
 
    ## End position
    ## group by exonsTo which allows the spliceBuffer to work
+   if (verbose) {
+      printDebug("stackJunctions(): ",
+         "Stacking exonsTo");
+   }
    order2 <- do.call(order, list(exonsTo, width(gr)));
-   values(gr)[order2,"yEnd"] <- shrinkMatrix(
+   yEnd_df <- shrinkMatrix(
       scoreV[order2],
-      #groupBy=end(gr[order2]),
       groupBy=exonsTo[order2],
-      shrinkFunc=function(x){cumsum(head(c(0,x), length(x)))})$x +
-      baselineV[exonsTo[order2]];
+      shrinkFunc=function(x){cumsum(head(c(0,x), length(x)))});
+   yRow_df <- shrinkMatrix(
+      names(gr)[order2],
+      groupBy=exonsTo[order2],
+      shrinkFunc=c);
+   order2rev <- match(names(gr), yRow_df$x);
+   values(gr)[,"yEnd"] <- yEnd_df$x[order2rev] + baselineV[exonsTo];
 
    ## Bonus points
    ## rank junctions by score at the exonsFrom and exonsTo position
@@ -989,24 +1075,52 @@ stackJunctions <- function
          i;
       }
    }
-   juncRankFrom <- shrinkMatrix(
-      values(gr)[,c("score","nameFromToSample")],
-      pasteByRow(values(gr)[,c("sample_id","nameFrom")]),
-      shrinkFunc=shrink_junc);
-   juncRankTo <- shrinkMatrix(
-      values(gr)[,c("score","nameFromToSample")],
-      pasteByRow(values(gr)[,c("sample_id","nameTo")]),
-      #shrinkFunc=c)
-      shrinkFunc=shrink_junc);
-   juncRankDF <- data.frame(
-         juncRankFrom[match(values(gr)[,"nameFromToSample"], juncRankFrom[,"nameFromToSample"]),],
-         juncRankTo[match(values(gr)[,"nameFromToSample"], juncRankTo[,"nameFromToSample"]),]
-   );
-   juncRank <- (1 +
-         juncRankFrom[match(values(gr)[,"nameFromToSample"], juncRankFrom[,"nameFromToSample"]),"score"] +
-         juncRankTo[match(values(gr)[,"nameFromToSample"], juncRankTo[,"nameFromToSample"]),"score"]
-   );
-   values(gr)[,"junction_rank"] <- factor(juncRank);
+   ## Ensure "nameFromTo" exists
+   if (all(c("nameFrom", "nameTo") %in% colnames(values(gr)))) {
+      if (!"nameFromTo" %in% colnames(values(gr))) {
+         values(gr)[,"nameFromTo"] <- pasteByRow(values(gr)[,c("nameFrom", "nameTo")],
+            sep=" ");
+      }
+      if (length(sampleColname) == 0) {
+         ## Stack without using sample_id
+         value_colnames <- c(scoreColname, "nameFromTo");
+         from_colnames <- c("nameFrom");
+         to_colnames <- c("nameTo");
+         nfts_colname <- "nameFromTo";
+      } else {
+         ## Stack within sample_id
+         if (!"nameFromToSample" %in% colnames(values(gr))) {
+            values(gr)[,"nameFromToSample"] <- pasteByRow(values(gr)[,c("nameFromTo", sampleColname)],
+               sep=":!:");
+         }
+         value_colnames <- c(scoreColname, "nameFromToSample");
+         from_colnames <- c(sampleColname, "nameFrom");
+         to_colnames <- c(sampleColname, "nameTo");
+         nfts_colname <- "nameFromToSample";
+      }
+      if (verbose) {
+         printDebug("stackJunctions(): ",
+            "Calculating junction ranks with sampleColname:",
+            sampleColname);
+      }
+      juncRankFrom <- shrinkMatrix(
+         values(gr)[,value_colnames],
+         pasteByRow(values(gr)[,from_colnames]),
+         shrinkFunc=shrink_junc);
+      juncRankTo <- shrinkMatrix(
+         values(gr)[,value_colnames],
+         pasteByRow(values(gr)[,to_colnames]),
+         shrinkFunc=shrink_junc);
+      juncRankDF <- data.frame(
+            juncRankFrom[match(values(gr)[,nfts_colname], juncRankFrom[,nfts_colname]),],
+            juncRankTo[match(values(gr)[,nfts_colname], juncRankTo[,nfts_colname]),]
+      );
+      juncRank <- (1 +
+            juncRankFrom[match(values(gr)[,nfts_colname], juncRankFrom[,nfts_colname]),scoreColname] +
+            juncRankTo[match(values(gr)[,nfts_colname], juncRankTo[,nfts_colname]),scoreColname]
+      );
+      values(gr)[,"junction_rank"] <- factor(juncRank);
+   }
    return(gr);
 }
 
@@ -1114,7 +1228,7 @@ plotSashimi <- function
  facet_scales="free_y",
  ref2c=NULL,
  label_coords=NULL,
- do_highlight=TRUE,
+ do_highlight=FALSE,
  verbose=FALSE,
  ...)
 {
@@ -1125,47 +1239,27 @@ plotSashimi <- function
       sashimi$ref2c <- ref2c;
    }
    if (!"ref2c" %in% names(sashimi)) {
+      if ("ref2c" %in% names(attributes(sashimi))) {
+         sashimi$ref2c <- attr(sashimi$df, "ref2c");
+      }
+   }
+   if (!"ref2c" %in% names(sashimi)) {
       coord_method <- "none";
    }
    ggCov <- NULL;
-   #color_sub <- NULL;
    cov_rows <- (sashimi$df$type %in% "coverage");
-   #if ("coverage" %in% show && "covDF" %in% names(sashimi)) {
    if ("coverage" %in% show && any(cov_rows)) {
-      #if (do_highlight) {
-      #   covDF <- highlight_key(sashimi$covDF, key=~gr);
-      #}
-      # Prepare data.frame to be merged with juncDF
-      #covDF <- sashimi$covDF;
-      #covDF$type <- "coverage";
-      #covDF$name <- pasteByRow(covDF[,c("gr", "cov", "sample_id")], sep=" ");
-      #covDF$feature <- covDF$gr;
-      #covDF$row <- seq_len(nrow(covDF));
       if ("exon" %in% fill_scheme) {
-         #covDF$color_by <- covDF$gr;
          sashimi$df$color_by[cov_rows] <- as.character(sashimi$df$gr[cov_rows]);
       } else {
-         #covDF$color_by <- covDF$sample_id;
          sashimi$df$color_by[cov_rows] <- as.character(sashimi$df$sample_id[cov_rows]);
       }
       # Define colors
-      #color_sub_cov <- colorjam::group2colors(unique(covDF$color_by));
       color_sub_cov <- colorjam::group2colors(unique(sashimi$df$color_by[cov_rows]));
       use_names <- setdiff(names(color_sub_cov), names(color_sub));
       color_sub[use_names] <- color_sub_cov[use_names];
 
       exonlabel_rows <- (sashimi$df$type %in% "exon_label");
-      #if ("exonLabels" %in% show && "exonLabelDF" %in% names(sashimi)) {
-      #if ("exonLabels" %in% show && any(exonlabel_rows)) {
-         #exonLabelDF <- sashimi$exonLabelDF;
-         #exonLabelDF$type <- "exon_label";
-         #exonLabelDF$name <- pasteByRow(exonLabelDF[,c("gr","sample_id")], sep=" ");
-         #exonLabelDF$feature <- exonLabelDF$gr;
-         #exonLabelDF$row <- seq_len(nrow(exonLabelDF));
-         #exonLabelDF$color_by <- NA;
-      #}
-   #} else {
-   #   covDF <- NULL;
    }
 
    ## Junction data
@@ -1173,26 +1267,15 @@ plotSashimi <- function
    #if ("junction" %in% show && "juncDF" %in% names(sashimi)) {
    if ("junction" %in% show && any(junc_rows)) {
       color_sub_junc <- NULL;
-      #juncDF <- sashimi$juncDF;
-      #if (!"junction_rank" %in% colnames(juncDF)) {
-      #   juncDF$junction_rank <- 3;
-      #}
       if (!"junction_rank" %in% colnames(sashimi$df)) {
          sashimi$df$junction_rank <- 3;
       }
-      #juncDF$type <- "junction";
-      #juncDF$name <- pasteByRow(juncDF[,c("nameFromTo", "sample_id")], sep=" ");
-      #juncDF$feature <- juncDF$nameFromTo;
-      #juncDF$row <- seq_len(nrow(juncDF));
       if (fill_scheme %in% "sample_id") {
-         #juncDF$color_by <- pasteByRow(juncDF[,c("sample_id","junction_rank")], sep=".");
          sashimi$df$color_by[junc_rows] <- pasteByRow(
             sashimi$df[junc_rows,c("sample_id","junction_rank"), drop=FALSE],
             sep=".");
       } else {
-         #juncDF$color_by <- juncDF$nameFromToSample;
-         #juncDF$color_by <- as.character(juncDF$junction_rank);
-         sashimi$df$color_by[junc_rows] <- as.character(sashimi$df$junction_rank);
+         sashimi$df$color_by[junc_rows] <- as.character(sashimi$df$junction_rank[junc_rows]);
       }
 
       # order so the lower rank, lesser junctions, are drawn on top
@@ -1238,91 +1321,19 @@ plotSashimi <- function
          color_sub[names(color_sub_junc_3)],
          alpha=junc_alpha);
 
-      #if ("junctionLabels" %in% show && "juncLabelDF" %in% names(sashimi)) {
-      # for now, include junction labels in the data, even if not rendered
-      # into the visualization
-      #if (any(junc_rows)) {
+      ## junction labels
       junclabel_rows <- (sashimi$df$type %in% "junction_label");
       if (any(junclabel_rows)) {
-      #if ("juncLabelDF" %in% names(sashimi)) {
-         #juncLabelDF <- sashimi$juncLabelDF;
-         if (length(label_coords) > 0) {
-            junclabel_rows <- (sashimi$df$type %in% "junction_label" &
-               sashimi$df$x[junclabel_rows] >= min(label_coords) &
-               sashimi$df$x[junclabel_rows] <= max(label_coords));
-            #juncLabelDF <- subset(juncLabelDF,
-            #   x >= min(label_coords) &
-            #   x <= max(label_coords));
+         if (fill_scheme %in% "sample_id") {
+            sashimi$df$color_by[junclabel_rows] <- pasteByRow(sashimi$df[junclabel_rows, c("sample_id","junction_rank"), drop=FALSE],
+               sep=".");
+         } else {
+            sashimi$df$color_by[junclabel_rows] <- as.character(sashimi$df$junction_rank[junclabel_rows]);
          }
-         #if (nrow(juncLabelDF) > 0) {
-         if (any(junclabel_rows)) {
-            #juncLabelDF$type <- "junction_label";
-            #juncLabelDF$name <- pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
-            #juncLabelDF$feature <- juncLabelDF$nameFromTo;
-            #juncLabelDF$row <- seq_len(nrow(juncLabelDF));
-            #if (!"junction_rank" %in% colnames(juncLabelDF)) {
-            #   juncLabelDF$junction_rank <- "3";
-            #}
-            if (fill_scheme %in% "sample_id") {
-               sashimi$df$color_by[junclabel_rows] <- pasteByRow(sashimi$df[junclabel_rows, c("sample_id","junction_rank"), drop=FALSE],
-                  sep=".");
-            } else {
-               #juncDF$color_by <- juncDF$nameFromToSample;
-               sashimi$df$color_by[junclabel_rows] <- as.character(sashimi$df$junction_rank[junclabel_rows]);
-            }
-            #juncLabelDF$text <- scales::comma(round(juncLabelDF$score));
-         }
-      #} else {
-      #   juncLabelDF <- NULL;
       }
-   #} else {
-   #   juncDF <- NULL;
-   #   juncLabelDF <- NULL;
    }
 
-   # Assemble one data.frame in order to keep ggplot2 data in sync
-   if (1 == 2) {
-      cjL <- list();
-      if ("coverage" %in% show && length(covDF) > 0) {
-         covDF$text <- paste0(
-            "score:", scales::comma(covDF$y),
-            "<br>coord:", scales::comma(covDF$x),
-            "<br>feature:", as.character(covDF$gr),
-            "<br>sample_id:", covDF$sample_id,
-            "<br>track:", as.character(covDF$cov));
-         cjL$coverage <- covDF;
-      }
-      if ("junction" %in% show && length(juncDF) > 0) {
-         juncDF$text <- paste0(
-            "score:", scales::comma(juncDF$score),
-            "<br>nameFrom:", juncDF$nameFrom,
-            "<br>nameTo:", juncDF$nameTo,
-            "<br>sample_id:", juncDF$sample_id
-         );
-         cjL$junction <- juncDF;
-      }
-      if ("junctionLabels" %in% show && !do_highlight && length(juncLabelDF) > 0) {
-         cjL$junction_label <- juncLabelDF;
-      }
-      if (length(cjL) == 0) {
-         # There is no data available?
-         return(NULL);
-      }
-      if (length(cjL) == 1) {
-         cjDF <- cjL[[1]];
-      } else {
-         printDebug("mergeAllXY() start");
-         cjDF <- jamba::mergeAllXY(cjL);
-         printDebug("mergeAllXY() complete");
-      }
-      cjDF <- mixedSortDF(cjDF,
-         byCols=c("type","row"));
-      # order columns by presence of NA values
-      na_ct <- apply(cjDF, 2, function(i){
-         sum(is.na(i))
-      });
-      cjDF <- cjDF[,order(na_ct),drop=FALSE];
-   }
+   ## Pull out the data.frame
    cjDF <- sashimi$df;
    if (verbose) {
       printDebug("plotSashimi(): ",
@@ -1368,6 +1379,10 @@ plotSashimi <- function
    # Add coverage layer
    color_sub_d <- makeColorDarker(color_sub, darkFactor=1.2);
    if (all(c("coverage","junction") %in% cjDF$type)) {
+      if (verbose) {
+         printDebug("plotSashimi(): ",
+            "Including coverage and splice junctions.");
+      }
       gg_sashimi <- gg_sashimi +
          geom_polygon(
             data=. %>% filter(type %in% "coverage"),
@@ -1376,12 +1391,20 @@ plotSashimi <- function
             data=. %>% filter(type %in% "junction"),
             show.legend=FALSE);
    } else if ("coverage" %in% cjDF$type) {
+      if (verbose) {
+         printDebug("plotSashimi(): ",
+            "Including coverage without splice junctions.");
+      }
       gg_sashimi <- gg_sashimi +
          ggforce::geom_shape(
             data=. %>% filter(type %in% "coverage"),
             show.legend=FALSE
          );
    } else if ("junction" %in% cjDF$type) {
+      if (verbose) {
+         printDebug("plotSashimi(): ",
+            "Including splice junctions without coverage.");
+      }
       gg_sashimi <- gg_sashimi +
          geom_diagonal_wide_arc(
             data=. %>% filter(type %in% "junction"),
@@ -1392,21 +1415,39 @@ plotSashimi <- function
    }
 
    # Add junction_labels only for non-plotly
-   if ("junctionLabels" %in% show && "junction_label" %in% cjDF$type && !do_highlight) {
-      gg_sashimi <- gg_sashimi +
-         ggrepel::geom_text_repel(
-            data=. %>% filter(type %in% "junction_label"),
-            angle=90,
-            vjust=0.5,
-            direction="y",
-            point.padding=0,
-            color="black",
-            #fill="transparent",
-            aes(
-               #text=NULL,
-               label=scales::comma(score)
-            )
-         );
+   if (igrepHas("junctionlabel|junction.label", show) &&
+         "junction_label" %in% cjDF$type) {
+      if (do_highlight) {
+         if (verbose) {
+            printDebug("plotSashimi(): ",
+               "Disabled junction labels because do_highlight=",
+               do_highlight);
+         }
+      } else {
+         if (verbose) {
+            printDebug("plotSashimi(): ",
+               "Adding junction labels.");
+         }
+         if (length(label_coords) == 0) {
+            label_coords <- range(
+               subset(cjDF,type %in% "junction_label")$x,
+               na.rm=TRUE);
+         }
+         gg_sashimi <- gg_sashimi +
+            ggrepel::geom_text_repel(
+               data=. %>% filter(type %in% "junction_label" &
+                     x >= min(label_coords) & x <= max(label_coords)),
+               angle=90,
+               vjust=0.5,
+               direction="y",
+               point.padding=0,
+               color="black",
+               #fill="transparent",
+               aes(
+                  label=scales::comma(score)
+               )
+            );
+      }
    }
 
    if ("scale" %in% coord_method) {
@@ -1449,15 +1490,22 @@ plotSashimi <- function
 #' This function may be extended then submitted to
 #' the `ggforce` package to assist plotly support.
 #'
-#' This function is not exported, as it is only used by plotly
-#' specifically during conversion of a ggplot object to plotly object.
+#' This function is exported, since otherwise it caused problems
+#' when invoking `plotly::ggplotly()` and this function was not
+#' consistently used in that process for some reason.
 #'
 #' @param data,prestats_data,layout,params,p,... arguments provided
 #'    by plotly during rendering, after stats have been applied.
 #'    Currently only `data` is passed to `ggplot2::GeomPolygon`.
 #'
+#' @export
 to_basic.GeomShape <- function
-(data, prestats_data, layout, params, p, ...)
+(data,
+ prestats_data,
+ layout,
+ params,
+ p,
+ ...)
 {
    plotly:::prefix_class(data, "GeomPolygon");
 }

@@ -546,7 +546,8 @@ data(test_junc_wide_gr);
 data(test_cov_wide_gr);
 testfilesDF <- data.frame(url="sample_A",
    type="coverage_gr",
-   sample_id="sample_A");
+   sample_id="sample_A",
+   scale_factor=1);
 testfilesDF;
 
 # Now prepare sashimi data

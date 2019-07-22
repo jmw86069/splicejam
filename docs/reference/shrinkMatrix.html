@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -143,6 +143,13 @@
       <th>groupBy</th>
       <td><p>vector of group labels, whose length equals <code><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow(x)</a></code>.
 These values will become rownames in the output data.</p></td>
+    </tr>
+    <tr>
+      <th>shrinkFunc</th>
+      <td><p>function that takes vector input and returns
+vector output. The vector class can be checked, in order to
+call a function on numeric or character data separately, as
+needed.</p></td>
     </tr>
     <tr>
       <th>returnClass</th>

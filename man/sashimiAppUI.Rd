@@ -12,4 +12,18 @@ sashimiAppUI(...)
 \description{
 Sashimi Shiny app UI
 }
-\concept{Sashimi Shiny functions}
+\details{
+This function contains the UI for the R-shiny
+Splicejam Sashimi viewer.
+
+The R-shiny app is started by \code{launchSashimiApp()}, which
+calls \code{shiny::shinyApp()}, using arguments \code{server}, \code{ui},
+\code{onStart}, and \code{options}. This function fulfills the
+argument \code{ui}.
+}
+\seealso{
+Other splicejam R-shiny functions: \code{\link{launchSashimiApp}},
+  \code{\link{sashimiAppConstants}},
+  \code{\link{sashimiAppServer}}
+}
+\concept{splicejam R-shiny functions}

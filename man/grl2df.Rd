@@ -9,9 +9,9 @@ grl2df(grl, keepGRvalues = TRUE, keepGRLvalues = FALSE,
   noncds = 0.3, intron = 0.01, gap = 0.01, `NA` = 0.01),
   width_colname = c("subclass", "feature_type"), shape = c("rectangle",
   "junction"), baseline = NULL, scoreColname = "score",
-  scoreArcMinimum = 200, scoreFactor = 1, scoreArcFactor = 0.5,
-  doStackJunctions = TRUE, strandedScore = TRUE, ref2c = NULL,
-  verbose = FALSE, ...)
+  sampleColname = "sample_id", scoreArcMinimum = 200,
+  scoreFactor = 1, scoreArcFactor = 0.5, doStackJunctions = TRUE,
+  strandedScore = TRUE, ref2c = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{grl}{GRangesList, or GRanges which will be converted to a
@@ -46,6 +46,14 @@ height of the arc above the starting y-axis values based upon
 the score, the scaling factor for score values, and the
 relative height of the arc above the starting y-axis values
 multiplied by the score.}
+
+\item{sampleColname}{character string indicating the column
+containing biological sample identifier. This column is only
+used when \code{type="junction"}, and when \code{doStackJunctions=TRUE}.
+It is used to ensure the junctions are only stacked within
+each sample. When \code{sampleColname} is not present in
+\code{colnames(values(grl@unlistData))} then all junctions are
+stacked.}
 
 \item{doStackJunctions}{logical indicating whether to stack junctions
 at the start and end of junctions sharing the same coordinate,

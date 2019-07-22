@@ -14,9 +14,20 @@ sashimiAppServer(input, output, session)
 \item{stssion}{provided by shiny}
 }
 \description{
-Sashimi Shiny app sserver
+Sashimi Shiny app server
+}
+\details{
+This function contains the server logic for the R-shiny
+Splicejam Sashimi viewer.
+
+The R-shiny app is started by \code{launchSashimiApp()}, which
+calls \code{shiny::shinyApp()}, using arguments \code{server}, \code{ui},
+\code{onStart}, and \code{options}. This function fulfills the
+argument \code{server}.
 }
 \seealso{
-Other splicejam R-shiny functions: \code{\link{launchSashimiApp}}
+Other splicejam R-shiny functions: \code{\link{launchSashimiApp}},
+  \code{\link{sashimiAppConstants}},
+  \code{\link{sashimiAppUI}}
 }
 \concept{splicejam R-shiny functions}

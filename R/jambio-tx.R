@@ -487,7 +487,7 @@ tx2ale <- function
    ## add transcript_id annotation
    values(threeUtrGRLdetRange@unlistData)[,"transcript_id"] <- rep(
       names(threeUtrGRLdetRange),
-      S4Vectors::lengths(threeUtrGRLdetRange));
+      S4Vectors::elementNROWS(threeUtrGRLdetRange));
    ## add gene_name annotation
    values(threeUtrGRLdetRange@unlistData)[,"gene_name"] <- tx2geneDF[
       match(values(threeUtrGRLdetRange@unlistData)[,"transcript_id"],
@@ -546,7 +546,7 @@ tx2ale <- function
    ####################################################
    ## Subset ALE containing 2 or more ALEs per gene
    GencodeALEmin2 <- threeUtrGRLdetGeneGRLred2[
-      S4Vectors::lengths(threeUtrGRLdetGeneGRLred2) > 1];
+      S4Vectors::elementNROWS(threeUtrGRLdetGeneGRLred2) > 1];
    if (verbose) {
       printDebug("gencode2ale(): ",
          "Filtered ",
@@ -2135,7 +2135,7 @@ annotateGRfromGR <- function
                #names(iVals) <- names(GR2)[grOLs];
                #iValsX <- unlist(iVals);
                #iValsXnames1 <- rep(grOLq,
-               #   S4Vectors::lengths(iVals));
+               #   S4Vectors::elementNROWS(iVals));
                #iValsSplit <- split(iValsX, iValsXnames1);
                #iValsSplit <- iVals;
                iValsSplit <- values(GR2)[grOLs,iCol];
@@ -2372,7 +2372,7 @@ annotateGRLfromGRL <- function
    annoName1 <- head(annoName1, 1);
    if ("name" %in% annoName1 || "name" %in% splitColname) {
       values(GRL1@unlistData)[,"grl_name1"] <- rep(names(GRL1),
-         S4Vectors::lengths(GRL1));
+         S4Vectors::elementNROWS(GRL1));
    }
    if ("name" %in% annoName1) {
       annoName1 <- "grl_name1";
@@ -2389,7 +2389,7 @@ annotateGRLfromGRL <- function
    annoName2 <- head(annoName2, 1);
    if ("name" %in% annoName2) {
       values(GRL2@unlistData)[,"grl_name2"] <- rep(names(GRL2),
-         S4Vectors::lengths(GRL2));
+         S4Vectors::elementNROWS(GRL2));
       annoName2 <- "grl_name2";
    }
    if (!annoName2 %in% colnames(values(GRL2@unlistData))) {
@@ -2619,12 +2619,12 @@ assignGRLexonNames <- function
          class(GRL));
    }
    GRLstrandL <- unique(GenomicRanges::strand(GRL));
-   if (filterTwoStrand && any(S4Vectors::lengths(GRLstrandL) > 1)) {
+   if (filterTwoStrand && any(S4Vectors::elementNROWS(GRLstrandL) > 1)) {
       if (verbose) {
          printDebug("assignGRLexonNames(): ",
             "removing some multi-stranded exon entries.");
       }
-      iRemove <- which(S4Vectors::lengths(GRLstrandL) > 1);
+      iRemove <- which(S4Vectors::elementNROWS(GRLstrandL) > 1);
       GRL <- GRL[-iRemove];
    } else {
       if (verbose) {
@@ -2640,7 +2640,7 @@ assignGRLexonNames <- function
             "Checking disjoint ranges.");
       }
       GRLdis <- GenomicRanges::disjoin(GRL);
-      if (!all(S4Vectors::lengths(GRLdis) == S4Vectors::lengths(GRL))) {
+      if (!all(S4Vectors::elementNROWS(GRLdis) == S4Vectors::elementNROWS(GRL))) {
          if (checkDisjoin %in% "stop") {
             stop("assignGRLexonNames() detected overlapping GRanges, stopping.");
          } else {
@@ -3778,7 +3778,7 @@ flattenExonsBy <- function
          printDebug("flattenExonsBy(): ",
             "Preparing disjoint gene exons.");
       }
-      iGeneExonsDisGRL <- disjoin(exonsByGene);
+      iGeneExonsDisGRL <- GenomicRanges::disjoin(exonsByGene);
    } else {
       iGeneExonsDisGRL <- exonsByGene;
    }
@@ -3815,7 +3815,7 @@ flattenExonsBy <- function
                elementNROWS(cdsByTx));
          }
          if ("gene" %in% by) {
-            cdsByGene <- reduce(GRangesList(
+            cdsByGene <- GenomicRanges::reduce(GRangesList(
                GenomicRanges::split(cdsByTx@unlistData,
                values(cdsByTx@unlistData)[[geneColname]])));
          } else {
@@ -4229,7 +4229,8 @@ closestExonToJunctions <- function
    ## First make sure the spliceGRgene supplied already has values in the colnames we
    ## will be propagating, otherwise we may only update the entries per this method which
    ## might be incomplete
-   updateColnames <- c("distFrom", "distTo", "nameFrom", "nameTo", "genesDiffer", "genesMatch", "tooFarFrom", "tooFarTo", "tooFar");
+   updateColnames <- c("distFrom", "distTo", "nameFrom", "nameTo",
+      "genesDiffer", "genesMatch", "tooFarFrom", "tooFarTo", "tooFar");
    if (any(updateColnames %in% colnames(values(spliceGRgene)))) {
       values(spliceGRgene) <- values(spliceGRgene)[,setdiff(colnames(spliceGRgene), updateColnames),drop=FALSE];
    }
@@ -4337,6 +4338,11 @@ closestExonToJunctions <- function
    ## Update the exon name on the start side (from) and end side (to) of the splice junction
    values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"nameFrom"] <- names(exonsGR[spliceStartExonEndD1[,"subjectHits"]]);
    values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"nameTo"] <- names(exonsGR[spliceEndExonStartD1[,"subjectHits"]]);
+
+   ## Add nameFromTo column
+   values(spliceGRgene)[,"nameFromTo"] <- pasteByRow(values(spliceGRgene)[,c("nameFrom", "nameTo")],
+      sep=" ",
+      na.rm=TRUE);
 
    ## Update the stranded distance on the start side (from) and end side (to) of the splice junction
    values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"distFrom"] <- spliceStartExonEndD1[,"strandedDistance"];

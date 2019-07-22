@@ -1,36 +1,92 @@
 
-#' SALSA Shiny app constants
+#' Sashimi Shiny app constants
 #'
-#' SALSA Shiny app constants
+#' Sashimi Shiny app constants
 #'
-#' This function is intended to define constant values used in
-#' the creation of the SALSA shiny UI.
+#' This function defines several constant values
+#' used by the R-shiny Splicejam Sashimi viewer,
+#' typically taking from the global environment
+#' where possible.
+#'
+#' The R-shiny app is started by `launchSashimiApp()`, which
+#' calls `shiny::shinyApp()`, using arguments `server`, `ui`,
+#' `onStart`, and `options`. This function fulfills the
+#' argument `onStart`.
 #'
 #' This function is intended to be called only from within
 #' an R-shiny app, since it defines several variables in the
 #' parent (global) environment.
 #'
-#' Specifically, this function will attempt to re-use several
-#' R data objects by name if they exist in any parent environment.
-#' If they do not exist, defaults will be used based upon the
-#' Farris et all data from the `farrisdata` package.
+#' The following values will be used from the environment,
+#' searching up the environment parent chain until it finds
+#' a match, until searching the global environment. Similarly,
+#' this function also defines variables in the environment using
+#' the `<<-` operator, which by default also searches up the
+#' environment chain until it finds a match, otherwise
+#' populating the global environment.
 #'
-#' * filesDF
-#' * color_sub
-#' * txdb (used to derive exonsByTx, cdsByTx if either does not exist)
-#' * tx2geneDF
-#' * gtf (used if tx2geneDF or exonsByTx are not available)
-#' * exonsByTx
-#' * cdsByTx
-#' * detectedTx (derived either from farrisdata::farrisTxSE
-#'    `"TxDetectedByTPM"` or using all entries in `tx2geneDF$transcript_id`)
-#' * detectedGenes (inferred using tx2geneDF and detectedTx)
-#' * flatExonsByGene (defined using exonsByTx, cdsByTx, detectedTx,
-#'    tx2geneDF)
-#' * flatExonsByTx (defined using exonsByTx, cdsByTx, detectedTx,
-#'    tx2geneDF)
+#' If a variable is not found, the corresponding default
+#' from the `farrisdata` package will be used.
 #'
-#' @family SALSA Shiny functions
+#' * **filesDF**: `data.frame` with colnames: `"sample_id"`,
+#' `"type"`, `"url"`, `"scale_factor"`. When `"filesDF"` does
+#' not exist, it is taken from `farrisdata::farris_sashimi_files_df`,
+#' and the default `"aboutExtra"` text is used.
+#' * **color_sub**: character vector of R colors, whose names are
+#' used to match `"sample_id"` or other values used to colorize
+#' ggplot visualizations. It is either populated from
+#' `farrisdata::colorSub`, or `colorjam::group2colors()` is called
+#' using the unique `sample_id` values in `filesDF`.
+#' * **txdb**: TxDb object used to derive `exonsByTx`, and `cdsByTx`
+#' if either does not exist. If the TxDb object does not exist,
+#' it is created from the `gtf` file using
+#' `GenomicFeatures::makeTxDbFromGFF()`.
+#' * **tx2geneDF**: `data.frame` with colnames: `"transcript_id"`,
+#' `"gene_name"`. This data is used to convert `"gene_name"` to
+#' a vector of `"transcript_id"` values.
+#' * **gtf**: character path to a GTF/GFF/GFF3 file, suitable for
+#' `GenomicFeatures::makeTxDbFromGFF()`. The `gtf` is only used
+#' if `tx2geneDF` or `exonsByTx` are not available. Note that
+#' when `gtf` points to a remote server, the file is copied to
+#' the current working directory. If the file already exists in
+#' the local directory, it is re-used.
+#' * **exonsByTx**: `GRangesList` object, named by `"transcript_id"`,
+#' containing all exons for each transcript.
+#' * **cdsByTx**: `GRangesList` object, named by `"transcript_id"`,
+#' containing only CDS (protein-coding) exons for each transcript.
+#' * **detectedTx**: character vector of `"transcript_id"` values,
+#' representing the subset of transcripts detected above background.
+#' If it does not exist, it is derived from `farrisdata::farrisTxSE`
+#' `"TxDetectedByTPM"`. If those values are not all present in
+#' `tx2geneDF` then `detectedTx` is defined by all transcripts
+#' present in `tx2geneDF$transcript_id`.
+#' * **detectedGenes**: inferred using tx2geneDF and detectedTx.
+#' * **flatExonsByGene**: `GRangesList` object containing non-overlapping
+#' exons for each gene, or it is derived from `exonsByTx`,
+#' `cdsByTx`, `detectedTx`, and `tx2geneDF`, using
+#' `flattenExonsBy()`.
+#' * **flatExonsByTx**: `GRangesList` object containing non-overlapping
+#' exons for each gene, or it is derived from `exonsByTx`,
+#' `cdsByTx`, `detectedTx`, and `tx2geneDF`, using
+#' `flattenExonsBy()`.
+#'
+#' Several R objects are cached using `memoise::memoise()`, to
+#' avoid having to create the R object each time the R-shiny app
+#' is started:
+#'
+#' * **flatExonsByGene**
+#' * **flatExonsByTx**
+#' * **exonsByTx**
+#' * **cdsByTx**
+#'
+#' A special custom variable is used to describe the specific
+#' data included with the R-shiny app, `"aboutExtra"`. The
+#' `"aboutExtra"` variable is expected to contain HTML tags,
+#' for example from `htmltools::tags()` to format the text.
+#' The `"aboutExtra"` content is displayed on the tab
+#' `"About Sashimi Plots"` at the top.
+#'
+#' @family splicejam R-shiny functions
 #'
 #' @import shiny
 #' @import shinydashboard
@@ -41,11 +97,15 @@ sashimiAppConstants <- function
 (...)
 {
    ## Define filesDF here
-   if (!exists("aboutExtra")) {
+   # dots <- list(...);
+
+   if (!exists("aboutExtra") ||
+         (exists("aboutExtra") && length(aboutExtra) == 0)) {
       aboutExtra <- NULL;
       aboutExtra <<- aboutExtra;
    }
-   if (!exists("filesDF")) {
+   if (!exists("filesDF") ||
+         (exists("filesDF") && length(filesDF) == 0)) {
       if (suppressPackageStartupMessages(require(farrisdata))) {
          printDebug("Using filesDF from ",
             "farrisdata::farris_sashimi_files_df");
@@ -70,6 +130,11 @@ sashimiAppConstants <- function
    ## Define color_sub
    if (!exists("color_sub")) {
       color_sub <<- farrisdata::colorSub;
+      if (!all(filesDF$sample_id) %in% names(color_sub)) {
+         color_sub_new <- colorjam::group2colors(unique(filesDF$sample_id));
+         is_new <- setdiff(names(color_sub_new), names(color_sub))
+         color_sub[is_new] <- color_sub_new[is_new];
+      }
    }
 
    ## Define flat exons by gene
@@ -230,7 +295,7 @@ sashimiAppConstants <- function
       flattenExonsByGene_m_cached <- memoise::has_cache(flattenExonsBy_m)(
          exonsByTx=exonsByTx,
          cdsByTx=cdsByTx,
-         detectedTx=detectedTx,
+         #detectedTx=detectedTx,
          by="gene",
          tx2geneDF=tx2geneDF,
          verbose=FALSE);
@@ -259,6 +324,7 @@ sashimiAppConstants <- function
       flattenExonsByTx_m_cached <- memoise::has_cache(flattenExonsBy_m)(
          exonsByTx=exonsByTx,
          cdsByTx=cdsByTx,
+         detectedTx=detectedTx,
          tx2geneDF=tx2geneDF,
          by="tx",
          verbose=FALSE);

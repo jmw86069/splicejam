@@ -3,7 +3,7 @@
 ### Farris R-shiny feedback
 
 * Recalculate scale factors, use reference genes from in situ
-hybridizations: Calm1, Cam2ka, Cam2kb, Actb, which show little to
+hybridizations: Calm1, Camk2a, Camk2b, Actb, which show little to
 no change.
 * Debug errors with certain genes: Arc, Pdgfa, Pdgfb. The error message
 is "cannot coerce "list" to DataFrame". This bug appears to be resolved
@@ -12,7 +12,7 @@ after refactoring `prepSashimi()` to return the full data.frame.
 * Allow option to specify the searchable genes: "Detected", "All",
 then eventually subset of genes based upon statistical hits in each
 comparison. Genes to test: Mpo, Hcar1.
-* Debug `stackJunctions()` in gene "Cam2kd" at exons 14-15 and
+* Debug `stackJunctions()` in gene "Camk2d" at exons 14-15 and
 exons 17-18. The stacking appears to be mis-applied.
 * Fix the display of plotly gene-exon models, currently shows an
 empty panel on some servers, but not in local development testing.
@@ -26,6 +26,8 @@ many columns are used for layout.
 * Gria1 takes a while to display the first time, during which the app
 is not usable. Consider making plot rendering asynchronous to decouple
 the visualization from the use of the R-shiny app.
+* The plotly exon coordinates show the overall coordinate range and
+not the specific exon.
 
 ### Vignettes
 
@@ -35,6 +37,13 @@ the visualization from the use of the R-shiny app.
 
 * Implement methods in the testthat package to ensure a consistent
 suite of tests to confirm full functionality with updates.
+Highest priority functions, which would break parts of the workflow:
+    * `flattenExonsBy()`
+    * `assignGRLexonNames()` - dependent upon `jamba::makeNames()`
+    * `annotateGRfromGR()` - dependent upon `shrinkMatrix()`
+    * `shrinkMatrix()`
+    * `combineGRcoverage()`
+    * `df2colorSub()`
 
 ### data.frame versus tibble
 

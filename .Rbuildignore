@@ -5,3 +5,5 @@
 ^\.Rproj\.user$
 ^gencode.*$
 ^.*_memoise$
+^doc$
+^Meta$

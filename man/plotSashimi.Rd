@@ -11,7 +11,7 @@ plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   fill_scheme = c("sample_id", "exon"), color_sub = NULL,
   ylabel = "score", use_jam_themes = TRUE, apply_facet = TRUE,
   facet_scales = "free_y", ref2c = NULL, label_coords = NULL,
-  do_highlight = TRUE, verbose = FALSE, ...)
+  do_highlight = FALSE, verbose = FALSE, ...)
 }
 \arguments{
 \item{sashimi}{Sashimi data prepared by \code{prepareSashimi()} which

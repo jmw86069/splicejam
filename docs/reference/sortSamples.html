@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -128,11 +128,12 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>sortSamples</span>(<span class='no'>x</span>, <span class='kw'>controlTerms</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"WT"</span>, <span class='st'>"(^|[-_ ])NT($|[-_ ]|[0-9])"</span>,
-  <span class='st'>"ETOH"</span>, <span class='st'>"control|ctrl|ctl"</span>, <span class='st'>"ntc"</span>, <span class='st'>"Vehicle|veh"</span>, <span class='st'>"none|empty|blank"</span>,
-  <span class='st'>"scramble"</span>, <span class='st'>"ttx"</span>, <span class='st'>"PBS"</span>), <span class='kw'>sortFunc</span> <span class='kw'>=</span> <span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/jamba/topics/mixedSort'>mixedSort</a></span>,
-  <span class='kw'>preControlTerms</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>postControlTerms</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>keepFactorsAsIs</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>sortSamples</span>(<span class='no'>x</span>, <span class='kw'>controlTerms</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"WT|wildtype"</span>,
+  <span class='st'>"(^|[-_ ])(NT|NTC)($|[-_ ]|[0-9])"</span>, <span class='st'>"ETOH"</span>, <span class='st'>"control|ctrl|ctl"</span>,
+  <span class='st'>"Vehicle|veh"</span>, <span class='st'>"none|empty|blank"</span>, <span class='st'>"scramble"</span>, <span class='st'>"ttx"</span>, <span class='st'>"PBS"</span>, <span class='st'>"knockout"</span>,
+  <span class='st'>"mutant"</span>), <span class='kw'>sortFunc</span> <span class='kw'>=</span> <span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/jamba/topics/mixedSort'>mixedSort</a></span>, <span class='kw'>preControlTerms</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>postControlTerms</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ignore.case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>boundary</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>perl</span> <span class='kw'>=</span> <span class='no'>boundary</span>, <span class='kw'>keepFactorsAsIs</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -160,6 +161,23 @@ default terms.</p></td>
 terms or regular expressions to use after the <code>controlTerms</code>
 above. This argument is used as a convenient suffix to the
 default terms.</p></td>
+    </tr>
+    <tr>
+      <th>ignore.case</th>
+      <td><p>logical passed to <code><a href='https://www.rdocumentation.org/packages/jamba/topics/provigrep'>jamba::provigrep()</a></code> indicating
+whether to ignore case-sensitive matching.</p></td>
+    </tr>
+    <tr>
+      <th>boundary</th>
+      <td><p>logical indicating whether to require a word
+boundary surrounding the control terms. When TRUE, it uses
+<code>perl=TRUE</code> by default, and allows either perl boundary or
+an underscore <code>"_"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>perl</th>
+      <td><p>logical indicating whether to use Perl regular
+expression pattern matching.</p></td>
     </tr>
     <tr>
       <th>keepFactorsAsIs</th>
@@ -212,7 +230,7 @@ be sorted before <code>"Time_12hr"</code>.</p>
 <span class='fu'>sortSamples</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Trt_12h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Trt_1h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Vehicle"</span>));</div><div class='output co'>#&gt; [1] "Vehicle" "Trt_1h"  "Trt_9h"  "Trt_9h"  "Trt_12h"</div><div class='input'>
 <span class='co'># custom terms can be added before the usual control terms</span>
 <span class='fu'>sortSamples</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Trt_12h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Trt_1h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Fixated"</span>, <span class='st'>"Vehicle"</span>),
-   <span class='kw'>preControlTerms</span><span class='kw'>=</span><span class='st'>"fixate"</span>);</div><div class='output co'>#&gt; [1] "Fixated" "Vehicle" "Trt_1h"  "Trt_9h"  "Trt_9h"  "Trt_12h"</div><div class='input'>
+   <span class='kw'>preControlTerms</span><span class='kw'>=</span><span class='st'>"fixate"</span>);</div><div class='output co'>#&gt; [1] "Vehicle" "Fixated" "Trt_1h"  "Trt_9h"  "Trt_9h"  "Trt_12h"</div><div class='input'>
 <span class='co'># custom terms can be added after the usual control terms</span>
 <span class='fu'>sortSamples</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Trt_12h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Trt_1h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Fixated"</span>, <span class='st'>"Vehicle"</span>),
    <span class='kw'>postControlTerms</span><span class='kw'>=</span><span class='st'>"fixate"</span>);</div><div class='output co'>#&gt; [1] "Vehicle" "Fixated" "Trt_1h"  "Trt_9h"  "Trt_9h"  "Trt_12h"</div><div class='input'>

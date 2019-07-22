@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Convert PSL alignment to data.frame — psl2df • splicejam</title>
+<title>Apply jitter using normal distribution — jitter_norm • splicejam</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Convert PSL alignment to data.frame — psl2df" />
+<meta property="og:title" content="Apply jitter using normal distribution — jitter_norm" />
 
-<meta property="og:description" content="Convert PSL alignment to data.frame" />
+<meta property="og:description" content="Apply jitter using normal distribution" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -117,26 +117,36 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Convert PSL alignment to data.frame</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-import.R'><code>R/jambio-import.R</code></a></small>
-    <div class="hidden name"><code>psl2df.Rd</code></div>
+    <h1>Apply jitter using normal distribution</h1>
+    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/splicejam-plots.R'><code>R/splicejam-plots.R</code></a></small>
+    <div class="hidden name"><code>jitter_norm.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Convert PSL alignment to data.frame</p>
+    <p>Apply jitter using normal distribution</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>psl2df</span>(<span class='no'>psl</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>jitter_norm</span>(<span class='no'>x</span>, <span class='kw'>factor</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>amount</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>psl</th>
-      <td><p>file or other connection compatible with <code><a href='https://www.rdocumentation.org/packages/base/topics/readLines'>base::readLines()</a></code>
-of data in PSL alignment format.</p></td>
+      <th>x</th>
+      <td><p>numeric vector</p></td>
+    </tr>
+    <tr>
+      <th>factor</th>
+      <td><p>numeric value to define the magnitude of jitter,
+multiplied by the default jitter which is 1/10 the median
+difference between unique values in <code>x</code>.</p></td>
+    </tr>
+    <tr>
+      <th>amount</th>
+      <td><p>optional numeric value indicating a fixed <code>sd</code>
+standard deviation passed to <code><a href='https://www.rdocumentation.org/packages/stats/topics/Normal'>stats::rnorm()</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -146,40 +156,26 @@ of data in PSL alignment format.</p></td>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function takes PSL alignment format, as produced by BLAT,
-and converts to data.frame. The driving reason for this function
-is that current methods to convert PSL to other formats lose
-some useful information, for example conversion to BED12 format
-loses the query alignment coordinates, in favor of storing
-only the reference coordinates.</p>
-<p>To supply text as input use <code><a href='https://www.rdocumentation.org/packages/base/topics/textconnections'>base::textConnection()</a></code> to wrap
-a text connection around the input text.</p>
+    <p>This function applies a jitter (noise) to points by adding
+random values from a normal distribution, where the argument <code>sd</code>
+is used to apply the jitter magnitude.</p>
+<p>The default jitter is defined as 1/10 the median difference between
+unique, finite input values, which can be scaled using the argument
+<code>factor</code>. Note the use of "unique" input values, which ensures the
+presence of duplicate values does not skew the jitter toward zero.
+When applied to three dimensions, this results in jitter consistently
+scaled relative to the range of values in each dimension. That is,
+points will appear to have a radial jitter.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam data import functions: <code><a href='import_juncs_from_bed.html'>import_juncs_from_bed</a></code></p></div>
+    <div class='dont-index'><p>Other jam plot functions: <code><a href='bgaPlotly3d.html'>bgaPlotly3d</a></code>,
+  <code><a href='factor2label.html'>factor2label</a></code>, <code><a href='gene2gg.html'>gene2gg</a></code>,
+  <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='plotSashimi.html'>plotSashimi</a></code>,
+  <code><a href='prepareSashimi.html'>prepareSashimi</a></code>,
+  <code><a href='stackJunctions.html'>stackJunctions</a></code></p></div>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='no'>psls</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(
-   <span class='st'>"2252\t0\t0\t0\t0\t0\t5\t56285\t+\tQuery_Sequence\t2252\t0\t2252\tReference_Sequence\t99095\t1992\t60529\t6\t227,86,71,79,77,1712,\t0,227,313,384,463,540,\t1992,6931,11020,39871,45861,58817,"</span>,
-   <span class='st'>"664\t0\t0\t0\t1\t3\t1\t1\t+\tQuery_Sequence\t2252\t1291\t1958\tReference_Sequence\t99095\t58842\t59507\t2\t657,7,\t1291,1951,\t58842,59500,"</span>
-   );
-<span class='fu'>psl2df</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/textconnections'>textConnection</a></span>(<span class='no'>psls</span>), <span class='kw'>verbose</span><span class='kw'>=</span><span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; ##  (<span style='color: #00BBBB;font-weight: bold;'>17:48:18</span><span>) 22Jul2019:  </span><span style='color: #BB0000;'>psl2df(): </span><span style='color: #0000BB;'>Detected no psLayout header line.</span><span> 
-#&gt; ##  (</span><span style='color: #00BBBB;font-weight: bold;'>17:48:18</span><span>) 22Jul2019:  </span><span style='color: #BB0000;'>length(pslLines):</span><span style='color: #0000BB;'>2</span><span> </div><div class='output co'>#&gt;   match mis-match rep.match Ns Qgapcount Qgapbases Tgapcount Tgapbases strand
-#&gt; 1  2252         0         0  0         0         0         5     56285      +
-#&gt; 2   664         0         0  0         1         3         1         1      +
-#&gt;            Qname Qsize Qstart Qend              Tname Tsize Tstart  Tend
-#&gt; 1 Query_Sequence  2252      0 2252 Reference_Sequence 99095   1992 60529
-#&gt; 2 Query_Sequence  2252   1291 1958 Reference_Sequence 99095  58842 59507
-#&gt;   blockcount            blockSizes                qStarts
-#&gt; 1          6 227,86,71,79,77,1712, 0,227,313,384,463,540,
-#&gt; 2          2                657,7,             1291,1951,
-#&gt;                              tStarts
-#&gt; 1 1992,6931,11020,39871,45861,58817,
-#&gt; 2                       58842,59500,</div><div class='input'>
-</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -189,9 +185,7 @@ a text connection around the input text.</p>
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>

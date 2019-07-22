@@ -4,9 +4,9 @@
 \alias{stackJunctions}
 \title{Stack the y-axis position of junctions}
 \usage{
-stackJunctions(gr, scoreColname = "score", scoreFactor = 1,
-  matchFrom = NULL, matchTo = NULL, strandedScore = TRUE,
-  baseline = NULL, verbose = FALSE, ...)
+stackJunctions(gr, scoreColname = "score", sampleColname = "sample_id",
+  scoreFactor = 1, matchFrom = NULL, matchTo = NULL,
+  strandedScore = TRUE, baseline = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{gr}{GRanges object representing splice junctions.}
@@ -14,6 +14,11 @@ stackJunctions(gr, scoreColname = "score", scoreFactor = 1,
 \item{scoreColname}{character string matching one of \code{colnames(values(gr))}
 that contains a numeric value representing the abundance of
 each splice junction observed.}
+
+\item{sampleColname}{character string with the column or columns
+that contain biological sample identifier, used to ensure junctions
+are only stacked within a sample, and not across samples. When
+\code{sampleColname} is \code{NULL}, all junctions are stacked.}
 
 \item{scoreFactor}{numeric value multiplied by the value in \code{scoreColname}
 to allow scaling the junctions across samples. Note that
@@ -30,7 +35,10 @@ default \code{c("seqnames", "start", "strand")} is used for
 \code{matchFrom}, and \code{c("seqnames", "end", "strand")} is used
 for \code{matchTo}. That said, if \code{matchFrom} or \code{matchTo} are supplied,
 those colnames are used from \code{as.data.frame(gr)}. Multiple colnames
-are allowed.}
+are allowed.
+Note also that \code{sampleColname} is appended to \code{matchFrom} and \code{matchTo}
+to ensure that matching is only performed within each
+\code{sampleColname} value.}
 
 \item{strandedScore}{logical indicating whether to enforce negative
 scores for junctions on the \code{"-"} strand. Note that when \code{strandedScore}
@@ -128,7 +136,29 @@ ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
    geom_diagonal_wide_arc(alpha=0.7) +
    colorjam::scale_fill_jam() +
    colorjam::theme_jam() +
+   ggtitle("Junctions stacked at boundaries");
+
+## Another view showing the junction_rank
+## based upon max reads entering and exiting each exon edge
+ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name)) +
+   geom_diagonal_wide_arc(aes(alpha=junction_rank), fill="orange") +
+   scale_alpha_manual(values=c(`1`=0.4, `2`=0.6, `3`=0.7)) +
+   colorjam::scale_fill_jam() +
+   colorjam::theme_jam() +
    ggtitle("Junctions stacked at boundaries")
+
+## Last example showing how two samples are kept separate
+grJunc_samples <- c(grJunc, grJunc);
+values(grJunc_samples[6:10])[,"sample_id"] <- "SampleB";
+grlJunc2df_samples <- grl2df(grJunc_samples,
+   scoreArcMinimum=20,
+   shape="junction");
+ggplot(grlJunc2df_samples, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
+   geom_diagonal_wide_arc(alpha=0.7) +
+   colorjam::scale_fill_jam() +
+   colorjam::theme_jam() +
+   ggtitle("Junctions stacked at boundaries") +
+   facet_wrap(~sample_id)
 
 
 }

@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.30.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
       </span>
     </div>
 
@@ -133,8 +133,9 @@
   <span class='kw'>exonLabelAngle</span> <span class='kw'>=</span> <span class='fl'>90</span>, <span class='kw'>exonLabelSize</span> <span class='kw'>=</span> <span class='fl'>3</span>,
   <span class='kw'>newValues</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>feature_type</span> <span class='kw'>=</span> <span class='st'>"gap"</span>, <span class='kw'>subclass</span> <span class='kw'>=</span> <span class='st'>"gap"</span>, <span class='kw'>gene_nameExon</span>
   <span class='kw'>=</span> <span class='st'>"gap"</span>), <span class='kw'>gene_order</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"first"</span>, <span class='st'>"last"</span>), <span class='kw'>return_type</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"grob"</span>,
-  <span class='st'>"df"</span>), <span class='kw'>ref2c</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>hjust</span> <span class='kw'>=</span> <span class='fl'>1.2</span>, <span class='kw'>vjust</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>compressGaps</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>tx2geneDF</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='st'>"df"</span>), <span class='kw'>ref2c</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>hjust</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>vjust</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='kw'>direction</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"both"</span>, <span class='st'>"x"</span>, <span class='st'>"y"</span>), <span class='kw'>compressGaps</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>tx2geneDF</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>label_coords</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -211,13 +212,18 @@ the ggplot graphic object <code>"grob"</code>, or the data.frame
       <th>ref2c</th>
       <td><p>list output from <code><a href='make_ref2compressed.html'>make_ref2compressed()</a></code> which
 contains among other things, the <code>trans_grc</code> data of
-class <code>"trans"</code> used in <code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/coord_trans'>ggplot2::coord_trans()</a></code> or
-<code><a href='https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous'>ggplot2::scale_x_continuous()</a></code>.</p></td>
+class <code>"trans"</code> used in <code><a href='https://ggplot2.tidyverse.org/reference/coord_trans.html'>ggplot2::coord_trans()</a></code> or
+<code><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>ggplot2::scale_x_continuous()</a></code>.</p></td>
     </tr>
     <tr>
       <th>hjust, vjust</th>
       <td><p>numeric value to position exon labels
-using <code>ggplot::geom_text()</code>.</p></td>
+passed to <code><a href='https://www.rdocumentation.org/packages/ggrepel/topics/geom_text_repel'>ggrepel::geom_text_repel()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>direction</th>
+      <td><p>argument passed to <code><a href='https://www.rdocumentation.org/packages/ggrepel/topics/geom_text_repel'>ggrepel::geom_text_repel()</a></code>
+to restrict placement of labels to one axis direction.</p></td>
     </tr>
     <tr>
       <th>compressGaps</th>
@@ -230,6 +236,17 @@ ignored and the supplied <code>ref2c</code> is used directly.</p></td>
       <td><p>data.frame or NULL, optionally used to help
 identify matching transcripts for the requested <code>gene</code> value,
 used when <code>"gene_name"</code> is not present in <code>values(flatExonsByTx)</code>.</p></td>
+    </tr>
+    <tr>
+      <th>label_coords</th>
+      <td><p>numeric vector length 2, optional range of
+genomic coordinates to restrict labels, so labels are not
+arranged by <code><a href='https://www.rdocumentation.org/packages/ggrepel/topics/geom_text_repel'>ggrepel::geom_text_repel()</a></code> even when <code>coord_cartesian()</code>
+is used to zoom into a specific x-axis range.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>logical indicating whether to print verbose output.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -253,7 +270,8 @@ for more customization.</p>
 
     <div class='dont-index'><p>Other jam plot functions: <code><a href='bgaPlotly3d.html'>bgaPlotly3d</a></code>,
   <code><a href='factor2label.html'>factor2label</a></code>, <code><a href='grl2df.html'>grl2df</a></code>,
-  <code><a href='plotSashimi.html'>plotSashimi</a></code>, <code><a href='prepareSashimi.html'>prepareSashimi</a></code>,
+  <code><a href='jitter_norm.html'>jitter_norm</a></code>, <code><a href='plotSashimi.html'>plotSashimi</a></code>,
+  <code><a href='prepareSashimi.html'>prepareSashimi</a></code>,
   <code><a href='stackJunctions.html'>stackJunctions</a></code></p>
 <p>Other jam ggplot2 functions: <code><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc</a></code>,
   <code><a href='plotSashimi.html'>plotSashimi</a></code>,

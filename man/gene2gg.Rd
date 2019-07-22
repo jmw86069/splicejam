@@ -9,7 +9,8 @@ gene2gg(gene = NULL, tx = NULL, flatExonsByGene = NULL,
   exonLabelAngle = 90, exonLabelSize = 3,
   newValues = list(feature_type = "gap", subclass = "gap", gene_nameExon
   = "gap"), gene_order = c("first", "last"), return_type = c("grob",
-  "df"), ref2c = NULL, hjust = 1.2, vjust = 0, compressGaps = TRUE,
+  "df"), ref2c = NULL, hjust = 2, vjust = 0.5,
+  direction = c("both", "x", "y"), compressGaps = TRUE,
   tx2geneDF = NULL, label_coords = NULL, verbose = FALSE, ...)
 }
 \arguments{
@@ -67,7 +68,10 @@ class \code{"trans"} used in \code{ggplot2::coord_trans()} or
 \code{ggplot2::scale_x_continuous()}.}
 
 \item{hjust, vjust}{numeric value to position exon labels
-using \code{ggplot::geom_text()}.}
+passed to \code{ggrepel::geom_text_repel()}.}
+
+\item{direction}{argument passed to \code{ggrepel::geom_text_repel()}
+to restrict placement of labels to one axis direction.}
 
 \item{compressGaps}{logical indicating whether to compress gaps
 between exons. When \code{ref2c} is supplied, this argument is

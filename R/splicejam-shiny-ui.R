@@ -3,7 +3,15 @@
 #'
 #' Sashimi Shiny app UI
 #'
-#' @family Sashimi Shiny functions
+#' This function contains the UI for the R-shiny
+#' Splicejam Sashimi viewer.
+#'
+#' The R-shiny app is started by `launchSashimiApp()`, which
+#' calls `shiny::shinyApp()`, using arguments `server`, `ui`,
+#' `onStart`, and `options`. This function fulfills the
+#' argument `ui`.
+#'
+#' @family splicejam R-shiny functions
 #'
 #' @import shiny
 #' @import shinydashboard
@@ -60,13 +68,42 @@ sashimiAppUI <- function
                solidHeader=TRUE,
                collapsible=TRUE,
                width=12,
-               selectizeInput(
-                  label="Select Gene",
-                  inputId="gene",
-                  selected="Gria1",
-                  choices=c("Gria1", "Ntrk2"),
-                  options=list(maxOptions=100),
-                  multiple=FALSE
+               fluidRow(
+                  column(
+                     width=1,
+                     style="padding:0px"
+                  ),
+                  column(
+                     width=5,
+                     style="padding:0px",
+                     selectizeInput(
+                        label="Select Gene",
+                        inputId="gene",
+                        selected="Gria1",
+                        choices=c("Gria1", "Ntrk2"),
+                        options=list(maxOptions=100),
+                        multiple=FALSE
+                     )
+                  ),
+                  column(
+                     width=1,
+                     style="padding:0px"
+                  ),
+                  column(
+                     width=4,
+                     style="padding:0px",
+                     selectizeInput(
+                        label="Genes to Search",
+                        inputId="search_genelist",
+                        selected="Detected",
+                        choices=c("Detected", "All"),
+                        multiple=FALSE
+                     )
+                  ),
+                  column(
+                     width=1,
+                     style="padding:0px"
+                  )
                ),
                fluidRow(
                   column(
@@ -181,7 +218,7 @@ sashimiAppUI <- function
                   shinyWidgets::sliderTextInput(
                      inputId="panel_height",
                      label="Height per panel:",
-                     choices=c(50,100,75,150,200,250,300,400,500),
+                     choices=c(50,75,100,150,200,250,300,400,500),
                      selected=200,
                      grid=TRUE
                   ),
@@ -198,7 +235,7 @@ sashimiAppUI <- function
                      min=0.1,
                      max=1.0,
                      step=0.1,
-                     value=1.0
+                     value=0.7
                   ),
                   tags$b("Plot Style:"),
                   shinyWidgets::prettyCheckbox(
