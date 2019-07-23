@@ -130,7 +130,7 @@ sashimiAppUI <- function
                      style="padding:0px",
                      shinyWidgets::radioGroupButtons(
                         inputId="include_strand",
-                        label="Show coverage by strand:",
+                        label="Show coverage by strand",
                         choices=c("+", "-", "both"),
                         selected="both",
                         status="primary",
