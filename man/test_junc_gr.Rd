@@ -30,13 +30,13 @@ suppressPackageStartupMessages(library(GenomicRanges));
 suppressPackageStartupMessages(library(ggplot2));
 
 test_junc_gr <- GRanges(seqnames=rep("chr1", 5),
-   ranges=IRanges(
+   ranges=IRanges::IRanges(
       start=c(200, 200, 400, 400, 750),
         end=c(299, 499, 499, 899, 899)),
    strand=rep("+", 5),
    score=c(200, 50, 120, 80, 170),
    sample_id=rep("sample_A", 5));
-names(test_junc_gr) <- makeNames(
+names(test_junc_gr) <- jamba::makeNames(
    rep("junc", length(test_junc_gr)),
    suffix="");
 test_junc_gr;

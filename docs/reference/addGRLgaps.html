@@ -160,8 +160,22 @@ are duplicated for multiple gaps.</p></td>
       <td><p>list of values to add to the resulting gap GRanges,
 whose names become <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(grl@unlistData)</a></code>, and whose values are used
 to populate each column. By default a colname <code>"feature_type"</code> is
-added, with value <code>"gap"</code> added to each row. When <code>newValues is NULL</code>
-then no values are added to the gaps GRanges.</p></td>
+added, with value <code>"gap"</code> added to each row. When <code>newValues</code> is <code>NULL</code>
+then no values are added to the gaps GRanges. For every entry in
+<code><a href='https://www.rdocumentation.org/packages/base/topics/names'>names(newValues)</a></code>, if the colname does not exist, it is created
+and populated with <code>default_feature_type</code> as a default value,
+prior to adding gaps.</p></td>
+    </tr>
+    <tr>
+      <th>default_feature_type, feature_type_colname</th>
+      <td><p>character values,
+indicating the type and colname to populate in <code>values(grl@unlistData)</code>
+prior to adding gaps. When <code>feature_type_colname</code> is NULL,
+no action is taken. When <code>feature_type_colname</code> does not
+exist in <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(values(grl@unlistData))</a></code>, it is created
+with values in <code>default_feature_type</code>. Also any colname
+defined by <code>newValues</code> that does not already exist is also
+created and populated with <code>default_feature_type</code>.</p></td>
     </tr>
     <tr>
       <th>doSort</th>
@@ -224,12 +238,87 @@ values, use the <code>newValues</code> argument, which assigns name-value pairs.
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>gr</span> <span class='kw'>&lt;-</span> <span class='fu'>GRanges</span>(<span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"chr1"</span>,<span class='st'>"chr2"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>2</span>)),
-   <span class='kw'>ranges</span><span class='kw'>=</span><span class='fu'>IRanges</span>(<span class='kw'>start</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>100</span>, <span class='fl'>300</span>, <span class='fl'>400</span>, <span class='fl'>300</span>, <span class='fl'>700</span>),
+    <pre class="examples"><div class='input'><span class='no'>gr</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/GenomicRanges/topics/GRanges-class'>GRanges</a></span>(<span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"chr1"</span>,<span class='st'>"chr2"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>2</span>)),
+   <span class='kw'>ranges</span><span class='kw'>=</span><span class='kw pkg'>IRanges</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/IRanges/topics/IRanges-constructor'>IRanges</a></span>(<span class='kw'>start</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>100</span>, <span class='fl'>300</span>, <span class='fl'>400</span>, <span class='fl'>300</span>, <span class='fl'>700</span>),
       <span class='kw'>end</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>199</span>, <span class='fl'>450</span>, <span class='fl'>500</span>, <span class='fl'>600</span>, <span class='fl'>800</span>)),
    <span class='kw'>strand</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"+"</span>,<span class='st'>"-"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>2</span>)),
-   <span class='kw'>feature_type</span><span class='kw'>=</span><span class='st'>"exon"</span>);</div><div class='output co'>#&gt; <span class='error'>Error in GRanges(seqnames = rep(c("chr1", "chr2"), c(3, 2)), ranges = IRanges(start = c(100,     300, 400, 300, 700), end = c(199, 450, 500, 600, 800)), strand = rep(c("+",     "-"), c(3, 2)), feature_type = "exon"): could not find function "GRanges"</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>gr</span>) <span class='kw'>&lt;-</span> <span class='fu'>makeNames</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"exon"</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/length'>length</a></span>(<span class='no'>gr</span>)));</div><div class='output co'>#&gt; <span class='error'>Error in makeNames(rep("exon", length(gr))): could not find function "makeNames"</span></div><div class='input'><span class='no'>gr</span>;</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'gr' not found</span></div><div class='input'><span class='fu'><a href='addGRgaps.html'>addGRgaps</a></span>(<span class='no'>gr</span>);</div><div class='output co'>#&gt; <span class='error'>Error in values(gr): could not find function "values"</span></div><div class='input'>
-<span class='no'>grl</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr</span>, <span class='fu'>seqnames</span>(<span class='no'>gr</span>));</div><div class='output co'>#&gt; <span class='error'>Error in GenomicRanges::split(gr, seqnames(gr)): object 'gr' not found</span></div><div class='input'><span class='no'>grl</span>;</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'grl' not found</span></div><div class='input'><span class='fu'>addGRLgaps</span>(<span class='no'>grl</span>);</div><div class='output co'>#&gt; <span class='error'>Error in values(grl@unlistData): could not find function "values"</span></div><div class='input'><span class='fu'>addGRLgaps</span>(<span class='no'>grl</span>, <span class='kw'>strandSpecific</span><span class='kw'>=</span><span class='fl'>FALSE</span>);</div><div class='output co'>#&gt; <span class='error'>Error in values(grl@unlistData): could not find function "values"</span></div><div class='input'>
+   <span class='kw'>feature_type</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"exon"</span>, <span class='fl'>5</span>));
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>gr</span>) <span class='kw'>&lt;-</span> <span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/jamba/topics/makeNames'>makeNames</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"exon"</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/length'>length</a></span>(<span class='no'>gr</span>)));
+<span class='no'>gr</span>;</div><div class='output co'>#&gt; GRanges object with 5 ranges and 1 metadata column:
+#&gt;           seqnames    ranges strand | feature_type
+#&gt;              &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; |  &lt;character&gt;
+#&gt;   exon_v1     chr1   100-199      + |         exon
+#&gt;   exon_v2     chr1   300-450      + |         exon
+#&gt;   exon_v3     chr1   400-500      + |         exon
+#&gt;   exon_v4     chr2   300-600      - |         exon
+#&gt;   exon_v5     chr2   700-800      - |         exon
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'><a href='addGRgaps.html'>addGRgaps</a></span>(<span class='no'>gr</span>);</div><div class='output co'>#&gt; GRanges object with 7 ranges and 1 metadata column:
+#&gt;           seqnames    ranges strand | feature_type
+#&gt;              &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; |  &lt;character&gt;
+#&gt;   exon_v1     chr1   100-199      + |         exon
+#&gt;    gap_v1     chr1   200-299      + |          gap
+#&gt;   exon_v2     chr1   300-450      + |         exon
+#&gt;   exon_v3     chr1   400-500      + |         exon
+#&gt;   exon_v4     chr2   300-600      - |         exon
+#&gt;    gap_v2     chr2   601-699      - |          gap
+#&gt;   exon_v5     chr2   700-800      - |         exon
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
+<span class='no'>grl</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr</span>, <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>seqnames</span>(<span class='no'>gr</span>));
+<span class='no'>grl</span>;</div><div class='output co'>#&gt; GRangesList object of length 2:
+#&gt; $chr1 
+#&gt; GRanges object with 3 ranges and 1 metadata column:
+#&gt;           seqnames    ranges strand | feature_type
+#&gt;              &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; |  &lt;character&gt;
+#&gt;   exon_v1     chr1   100-199      + |         exon
+#&gt;   exon_v2     chr1   300-450      + |         exon
+#&gt;   exon_v3     chr1   400-500      + |         exon
+#&gt; 
+#&gt; $chr2 
+#&gt; GRanges object with 2 ranges and 1 metadata column:
+#&gt;           seqnames  ranges strand | feature_type
+#&gt;   exon_v4     chr2 300-600      - |         exon
+#&gt;   exon_v5     chr2 700-800      - |         exon
+#&gt; 
+#&gt; -------
+#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'>addGRLgaps</span>(<span class='no'>grl</span>);</div><div class='output co'>#&gt; GRangesList object of length 2:
+#&gt; $chr1 
+#&gt; GRanges object with 4 ranges and 1 metadata column:
+#&gt;           seqnames    ranges strand | feature_type
+#&gt;              &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; |  &lt;character&gt;
+#&gt;   exon_v1     chr1   100-199      + |         exon
+#&gt;    gap_v1     chr1   200-299      + |          gap
+#&gt;   exon_v2     chr1   300-450      + |         exon
+#&gt;   exon_v3     chr1   400-500      + |         exon
+#&gt; 
+#&gt; $chr2 
+#&gt; GRanges object with 3 ranges and 1 metadata column:
+#&gt;           seqnames  ranges strand | feature_type
+#&gt;   exon_v4     chr2 300-600      - |         exon
+#&gt;    gap_v2     chr2 601-699      - |          gap
+#&gt;   exon_v5     chr2 700-800      - |         exon
+#&gt; 
+#&gt; -------
+#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'>addGRLgaps</span>(<span class='no'>grl</span>, <span class='kw'>strandSpecific</span><span class='kw'>=</span><span class='fl'>FALSE</span>);</div><div class='output co'>#&gt; GRangesList object of length 2:
+#&gt; $chr1 
+#&gt; GRanges object with 4 ranges and 1 metadata column:
+#&gt;           seqnames    ranges strand | feature_type
+#&gt;              &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; |  &lt;character&gt;
+#&gt;   exon_v1     chr1   100-199      + |         exon
+#&gt;   exon_v2     chr1   300-450      + |         exon
+#&gt;   exon_v3     chr1   400-500      + |         exon
+#&gt;    gap_v1     chr1   200-299      * |          gap
+#&gt; 
+#&gt; $chr2 
+#&gt; GRanges object with 3 ranges and 1 metadata column:
+#&gt;           seqnames  ranges strand | feature_type
+#&gt;   exon_v4     chr2 300-600      - |         exon
+#&gt;   exon_v5     chr2 700-800      - |         exon
+#&gt;    gap_v2     chr2 601-699      * |          gap
+#&gt; 
+#&gt; -------
+#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

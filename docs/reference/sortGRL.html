@@ -199,7 +199,7 @@ original <code><a href='https://www.rdocumentation.org/packages/base/topics/name
    <span class='kw'>strand</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"+"</span>, <span class='st'>"-"</span>, <span class='st'>"+"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>3</span>)),
    <span class='kw'>gene_name</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"GeneA"</span>, <span class='st'>"GeneB"</span>, <span class='st'>"GeneC"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>)
 )
-<span class='no'>grl</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr12</span>, <span class='fu'>values</span>(<span class='no'>gr12</span>)$<span class='no'>gene_name</span>);
+<span class='no'>grl</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr12</span>, <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>values</span>(<span class='no'>gr12</span>)$<span class='no'>gene_name</span>);
 <span class='no'>grl</span>;</div><div class='output co'>#&gt; GRangesList object of length 3:
 #&gt; $GeneA 
 #&gt; GRanges object with 3 ranges and 1 metadata column:
@@ -224,7 +224,7 @@ original <code><a href='https://www.rdocumentation.org/packages/base/topics/name
 #&gt;   [3]     chr1 600-649      + |     GeneC
 #&gt; 
 #&gt; -------
-#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sort'>sort</a></span>(<span class='no'>grl</span>);</div><div class='output co'>#&gt; GRangesList object of length 3:
+#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'><span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>sort</span>(<span class='no'>grl</span>);</div><div class='output co'>#&gt; GRangesList object of length 3:
 #&gt; $GeneA 
 #&gt; GRanges object with 3 ranges and 1 metadata column:
 #&gt;       seqnames    ranges strand |   gene_name

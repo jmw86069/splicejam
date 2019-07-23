@@ -280,7 +280,7 @@ groups2contrasts <- function
             length.out=ncol(iFactors)),
             renameFirst=FALSE);
       } else {
-         colnames(iFactors) <- makeNames(
+         colnames(iFactors) <- jamba::makeNames(
             rep("factor",
                length.out=ncol(iFactors)),
             renameOnes=TRUE);
@@ -735,9 +735,9 @@ groups2contrasts <- function
 #' @param ignore.case logical passed to `jamba::provigrep()` indicating
 #'    whether to ignore case-sensitive matching.
 #' @param boundary logical indicating whether to require a word
-#'    boundary surrounding the control terms. When TRUE, it uses
-#'    `perl=TRUE` by default, and allows either perl boundary or
-#'    an underscore `"_"`.
+#'    boundary at either the start or end of the control terms.
+#'    When TRUE, it uses `perl=TRUE` by default, and allows either
+#'    perl boundary or an underscore `"_"`.
 #' @param perl logical indicating whether to use Perl regular
 #'    expression pattern matching.
 #' @param keepFactorsAsIs logical indicating whether to maintain
@@ -798,14 +798,14 @@ sortSamples <- function
    if (keepFactorsAsIs && jamba::igrepHas("factor", class(x))) {
       sort(x);
    } else {
-      controlTerms <- c(preControlTerms,
+      controlTerms <- unique(c(preControlTerms,
          controlTerms,
-         postControlTerms);
+         postControlTerms));
       if (any(boundary)) {
          # Require regular expression boundary
-         controlTerms1 <- paste0("(_|\\b)(",
-            controlTerms,
-            ")(_|\\b)");
+         controlTerms1 <- unlist(lapply(controlTerms, function(i){
+            paste0("(_|\\b)(", i, ")|(", i, ")(_|\\b)")
+         }))
          if (any(!boundary)) {
             controlTerms <- c(controlTerms1,
                controlTerms);
@@ -1057,7 +1057,7 @@ curateVtoDF <- function
    ## match any entries in x. It is mainly intended to be used by
    ## curateDFtoDF() for more complex column curation.
    ##
-   ## Note that x is used to create rownames using makeNames(x) which
+   ## Note that x is used to create rownames using jamba::makeNames(x) which
    ## ensures that rownames are unique. In this case, the resulting
    ## rownames will not match the input vector x.
    ##
@@ -1114,7 +1114,7 @@ curateVtoDF <- function
             iName);
       }
       iGrepL <- curationL[[iName]];
-      x1 <- x;
+      x1 <- as.character(x);
       ## Todo: make it only replace matching entries, otherwise
       ## substitute NA for non-matched patterns.
       x1which <- integer(0);
@@ -1180,7 +1180,7 @@ curateVtoDF <- function
    iDF <- data.frame(check.names=FALSE,
       stringsAsFactors=FALSE,
       do.call(cbind, curationValuesL));
-   rownames(iDF) <- makeNames(x);
+   rownames(iDF) <- jamba::makeNames(x);
    iDF;
 }
 

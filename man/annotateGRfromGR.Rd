@@ -119,8 +119,35 @@ gr12 <- GenomicRanges::GRanges(
    strand=rep(c("+", "-", "+"), c(3,3,3)),
    gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
 )
-grl1 <- GenomicRanges::split(gr12[,0], values(gr12)$gene_name);
-grl2 <- GenomicRanges::split(gr12, values(gr12)$gene_name);
+gr1 <- gr12[,0];
+
+# Say for example you have a GRanges object with no annotation
+gr1;
+
+# And had another GRanges object with annotations
+gr12;
+
+# To add annotations
+annotateGRfromGR(gr1, gr12);
+
+# Notice certain features overlap multiple annotations,
+# which may be acceptable.
+
+# If you want to keep annotations distinct,
+# use annotateGRLfromGRL()
+grl1 <- GenomicRanges::split(gr12[,0],
+   GenomicRanges::values(gr12)$gene_name);
+grl2 <- GenomicRanges::split(gr12,
+   GenomicRanges::values(gr12)$gene_name);
+
+# The first object is a GRangesList with no annotations
+grl1;
+
+# The second object is a GRangesList with annotation,
+# assumed to be in the same order
+grl2;
+
+annotateGRLfromGRL(grl1, grl2);
 
 }
 \seealso{

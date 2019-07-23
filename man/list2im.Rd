@@ -35,6 +35,14 @@ In future the uniqueness step may be carried out using
 \code{S4Vectors} list methods, which are also highly efficient
 specifically in handling very large lists.
 }
+\examples{
+set.seed(123);
+l1 <- list(first=sample(letters, 10),
+   second=sample(letters, 15),
+   third=sample(letters, 5));
+list2im(l1);
+
+}
 \seealso{
 Other jam list functions: \code{\link{intercalate}}
 }

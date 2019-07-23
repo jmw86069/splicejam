@@ -88,19 +88,19 @@ library(ggforce);
 library(colorjam);
 library(jamba);
 grExons <- GRanges(seqnames=rep("chr1", 4),
-   ranges=IRanges(
+   ranges=IRanges::IRanges(
       start=c(100, 300, 500,  900),
         end=c(200, 400, 750, 1000)),
    strand=rep("+", 4));
-names(grExons) <- makeNames(rep("exon", length(grExons)),
+names(grExons) <- jamba::makeNames(rep("exon", length(grExons)),
    suffix="");
 
 grJunc <- GRanges(seqnames=rep("chr1", 5),
-   ranges=IRanges(start=c(200, 200, 400, 400, 750),
+   ranges=IRanges::IRanges(start=c(200, 200, 400, 400, 750),
       end=c(300, 500, 500, 900, 900)),
    strand=rep("+", 5),
    score=c(200, 50, 160, 40, 210));
-names(grJunc) <- makeNames(rep("junc", length(grJunc)));
+names(grJunc) <- jamba::makeNames(rep("junc", length(grJunc)));
 
 # quick plot showing exons and junctions using rectangles
 grl <- c(
@@ -149,17 +149,17 @@ ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name)) +
 
 ## Last example showing how two samples are kept separate
 grJunc_samples <- c(grJunc, grJunc);
-values(grJunc_samples[6:10])[,"sample_id"] <- "SampleB";
+values(grJunc_samples)[,"sample_id"] <- rep(c("SampleA","SampleB"), each=5);
 grlJunc2df_samples <- grl2df(grJunc_samples,
    scoreArcMinimum=20,
    shape="junction");
 ggplot(grlJunc2df_samples, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
-   geom_diagonal_wide_arc(alpha=0.7) +
+   geom_diagonal_wide_arc(alpha=0.7,
+      show.legend=FALSE) +
    colorjam::scale_fill_jam() +
    colorjam::theme_jam() +
    ggtitle("Junctions stacked at boundaries") +
    facet_wrap(~sample_id)
-
 
 }
 \seealso{

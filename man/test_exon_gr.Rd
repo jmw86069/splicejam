@@ -23,12 +23,12 @@ suppressPackageStartupMessages(library(GenomicRanges));
 suppressPackageStartupMessages(library(ggplot2));
 
 test_exon_gr <- GRanges(seqnames=rep("chr1", 4),
-   ranges=IRanges(
+   ranges=IRanges::IRanges(
       start=c(100, 300, 500, 900),
         end=c(199, 399, 749, 999)),
    strand=rep("+", 4),
    gene_name=rep("TestGene1", 4));
-names(test_exon_gr) <- makeNames(rep("exon", length(test_exon_gr)),
+names(test_exon_gr) <- jamba::makeNames(rep("exon", length(test_exon_gr)),
    suffix="");
 
 # To plot a simple GRanges object

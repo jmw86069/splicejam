@@ -60,7 +60,7 @@ the progress bar is already initiated.}
 }
 \value{
 DataFrame object, whose colnames are defined using
-\code{makeNames(basename(bwUrls))}. Each column is type \code{NumericList},
+\code{jamba::makeNames(basename(bwUrls))}. Each column is type \code{NumericList},
 which is a list of numeric coverage values.
 }
 \description{

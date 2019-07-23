@@ -26,8 +26,20 @@ are duplicated for multiple gaps.}
 \item{newValues}{list of values to add to the resulting gap GRanges,
 whose names become \code{colnames(grl@unlistData)}, and whose values are used
 to populate each column. By default a colname \code{"feature_type"} is
-added, with value \code{"gap"} added to each row. When \code{newValues is NULL}
-then no values are added to the gaps GRanges.}
+added, with value \code{"gap"} added to each row. When \code{newValues} is \code{NULL}
+then no values are added to the gaps GRanges. For every entry in
+\code{names(newValues)}, if the colname does not exist, it is created
+and populated with \code{default_feature_type} as a default value,
+prior to adding gaps.}
+
+\item{default_feature_type, feature_type_colname}{character values,
+indicating the type and colname to populate in \code{values(grl@unlistData)}
+prior to adding gaps. When \code{feature_type_colname} is NULL,
+no action is taken. When \code{feature_type_colname} does not
+exist in \code{colnames(values(grl@unlistData))}, it is created
+with values in \code{default_feature_type}. Also any colname
+defined by \code{newValues} that does not already exist is also
+created and populated with \code{default_feature_type}.}
 
 \item{doSort}{logical indicating whether to sort the resulting
 GRanges objects. When \code{doSort=FALSE} the gaps are added to the end
@@ -65,16 +77,16 @@ gaps GRanges object will have \code{NA} values used by default. To supply
 values, use the \code{newValues} argument, which assigns name-value pairs.
 }
 \examples{
-gr <- GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
-   ranges=IRanges(start=c(100, 300, 400, 300, 700),
+gr <- GenomicRanges::GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
+   ranges=IRanges::IRanges(start=c(100, 300, 400, 300, 700),
       end=c(199, 450, 500, 600, 800)),
    strand=rep(c("+","-"), c(3,2)),
-   feature_type="exon");
-names(gr) <- makeNames(rep("exon", length(gr)));
+   feature_type=rep("exon", 5));
+names(gr) <- jamba::makeNames(rep("exon", length(gr)));
 gr;
 addGRgaps(gr);
 
-grl <- GenomicRanges::split(gr, seqnames(gr));
+grl <- GenomicRanges::split(gr, GenomicRanges::seqnames(gr));
 grl;
 addGRLgaps(grl);
 addGRLgaps(grl, strandSpecific=FALSE);

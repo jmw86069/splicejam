@@ -27,6 +27,13 @@
 #'
 #' @family jam list functions
 #'
+#' @examples
+#' set.seed(123);
+#' l1 <- list(first=sample(letters, 10),
+#'    second=sample(letters, 15),
+#'    third=sample(letters, 5));
+#' list2im(l1);
+#'
 #' @export
 list2im <- function
 (x,

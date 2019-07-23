@@ -94,7 +94,7 @@ StatDiagonalWideArc <- ggproto('StatDiagonalWideArc', Stat,
       data <- data[order(data$group_factor, data$x, data$y),]
       group_data <- data$group;
       new_group <- rep(
-         makeNames(
+         jamba::makeNames(
             rep(unique(group_data), each=2)),
          each=2);
       new_group <- factor(new_group,

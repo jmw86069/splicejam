@@ -285,7 +285,141 @@ is yet to be ported to the Jam package suite.</p>
    <span class='kw'>strand</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"+"</span>, <span class='st'>"-"</span>, <span class='st'>"+"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>3</span>)),
    <span class='kw'>gene_name</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"GeneA"</span>, <span class='st'>"GeneB"</span>, <span class='st'>"GeneC"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>)
 )
-<span class='no'>grl1</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr12</span>[,<span class='fl'>0</span>], <span class='fu'>values</span>(<span class='no'>gr12</span>)$<span class='no'>gene_name</span>);</div><div class='output co'>#&gt; <span class='error'>Error in values(gr12): could not find function "values"</span></div><div class='input'><span class='no'>grl2</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr12</span>, <span class='fu'>values</span>(<span class='no'>gr12</span>)$<span class='no'>gene_name</span>);</div><div class='output co'>#&gt; <span class='error'>Error in values(gr12): could not find function "values"</span></div><div class='input'>
+<span class='no'>gr1</span> <span class='kw'>&lt;-</span> <span class='no'>gr12</span>[,<span class='fl'>0</span>];
+
+<span class='co'># Say for example you have a GRanges object with no annotation</span>
+<span class='no'>gr1</span>;</div><div class='output co'>#&gt; GRanges object with 9 ranges and 0 metadata columns:
+#&gt;       seqnames    ranges strand
+#&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt;
+#&gt;   [1]     chr1   100-199      +
+#&gt;   [2]     chr1   200-349      +
+#&gt;   [3]     chr1   400-449      +
+#&gt;   [4]     chr2   500-549      -
+#&gt;   [5]     chr2   300-349      -
+#&gt;   [6]     chr2   100-199      -
+#&gt;   [7]     chr1   200-249      +
+#&gt;   [8]     chr1   400-599      +
+#&gt;   [9]     chr1   600-649      +
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
+<span class='co'># And had another GRanges object with annotations</span>
+<span class='no'>gr12</span>;</div><div class='output co'>#&gt; GRanges object with 9 ranges and 1 metadata column:
+#&gt;       seqnames    ranges strand |   gene_name
+#&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
+#&gt;   [1]     chr1   100-199      + |       GeneA
+#&gt;   [2]     chr1   200-349      + |       GeneA
+#&gt;   [3]     chr1   400-449      + |       GeneA
+#&gt;   [4]     chr2   500-549      - |       GeneB
+#&gt;   [5]     chr2   300-349      - |       GeneB
+#&gt;   [6]     chr2   100-199      - |       GeneB
+#&gt;   [7]     chr1   200-249      + |       GeneC
+#&gt;   [8]     chr1   400-599      + |       GeneC
+#&gt;   [9]     chr1   600-649      + |       GeneC
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
+<span class='co'># To add annotations</span>
+<span class='fu'>annotateGRfromGR</span>(<span class='no'>gr1</span>, <span class='no'>gr12</span>);</div><div class='output co'>#&gt; GRanges object with 9 ranges and 1 metadata column:
+#&gt;         seqnames    ranges strand |   gene_name
+#&gt;            &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
+#&gt;   GR1_1     chr1   100-199      + |       GeneA
+#&gt;   GR1_2     chr1   200-349      + | GeneA,GeneC
+#&gt;   GR1_3     chr1   400-449      + | GeneA,GeneC
+#&gt;   GR1_4     chr2   500-549      - |       GeneB
+#&gt;   GR1_5     chr2   300-349      - |       GeneB
+#&gt;   GR1_6     chr2   100-199      - |       GeneB
+#&gt;   GR1_7     chr1   200-249      + | GeneA,GeneC
+#&gt;   GR1_8     chr1   400-599      + | GeneA,GeneC
+#&gt;   GR1_9     chr1   600-649      + |       GeneC
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
+<span class='co'># Notice certain features overlap multiple annotations,</span>
+<span class='co'># which may be acceptable.</span>
+
+<span class='co'># If you want to keep annotations distinct,</span>
+<span class='co'># use annotateGRLfromGRL()</span>
+<span class='no'>grl1</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr12</span>[,<span class='fl'>0</span>],
+   <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>values</span>(<span class='no'>gr12</span>)$<span class='no'>gene_name</span>);
+<span class='no'>grl2</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr12</span>,
+   <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>values</span>(<span class='no'>gr12</span>)$<span class='no'>gene_name</span>);
+
+<span class='co'># The first object is a GRangesList with no annotations</span>
+<span class='no'>grl1</span>;</div><div class='output co'>#&gt; GRangesList object of length 3:
+#&gt; $GeneA 
+#&gt; GRanges object with 3 ranges and 0 metadata columns:
+#&gt;       seqnames    ranges strand
+#&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt;
+#&gt;   [1]     chr1   100-199      +
+#&gt;   [2]     chr1   200-349      +
+#&gt;   [3]     chr1   400-449      +
+#&gt; 
+#&gt; $GeneB 
+#&gt; GRanges object with 3 ranges and 0 metadata columns:
+#&gt;       seqnames  ranges strand
+#&gt;   [1]     chr2 500-549      -
+#&gt;   [2]     chr2 300-349      -
+#&gt;   [3]     chr2 100-199      -
+#&gt; 
+#&gt; $GeneC 
+#&gt; GRanges object with 3 ranges and 0 metadata columns:
+#&gt;       seqnames  ranges strand
+#&gt;   [1]     chr1 200-249      +
+#&gt;   [2]     chr1 400-599      +
+#&gt;   [3]     chr1 600-649      +
+#&gt; 
+#&gt; -------
+#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
+<span class='co'># The second object is a GRangesList with annotation,</span>
+<span class='co'># assumed to be in the same order</span>
+<span class='no'>grl2</span>;</div><div class='output co'>#&gt; GRangesList object of length 3:
+#&gt; $GeneA 
+#&gt; GRanges object with 3 ranges and 1 metadata column:
+#&gt;       seqnames    ranges strand |   gene_name
+#&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
+#&gt;   [1]     chr1   100-199      + |       GeneA
+#&gt;   [2]     chr1   200-349      + |       GeneA
+#&gt;   [3]     chr1   400-449      + |       GeneA
+#&gt; 
+#&gt; $GeneB 
+#&gt; GRanges object with 3 ranges and 1 metadata column:
+#&gt;       seqnames  ranges strand | gene_name
+#&gt;   [1]     chr2 500-549      - |     GeneB
+#&gt;   [2]     chr2 300-349      - |     GeneB
+#&gt;   [3]     chr2 100-199      - |     GeneB
+#&gt; 
+#&gt; $GeneC 
+#&gt; GRanges object with 3 ranges and 1 metadata column:
+#&gt;       seqnames  ranges strand | gene_name
+#&gt;   [1]     chr1 200-249      + |     GeneC
+#&gt;   [2]     chr1 400-599      + |     GeneC
+#&gt;   [3]     chr1 600-649      + |     GeneC
+#&gt; 
+#&gt; -------
+#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
+<span class='fu'><a href='annotateGRLfromGRL.html'>annotateGRLfromGRL</a></span>(<span class='no'>grl1</span>, <span class='no'>grl2</span>);</div><div class='output co'>#&gt; GRangesList object of length 3:
+#&gt; $GeneA 
+#&gt; GRanges object with 3 ranges and 1 metadata column:
+#&gt;           seqnames    ranges strand |           X
+#&gt;              &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
+#&gt;   grl1_v1     chr1   100-199      + |       GeneA
+#&gt;   grl1_v2     chr1   200-349      + |       GeneA
+#&gt;   grl1_v3     chr1   400-449      + |       GeneA
+#&gt; 
+#&gt; $GeneB 
+#&gt; GRanges object with 3 ranges and 1 metadata column:
+#&gt;           seqnames  ranges strand |     X
+#&gt;   grl1_v4     chr2 500-549      - | GeneB
+#&gt;   grl1_v5     chr2 300-349      - | GeneB
+#&gt;   grl1_v6     chr2 100-199      - | GeneB
+#&gt; 
+#&gt; $GeneC 
+#&gt; GRanges object with 3 ranges and 1 metadata column:
+#&gt;           seqnames  ranges strand |     X
+#&gt;   grl1_v7     chr1 200-249      + | GeneC
+#&gt;   grl1_v8     chr1 400-599      + | GeneC
+#&gt;   grl1_v9     chr1 600-649      + | GeneC
+#&gt; 
+#&gt; -------
+#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

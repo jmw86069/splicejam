@@ -108,6 +108,21 @@ for more customization.
 }
 \examples{
 ## Assume we start with flattened gene exons
+data(test_exon_wide_gr);
+test_flatExonsByGene <- GenomicRanges::split(test_exon_wide_gr,
+   GenomicRanges::values(test_exon_wide_gr)[,"gene_name"]);
+
+# The most basic plot of exons
+gene2gg(gene="TestGene1", flatExonsByGene=test_flatExonsByGene);
+
+# You can be fancy and number the exons
+test_flatExonsByGene <- assignGRLexonNames(test_flatExonsByGene,
+   geneSymbolColname="gene_name");
+gene2gg(gene="TestGene1", flatExonsByGene=test_flatExonsByGene);
+
+# Or the exon labels can be hidden
+gene2gg(gene="TestGene1", flatExonsByGene=test_flatExonsByGene, labelExons=FALSE)
+
 if (1 == 2) {
    ## Do not run automated examples until sample data is available
 

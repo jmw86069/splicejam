@@ -7,7 +7,7 @@
 plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   coord_method = c("scale", "coord", "none"), exonsGrl = NULL,
   junc_color = alpha2col("goldenrod2", 0.3),
-  junc_fill = alpha2col("goldenrod2", 0.9), junc_alpha = 1,
+  junc_fill = alpha2col("goldenrod2", 0.9), junc_alpha = 0.8,
   fill_scheme = c("sample_id", "exon"), color_sub = NULL,
   ylabel = "score", use_jam_themes = TRUE, apply_facet = TRUE,
   facet_scales = "free_y", ref2c = NULL, label_coords = NULL,

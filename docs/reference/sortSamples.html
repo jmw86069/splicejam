@@ -170,9 +170,9 @@ whether to ignore case-sensitive matching.</p></td>
     <tr>
       <th>boundary</th>
       <td><p>logical indicating whether to require a word
-boundary surrounding the control terms. When TRUE, it uses
-<code>perl=TRUE</code> by default, and allows either perl boundary or
-an underscore <code>"_"</code>.</p></td>
+boundary at either the start or end of the control terms.
+When TRUE, it uses <code>perl=TRUE</code> by default, and allows either
+perl boundary or an underscore <code>"_"</code>.</p></td>
     </tr>
     <tr>
       <th>perl</th>
@@ -230,7 +230,7 @@ be sorted before <code>"Time_12hr"</code>.</p>
 <span class='fu'>sortSamples</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Trt_12h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Trt_1h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Vehicle"</span>));</div><div class='output co'>#&gt; [1] "Vehicle" "Trt_1h"  "Trt_9h"  "Trt_9h"  "Trt_12h"</div><div class='input'>
 <span class='co'># custom terms can be added before the usual control terms</span>
 <span class='fu'>sortSamples</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Trt_12h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Trt_1h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Fixated"</span>, <span class='st'>"Vehicle"</span>),
-   <span class='kw'>preControlTerms</span><span class='kw'>=</span><span class='st'>"fixate"</span>);</div><div class='output co'>#&gt; [1] "Vehicle" "Fixated" "Trt_1h"  "Trt_9h"  "Trt_9h"  "Trt_12h"</div><div class='input'>
+   <span class='kw'>preControlTerms</span><span class='kw'>=</span><span class='st'>"fixate"</span>);</div><div class='output co'>#&gt; [1] "Fixated" "Vehicle" "Trt_1h"  "Trt_9h"  "Trt_9h"  "Trt_12h"</div><div class='input'>
 <span class='co'># custom terms can be added after the usual control terms</span>
 <span class='fu'>sortSamples</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Trt_12h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Trt_1h"</span>, <span class='st'>"Trt_9h"</span>, <span class='st'>"Fixated"</span>, <span class='st'>"Vehicle"</span>),
    <span class='kw'>postControlTerms</span><span class='kw'>=</span><span class='st'>"fixate"</span>);</div><div class='output co'>#&gt; [1] "Vehicle" "Fixated" "Trt_1h"  "Trt_9h"  "Trt_9h"  "Trt_12h"</div><div class='input'>

@@ -485,12 +485,12 @@ tx2ale <- function
          verbose=verbose);
    }
    ## add transcript_id annotation
-   values(threeUtrGRLdetRange@unlistData)[,"transcript_id"] <- rep(
+   GenomicRanges::values(threeUtrGRLdetRange@unlistData)[,"transcript_id"] <- rep(
       names(threeUtrGRLdetRange),
       S4Vectors::elementNROWS(threeUtrGRLdetRange));
    ## add gene_name annotation
-   values(threeUtrGRLdetRange@unlistData)[,"gene_name"] <- tx2geneDF[
-      match(values(threeUtrGRLdetRange@unlistData)[,"transcript_id"],
+   GenomicRanges::values(threeUtrGRLdetRange@unlistData)[,"gene_name"] <- tx2geneDF[
+      match(GenomicRanges::values(threeUtrGRLdetRange@unlistData)[,"transcript_id"],
          tx2geneDF[,"transcript_id"]),"gene_name"];
 
    ####################################################
@@ -501,7 +501,7 @@ tx2ale <- function
    }
    threeUtrGRLdetGeneGRL <- GenomicRanges::split(
       threeUtrGRLdetRange@unlistData,
-      f=values(threeUtrGRLdetRange@unlistData)[,"gene_name"]);
+      f=GenomicRanges::values(threeUtrGRLdetRange@unlistData)[,"gene_name"]);
    ## Reduce (melt) 3'UTR ranges, combining overlapping ranges per gene
    if (verbose) {
       printDebug("gencode2ale(): ",
@@ -539,8 +539,8 @@ tx2ale <- function
          "Assigned stranded numbers to the ranges.");
    }
    names(threeUtrGRLdetGeneGRLred2@unlistData) <-
-      values(threeUtrGRLdetGeneGRLred2@unlistData)[,"ALE_name"];
-   values(threeUtrGRLdetGeneGRLred2@unlistData)[,"score"] <- 0.5;
+      GenomicRanges::values(threeUtrGRLdetGeneGRLred2@unlistData)[,"ALE_name"];
+   GenomicRanges::values(threeUtrGRLdetGeneGRLred2@unlistData)[,"score"] <- 0.5;
    retVals$aleGRL <- threeUtrGRLdetGeneGRLred2;
 
    ####################################################
@@ -556,7 +556,7 @@ tx2ale <- function
          " genes having multiple ranges.");
    }
    ## vector of genes containing multiple ALEs
-   GencodeALEmin2genes <- jamba::mixedSort(unique(values(GencodeALEmin2@unlistData)[,"gene_name"]));
+   GencodeALEmin2genes <- jamba::mixedSort(unique(GenomicRanges::values(GencodeALEmin2@unlistData)[,"gene_name"]));
    retVals$multiALEgenes <- GencodeALEmin2genes;
 
    ####################################################
@@ -565,11 +565,11 @@ tx2ale <- function
       printDebug("gencode2ale(): ",
          "Creating transcript-to-ALE xref for multi-range genes.");
    }
-   ale2txL <- strsplit(nameVector(
-      values(subset(threeUtrGRLdetGeneGRLred2@unlistData,
+   ale2txL <- strsplit(jamba::nameVector(
+      GenomicRanges::values(subset(threeUtrGRLdetGeneGRLred2@unlistData,
          gene_name %in% GencodeALEmin2genes))[,c("transcript_id","ALE_name")]),
       ",");
-   tx2ale <- nameVector(list2df(ale2txL)[,c("item","value")]);
+   tx2ale <- jamba::nameVector(list2df(ale2txL)[,c("item","value")]);
    retVals$tx2ale <- tx2ale;
 
    ####################################################
@@ -1595,7 +1595,7 @@ factor2label <- function
 #'    strand=rep(c("+", "-", "+"), c(3,3,3)),
 #'    gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
 #' )
-#' grl <- GenomicRanges::split(gr12, values(gr12)$gene_name)
+#' grl <- GenomicRanges::split(gr12, GenomicRanges::values(gr12)$gene_name)
 #' getFirstStrandedFromGRL(grl)
 #'
 #' @export
@@ -1626,7 +1626,7 @@ getFirstStrandedFromGRL <- function
    if (any(lengths(unique(strand(grl))) > 1)) {
       stop("Input GRangesList must contain only one strand per element.");
    }
-   if (any(lengths(unique(seqnames(grl))) > 1)) {
+   if (any(lengths(unique(GenomicRanges::seqnames(grl))) > 1)) {
       stop("Input GRangesList must contain only one seqname per element.");
    }
 
@@ -1730,9 +1730,9 @@ getFirstStrandedFromGRL <- function
 #'    strand=rep(c("+", "-", "+"), c(3,3,3)),
 #'    gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
 #' )
-#' grl <- GenomicRanges::split(gr12, values(gr12)$gene_name);
+#' grl <- GenomicRanges::split(gr12, GenomicRanges::values(gr12)$gene_name);
 #' grl;
-#' sort(grl);
+#' GenomicRanges::sort(grl);
 #' sortGRL(grl);
 #' sortGRL(grl, keep_order=FALSE);
 #'
@@ -1755,20 +1755,20 @@ sortGRL <- function
       names(GRL) <- jamba::makeNames(rep("GRL", length(GRL)));
    }
 
-   values(GRL@unlistData)[,splitColname] <- factor(rep(names(GRL), IRanges::elementNROWS(GRL)),
+   GenomicRanges::values(GRL@unlistData)[,splitColname] <- factor(rep(names(GRL), IRanges::elementNROWS(GRL)),
       levels=names(GRL));
-   GR1 <- sort(GRL@unlistData);
+   GR1 <- GenomicRanges::sort(GRL@unlistData);
    if (!keep_order) {
-      values(GR1)[[splitColname]] <- factor(values(GR1)[[splitColname]],
-         levels=as.character(unique(values(GR1)[[splitColname]])));
+      GenomicRanges::values(GR1)[[splitColname]] <- factor(GenomicRanges::values(GR1)[[splitColname]],
+         levels=as.character(unique(GenomicRanges::values(GR1)[[splitColname]])));
    }
    if (verbose) {
       jamba::printDebug("sortGRL(): ",
          "splitting GRanges into list");
    }
-   splitColnum <- match(splitColname, colnames(values(GR1)));
+   splitColnum <- match(splitColname, colnames(GenomicRanges::values(GR1)));
    GRL <- GenomicRanges::split(GR1[,-splitColnum],
-      f=values(GR1)[[splitColname]]);
+      f=GenomicRanges::values(GR1)[[splitColname]]);
 
    return(GRL);
 }
@@ -1870,8 +1870,35 @@ sortGRL <- function
 #'    strand=rep(c("+", "-", "+"), c(3,3,3)),
 #'    gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
 #' )
-#' grl1 <- GenomicRanges::split(gr12[,0], values(gr12)$gene_name);
-#' grl2 <- GenomicRanges::split(gr12, values(gr12)$gene_name);
+#' gr1 <- gr12[,0];
+#'
+#' # Say for example you have a GRanges object with no annotation
+#' gr1;
+#'
+#' # And had another GRanges object with annotations
+#' gr12;
+#'
+#' # To add annotations
+#' annotateGRfromGR(gr1, gr12);
+#'
+#' # Notice certain features overlap multiple annotations,
+#' # which may be acceptable.
+#'
+#' # If you want to keep annotations distinct,
+#' # use annotateGRLfromGRL()
+#' grl1 <- GenomicRanges::split(gr12[,0],
+#'    GenomicRanges::values(gr12)$gene_name);
+#' grl2 <- GenomicRanges::split(gr12,
+#'    GenomicRanges::values(gr12)$gene_name);
+#'
+#' # The first object is a GRangesList with no annotations
+#' grl1;
+#'
+#' # The second object is a GRangesList with annotation,
+#' # assumed to be in the same order
+#' grl2;
+#'
+#' annotateGRLfromGRL(grl1, grl2);
 #'
 #' @export
 annotateGRfromGR <- function
@@ -1945,7 +1972,7 @@ annotateGRfromGR <- function
    grOLm <- as.matrix(grOL);
 
    ## Test for query entries with only one overlap in the subject
-   grOLtable <- table(from(grOL));
+   grOLtable <- table(S4Vectors::from(grOL));
    grOLm1 <- grOLm[grOLm[,1] %in% which(grOLtable == 1),,drop=FALSE];
    grOLq1 <- grOLm1[,"queryHits"];
    grOLs1 <- grOLm1[,"subjectHits"];
@@ -1975,8 +2002,8 @@ annotateGRfromGR <- function
 
    ## Define the column types by inspecting data, and
    ## applying function arguments
-   colClasses <- sapply(colnames(values(GR2)), function(iCol){
-      class(values(GR2)[,iCol])
+   colClasses <- sapply(colnames(GenomicRanges::values(GR2)), function(iCol){
+      class(GenomicRanges::values(GR2)[,iCol])
    });
    if (numAsStrings) {
       stringCols <- names(colClasses)[sapply(colClasses, function(iClass){
@@ -2071,7 +2098,7 @@ annotateGRfromGR <- function
                   "   ",
                   iCol);
             }
-            values(GR2[grOLs1])[,iCol];
+            GenomicRanges::values(GR2[grOLs1])[,iCol];
          });
       }
       numShrunk <- lapply(nameVector(numCols), function(iCol){
@@ -2086,7 +2113,7 @@ annotateGRfromGR <- function
                "   grOLq:",
                head(grOLq));
          }
-         grOLi <- shrinkMatrix(as.data.frame(values(GR2)[grOLs,iCol,drop=FALSE]),
+         grOLi <- shrinkMatrix(as.data.frame(GenomicRanges::values(GR2)[grOLs,iCol,drop=FALSE]),
             groupBy=seq_along(GR1)[grOLq],
             shrinkFunc=numShrinkFunc[[iCol]],
             returnClass="matrix");
@@ -2118,7 +2145,7 @@ annotateGRfromGR <- function
                   "   ",
                   iCol);
             }
-            as.data.frame(values(GR2)[grOLs1,iCol,drop=FALSE]);
+            as.data.frame(GenomicRanges::values(GR2)[grOLs1,iCol,drop=FALSE]);
          });
       }
       if (nrow(grOLmUse) > 0) {
@@ -2128,7 +2155,7 @@ annotateGRfromGR <- function
                   "   ",
                   iCol);
             }
-            if (igrepHas("list", class(values(GR2)[grOLs,iCol]))) {
+            if (igrepHas("list", class(GenomicRanges::values(GR2)[grOLs,iCol]))) {
                ## list column
                ## What was all this effort doing?
                #iVals <- values(GR2)[grOLs,iCol];
@@ -2138,7 +2165,7 @@ annotateGRfromGR <- function
                #   S4Vectors::elementNROWS(iVals));
                #iValsSplit <- split(iValsX, iValsXnames1);
                #iValsSplit <- iVals;
-               iValsSplit <- values(GR2)[grOLs,iCol];
+               iValsSplit <- GenomicRanges::values(GR2)[grOLs,iCol];
 
                iXnonNA <- stringShrinkFunc[[iCol]](iValsSplit,
                   sep=sep);
@@ -2146,7 +2173,7 @@ annotateGRfromGR <- function
                iX;
             } else {
                ## Non-list column
-               iValsX <- values(GR2)[grOLs,iCol];
+               iValsX <- GenomicRanges::values(GR2)[grOLs,iCol];
                iValsXnames1 <- grOLq;
 
                ## Split the values
@@ -2258,8 +2285,9 @@ annotateGRfromGR <- function
    ## Make duplicate colnames uniquely named
    ## TODO: review make.unique() for making column renaming robust,
    ## currently does not handle renaming duplicated versioned names.
-   if (ncol(values(GR1)) > 0 && any(colnames(grOL1) %in% colnames(values(GR1)))) {
-      newColnames <- make.unique(c(colnames(values(GR1)), colnames(grOL1)),
+   if (ncol(GenomicRanges::values(GR1)) > 0 &&
+         any(colnames(grOL1) %in% colnames(GenomicRanges::values(GR1)))) {
+      newColnames <- make.unique(c(colnames(GenomicRanges::values(GR1)), colnames(grOL1)),
          sep="_v");
       newColnames2 <- tail(newColnames, ncol(grOL1));
       colnames(grOL1) <- newColnames2;
@@ -2268,20 +2296,20 @@ annotateGRfromGR <- function
    ## Now append each column, meanwhile fix some issues with ,-delimiters
    for (iCol in colnames(grOL1)) {
       if (igrepHas("integer|numeric", class(grOL1[,iCol]))) {
-         values(GR1)[,iCol] <- numeric(0);
+         GenomicRanges::values(GR1)[,iCol] <- numeric(0);
       } else {
          grOL1[,iCol] <- gsub(", ", ",", grOL1[,iCol]);
-         values(GR1)[,iCol] <- "";
+         GenomicRanges::values(GR1)[,iCol] <- "";
       }
       if (verbose) {
          printDebug("annotateGRfromGR(): ",
             "head(grOL1):");
          print(head(grOL1, 5));
       }
-      values(GR1)[grOLqAll,iCol] <- grOL1[,iCol];
+      GenomicRanges::values(GR1)[grOLqAll,iCol] <- grOL1[,iCol];
       blankRows <- seq_along(GR1)[-grOLqAll];
       if (length(blankRows) > 0) {
-         values(GR1[blankRows])[,iCol] <- NA;
+         GenomicRanges::values(GR1[blankRows])[,iCol] <- NA;
       }
    }
    GR1;
@@ -2339,6 +2367,32 @@ annotateGRfromGR <- function
 #'    To customize the aggregation functions, supply `numShrinkFunc` or
 #'    `stringShrinkFunc` as described in `annotateGRfromGR()`.
 #'
+#' @examples
+#' gr12 <- GenomicRanges::GRanges(
+#'    seqnames=rep(c("chr1", "chr2", "chr1"), c(3,3,3)),
+#'    ranges=IRanges::IRanges(
+#'       start=c(100, 200, 400, 500, 300, 100, 200, 400, 600),
+#'       width=c(100,150,50, 50,50,100, 50,200,50)
+#'    ),
+#'    strand=rep(c("+", "-", "+"), c(3,3,3)),
+#'    gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
+#' )
+#'
+#' # Now split into GRangesList
+#' grl1 <- GenomicRanges::split(gr12[,0],
+#'    GenomicRanges::values(gr12)$gene_name);
+#' grl2 <- GenomicRanges::split(gr12,
+#'    GenomicRanges::values(gr12)$gene_name);
+#'
+#' # The first object is a GRangesList with no annotations
+#' grl1;
+#'
+#' # The second object is a GRangesList with annotation,
+#' # assumed to be in the same order
+#' grl2;
+#'
+#' annotateGRLfromGRL(grl1, grl2);
+#'
 #' @export
 annotateGRLfromGRL <- function
 (GRL1,
@@ -2360,18 +2414,18 @@ annotateGRLfromGRL <- function
    returnType <- match.arg(returnType);
    ## Assign names to GRL1 and GRL2 as needed
    if (length(names(GRL1@unlistData)) == 0) {
-      names(GRL1@unlistData) <- makeNames(rep("grl1",
+      names(GRL1@unlistData) <- jamba::makeNames(rep("grl1",
          length(GRL1@unlistData)));
    }
    if (length(names(GRL2@unlistData)) == 0) {
-      names(GRL2@unlistData) <- makeNames(rep("grl2",
+      names(GRL2@unlistData) <- jamba::makeNames(rep("grl2",
          length(GRL2@unlistData)));
    }
 
    ## Validate annoName1
    annoName1 <- head(annoName1, 1);
    if ("name" %in% annoName1 || "name" %in% splitColname) {
-      values(GRL1@unlistData)[,"grl_name1"] <- rep(names(GRL1),
+      GenomicRanges::values(GRL1@unlistData)[,"grl_name1"] <- rep(names(GRL1),
          S4Vectors::elementNROWS(GRL1));
    }
    if ("name" %in% annoName1) {
@@ -2380,7 +2434,7 @@ annotateGRLfromGRL <- function
    if ("name" %in% splitColname) {
       splitColname[splitColname %in% "name"] <- "grl_name1";
    }
-   if (!annoName1 %in% colnames(values(GRL1@unlistData))) {
+   if (!annoName1 %in% colnames(GenomicRanges::values(GRL1@unlistData))) {
       stop(paste0("Supplied annoName1:'",
          annoName1,
          "' was not found in colnames(values(GRL1@unlistData))."));
@@ -2388,16 +2442,16 @@ annotateGRLfromGRL <- function
    ## Validate annoName2
    annoName2 <- head(annoName2, 1);
    if ("name" %in% annoName2) {
-      values(GRL2@unlistData)[,"grl_name2"] <- rep(names(GRL2),
+      GenomicRanges::values(GRL2@unlistData)[,"grl_name2"] <- rep(names(GRL2),
          S4Vectors::elementNROWS(GRL2));
       annoName2 <- "grl_name2";
    }
-   if (!annoName2 %in% colnames(values(GRL2@unlistData))) {
+   if (!annoName2 %in% colnames(GenomicRanges::values(GRL2@unlistData))) {
       stop(paste0("Supplied annoName2:'",
          annoName2,
          "' was not found in colnames(values(GRL2@unlistData))."));
    }
-   annoNames2 <- setdiff(colnames(values(GRL2@unlistData)), annoName2);
+   annoNames2 <- setdiff(colnames(GenomicRanges::values(GRL2@unlistData)), annoName2);
    if (verbose) {
       printDebug("annotateGRLfromGRL(): ",
          "annoNames2:",
@@ -2419,18 +2473,18 @@ annotateGRLfromGRL <- function
       ...);
    if (returnType %in% "GR") {
       if (!add_grl_name) {
-         keepCols <- setdiff(colnames(values(GR12)),
+         keepCols <- setdiff(colnames(GenomicRanges::values(GR12)),
             c("grl_name1", "grl_name2"));
-         values(GR12) <- values(GR12)[,keepCols];
+         GenomicRanges::values(GR12) <- GenomicRanges::values(GR12)[,keepCols];
       }
       return(GR12);
    } else {
       GRL12 <- GenomicRanges::split(GR12,
-         values(GR12)[,splitColname]);
+         GenomicRanges::values(GR12)[,splitColname]);
       if (!add_grl_name) {
-         keepCols <- setdiff(colnames(values(GRL12@unlistData)),
+         keepCols <- setdiff(colnames(GenomicRanges::values(GRL12@unlistData)),
             c("grl_name1", "grl_name2"));
-         values(GRL12@unlistData) <- values(GRL12@unlistData)[,keepCols];
+         GenomicRanges::values(GRL12@unlistData) <- GenomicRanges::values(GRL12@unlistData)[,keepCols];
       }
       return(GRL12);
    }
@@ -2490,12 +2544,12 @@ findOverlapsGRL <- function
    if (annoName1 %in% "name") {
       GRLnames1 <- rep(names(GRL1), elementNROWS(GRL1));
    } else {
-      GRLnames1 <- values(GRL1@unlistData)[,annoName1];
+      GRLnames1 <- GenomicRanges::values(GRL1@unlistData)[,annoName1];
    }
    if (annoName2 %in% "name") {
       GRLnames2 <- rep(names(GRL2), elementNROWS(GRL2));
    } else {
-      GRLnames2 <- values(GRL2@unlistData)[,annoName2];
+      GRLnames2 <- GenomicRanges::values(GRL2@unlistData)[,annoName2];
    }
    if (check_names && !any(GRLnames1 %in% GRLnames2)) {
       warning("No names are shared between GRL1 and GRL2. Please try again.");
@@ -2503,7 +2557,7 @@ findOverlapsGRL <- function
    }
 
    ## Perform overlap between of all GRanges
-   grOL <- findOverlaps(GRL1@unlistData,
+   grOL <- GenomicRanges::findOverlaps(GRL1@unlistData,
       GRL2@unlistData,
       ...);
    grOLdf <- data.frame(as.data.frame(grOL));
@@ -2532,8 +2586,8 @@ findOverlapsGRL <- function
 #'
 #' For example the exon labels below:
 #'
-#' |======|......|======|=======|======|......|======|=======|
-#' .exon1.........exon2a.exon2b..exon2c........exon3a..exon3b.
+#' `|======|......|======|=======|======|......|======|=======|`
+#' `.exon1.........exon2a.exon2b..exon2c........exon3a..exon3b.`
 #'
 #' The full name for each feature will become:
 #' * Gene_exon1
@@ -2659,8 +2713,8 @@ assignGRLexonNames <- function
    GRLred <- GenomicRanges::reduce(GRL);
 
    ## Add geneSymbolColname if it does not already exist
-   if (!geneSymbolColname %in% colnames(values(GRLred@unlistData))) {
-      values(GRLred@unlistData)[,geneSymbolColname] <- rep(names(GRLred),
+   if (!geneSymbolColname %in% colnames(GenomicRanges::values(GRLred@unlistData))) {
+      GenomicRanges::values(GRLred@unlistData)[,geneSymbolColname] <- rep(names(GRLred),
          S4Vectors::elementNROWS(GRLred));
    }
    if (verbose) {
@@ -2676,14 +2730,14 @@ assignGRLexonNames <- function
    if (verbose) {
       jamba::printDebug("assignGRLexonNames(): ",
          "geneSymbolColname values:",
-         head(values(GRLred@unlistData)[,geneSymbolColname], 10));
+         head(GenomicRanges::values(GRLred@unlistData)[,geneSymbolColname], 10));
    }
    GRLredStrand <- unlist(unique(strand(GRLred)));
    GRLredStrandP <- which(GRLredStrand %in% "+");
    GRLredStrandN <- which(GRLredStrand %in% "-");
 
    ## Stranded exon numbering
-   values(GRLred@unlistData)[,exonNameColname] <- "";
+   GenomicRanges::values(GRLred@unlistData)[,exonNameColname] <- "";
    if (verbose) {
       printDebug("assignGRLexonNames(): ",
          "head(GRLred):");
@@ -2696,26 +2750,26 @@ assignGRLexonNames <- function
       print(head(GRLredStrandN));
    }
    if (length(GRLredStrandP) > 0) {
-      values(GRLred[GRLredStrandP]@unlistData)[,exonNameColname] <- makeNames(
-         values(GRLred[GRLredStrandP]@unlistData)[,geneSymbolColname],
+      GenomicRanges::values(GRLred[GRLredStrandP]@unlistData)[,exonNameColname] <- jamba::makeNames(
+         GenomicRanges::values(GRLred[GRLredStrandP]@unlistData)[,geneSymbolColname],
          suffix=suffix,
          renameOnes=TRUE);
    }
    if (length(GRLredStrandN) > 0) {
-      values(GRLred[GRLredStrandN]@unlistData)[,exonNameColname] <- rev(makeNames(
-         values(GRLred[rev(GRLredStrandN)]@unlistData)[,geneSymbolColname],
+      GenomicRanges::values(GRLred[GRLredStrandN]@unlistData)[,exonNameColname] <- rev(jamba::makeNames(
+         GenomicRanges::values(GRLred[rev(GRLredStrandN)]@unlistData)[,geneSymbolColname],
          suffix=suffix,
          renameOnes=TRUE));
    }
    if (verbose) {
       printDebug("assignGRLexonNames(): ",
          "exonNameColname values:",
-         head(values(GRLred@unlistData)[,exonNameColname], 10));
+         head(GenomicRanges::values(GRLred@unlistData)[,exonNameColname], 10));
    }
 
    ## Add lowercase letter suffix
    GRLcolnames <- unvigrep(paste0(exonNameColname, "(_v[0-9]|)$"),
-      colnames(values(GRL@unlistData)));
+      colnames(GenomicRanges::values(GRL@unlistData)));
    if (verbose) {
       printDebug("assignGRLexonNames(): ",
          "head(GRL[,GRLcolnames]):");
@@ -2738,33 +2792,25 @@ assignGRLexonNames <- function
    subFeatureNumberStyle <- "letters";
    subFeatureSuffix <- "";
    exonNameColname1 <- paste0(exonNameColname, "1");
-   if (1 == 2) {
-      values(GRLnew@unlistData)[,exonNameColname1] <- values(GRLnew@unlistData)[,exonNameColname];
-      values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname1] <- (
-         makeNames(values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname],
-            numberStyle=subFeatureNumberStyle,
-            suffix=subFeatureSuffix,
-            renameOnes=renameOnes));
-      values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname1] <- (
-         makeNames(values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname],
-            numberStyle=subFeatureNumberStyle,
-            suffix=subFeatureSuffix,
-            renameOnes=renameOnes));
-   } else {
-      values(GRLnew@unlistData)[,exonNameColname] <- values(GRLnew@unlistData)[,exonNameColname];
-      values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname] <- (
-         makeNames(values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname],
-            numberStyle=subFeatureNumberStyle,
-            suffix=subFeatureSuffix,
-            renameOnes=renameOnes));
-      values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname] <- (
-         makeNames(values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname],
-            numberStyle=subFeatureNumberStyle,
-            suffix=subFeatureSuffix,
-            renameOnes=renameOnes));
-   }
+
+   GenomicRanges::values(GRLnew@unlistData)[,exonNameColname] <-
+      GenomicRanges::values(GRLnew@unlistData)[,exonNameColname];
+   GenomicRanges::values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname] <- (
+      jamba::makeNames(
+         GenomicRanges::values(GRLnew[GRLnewStrandP]@unlistData)[,exonNameColname],
+         numberStyle=subFeatureNumberStyle,
+         suffix=subFeatureSuffix,
+         renameOnes=renameOnes));
+   GenomicRanges::values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname] <- (
+      jamba::makeNames(
+         GenomicRanges::values(GRLnew@unlistData[rev(GRLnewStrandNn),])[,exonNameColname],
+         numberStyle=subFeatureNumberStyle,
+         suffix=subFeatureSuffix,
+         renameOnes=renameOnes));
+
    if (assignGRLnames) {
-      names(GRLnew@unlistData) <- makeNames(values(GRLnew@unlistData)[,exonNameColname]);
+      names(GRLnew@unlistData) <- jamba::makeNames(
+         GenomicRanges::values(GRLnew@unlistData)[,exonNameColname]);
    }
 
    return(GRLnew);
@@ -3468,7 +3514,7 @@ runDiffSplice <- function
 #' Get gaps in GRanges
 #'
 #' This function returns the gaps between GRanges regions, calculated
-#' for each chromosome (using `seqnames(gr)`), and when `strandSpecific=TRUE`
+#' for each chromosome (using `GenomicRanges::seqnames(gr)`), and when `strandSpecific=TRUE`
 #' it determines gaps in stranded fashion.
 #'
 #' @family jam GRanges functions
@@ -3501,7 +3547,7 @@ getGRgaps <- function
    #}
    #grl <- GRangesList(split(gr,
    #   pasteByRowOrdered(as.data.frame(gr)[,c("seqnames", "strand")])));
-   gapsGRL <- getGRLgaps(grl=GRangesList(list(`gr`=gr)),
+   gapsGRL <- getGRLgaps(grl=GenomicRanges::GRangesList(list(`gr`=gr)),
       strandSpecific=strandSpecific,
       verbose=verbose,
       ...);
@@ -3546,11 +3592,11 @@ getGRLgaps <- function
    if (!strandSpecific) {
       strand(grl) <- "*";
    }
-   isMultiStrand <- any(lengths(unique(strand(grl))) > 1);
-   isMultiSeqname <- any(lengths(unique(seqnames(grl))) > 1);
+   isMultiStrand <- any(lengths(unique(GenomicRanges::strand(grl))) > 1);
+   isMultiSeqname <- any(lengths(unique(GenomicRanges::seqnames(grl))) > 1);
 
    if (length(names(grl)) == 0) {
-      names(grl) <- makeNames(rep("grl", length(grl)));
+      names(grl) <- jamba::makeNames(rep("grl", length(grl)));
    }
    grlNames <- names(grl);
 
@@ -3559,9 +3605,9 @@ getGRLgaps <- function
    ## multiple strands -- if not then skip this step.
    ## If so, then split each GRanges by seqnames_strand
    if (isMultiStrand || isMultiSeqname) {
-      values(grl@unlistData)[,"grl_name"] <- rep(names(grl),
-         elementNROWS(grl));
-      grl <- GRangesList(split(grl@unlistData,
+      GenomicRanges::values(grl@unlistData)[,"grl_name"] <- rep(names(grl),
+         S4Vectors::elementNROWS(grl));
+      grl <- GenomicRanges::GRangesList(GenomicRanges::split(grl@unlistData,
          pasteByRowOrdered(sep=":!:",
             as.data.frame(grl@unlistData)[,c("grl_name","seqnames","strand")])
          )
@@ -3574,27 +3620,27 @@ getGRLgaps <- function
          "Began gaps logic.");
    }
    IRL <- as(grl, "IRangesList");
-   gapsIRL <- gaps(IRL);
+   gapsIRL <- IRanges::gaps(IRL);
    irlName <- rep(names(gapsIRL),
-      elementNROWS(gapsIRL));
+      S4Vectors::elementNROWS(gapsIRL));
    grlName <- gsub(":!:.*$", "", irlName);
    grlName <- factor(grlName,
       levels=unique(c(grlNames, grlName)));
-   grNew <- GRanges(seqnames=rep(as.character(seqnames(range(grl))),
-      elementNROWS(gapsIRL)),
-      range=IRanges(start=start(gapsIRL@unlistData),
-         end=end(gapsIRL@unlistData)),
-      strand=rep(strand(range(grl)@unlistData),
-         elementNROWS(gapsIRL)),
+   grNew <- GRanges(seqnames=rep(as.character(GenomicRanges::seqnames(range(grl))),
+      S4Vectors::elementNROWS(gapsIRL)),
+      range=IRanges::IRanges(start=IRanges::start(gapsIRL@unlistData),
+         end=IRanges::end(gapsIRL@unlistData)),
+      strand=rep(GenomicRanges::strand(range(grl)@unlistData),
+         S4Vectors::elementNROWS(gapsIRL)),
       irl_name=irlName,
       grl_name=grlName
    );
    ## Split by the original grl name, which will combine different
    ## seqnames and strands if needed
    grlNew <- GenomicRanges::split(grNew[,0],
-      values(grNew)[,"grl_name"]);
-   keepColnames <- setdiff(colnames(values(grlNew@unlistData)), "grl_name");
-   values(grlNew@unlistData) <- values(grlNew@unlistData)[,keepColnames];
+      GenomicRanges::values(grNew)[,"grl_name"]);
+   keepColnames <- setdiff(colnames(GenomicRanges::values(grlNew@unlistData)), "grl_name");
+   GenomicRanges::values(grlNew@unlistData) <- GenomicRanges::values(grlNew@unlistData)[,keepColnames];
    return(grlNew);
 }
 
@@ -3749,9 +3795,9 @@ flattenExonsBy <- function
    iTxExonsGRL <- exonsByTx[iTxs];
    iTxMatch <- match(names(iTxExonsGRL),
       tx2geneDF[[txColname]]);
-   values(iTxExonsGRL@unlistData)[,geneColname] <- rep(
+   GenomicRanges::values(iTxExonsGRL@unlistData)[,geneColname] <- rep(
       as.character(tx2geneDF[iTxMatch,geneColname]),
-      elementNROWS(iTxExonsGRL));
+      S4Vectors::elementNROWS(iTxExonsGRL));
 
    ## split exons by gene
    if (verbose) {
@@ -3759,15 +3805,15 @@ flattenExonsBy <- function
          "Splitting tx exons by gene.");
    }
    if ("gene" %in% by) {
-      exonsByGene <- GRangesList(
+      exonsByGene <- GenomicRanges::GRangesList(
          GenomicRanges::split(
             iTxExonsGRL@unlistData,
-            values(iTxExonsGRL@unlistData)[[geneColname]])
+            GenomicRanges::values(iTxExonsGRL@unlistData)[[geneColname]])
          );
    } else {
-      values(iTxExonsGRL@unlistData)[,txColname] <- rep(
+      GenomicRanges::values(iTxExonsGRL@unlistData)[,txColname] <- rep(
          names(iTxExonsGRL),
-         elementNROWS(iTxExonsGRL));
+         S4Vectors::elementNROWS(iTxExonsGRL));
       exonsByGene <- iTxExonsGRL[,c(txColname,geneColname)];
    }
 
@@ -3788,16 +3834,16 @@ flattenExonsBy <- function
    }
    ## Add gene annotation to each entry
    if ("gene" %in% by) {
-      values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
+      GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
          names(iGeneExonsDisGRL),
          elementNROWS(iGeneExonsDisGRL));
    } else {
-      values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
+      GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
          names(iGeneExonsDisGRL),
          elementNROWS(iGeneExonsDisGRL));
       txMatch <- match(names(iGeneExonsDisGRL),
          tx2geneDF[[txColname]]);
-      values(iGeneExonsDisGRL)[,geneColname] <- tx2geneDF[txMatch, geneColname]
+      GenomicRanges::values(iGeneExonsDisGRL)[,geneColname] <- tx2geneDF[txMatch, geneColname]
    }
 
    ## Optionally subdivide by CDS boundary if supplied
@@ -3808,19 +3854,19 @@ flattenExonsBy <- function
       }
       cdsByTx <- cdsByTx[names(cdsByTx) %in% iTxs];
       if (length(cdsByTx) > 0) {
-         if (!geneColname %in% colnames(values(cdsByTx))) {
+         if (!geneColname %in% colnames(GenomicRanges::values(cdsByTx))) {
             txMatch <- match(names(cdsByTx), tx2geneDF[[txColname]]);
-            values(cdsByTx@unlistData)[,geneColname] <- rep(
+            GenomicRanges::values(cdsByTx@unlistData)[,geneColname] <- rep(
                tx2geneDF[txMatch,geneColname],
                elementNROWS(cdsByTx));
          }
          if ("gene" %in% by) {
-            cdsByGene <- GenomicRanges::reduce(GRangesList(
+            cdsByGene <- GenomicRanges::reduce(GenomicRanges::GRangesList(
                GenomicRanges::split(cdsByTx@unlistData,
-               values(cdsByTx@unlistData)[[geneColname]])));
+                  GenomicRanges::values(cdsByTx@unlistData)[[geneColname]])));
          } else {
             cdsByGene <- cdsByTx;
-            values(cdsByGene@unlistData)[,txColname] <- rep(
+            GenomicRanges::values(cdsByGene@unlistData)[,txColname] <- rep(
                names(cdsByGene),
                elementNROWS(cdsByGene)
             );
@@ -3841,24 +3887,24 @@ flattenExonsBy <- function
       ## Use subset of exonsByGene that have cds exons
       exonsByGeneSub <- iGeneExonsDisGRL[names(cdsByGene)];
       exonsByGeneSubCds <- GenomicRanges::intersect(exonsByGeneSub, cdsByGene);
-      values(exonsByGeneSubCds@unlistData)[,"subclass"] <- "cds";
+      GenomicRanges::values(exonsByGeneSubCds@unlistData)[,"subclass"] <- "cds";
       if ("gene" %in% by) {
-         values(exonsByGeneSubCds@unlistData)[,geneColname] <- rep(
+         GenomicRanges::values(exonsByGeneSubCds@unlistData)[,geneColname] <- rep(
             names(exonsByGeneSubCds),
-            elementNROWS(exonsByGeneSubCds));
-         exonsByGeneCds <- sort(disjoin(GRangesList(
+            S4Vectors::elementNROWS(exonsByGeneSubCds));
+         exonsByGeneCds <- sort(GenomicRanges::disjoin(GenomicRanges::GRangesList(
             GenomicRanges::split(
             c(exonsByGeneSub@unlistData[,geneColname],
                exonsByGeneSubCds@unlistData[,geneColname]),
-            c(values(exonsByGeneSub@unlistData)[,geneColname],
-               values(exonsByGeneSubCds@unlistData)[,geneColname])))));
-         values(exonsByGeneCds@unlistData)[,geneColname] <- rep(
+            c(GenomicRanges::values(exonsByGeneSub@unlistData)[,geneColname],
+               GenomicRanges::values(exonsByGeneSubCds@unlistData)[,geneColname])))));
+         GenomicRanges::values(exonsByGeneCds@unlistData)[,geneColname] <- rep(
             names(exonsByGeneCds),
-            elementNROWS(exonsByGeneCds));
+            S4Vectors::elementNROWS(exonsByGeneCds));
       } else {
-         values(exonsByGeneSubCds@unlistData)[,txColname] <- rep(
+         GenomicRanges::values(exonsByGeneSubCds@unlistData)[,txColname] <- rep(
             names(exonsByGeneSubCds),
-            elementNROWS(exonsByGeneSubCds));
+            S4Vectors::elementNROWS(exonsByGeneSubCds));
          #txMatch <- match(names(exonsByGeneSubCds),
          #   tx2geneDF[[txColname]]);
          #values(exonsByGeneSubCds@unlistData)[,geneColname] <- rep(
@@ -3872,8 +3918,8 @@ flattenExonsBy <- function
          exonsByGeneCds <- GenomicRanges::split(
                c(exonsByGeneSub@unlistData,
                   exonsByGeneSubCds@unlistData),
-               c(values(exonsByGeneSub@unlistData)[,txColname],
-                  values(exonsByGeneSubCds@unlistData)[,txColname]));
+               c(GenomicRanges::values(exonsByGeneSub@unlistData)[,txColname],
+                  GenomicRanges::values(exonsByGeneSubCds@unlistData)[,txColname]));
          if (verbose) {
             printDebug("flattenExonsBy(): ",
                "disjoin()");
@@ -3883,19 +3929,19 @@ flattenExonsBy <- function
             printDebug("flattenExonsBy(): ",
                "Sorting.");
          }
-         exonsByGeneCds <- sort(exonsByGeneCds);
+         exonsByGeneCds <- GenomicRanges::sort(exonsByGeneCds);
          if (verbose) {
             printDebug("flattenExonsBy(): ",
                "Adding txColname,geneColname to disjoint tx exons.");
          }
-         values(exonsByGeneCds@unlistData)[,txColname] <- rep(
+         GenomicRanges::values(exonsByGeneCds@unlistData)[,txColname] <- rep(
             names(exonsByGeneCds),
-            elementNROWS(exonsByGeneCds));
+            S4Vectors::elementNROWS(exonsByGeneCds));
          txMatch <- match(names(exonsByGeneCds),
             tx2geneDF[[txColname]]);
-         values(exonsByGeneCds@unlistData)[,geneColname] <- rep(
+         GenomicRanges::values(exonsByGeneCds@unlistData)[,geneColname] <- rep(
             tx2geneDF[txMatch, geneColname],
-            elementNROWS(exonsByGeneCds)
+            S4Vectors::elementNROWS(exonsByGeneCds)
          );
       }
       if (verbose) {
@@ -3904,14 +3950,9 @@ flattenExonsBy <- function
       }
       exonsByGeneCds <- annotateGRLfromGRL(exonsByGeneCds,
          exonsByGeneSubCds[,"subclass"]);
-      naClass <- is.na(values(exonsByGeneCds@unlistData)[,"subclass"]);
-      values(exonsByGeneCds@unlistData)[naClass,"subclass"] <- "noncds";
-      if (verbose) {
-         #printDebug("flattenExonsBy(): ",
-         #   "head(exonsByGeneCds):");
-         #print(head(exonsByGeneCds));
-      }
-      values(iGeneExonsDisGRL@unlistData)[,"subclass"] <- "noncds";
+      naClass <- is.na(GenomicRanges::values(exonsByGeneCds@unlistData)[,"subclass"]);
+      GenomicRanges::values(exonsByGeneCds@unlistData)[naClass,"subclass"] <- "noncds";
+      GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,"subclass"] <- "noncds";
       iGeneExonsDisGRL[names(exonsByGeneCds)] <- exonsByGeneCds[,c(geneColname, "subclass")];
    }
 
@@ -3924,25 +3965,25 @@ flattenExonsBy <- function
       iGeneExonsDisGRL <- assignGRLexonNames(iGeneExonsDisGRL,
          geneSymbolColname=geneColname,
          verbose=FALSE);
-      values(iGeneExonsDisGRL)[,geneColname] <- names(iGeneExonsDisGRL);
+      GenomicRanges::values(iGeneExonsDisGRL)[,geneColname] <- names(iGeneExonsDisGRL);
    } else {
       iGeneExonsDisGRL <- assignGRLexonNames(iGeneExonsDisGRL,
          geneSymbolColname=txColname,
          verbose=FALSE);
-      values(iGeneExonsDisGRL)[,txColname] <- names(iGeneExonsDisGRL);
-      values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
+      GenomicRanges::values(iGeneExonsDisGRL)[,txColname] <- names(iGeneExonsDisGRL);
+      GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
          names(iGeneExonsDisGRL),
-         elementNROWS(iGeneExonsDisGRL)
+         S4Vectors::elementNROWS(iGeneExonsDisGRL)
       )
       txMatch <- match(names(iGeneExonsDisGRL),
          tx2geneDF[[txColname]]);
-      values(iGeneExonsDisGRL)[,geneColname] <- tx2geneDF[txMatch, geneColname];
-      values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
-         values(iGeneExonsDisGRL)[,geneColname],
-         elementNROWS(iGeneExonsDisGRL)
+      GenomicRanges::values(iGeneExonsDisGRL)[,geneColname] <- tx2geneDF[txMatch, geneColname];
+      GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
+         GenomicRanges::values(iGeneExonsDisGRL)[,geneColname],
+         S4Vectors::elementNROWS(iGeneExonsDisGRL)
       )
    }
-   values(iGeneExonsDisGRL@unlistData)[,"feature_type"] <- "exon";
+   GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,"feature_type"] <- "exon";
    ## TODO: optionally add intron regions between exons of each gene
 
    return(iGeneExonsDisGRL);
@@ -3993,12 +4034,12 @@ flattenExonsBy <- function
 #' @param ... additional arguments are passed to `getGRgaps()`.
 #'
 #' @examples
-#' gr <- GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
-#'    ranges=IRanges(start=c(100, 300, 400, 300, 700),
+#' gr <- GenomicRanges::GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
+#'    ranges=IRanges::IRanges(start=c(100, 300, 400, 300, 700),
 #'       end=c(199, 450, 500, 600, 800)),
 #'    strand=rep(c("+","-"), c(3,2)));
 #' gr;
-#' getGRLgaps(GenomicRanges::split(gr, seqnames(gr)))
+#' getGRLgaps(GenomicRanges::split(gr, GenomicRanges::seqnames(gr)))
 #' getGRgaps(gr);
 #'
 #' @export
@@ -4016,19 +4057,19 @@ addGRgaps <- function
    ## Purpose is to add gaps as GRanges elements between the
    ## GRanges elements given
    if (length(feature_type_colname) > 0 &&
-         !feature_type_colname %in% colnames(values(gr))) {
+         !feature_type_colname %in% colnames(GenomicRanges::values(gr))) {
       if (length(default_feature_type) == 0) {
          default_feature_type <- c("exon");
       } else {
          default_feature_type <- head(default_feature_type, 1);
       }
-      values(gr)[[feature_type_colname]] <- default_feature_type;
+      GenomicRanges::values(gr)[[feature_type_colname]] <- default_feature_type;
    }
    grGaps <- getGRgaps(gr,
       strandSpecific=strandSpecific,
       ...);
    if (length(gapname) > 0) {
-      gapnames <- makeNames(
+      gapnames <- jamba::makeNames(
          rep(gapname,
             length.out=length(grGaps)),
          suffix=suffix);
@@ -4036,7 +4077,7 @@ addGRgaps <- function
    }
    if (length(newValues) > 0) {
       for (newValueName in names(newValues)) {
-         values(grGaps)[[newValueName]] <- rep(newValues[[newValueName]],
+         GenomicRanges::values(grGaps)[[newValueName]] <- rep(newValues[[newValueName]],
             length(grGaps));
       }
    }
@@ -4087,8 +4128,19 @@ addGRgaps <- function
 #' @param newValues list of values to add to the resulting gap GRanges,
 #'    whose names become `colnames(grl@unlistData)`, and whose values are used
 #'    to populate each column. By default a colname `"feature_type"` is
-#'    added, with value `"gap"` added to each row. When `newValues is NULL`
-#'    then no values are added to the gaps GRanges.
+#'    added, with value `"gap"` added to each row. When `newValues` is `NULL`
+#'    then no values are added to the gaps GRanges. For every entry in
+#'    `names(newValues)`, if the colname does not exist, it is created
+#'    and populated with `default_feature_type` as a default value,
+#'    prior to adding gaps.
+#' @param default_feature_type,feature_type_colname character values,
+#'    indicating the type and colname to populate in `values(grl@unlistData)`
+#'    prior to adding gaps. When `feature_type_colname` is NULL,
+#'    no action is taken. When `feature_type_colname` does not
+#'    exist in `colnames(values(grl@unlistData))`, it is created
+#'    with values in `default_feature_type`. Also any colname
+#'    defined by `newValues` that does not already exist is also
+#'    created and populated with `default_feature_type`.
 #' @param doSort logical indicating whether to sort the resulting
 #'    GRanges objects. When `doSort=FALSE` the gaps are added to the end
 #'    of each input `grl` GRanges object. Note that the GrangesList object
@@ -4098,16 +4150,16 @@ addGRgaps <- function
 #' @param ... additional arguments are passed to `getGRLgaps()`.
 #'
 #' @examples
-#' gr <- GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
-#'    ranges=IRanges(start=c(100, 300, 400, 300, 700),
+#' gr <- GenomicRanges::GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
+#'    ranges=IRanges::IRanges(start=c(100, 300, 400, 300, 700),
 #'       end=c(199, 450, 500, 600, 800)),
 #'    strand=rep(c("+","-"), c(3,2)),
-#'    feature_type="exon");
-#' names(gr) <- makeNames(rep("exon", length(gr)));
+#'    feature_type=rep("exon", 5));
+#' names(gr) <- jamba::makeNames(rep("exon", length(gr)));
 #' gr;
 #' addGRgaps(gr);
 #'
-#' grl <- GenomicRanges::split(gr, seqnames(gr));
+#' grl <- GenomicRanges::split(gr, GenomicRanges::seqnames(gr));
 #' grl;
 #' addGRLgaps(grl);
 #' addGRLgaps(grl, strandSpecific=FALSE);
@@ -4128,14 +4180,26 @@ addGRLgaps <- function
    ## Purpose is to add gaps as GRanges elements between the
    ## GRanges elements given, applied to each element in the
    ## GRangesList.
+
+   ## Populate feature_type_colname with default_feature_type
+   ## if the colname does not already exist
    if (length(feature_type_colname) > 0 &&
-         !feature_type_colname %in% colnames(values(grl@unlistData))) {
-      if (length(default_feature_type) == 0) {
-         default_feature_type <- c("exon");
-      } else {
-         default_feature_type <- head(default_feature_type, 1);
+         !feature_type_colname %in% colnames(GenomicRanges::values(grl@unlistData)) &&
+         length(default_feature_type) > 0) {
+      GenomicRanges::values(grl@unlistData)[[feature_type_colname]] <- rep(default_feature_type,
+         length.out=length(grl@unlistData));
+   }
+   ## Populate colnames(values(grl@unlistData))
+   ## using names(newValues) when they are not already present
+   if (length(newValues) > 0 &&
+         length(names(newValues)) > 0 &&
+         length(default_feature_type)) {
+      for (i in names(newValues)) {
+         if (!i %in% colnames(GenomicRanges::values(grl@unlistData))) {
+            GenomicRanges::values(grl@unlistData)[[i]] <- rep(default_feature_type,
+               length.out=length(grl@unlistData));
+         }
       }
-      values(grl@unlistData)[[feature_type_colname]] <- default_feature_type;
    }
    if (verbose) {
       printDebug("addGRLgaps(): ",
@@ -4148,7 +4212,7 @@ addGRLgaps <- function
       return(grl);
    }
    if (length(gapname) > 0) {
-      gapnames <- makeNames(
+      gapnames <- jamba::makeNames(
          rep(gapname,
             length.out=length(grlGaps@unlistData)),
          suffix=suffix);
@@ -4156,14 +4220,14 @@ addGRLgaps <- function
    }
    if (length(newValues) > 0) {
       for (newValueName in names(newValues)) {
-         values(grlGaps@unlistData)[[newValueName]] <- rep(newValues[[newValueName]],
+         GenomicRanges::values(grlGaps@unlistData)[[newValueName]] <- rep(newValues[[newValueName]],
             length(grlGaps@unlistData));
       }
    }
    if (doSort) {
-      grlNew <- sort(pc(grl, grlGaps));
+      grlNew <- sort(S4Vectors::pc(grl, grlGaps));
    } else {
-      grlNew <- pc(grl, grlGaps);
+      grlNew <- S4Vectors::pc(grl, grlGaps);
    }
    return(grlNew);
 }
@@ -4231,8 +4295,9 @@ closestExonToJunctions <- function
    ## might be incomplete
    updateColnames <- c("distFrom", "distTo", "nameFrom", "nameTo",
       "genesDiffer", "genesMatch", "tooFarFrom", "tooFarTo", "tooFar");
-   if (any(updateColnames %in% colnames(values(spliceGRgene)))) {
-      values(spliceGRgene) <- values(spliceGRgene)[,setdiff(colnames(spliceGRgene), updateColnames),drop=FALSE];
+   if (any(updateColnames %in% colnames(GenomicRanges::values(spliceGRgene)))) {
+      GenomicRanges::values(spliceGRgene) <-
+         GenomicRanges::values(spliceGRgene)[,setdiff(colnames(spliceGRgene), updateColnames),drop=FALSE];
    }
 
    ## Distance from splice start to exon end
@@ -4242,12 +4307,12 @@ closestExonToJunctions <- function
          "Finding closest exons for splice starts.");
    }
    spliceStartExonEndD1 <- as.data.frame(
-      distanceToNearest(
-         resize(spliceGRgene,
+      GenomicRanges::distanceToNearest(
+         GenomicRanges::resize(spliceGRgene,
             width=1,
             fix="start",
             ignore.strand=TRUE),
-         resize(exonsGR,
+         GenomicRanges::resize(exonsGR,
             width=1,
             fix="end",
             ignore.strand=TRUE),
@@ -4260,20 +4325,20 @@ closestExonToJunctions <- function
       print(spliceStartExonEndD1);
    }
    spliceStartExonEndDactual1 <- (
-      start(
-         resize(spliceGRgene,
+      GenomicRanges::start(
+         GenomicRanges::resize(spliceGRgene,
             width=1,
             fix="start",
             ignore.strand=TRUE)[spliceStartExonEndD1[,"queryHits"]]) -
-         start(
-            resize(exonsGR,
+         GenomicRanges::start(
+            GenomicRanges::resize(exonsGR,
                width=1,
                fix="end",
                ignore.strand=TRUE)[spliceStartExonEndD1[,"subjectHits"]]));
 
    ## TODO: add the actual end coordinate of the exon matched
    ## end(exonsGR[spliceStartExonEndD1[,"subjectHits"]])
-   spliceStartExonEndDactual1end <- end(exonsGR[spliceStartExonEndD1[,"subjectHits"]]);
+   spliceStartExonEndDactual1end <- GenomicRanges::end(exonsGR[spliceStartExonEndD1[,"subjectHits"]]);
    spliceStartExonEndDactual <- spliceStartExonEndDactual1 - sign(spliceStartExonEndDactual1);
 
    ## Flip the direction when strand is negative
@@ -4289,12 +4354,12 @@ closestExonToJunctions <- function
          "Finding closest exons for splice ends.");
    }
    spliceEndExonStartD1 <- as.data.frame(
-      distanceToNearest(
-         resize(spliceGRgene,
+      GenomicRanges::distanceToNearest(
+         GenomicRanges::resize(spliceGRgene,
             width=1,
             fix="end",
             ignore.strand=TRUE),
-         resize(exonsGR,
+         GenomicRanges::resize(exonsGR,
             width=1,
             fix="start",
             ignore.strand=TRUE),
@@ -4306,20 +4371,20 @@ closestExonToJunctions <- function
          "Calculating stranded distance.");
    }
    spliceEndExonStartDactual1 <- (
-      start(
-         resize(spliceGRgene,
+      GenomicRanges::start(
+         GenomicRanges::resize(spliceGRgene,
             width=1,
             fix="end",
             ignore.strand=TRUE)[spliceEndExonStartD1[,"queryHits"]]) -
-         start(
-            resize(exonsGR,
+         GenomicRanges::start(
+            GenomicRanges::resize(exonsGR,
                width=1,
                fix="start",
                ignore.strand=TRUE)[spliceEndExonStartD1[,"subjectHits"]]));
 
    ## TODO: add the actual start coordinate of the exon matched
    ## start(exonsGR[spliceEndExonStartD1[,"subjectHits"]])
-   spliceEndExonStartDactual1start <- start(exonsGR[spliceEndExonStartD1[,"subjectHits"]]);
+   spliceEndExonStartDactual1start <- GenomicRanges::start(exonsGR[spliceEndExonStartD1[,"subjectHits"]]);
    spliceEndExonStartDactual <- spliceEndExonStartDactual1 - sign(spliceEndExonStartDactual1);
 
    ## Flip the direction when strand is negative
@@ -4336,17 +4401,22 @@ closestExonToJunctions <- function
    #itherNA <- (NAfrom | NAto);
 
    ## Update the exon name on the start side (from) and end side (to) of the splice junction
-   values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"nameFrom"] <- names(exonsGR[spliceStartExonEndD1[,"subjectHits"]]);
-   values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"nameTo"] <- names(exonsGR[spliceEndExonStartD1[,"subjectHits"]]);
+   GenomicRanges::values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"nameFrom"] <-
+      names(exonsGR[spliceStartExonEndD1[,"subjectHits"]]);
+   GenomicRanges::values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"nameTo"] <-
+      names(exonsGR[spliceEndExonStartD1[,"subjectHits"]]);
 
    ## Add nameFromTo column
-   values(spliceGRgene)[,"nameFromTo"] <- pasteByRow(values(spliceGRgene)[,c("nameFrom", "nameTo")],
+   GenomicRanges::values(spliceGRgene)[,"nameFromTo"] <- pasteByRow(
+      GenomicRanges::values(spliceGRgene)[,c("nameFrom", "nameTo")],
       sep=" ",
       na.rm=TRUE);
 
    ## Update the stranded distance on the start side (from) and end side (to) of the splice junction
-   values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"distFrom"] <- spliceStartExonEndD1[,"strandedDistance"];
-   values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"distTo"] <- spliceEndExonStartD1[,"strandedDistance"];
+   GenomicRanges::values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"distFrom"] <-
+      spliceStartExonEndD1[,"strandedDistance"];
+   GenomicRanges::values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"distTo"] <-
+      spliceEndExonStartD1[,"strandedDistance"];
 
    ## TODO: report the actual coordinate boundary being matched
    if (reportActualCoords) {
@@ -4354,8 +4424,10 @@ closestExonToJunctions <- function
          printDebug("closestExonToJunctions(): ",
             "Reporting actual coords.");
       }
-      values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"coordFrom"] <- spliceStartExonEndDactual1end;
-      values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"coordTo"] <- spliceEndExonStartDactual1start;
+      GenomicRanges::values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"coordFrom"] <-
+         spliceStartExonEndDactual1end;
+      GenomicRanges::values(spliceGRgene)[spliceEndExonStartD1[,"queryHits"],"coordTo"] <-
+         spliceEndExonStartDactual1start;
       ## TODO: flip the from/to for negative strand entries
       if (flipNegativeStrand) {
       }
@@ -4368,7 +4440,7 @@ closestExonToJunctions <- function
             "Flipping negative strand.");
       }
       fromToCols <- paste0(rep(c("dist", "name", "coord", "tooFar"), each=2), c("From", "To"));
-      switchCols1 <- intersect(fromToCols, colnames(values(spliceGRgene)));
+      switchCols1 <- intersect(fromToCols, colnames(GenomicRanges::values(spliceGRgene)));
       switchCols2 <- as.vector(matrix(nrow=2, switchCols1)[2:1,])
       if (verbose) {
          printDebug("closestExonToJunctions(): ",
@@ -4380,8 +4452,8 @@ closestExonToJunctions <- function
       }
       negStrand <- (as.vector(strand(spliceGRgene)) %in% "-");
       if (any(negStrand)) {
-         values(spliceGRgene)[negStrand,switchCols1] <-
-            values(spliceGRgene)[negStrand,switchCols2];
+         GenomicRanges::values(spliceGRgene)[negStrand,switchCols1] <-
+            GenomicRanges::values(spliceGRgene)[negStrand,switchCols2];
       }
    }
 
@@ -4478,7 +4550,7 @@ spliceGR2junctionDF <- function
    #   values(spliceGRgene)[!eitherNA,"strandTo"] <- as.vector(strand(exonsGR[(spliceEndExonStart)]));
    #   table(strandFrom=values(spliceGRgene)[!eitherNA,"strandFrom"], strandTo=values(spliceGRgene)[!eitherNA,"strandTo"]);
    #   table(strandSplice=as.vector(strand(spliceGRgene[!eitherNA])), strandTo=values(spliceGRgene)[!eitherNA,"strandTo"]);
-   sampleColname <- intersect(sampleColname, colnames(values(spliceGRgene)));
+   sampleColname <- intersect(sampleColname, colnames(GenomicRanges::values(spliceGRgene)));
 
    ## Vectorized logic:
    ## - find closest start/end for each splice start/end
@@ -4499,11 +4571,12 @@ spliceGR2junctionDF <- function
    ## Check when genes match for the two junction sites
    ## Note: we changed from genesDiffer, because in cases where no gene is returned, the two
    ## sides of the junction would be equal, but still not represent the desired outcome.
-   genesMatch <- (!is.na(values(spliceGRgene)[,"nameFrom"]) & !is.na(values(spliceGRgene)[,"nameTo"]) &
-         (gsub(paste0(geneExonSep, ".*$"), "", values(spliceGRgene)[,"nameFrom"]) ==
-               gsub(paste0(geneExonSep, ".*$"), "", values(spliceGRgene)[,"nameTo"]) ) );
-   values(spliceGRgene)[,"genesMatch"] <- genesMatch;
-   numGenesMatch <- sum(values(spliceGRgene)[,"genesMatch"]);
+   genesMatch <- (!is.na(GenomicRanges::values(spliceGRgene)[,"nameFrom"]) &
+         !is.na(GenomicRanges::values(spliceGRgene)[,"nameTo"]) &
+         (gsub(paste0(geneExonSep, ".*$"), "", GenomicRanges::values(spliceGRgene)[,"nameFrom"]) ==
+            gsub(paste0(geneExonSep, ".*$"), "", GenomicRanges::values(spliceGRgene)[,"nameTo"]) ) );
+   GenomicRanges::values(spliceGRgene)[,"genesMatch"] <- genesMatch;
+   numGenesMatch <- sum(GenomicRanges::values(spliceGRgene)[,"genesMatch"]);
    numGenesDiffer <- (length(spliceGRgene) - numGenesMatch);
    if (verbose && numGenesMatch > 0) {
       printDebug("spliceGR2junctionDF(): ",
@@ -4516,15 +4589,17 @@ spliceGR2junctionDF <- function
    }
 
    ## Check when the junction is too far from the nearest exon
-   tooFarFrom <- (abs(values(spliceGRgene)[,"distFrom"]) > spliceBuffer |
-         is.na(values(spliceGRgene)[,"distFrom"]));
-   tooFarTo <- (abs(values(spliceGRgene)[,"distTo"]) > spliceBuffer |
-         is.na(values(spliceGRgene)[,"distTo"]));
+   tooFarFrom <- (
+      abs(GenomicRanges::values(spliceGRgene)[,"distFrom"]) > spliceBuffer |
+      is.na(GenomicRanges::values(spliceGRgene)[,"distFrom"]));
+   tooFarTo <- (
+      abs(GenomicRanges::values(spliceGRgene)[,"distTo"]) > spliceBuffer |
+      is.na(GenomicRanges::values(spliceGRgene)[,"distTo"]));
    tooFar <- (tooFarFrom | tooFarTo);
-   values(spliceGRgene)[,"tooFarFrom"] <- tooFarFrom;
-   values(spliceGRgene)[,"tooFarTo"] <- tooFarTo;
-   values(spliceGRgene)[,"tooFar"] <- tooFar;
-   numTooFar <- sum(values(spliceGRgene)[,"tooFar"]);
+   GenomicRanges::values(spliceGRgene)[,"tooFarFrom"] <- tooFarFrom;
+   GenomicRanges::values(spliceGRgene)[,"tooFarTo"] <- tooFarTo;
+   GenomicRanges::values(spliceGRgene)[,"tooFar"] <- tooFar;
+   numTooFar <- sum(GenomicRanges::values(spliceGRgene)[,"tooFar"]);
    if (verbose && numTooFar > 0) {
       printDebug("spliceGR2junctionDF(): ",
          formatInt(numTooFar),
@@ -4546,15 +4621,15 @@ spliceGR2junctionDF <- function
             "Renaming exon sites by distance for entries outside spliceBuffer.");
       }
       if (any(tooFarFrom)) {
-         values(spliceGRgene)[tooFarFrom,"nameFrom"] <- paste(
-            values(spliceGRgene)[tooFarFrom,"nameFrom"],
-            values(spliceGRgene)[tooFarFrom,"distFrom"],
+         GenomicRanges::values(spliceGRgene)[tooFarFrom,"nameFrom"] <- paste(
+            GenomicRanges::values(spliceGRgene)[tooFarFrom,"nameFrom"],
+            GenomicRanges::values(spliceGRgene)[tooFarFrom,"distFrom"],
             sep=".");
       }
       if (any(tooFarTo)) {
-         values(spliceGRgene)[tooFarTo,"nameTo"] <- paste(
-            values(spliceGRgene)[tooFarTo,"nameTo"],
-            values(spliceGRgene)[tooFarTo,"distTo"],
+         GenomicRanges::values(spliceGRgene)[tooFarTo,"nameTo"] <- paste(
+            GenomicRanges::values(spliceGRgene)[tooFarTo,"nameTo"],
+            GenomicRanges::values(spliceGRgene)[tooFarTo,"distTo"],
             sep=".");
       }
    }
@@ -4583,7 +4658,8 @@ spliceGR2junctionDF <- function
          printDebug("spliceGR2junctionDF(): ",
             "Only entries whose genes match, and which are within spliceBuffer, will be used for the junction count matrix.");
       }
-      toUse <- which(values(spliceGRgene)[,"genesMatch"] & !values(spliceGRgene)[,"tooFar"]);
+      toUse <- which(GenomicRanges::values(spliceGRgene)[,"genesMatch"] &
+            !GenomicRanges::values(spliceGRgene)[,"tooFar"]);
    } else {
       ## Note that we still only return entries for which there is some nearby exon
       ## TODO: allow for un-named entries to have a temporary name for the purpose of
@@ -4592,7 +4668,8 @@ spliceGR2junctionDF <- function
          printDebug("spliceGR2junctionDF(): ",
             "All entries having any nearest gene will be used, without regard to matching genes or distance from exon.");
       }
-      toUse <- which(!is.na(values(spliceGRgene)[,"nameFrom"]) & !is.na(values(spliceGRgene)[,"nameTo"]));
+      toUse <- which(!is.na(GenomicRanges::values(spliceGRgene)[,"nameFrom"]) &
+            !is.na(GenomicRanges::values(spliceGRgene)[,"nameTo"]));
    }
    if (verbose) {
       printDebug("spliceGR2junctionDF(): ",

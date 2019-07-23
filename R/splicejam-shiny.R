@@ -58,21 +58,24 @@ launchSashimiApp <- function
 (...,
  options=list(width=1200))
 {
-   ## attach dots for local environment
-   dots <- list(...);
-   if (length(dots) > 0) {
-      dots_name <- gsub(" ", "_", paste0("dots ", Sys.time()));
-      printDebug("launchSashimiApp(): ",
-         "Attaching dots to environment:",
-         dots_name);
-      attach(dots,
-         name=dots_name,
-         warn.conflicts=FALSE);
-      printDebug("launchSashimiApp(): ",
-         "Attached objects:",
-         ls(dots_name));
-      on.exit(detach(dots_name,
-         character.only=TRUE));
+   ## Temporarily disabled the environment methods below
+   if (1 == 2) {
+      ## attach dots for local environment
+      dots <- list(...);
+      if (length(dots) > 0) {
+         dots_name <- gsub(" ", "_", paste0("dots ", Sys.time()));
+         printDebug("launchSashimiApp(): ",
+            "Attaching dots to environment:",
+            dots_name);
+         attach(dots,
+            name=dots_name,
+            warn.conflicts=FALSE);
+         printDebug("launchSashimiApp(): ",
+            "Attached objects:",
+            ls(dots_name));
+         on.exit(detach(dots_name,
+            character.only=TRUE));
+      }
    }
    ##
    shiny::shinyApp(ui=sashimiAppUI,

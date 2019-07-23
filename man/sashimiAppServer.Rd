@@ -11,7 +11,7 @@ sashimiAppServer(input, output, session)
 
 \item{output}{provided by shiny}
 
-\item{stssion}{provided by shiny}
+\item{session}{provided by shiny}
 }
 \description{
 Sashimi Shiny app server

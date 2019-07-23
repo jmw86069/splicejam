@@ -59,12 +59,12 @@ gaps GRanges object will have \code{NA} values used by default. To supply
 values, use the \code{newValues} argument, which assigns name-value pairs.
 }
 \examples{
-gr <- GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
-   ranges=IRanges(start=c(100, 300, 400, 300, 700),
+gr <- GenomicRanges::GRanges(seqnames=rep(c("chr1","chr2"), c(3,2)),
+   ranges=IRanges::IRanges(start=c(100, 300, 400, 300, 700),
       end=c(199, 450, 500, 600, 800)),
    strand=rep(c("+","-"), c(3,2)));
 gr;
-getGRLgaps(GenomicRanges::split(gr, seqnames(gr)))
+getGRLgaps(GenomicRanges::split(gr, GenomicRanges::seqnames(gr)))
 getGRgaps(gr);
 
 }

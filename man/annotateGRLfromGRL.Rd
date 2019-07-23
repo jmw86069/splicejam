@@ -69,6 +69,33 @@ entries, equivalent to \code{values(GRL1@unlistData)}. This function does
 not currently apply annotations at the GRangesList level, thus
 it does not use \code{values(GRL2)} if they exist.
 }
+\examples{
+gr12 <- GenomicRanges::GRanges(
+   seqnames=rep(c("chr1", "chr2", "chr1"), c(3,3,3)),
+   ranges=IRanges::IRanges(
+      start=c(100, 200, 400, 500, 300, 100, 200, 400, 600),
+      width=c(100,150,50, 50,50,100, 50,200,50)
+   ),
+   strand=rep(c("+", "-", "+"), c(3,3,3)),
+   gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
+)
+
+# Now split into GRangesList
+grl1 <- GenomicRanges::split(gr12[,0],
+   GenomicRanges::values(gr12)$gene_name);
+grl2 <- GenomicRanges::split(gr12,
+   GenomicRanges::values(gr12)$gene_name);
+
+# The first object is a GRangesList with no annotations
+grl1;
+
+# The second object is a GRangesList with annotation,
+# assumed to be in the same order
+grl2;
+
+annotateGRLfromGRL(grl1, grl2);
+
+}
 \seealso{
 Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{addGRgaps}}, \code{\link{annotateGRfromGR}},

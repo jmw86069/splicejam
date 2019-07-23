@@ -91,11 +91,11 @@
 #' suppressPackageStartupMessages(library(GenomicRanges));
 #' suppressPackageStartupMessages(library(jamba));
 #' gr <- GRanges(seqnames=rep(c("chr1"), 7),
-#'    ranges=IRanges(start=c(50, 100, 1300, 2500, 23750, 24900, 25000),
+#'    ranges=IRanges::IRanges(start=c(50, 100, 1300, 2500, 23750, 24900, 25000),
 #'       end=c(100, 150, 1450, 2600, 23800, 25000, 25200)),
 #'    strand=rep("+", 7),
 #'    feature_type=rep(c("noncds", "cds", "noncds"), c(1,5,1)));
-#' names(gr) <- makeNames(rep("exon", 7));
+#' names(gr) <- jamba::makeNames(rep("exon", 7));
 #' grldf <- grl2df(gr, addGaps=TRUE);
 #'
 #' gg1 <- ggplot2::ggplot(grldf, ggplot2::aes(x=x, y=y, group=id)) +
@@ -118,6 +118,19 @@
 #'    coord_trans(x=ref2c$trans_grc) + colorjam::theme_jam();
 #' print(gg3);
 #'
+#' ## An example showing splice junction data
+#' data(test_junc_wide_gr);
+#' junc_wide_df <- grl2df(test_junc_wide_gr, shape="junction");
+#' ggWide1 <- ggplot2::ggplot(junc_wide_df,
+#'    ggplot2::aes(x=x, y=y, group=gr_name, fill=gr_name, color=gr_name)) +
+#'   splicejam::geom_diagonal_wide_arc() +
+#'   colorjam::theme_jam() +
+#'   colorjam::scale_fill_jam(alpha=0.7) +
+#'   colorjam::scale_color_jam() +
+#'   ggplot2::xlab("chr1") +
+#'   ggplot2::ggtitle("junctions (full intron width)")
+#' print(ggWide1);
+#'
 #' @export
 grl2df <- function
 (grl,
@@ -125,7 +138,7 @@ grl2df <- function
  keepGRLvalues=FALSE,
  addGaps=TRUE,
  width=0.6,
- widthV=c(exon=0.6, cds=0.6, noncds=0.3, intron=0.01, gap=0.01, `NA`=0.01),
+ widthV=c(exon=0.6, cds=0.6, noncds=0.3, intron=0.01, gap=0.01, `NA`=0.5),
  width_colname=c("subclass", "feature_type"),
  shape=c("rectangle", "junction"),
  baseline=NULL,
@@ -187,7 +200,7 @@ grl2df <- function
                width_colname_use);
          }
          wFound <- match(rmNA(naValue="NA",
-            values(grl@unlistData)[[width_colname_use]]),
+            GenomicRanges::values(grl@unlistData)[[width_colname_use]]),
             names(widthV));
          width[!is.na(wFound)] <- widthV[wFound[!is.na(wFound)]];
       }
@@ -196,7 +209,7 @@ grl2df <- function
          if (length(baseline) == length(grl)) {
             yBaseline <- rep(
                rep(baseline,
-                  elementNROWS(grl)),
+                  S4Vectors::elementNROWS(grl)),
                each=4);
          } else {
             yBaseline <- rep(
@@ -206,8 +219,8 @@ grl2df <- function
          }
       } else {
          yBase <- rep(seq_along(grl) - 1,
-            elementNROWS(grl));
-         ySeqnames <- as.character(unlist(seqnames(grl)));
+            S4Vectors::elementNROWS(grl));
+         ySeqnames <- as.character(unlist(GenomicRanges::seqnames(grl)));
          abs_rank <- function(x){
             xu <- nameVector(unique(x));
             xr <- rank(xu, ties.method="min");
@@ -231,19 +244,19 @@ grl2df <- function
       df <- data.frame(x=xCoords,
          y=yCoords,
          id=id,
-         seqnames=rep(seqnames(grl@unlistData), each=4));
+         seqnames=rep(GenomicRanges::seqnames(grl@unlistData), each=4));
       if (length(names(grl)) > 0) {
          grlNames <- factor(
             rep(
                rep(names(grl),
-                  elementNROWS(grl)),
+                  S4Vectors::elementNROWS(grl)),
                each=4),
             levels=names(grl));
          df$grl_name <- grlNames;
       }
       if (length(names(grl@unlistData)) > 0) {
          if (any(duplicated(names(grl@unlistData)))) {
-            names(grl@unlistData) <- makeNames(rmNA(naValue="",
+            names(grl@unlistData) <- jamba::makeNames(rmNA(naValue="",
                names(grl@unlistData)));
          }
          grNames <- factor(
@@ -263,7 +276,7 @@ grl2df <- function
             if (!iCol %in% colnames(df)) {
                df[,iCol] <- rep(
                   rep(values(grl)[,iCol],
-                     elementNROWS(grl)),
+                     S4Vectors::elementNROWS(grl)),
                   each=4);
             }
          }
@@ -281,8 +294,8 @@ grl2df <- function
                "scoreFactor:",
                scoreFactor);
          }
-         values(grl@unlistData)[[scoreColname]] <- (scoreFactor *
-            values(grl@unlistData)[[scoreColname]])
+         GenomicRanges::values(grl@unlistData)[[scoreColname]] <- (scoreFactor *
+               GenomicRanges::values(grl@unlistData)[[scoreColname]])
       }
       if (doStackJunctions) {
          if (verbose) {
@@ -328,18 +341,18 @@ grl2df <- function
       ))+0.5;
       ## y-axis midpoints
       if ("yStart" %in% colnames(values(grl@unlistData))) {
-         yStart <- values(grl@unlistData)$yStart;
+         yStart <- GenomicRanges::values(grl@unlistData)$yStart;
       } else {
          yStart <- rep(0, length(grl@unlistData));
       }
       if ("yEnd" %in% colnames(values(grl@unlistData))) {
-         yEnd <- values(grl@unlistData)$yEnd;
+         yEnd <- GenomicRanges::values(grl@unlistData)$yEnd;
       } else {
          yEnd <- rep(0, length(grl@unlistData));
       }
 
       ## Calculate the height of each junction arc
-      yScore <- values(grl@unlistData)[[scoreColname]] * 1;
+      yScore <- GenomicRanges::values(grl@unlistData)[[scoreColname]] * 1;
       yMaxStartEnd <- pmax(abs(yStart), abs(yEnd));
       if (verbose) {
          printDebug("grl2df(): ",
@@ -398,7 +411,7 @@ grl2df <- function
       ));
       ## make unique ids
       id <- rep(
-         makeNames(
+         jamba::makeNames(
             rep(seq_along(grl@unlistData), each=2)),
          each=4);
       ## data.frame of coordinates
@@ -409,7 +422,7 @@ grl2df <- function
          grlNames <- factor(
             rep(
                rep(names(grl),
-                  elementNROWS(grl)),
+                  S4Vectors::elementNROWS(grl)),
                each=8),
             levels=names(grl));
          df$grl_name <- grlNames;
@@ -432,7 +445,7 @@ grl2df <- function
          for (iCol in colnames(values(grl))) {
             df[,iCol] <- rep(
                rep(values(grl)[,iCol],
-                  elementNROWS(grl)),
+                  S4Vectors::elementNROWS(grl)),
                each=8);
          }
       }
@@ -521,6 +534,21 @@ grl2df <- function
 #'
 #' @examples
 #' ## Assume we start with flattened gene exons
+#' data(test_exon_wide_gr);
+#' test_flatExonsByGene <- GenomicRanges::split(test_exon_wide_gr,
+#'    GenomicRanges::values(test_exon_wide_gr)[,"gene_name"]);
+#'
+#' # The most basic plot of exons
+#' gene2gg(gene="TestGene1", flatExonsByGene=test_flatExonsByGene);
+#'
+#' # You can be fancy and number the exons
+#' test_flatExonsByGene <- assignGRLexonNames(test_flatExonsByGene,
+#'    geneSymbolColname="gene_name");
+#' gene2gg(gene="TestGene1", flatExonsByGene=test_flatExonsByGene);
+#'
+#' # Or the exon labels can be hidden
+#' gene2gg(gene="TestGene1", flatExonsByGene=test_flatExonsByGene, labelExons=FALSE)
+#'
 #' if (1 == 2) {
 #'    ## Do not run automated examples until sample data is available
 #'
@@ -602,13 +630,13 @@ gene2gg <- function
       if (length(tx) > 0) {
          grl1 <- GRangesList(c(grl1,
             flatExonsByTx[names(flatExonsByTx) %in% tx]))
-         values(grl1)$gene_name <- tx2geneDF[match(names(grl1),
+         GenomicRanges::values(grl1)$gene_name <- tx2geneDF[match(names(grl1),
             tx2geneDF$transcript_id),"gene_name"];
-         values(grl1@unlistData)$gene_name <- rep(values(grl1)$gene_name,
-            elementNROWS(grl1));
-         values(grl1)$transcript_id <- names(grl1);
-         values(grl1@unlistData)$transcript_id <- rep(values(grl1)$transcript_id,
-            elementNROWS(grl1));
+         GenomicRanges::values(grl1@unlistData)$gene_name <- rep(values(grl1)$gene_name,
+            S4Vectors::elementNROWS(grl1));
+         GenomicRanges::values(grl1)$transcript_id <- names(grl1);
+         GenomicRanges::values(grl1@unlistData)$transcript_id <- rep(values(grl1)$transcript_id,
+            S4Vectors::elementNROWS(grl1));
       }
    } else {
       grl1 <- NULL;
@@ -627,6 +655,7 @@ gene2gg <- function
    if (length(grl1a1) == 0) {
       stop("no exon models found for the gene and tx arguments given.");
    }
+   ## Convert to tall data.frame
    grl1a1df <- grl2df(grl1a1,
       newValues=newValues,
       ...);
@@ -636,24 +665,41 @@ gene2gg <- function
       intersect(c("subclass", "feature_type"),
          colnames(grl1a1df)),
       1);
-   subclassV <- provigrep(c("noncds", "utr", "cds", "exon", "intron", "gap", "."),
-      unique(grl1a1df[[colorColname]]));
+   subclassV <- provigrep(
+      c("noncds", "utr", "cds", "exon", "intron", "gap", "^NA$", "."),
+      rmNA(naValue="NA",
+         unique(grl1a1df[[colorColname]]))
+      );
    colorSubV <- color2gradient(
       nameVector(rep(geneColor, length.out=length(subclassV)),
          subclassV));
+   if (verbose) {
+      printDebug("gene2gg(): ",
+         "colorSubV:", names(colorSubV),
+         fgtext=list(c("orange"), c("dodgerblue"), list(colorSubV)));
+      printDebug(colorSubV);
+      printDebug("subclassV:", subclassV);
+   }
    #showColors(colorSubSubclass);
    #colorSubSubclass <- c(cds="navy", noncds="dodgerblue", gap="grey30");
    ## Make a data.frame to label each exon
    exonLabelDF <- NULL;
    if (labelExons) {
+      #exonLabelDF <- renameColumn(
+      #   from="groupBy",
+      #   to="gene_nameExon",
+      #   shrinkMatrix(grl1a1df[,c("x","y")],
+      #      groupBy=grl1a1df[,"gene_nameExon"]));
       exonLabelDF <- renameColumn(
          from="groupBy",
-         to="gene_nameExon",
+         to="id",
          shrinkMatrix(grl1a1df[,c("x","y")],
-            groupBy=grl1a1df[,"gene_nameExon"]));
+            groupBy=grl1a1df[,"id"]));
+      exonLabelDF[,"gene_nameExon"] <- grl1a1df[match(exonLabelDF[,"id"],
+         grl1a1df[,"id"]), "gene_nameExon"];
 
       exonLabelDF$y <- shrinkMatrix(grl1a1df[,c("x","y")],
-         groupBy=grl1a1df[,"gene_nameExon"],
+         groupBy=grl1a1df[,"id"],
          shrinkFunc=min)$y;
       # Remove gap labels
       exonLabelDF <- subset(exonLabelDF,
@@ -699,10 +745,12 @@ gene2gg <- function
       ggforce::geom_shape(show.legend=FALSE) +
       colorjam::theme_jam() +
       ylab("") +
-      scale_color_manual(values=makeColorDarker(colorSubV,
-         darkFactor=1.3)) +
-      scale_fill_manual(values=alpha2col(colorSubV,
-         alpha=1)) +
+      scale_color_manual(
+         na.value=makeColorDarker(tail(colorSubV, 1), darkFactor=1.3),
+         values=makeColorDarker(colorSubV, darkFactor=1.3)) +
+      scale_fill_manual(
+         na.value=alpha2col(tail(colorSubV, 1), alpha=1),
+         values=alpha2col(colorSubV, alpha=1)) +
       scale_y_continuous(breaks=seq_along(grl1a1)-1,
          limits=c(ymin, length(grl1a1)-0.5),
          labels=names(grl1a1));
@@ -828,19 +876,19 @@ gene2gg <- function
 #' library(colorjam);
 #' library(jamba);
 #' grExons <- GRanges(seqnames=rep("chr1", 4),
-#'    ranges=IRanges(
+#'    ranges=IRanges::IRanges(
 #'       start=c(100, 300, 500,  900),
 #'         end=c(200, 400, 750, 1000)),
 #'    strand=rep("+", 4));
-#' names(grExons) <- makeNames(rep("exon", length(grExons)),
+#' names(grExons) <- jamba::makeNames(rep("exon", length(grExons)),
 #'    suffix="");
 #'
 #' grJunc <- GRanges(seqnames=rep("chr1", 5),
-#'    ranges=IRanges(start=c(200, 200, 400, 400, 750),
+#'    ranges=IRanges::IRanges(start=c(200, 200, 400, 400, 750),
 #'       end=c(300, 500, 500, 900, 900)),
 #'    strand=rep("+", 5),
 #'    score=c(200, 50, 160, 40, 210));
-#' names(grJunc) <- makeNames(rep("junc", length(grJunc)));
+#' names(grJunc) <- jamba::makeNames(rep("junc", length(grJunc)));
 #'
 #' # quick plot showing exons and junctions using rectangles
 #' grl <- c(
@@ -889,17 +937,17 @@ gene2gg <- function
 #'
 #' ## Last example showing how two samples are kept separate
 #' grJunc_samples <- c(grJunc, grJunc);
-#' values(grJunc_samples[6:10])[,"sample_id"] <- "SampleB";
+#' values(grJunc_samples)[,"sample_id"] <- rep(c("SampleA","SampleB"), each=5);
 #' grlJunc2df_samples <- grl2df(grJunc_samples,
 #'    scoreArcMinimum=20,
 #'    shape="junction");
 #' ggplot(grlJunc2df_samples, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
-#'    geom_diagonal_wide_arc(alpha=0.7) +
+#'    geom_diagonal_wide_arc(alpha=0.7,
+#'       show.legend=FALSE) +
 #'    colorjam::scale_fill_jam() +
 #'    colorjam::theme_jam() +
 #'    ggtitle("Junctions stacked at boundaries") +
 #'    facet_wrap(~sample_id)
-#'
 #'
 #' @export
 stackJunctions <- function
@@ -961,7 +1009,7 @@ stackJunctions <- function
       matchTo <- unique(c(matchTo, "strand"));
       scoreV <- scoreFactor *
          ifelse(as.character(GenomicRanges::strand(gr)) %in% "-", -1, 1) *
-         abs(values(gr)[[scoreColname]]);
+         abs(GenomicRanges::values(gr)[[scoreColname]]);
    } else {
       if (verbose) {
          printDebug("stackJunctions(): ",
@@ -969,9 +1017,9 @@ stackJunctions <- function
             scoreFactor);
       }
       scoreV <- scoreFactor *
-         values(gr)[[scoreColname]];
+         GenomicRanges::values(gr)[[scoreColname]];
    }
-   values(gr)[[scoreColname]] <- scoreV;
+   GenomicRanges::values(gr)[[scoreColname]] <- scoreV;
 
    if (verbose) {
       printDebug("stackJunctions(): ",
@@ -1023,7 +1071,7 @@ stackJunctions <- function
          "Stacking exonsFrom");
    }
    if (length(tcount(names(gr), minCount=2)) > 0) {
-      names(gr) <- makeNames(names(gr));
+      names(gr) <- jamba::makeNames(names(gr));
    }
    order1 <- do.call(order, list(exonsFrom, width(gr)));
    #values(gr)[order1,"yStart"] <- shrinkMatrix(
@@ -1045,7 +1093,7 @@ stackJunctions <- function
       printDebug("baselineV[exonsFrom]:", baselineV[exonsFrom]);
    }
    order1rev <- match(names(gr), yRow_df$x);
-   values(gr)[,"yStart"] <- yStart_df$x[order1rev] + baselineV[exonsFrom];
+   GenomicRanges::values(gr)[,"yStart"] <- yStart_df$x[order1rev] + baselineV[exonsFrom];
 
    ## End position
    ## group by exonsTo which allows the spliceBuffer to work
@@ -1063,7 +1111,7 @@ stackJunctions <- function
       groupBy=exonsTo[order2],
       shrinkFunc=c);
    order2rev <- match(names(gr), yRow_df$x);
-   values(gr)[,"yEnd"] <- yEnd_df$x[order2rev] + baselineV[exonsTo];
+   GenomicRanges::values(gr)[,"yEnd"] <- yEnd_df$x[order2rev] + baselineV[exonsTo];
 
    ## Bonus points
    ## rank junctions by score at the exonsFrom and exonsTo position
@@ -1078,9 +1126,10 @@ stackJunctions <- function
    ## Ensure "nameFromTo" exists
    if (all(c("nameFrom", "nameTo") %in% colnames(values(gr)))) {
       if (!"nameFromTo" %in% colnames(values(gr))) {
-         values(gr)[,"nameFromTo"] <- pasteByRow(values(gr)[,c("nameFrom", "nameTo")],
+         GenomicRanges::values(gr)[,"nameFromTo"] <- pasteByRow(values(gr)[,c("nameFrom", "nameTo")],
             sep=" ");
       }
+      sampleColname <- intersect(sampleColname, colnames(values(gr)));
       if (length(sampleColname) == 0) {
          ## Stack without using sample_id
          value_colnames <- c(scoreColname, "nameFromTo");
@@ -1090,7 +1139,7 @@ stackJunctions <- function
       } else {
          ## Stack within sample_id
          if (!"nameFromToSample" %in% colnames(values(gr))) {
-            values(gr)[,"nameFromToSample"] <- pasteByRow(values(gr)[,c("nameFromTo", sampleColname)],
+            GenomicRanges::values(gr)[,"nameFromToSample"] <- pasteByRow(values(gr)[,c("nameFromTo", sampleColname)],
                sep=":!:");
          }
          value_colnames <- c(scoreColname, "nameFromToSample");
@@ -1104,11 +1153,11 @@ stackJunctions <- function
             sampleColname);
       }
       juncRankFrom <- shrinkMatrix(
-         values(gr)[,value_colnames],
+         GenomicRanges::values(gr)[,value_colnames],
          pasteByRow(values(gr)[,from_colnames]),
          shrinkFunc=shrink_junc);
       juncRankTo <- shrinkMatrix(
-         values(gr)[,value_colnames],
+         GenomicRanges::values(gr)[,value_colnames],
          pasteByRow(values(gr)[,to_colnames]),
          shrinkFunc=shrink_junc);
       juncRankDF <- data.frame(
@@ -1119,7 +1168,7 @@ stackJunctions <- function
             juncRankFrom[match(values(gr)[,nfts_colname], juncRankFrom[,nfts_colname]),scoreColname] +
             juncRankTo[match(values(gr)[,nfts_colname], juncRankTo[,nfts_colname]),scoreColname]
       );
-      values(gr)[,"junction_rank"] <- factor(juncRank);
+      GenomicRanges::values(gr)[,"junction_rank"] <- factor(juncRank);
    }
    return(gr);
 }
@@ -1219,7 +1268,7 @@ plotSashimi <- function
  exonsGrl=NULL,
  junc_color=alpha2col("goldenrod2", 0.3),
  junc_fill=alpha2col("goldenrod2", 0.9),
- junc_alpha=1,
+ junc_alpha=0.8,
  fill_scheme=c("sample_id", "exon"),
  color_sub=NULL,
  ylabel="score",

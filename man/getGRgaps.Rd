@@ -21,7 +21,7 @@ Get gaps in GRanges
 }
 \details{
 This function returns the gaps between GRanges regions, calculated
-for each chromosome (using \code{seqnames(gr)}), and when \code{strandSpecific=TRUE}
+for each chromosome (using \code{GenomicRanges::seqnames(gr)}), and when \code{strandSpecific=TRUE}
 it determines gaps in stranded fashion.
 }
 \seealso{

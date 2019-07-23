@@ -14,7 +14,7 @@
 #'
 #' @param input provided by shiny
 #' @param output provided by shiny
-#' @param stssion provided by shiny
+#' @param session provided by shiny
 #'
 #' @family splicejam R-shiny functions
 #'
@@ -22,6 +22,7 @@
 #' @import dplyr
 #' @import ggplot2
 #' @import plotly
+#' @import GenomicRanges
 #'
 #' @export
 sashimiAppServer <- function

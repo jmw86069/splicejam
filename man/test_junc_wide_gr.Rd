@@ -40,7 +40,7 @@ test_junc_wide_gr <- test_junc_gr;
 xshift <- c(0, 10000, 20000, 39000);
 end(test_junc_wide_gr) <- end(test_junc_gr) + xshift[c(2,3,3,4,4)];
 start(test_junc_wide_gr) <- start(test_junc_gr) + xshift[c(1,1,2,2,3)];
-names(test_junc_wide_gr) <- makeNames(
+names(test_junc_wide_gr) <- jamba::makeNames(
    rep("juncwide", length(test_junc_gr)),
    suffix="");
 test_junc_wide_gr;

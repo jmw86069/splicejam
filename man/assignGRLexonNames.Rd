@@ -64,8 +64,8 @@ suffix.
 
 For example the exon labels below:
 
-|======|......|======|=======|======|......|======|=======|
-.exon1.........exon2a.exon2b..exon2c........exon3a..exon3b.
+\code{|======|......|======|=======|======|......|======|=======|}
+\code{.exon1.........exon2a.exon2b..exon2c........exon3a..exon3b.}
 
 The full name for each feature will become:
 \itemize{

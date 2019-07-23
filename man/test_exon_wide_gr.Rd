@@ -29,12 +29,12 @@ suppressPackageStartupMessages(library(GenomicRanges));
 suppressPackageStartupMessages(library(ggplot2));
 
 test_exon_wide_gr <- GRanges(seqnames=rep("chr1", 4),
-   ranges=IRanges(
+   ranges=IRanges::IRanges(
       start=c(100, 10300, 20500,  39900),
         end=c(200, 10400, 20750, 40000)),
    strand=rep("+", 4),
    gene_name=rep("TestGene1", 4));
-names(test_exon_wide_gr) <- makeNames(rep("wide", length(test_exon_wide_gr)),
+names(test_exon_wide_gr) <- jamba::makeNames(rep("wide", length(test_exon_wide_gr)),
    suffix="");
 test_exon_wide_gr;
 

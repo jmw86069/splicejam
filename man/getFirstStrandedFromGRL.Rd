@@ -51,7 +51,7 @@ gr12 <- GenomicRanges::GRanges(seqnames=rep("chr1", 9),
    strand=rep(c("+", "-", "+"), c(3,3,3)),
    gene_name=rep(c("GeneA", "GeneB", "GeneC"), each=3)
 )
-grl <- GenomicRanges::split(gr12, values(gr12)$gene_name)
+grl <- GenomicRanges::split(gr12, GenomicRanges::values(gr12)$gene_name)
 getFirstStrandedFromGRL(grl)
 
 }

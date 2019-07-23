@@ -32,9 +32,9 @@ default terms.}
 whether to ignore case-sensitive matching.}
 
 \item{boundary}{logical indicating whether to require a word
-boundary surrounding the control terms. When TRUE, it uses
-\code{perl=TRUE} by default, and allows either perl boundary or
-an underscore \code{"_"}.}
+boundary at either the start or end of the control terms.
+When TRUE, it uses \code{perl=TRUE} by default, and allows either
+perl boundary or an underscore \code{"_"}.}
 
 \item{perl}{logical indicating whether to use Perl regular
 expression pattern matching.}

@@ -23,13 +23,13 @@
 #' suppressPackageStartupMessages(library(ggplot2));
 #'
 #' test_junc_gr <- GRanges(seqnames=rep("chr1", 5),
-#'    ranges=IRanges(
+#'    ranges=IRanges::IRanges(
 #'       start=c(200, 200, 400, 400, 750),
 #'         end=c(299, 499, 499, 899, 899)),
 #'    strand=rep("+", 5),
 #'    score=c(200, 50, 120, 80, 170),
 #'    sample_id=rep("sample_A", 5));
-#' names(test_junc_gr) <- makeNames(
+#' names(test_junc_gr) <- jamba::makeNames(
 #'    rep("junc", length(test_junc_gr)),
 #'    suffix="");
 #' test_junc_gr;
@@ -77,7 +77,7 @@
 #' xshift <- c(0, 10000, 20000, 39000);
 #' end(test_junc_wide_gr) <- end(test_junc_gr) + xshift[c(2,3,3,4,4)];
 #' start(test_junc_wide_gr) <- start(test_junc_gr) + xshift[c(1,1,2,2,3)];
-#' names(test_junc_wide_gr) <- makeNames(
+#' names(test_junc_wide_gr) <- jamba::makeNames(
 #'    rep("juncwide", length(test_junc_gr)),
 #'    suffix="");
 #' test_junc_wide_gr;
@@ -136,12 +136,12 @@
 #' suppressPackageStartupMessages(library(ggplot2));
 #'
 #' test_exon_gr <- GRanges(seqnames=rep("chr1", 4),
-#'    ranges=IRanges(
+#'    ranges=IRanges::IRanges(
 #'       start=c(100, 300, 500, 900),
 #'         end=c(199, 399, 749, 999)),
 #'    strand=rep("+", 4),
 #'    gene_name=rep("TestGene1", 4));
-#' names(test_exon_gr) <- makeNames(rep("exon", length(test_exon_gr)),
+#' names(test_exon_gr) <- jamba::makeNames(rep("exon", length(test_exon_gr)),
 #'    suffix="");
 #'
 #' # To plot a simple GRanges object
@@ -174,12 +174,12 @@
 #' suppressPackageStartupMessages(library(ggplot2));
 #'
 #' test_exon_wide_gr <- GRanges(seqnames=rep("chr1", 4),
-#'    ranges=IRanges(
+#'    ranges=IRanges::IRanges(
 #'       start=c(100, 10300, 20500,  39900),
 #'         end=c(200, 10400, 20750, 40000)),
 #'    strand=rep("+", 4),
 #'    gene_name=rep("TestGene1", 4));
-#' names(test_exon_wide_gr) <- makeNames(rep("wide", length(test_exon_wide_gr)),
+#' names(test_exon_wide_gr) <- jamba::makeNames(rep("wide", length(test_exon_wide_gr)),
 #'    suffix="");
 #' test_exon_wide_gr;
 #'

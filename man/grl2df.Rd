@@ -6,7 +6,7 @@
 \usage{
 grl2df(grl, keepGRvalues = TRUE, keepGRLvalues = FALSE,
   addGaps = TRUE, width = 0.6, widthV = c(exon = 0.6, cds = 0.6,
-  noncds = 0.3, intron = 0.01, gap = 0.01, `NA` = 0.01),
+  noncds = 0.3, intron = 0.01, gap = 0.01, `NA` = 0.5),
   width_colname = c("subclass", "feature_type"), shape = c("rectangle",
   "junction"), baseline = NULL, scoreColname = "score",
   sampleColname = "sample_id", scoreArcMinimum = 200,
@@ -116,11 +116,11 @@ using compresssed coordinates.
 suppressPackageStartupMessages(library(GenomicRanges));
 suppressPackageStartupMessages(library(jamba));
 gr <- GRanges(seqnames=rep(c("chr1"), 7),
-   ranges=IRanges(start=c(50, 100, 1300, 2500, 23750, 24900, 25000),
+   ranges=IRanges::IRanges(start=c(50, 100, 1300, 2500, 23750, 24900, 25000),
       end=c(100, 150, 1450, 2600, 23800, 25000, 25200)),
    strand=rep("+", 7),
    feature_type=rep(c("noncds", "cds", "noncds"), c(1,5,1)));
-names(gr) <- makeNames(rep("exon", 7));
+names(gr) <- jamba::makeNames(rep("exon", 7));
 grldf <- grl2df(gr, addGaps=TRUE);
 
 gg1 <- ggplot2::ggplot(grldf, ggplot2::aes(x=x, y=y, group=id)) +
@@ -142,6 +142,19 @@ print(gg2);
 gg3 <- gg1 +
    coord_trans(x=ref2c$trans_grc) + colorjam::theme_jam();
 print(gg3);
+
+## An example showing splice junction data
+data(test_junc_wide_gr);
+junc_wide_df <- grl2df(test_junc_wide_gr, shape="junction");
+ggWide1 <- ggplot2::ggplot(junc_wide_df,
+   ggplot2::aes(x=x, y=y, group=gr_name, fill=gr_name, color=gr_name)) +
+  splicejam::geom_diagonal_wide_arc() +
+  colorjam::theme_jam() +
+  colorjam::scale_fill_jam(alpha=0.7) +
+  colorjam::scale_color_jam() +
+  ggplot2::xlab("chr1") +
+  ggplot2::ggtitle("junctions (full intron width)")
+print(ggWide1);
 
 }
 \seealso{
