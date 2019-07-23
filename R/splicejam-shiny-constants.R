@@ -130,7 +130,7 @@ sashimiAppConstants <- function
    ## Define color_sub
    if (!exists("color_sub")) {
       color_sub <<- farrisdata::colorSub;
-      if (!all(filesDF$sample_id) %in% names(color_sub)) {
+      if (!all(filesDF$sample_id %in% names(color_sub))) {
          color_sub_new <- colorjam::group2colors(unique(filesDF$sample_id));
          is_new <- setdiff(names(color_sub_new), names(color_sub))
          color_sub[is_new] <- color_sub_new[is_new];
