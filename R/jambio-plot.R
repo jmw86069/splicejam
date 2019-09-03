@@ -1044,6 +1044,8 @@ getGRcoverageFromBw <- function
       }
       if (use_memoise) {
          if (verbose) {
+            printDebug("bwUrl:");
+            print(bwUrl);
             cov_has_cache <- memoise::has_cache(import_or_null_m)(
                bwUrl,
                gr=gr);
@@ -1052,13 +1054,52 @@ getGRcoverageFromBw <- function
          cov1 <- import_or_null_m(
             bwUrl,
             gr=gr);
+         if (length(cov1) == 0) {
+            # Repeat once for NULL cached results
+            printDebug("Repairing coverage cache.", fgText="seagreen1");
+            if (do_shiny_progress && !is.na(iBwPct)) {
+               shiny::setProgress(
+                  value=0/2 + iBwPct/2,
+                  detail=paste0("Repairing cov cache (",
+                     iBwNum,
+                     " of ",
+                     length(bwUrls),
+                     ")"));
+            }
+            cov_has_cache <- memoise::has_cache(import_or_null_m)(
+               bwUrl,
+               gr=gr);
+            if (cov_has_cache) {
+               memoise::drop_cache(import_or_null_m)(
+                  bwUrl,
+                  gr=gr);
+            }
+            cov1 <- import_or_null_m(
+               bwUrl,
+               gr=gr);
+         }
+         if (length(cov1) == 0) {
+            printDebug("Failed to repair coverage cache.", fgText="red");
+            if (do_shiny_progress && !is.na(iBwPct)) {
+               shiny::setProgress(
+                  value=0/2 + iBwPct/2,
+                  detail=paste0("Failed repair cov cache (",
+                     iBwNum,
+                     " of ",
+                     length(bwUrls),
+                     ")"));
+            }
+         }
       } else {
          cov1 <- import_or_null(bwUrl,
             gr=gr);
       }
       cov1;
    });
-   GenomicRanges::values(gr)[,names(covL)] <- S4Vectors::DataFrame(covL);
+   cov1nonzero <- (lengths(covL) > 0);
+   if (any(cov1nonzero)) {
+      GenomicRanges::values(gr)[,names(covL)[cov1nonzero]] <- S4Vectors::DataFrame(covL[cov1nonzero]);
+   }
    return(gr);
 }
 
@@ -2108,7 +2149,7 @@ import_juncs_from_bed <- function
  scale_factor,
  use_memoise=FALSE,
  memoise_junction_path="junctions_memoise",
- gr,
+ gr=NULL,
  verbose=FALSE,
  ...)
 {
@@ -2123,11 +2164,33 @@ import_juncs_from_bed <- function
          printDebug("import_juncs_from_bed():",
             "import_has_cache:", import_has_cache);
       }
-      bed1 <- subsetByOverlaps(import_m(iBed),
-         ranges=range(gr));
+      bed1 <- import_m(iBed);
+      if (length(bed1) == 0) {
+         printDebug("Repairing junction cache.", fgText="seagreen1");
+         import_has_cache <- memoise::has_cache(import_m)(iBed);
+         if (import_has_cache) {
+            memoise::drop_cache(import_m)(iBed);
+         }
+         bed1 <- import_m(iBed);
+      }
+      if (length(bed1) > 0 && length(gr) > 0) {
+         bed1 <- subsetByOverlaps(bed1,
+            ranges=range(gr));
+      } else {
+         printDebug("Failed to Repair junction cache.", fgText="red");
+         bed1 <- NULL;
+         return(bed1);
+      }
    } else {
-      bed1 <- rtracklayer::import(iBed,
-         which=range(gr));
+      if (length(gr) > 0) {
+         bed1 <- rtracklayer::import(iBed,
+            which=range(gr));
+      } else {
+         bed1 <- rtracklayer::import(iBed);
+      }
+   }
+   if (length(bed1) == 0) {
+      return(bed1);
    }
 
    ## Assign score and apply scale_factor

@@ -3837,13 +3837,13 @@ flattenExonsBy <- function
       GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
          names(iGeneExonsDisGRL),
          elementNROWS(iGeneExonsDisGRL));
-   } else {
-      GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
-         names(iGeneExonsDisGRL),
-         elementNROWS(iGeneExonsDisGRL));
-      txMatch <- match(names(iGeneExonsDisGRL),
-         tx2geneDF[[txColname]]);
-      GenomicRanges::values(iGeneExonsDisGRL)[,geneColname] <- tx2geneDF[txMatch, geneColname]
+   #} else {
+      #GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
+      #   names(iGeneExonsDisGRL),
+      #   elementNROWS(iGeneExonsDisGRL));
+      #txMatch <- match(names(iGeneExonsDisGRL),
+      #   tx2geneDF[[txColname]]);
+      #GenomicRanges::values(iGeneExonsDisGRL)[,geneColname] <- tx2geneDF[txMatch, geneColname]
    }
 
    ## Optionally subdivide by CDS boundary if supplied

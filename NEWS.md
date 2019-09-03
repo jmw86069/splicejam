@@ -1,3 +1,41 @@
+# splicejam version 0.0.47.900
+
+## Changes
+
+* In near future, `sashimiAppConstants()` may become
+the standard way to prepare the dependencies for
+sashimi plots, including the gene-transcript-exon
+models, the filesDF `data.frame`, the flattened
+exons, and color substitutions. This function will
+be able to take a GTF file, and prepare all the
+tx2geneDF cross-references, the exon and CDS exons,
+the flattened exons, using `detectedTx` if available
+for enhanced exon structures.
+* Package dependency on memoise, using Github version
+`1.1.0.9000` which allows invalidating a single problem
+cache file. It has been available since October 2018
+but not released to CRAN yet. This changes is a step
+toward recovering from network outages, which currently
+create empty cache files which cannot be recovered
+without emptying the entire cache.
+
+## Bug fixes
+
+* `getGRcoverageFromBw()` now checks if memoise cached data
+is `NULL`, which happens during network outage. If the data
+returned from the cache is `NULL` it clears the cache for that key,
+then tries again.
+* `import_juncs_from_bed()` now checks memoise cached data for
+`NULL` as described above.
+* `sashimiAppConstants()` was refactored, to define variables
+in a systematic way, by default updating global environment
+for convenience, but optionally creating a new environment
+inside which the required variables are populated. In future
+this technique may become the default here along with downstream
+functions, which may reference the environment rather than
+data objects themselves.
+
+
 # splicejam version 0.0.46.900
 
 ## Bug fixes

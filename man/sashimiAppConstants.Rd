@@ -4,7 +4,24 @@
 \alias{sashimiAppConstants}
 \title{Sashimi Shiny app constants}
 \usage{
-sashimiAppConstants(...)
+sashimiAppConstants(..., assign_global = TRUE,
+  empty_uses_farrisdata = TRUE, use_memoise = TRUE,
+  aboutExtra = NULL, filesDF = NULL, color_sub = NULL, gtf = NULL,
+  txdb = NULL, tx2geneDF = NULL, exonsByTx = NULL, cdsByTx = NULL,
+  detectedTx = NULL, detectedGenes = NULL, flatExonsByGene = NULL,
+  flatExonsByTx = NULL)
+}
+\arguments{
+\item{...}{additional arguments are ignored.}
+
+\item{empty_uses_farrisdata}{logical indicating whether to
+use data from the \code{"farrisdata"} R package if no default
+values are provided, and if that package is available.}
+
+\item{aboutExtra}{character string or html tag from \code{"htmltools"}
+suitable for use in a shiny app. This text is intended
+to display a description of data visualized in the R-shiny
+app, for example when run with \code{launchSashimiApp()}.}
 }
 \description{
 Sashimi Shiny app constants

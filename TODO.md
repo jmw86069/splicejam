@@ -1,24 +1,55 @@
-## TODO for jambio
+## TODO for splicejam
+
+### Sashimi usability enhancements
+
+* Separate the function `sashimiAppConstants()` to its own
+proper standalone function, that prepares all the dependency
+data objects like `flatExonsByGene`, `flatExonsByTx`,
+`tx2geneDF`.
+* New function to assemble `filesDF`. Essentially appends
+a file to an existing `data.frame`.
+* New function `plotlySashimi()` that optionally includes
+the gene-transcript-exon model in the visualization.
+* Zoom by exon range, using exon names. For example,
+`zoom_by=c("Gria1_exon11", "Gria1_exon16")`.
+
+### Sashimi longer term enhancements
+
+* Enable display of sample replicates. Actually, enable
+the grouping of `sample_id` entries. Default is to overlay
+replicates in the same facet panel, facet by `sample_group`.
+Alternative is to offset the y-axis similar to the `"ggridges"`
+package. Unclear if the layers coverage polygons, and
+junction arcs, will be out of sync; that is sample_1
+should draw coverage and junctions, before sample_2 is
+drawn.
+* Enable BAM file for coverage data. Defer filtering rules
+to the `Rsamtools` package, but show recommended examples
+for properly paired reads.
+* Enable BAM file for junction data. Determine recommended
+filters for properly paired reads with minimum overlap width
+at each end of the junction.
+* Enable Sashimi plots over a region, not just one gene range.
+Refactor of `prepareSashimi()` to take GRanges range
+an optional coordinate range, or multiple genes (which would
+imply the coordinate range if on the same chromosome).
+* Create an example showing two genes with overlapping
+exons.
+* Mock up an example that combines gene exons, ChIP-seq peaks,
+and ATAC-seq peaks, together into one schematic of a
+genome region. It should show before and after, compressing
+the "intervening sequences" between features.
+* Mock up example showing `detectedTxInfo()` output in
+the form of plots. For example, show percent max expression
+as a heatmap, each call labeled to show the counts, TPM,
+percentage, and whether it was called "detected" by
+the thresholds.
 
 ### Farris R-shiny feedback
 
 * Recalculate scale factors, use reference genes from in situ
 hybridizations: Calm1, Camk2a, Camk2b, Actb, which show little to
 no change.
-* Debug errors with certain genes: Arc, Pdgfa, Pdgfb. The error message
-is "cannot coerce "list" to DataFrame". This bug appears to be resolved
-after refactoring `prepSashimi()` to return the full data.frame.
-* Enable searching all genes, not just the detected genes.
-* Allow option to specify the searchable genes: "Detected", "All",
-then eventually subset of genes based upon statistical hits in each
-comparison. Genes to test: Mpo, Hcar1.
-* Debug `stackJunctions()` in gene "Camk2d" at exons 14-15 and
-exons 17-18. The stacking appears to be mis-applied.
-* Fix the display of plotly gene-exon models, currently shows an
-empty panel on some servers, but not in local development testing.
-Likely due to data.frame not containing some column or non-NA values
-when comparing the gene-exon model data.frame to the data.frame used
-to display sashimi data.
 * Plotly two-column layout does not keep all columns of panels
 in sync when the x-axis is zoomed, the desired effect is to have the
 x-axis of each sashimi panel zoomed consistently, across however
