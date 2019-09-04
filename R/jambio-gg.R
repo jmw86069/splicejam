@@ -494,9 +494,9 @@ grl2df <- function
 #' @param exonLabelAngle numeric angle in degrees (0 to 360)
 #'    indicating how to rotate exon labels, where `90` is
 #'    vertical, and `0` is horizontal.
-#' @param exonLabelSize numeric value, compatible with
-#'    argument `size` in `ggrepel::geom_text_repel()`, used
-#'    to size exon labels when `labelExons=TRUE`.
+#' @param exonLabelSize numeric value or `unit` object from `grid::unit()`.
+#'    Numeric values are assumed to have unit `"pt"` which refers to
+#'    font point size. Used to size exon labels when `labelExons=TRUE`.
 #' @param newValues argument passed to `addGRLgaps()` to fill
 #'    column values for newly created gap entries. It is useful
 #'    to have `feature_type="gap"` so gaps have a different value
@@ -571,7 +571,7 @@ gene2gg <- function
  geneColor="dodgerblue",
  labelExons=TRUE,
  exonLabelAngle=90,
- exonLabelSize=3,
+ exonLabelSize=8,
  newValues=list(feature_type="gap", subclass="gap", gene_nameExon="gap"),
  gene_order=c("first","last"),
  return_type=c("grob", "df"),
@@ -596,6 +596,13 @@ gene2gg <- function
    }
    gene_order <- match.arg(gene_order);
    return_type <- match.arg(return_type);
+
+   ## Convert exonLabelSize to have proper units, default "pt"
+   if (!grid::is.unit(exonLabelSize)) {
+      exonLabelSize <- grid::unit(exonLabelSize, "pt");
+   }
+   exonLabelMm <- grid::convertUnit(exonLabelSize, "mm", valueOnly=TRUE);
+
    if (length(flatExonsByGene) > 0 && length(gene) > 0) {
       if (!any(gene %in% names(flatExonsByGene))) {
          stop("gene was not found in names(flatExonsByGene)");
@@ -727,8 +734,8 @@ gene2gg <- function
    ## Calculate a reasonable y-axis minimum to allow for exon labels,
    ## based upon the number of transcripts being displayed
    ymin <- (-0.1 +
-         -1 * (exonLabelSize/10) +
-         -1 * ((labelExons*1) * length(grl1a1))/6);
+         -1 * (exonLabelMm/3) *
+         ((labelExons*1) * length(grl1a1))/2);
    ## Put it together
    grl1a1gg <- ggplot2::ggplot(grl1a1df,
          aes(x=x,
@@ -773,7 +780,7 @@ gene2gg <- function
                vjust=hjust,
                segment.color="grey35",
                #fill="white",
-               size=exonLabelSize,
+               size=exonLabelMm,
                direction=direction);
       } else {
          grl1a1gg <- grl1a1gg +

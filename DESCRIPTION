@@ -30,7 +30,7 @@ Imports: jamba (>= 0.0.26.900),
     tximportData,
     shiny,
     shinydashboard,
-    shinydashboardPlus,
+    shinydashboardPlus(>= 0.7.5.9000),
     shinyWidgets,
     shinyjqui,
     shinycssloaders,
@@ -47,7 +47,7 @@ Suggests:
     tximport,
     TxDb.Mmusculus.UCSC.mm10.knownGene,
     org.Mm.eg.db,
-    farrisdata(>= 0.0.6.900)
+    farrisdata(>= 0.0.9.900)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -55,7 +55,8 @@ Remotes: github::jmw86069/jamba,
     github::jmw86069/colorjam,
     github::jmw86069/jamma,
     github::jmw86069/farrisdata,
-    github::r-lib/memoise
+    github::r-lib/memoise,
+    github::RinteRface/shinydashboardPlus
 URL: http://github.com/jmw86069/splicejam
 BugReports: http://github.com/jmw86069/splicejam/issues
 Roxygen: list(markdown = TRUE)

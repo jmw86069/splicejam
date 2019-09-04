@@ -534,6 +534,17 @@ sashimiAppConstants <- function
                   strong(style="color:black", "colorjam:"),
                   as.character(packageVersion("colorjam"))
                ),
+               if(suppressPackageStartupMessages(require(farrisdata))) {
+                  tags$li(
+                     strong(style="color:black", "farrisdata:"),
+                     as.character(packageVersion("farrisdata"))
+                  )
+               } else {
+                  tags$li(
+                     strong(style="color:black", "farrisdata:"),
+                     as.character("not installed")
+                  )
+               },
                tags$li(
                   strong(style="color:black", "ggplot2:"),
                   as.character(packageVersion("ggplot2"))

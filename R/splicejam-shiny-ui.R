@@ -199,6 +199,11 @@ sashimiAppUI <- function
                closable=FALSE,
                collapsible=TRUE,
                enable_sidebar=TRUE,
+               #sidebar_icon="fa fa-cog",
+               #sidebar_icon="fa fa-bar-chart",
+               # glyphicon glyphicon-cog
+               sidebar_icon="gear",
+               ## icons: https://adminlte.io/themes/AdminLTE/pages/UI/icons.html
                width=12,
                height="100%",
                fluidRow(
@@ -225,7 +230,15 @@ sashimiAppUI <- function
                   shinyWidgets::sliderTextInput(
                      inputId="font_sizing",
                      label="Font sizing:",
-                     choices=c("-2 smaller", "-1 smaller", "Default", "+1 larger", "+2 larger"),
+                     choices=c("-4 smaller",
+                        "-3 smaller",
+                        "-2 smaller",
+                        "-1 smaller",
+                        "Default",
+                        "+1 larger",
+                        "+2 larger",
+                        "+3 larger",
+                        "+4 larger"),
                      selected="Default",
                      grid=TRUE
                   ),
@@ -251,7 +264,7 @@ sashimiAppUI <- function
                      shinyWidgets::prettyCheckbox(
                         inputId="enable_highlights",
                         inline=TRUE,
-                        value=TRUE,
+                        value=FALSE,
                         icon=icon("check"),
                         status="primary",
                         label="Enable highlighting"),
@@ -266,13 +279,21 @@ sashimiAppUI <- function
                         status="primary",
                         label="Display filter legend")
                   ),
+                  tags$b("Axis Settings:"),
+                  shinyWidgets::prettyCheckbox(
+                     inputId="share_y_axis",
+                     value=TRUE,
+                     icon=icon("check"),
+                     status="success",
+                     label="Shared y-axis range"
+                  ),
                   tags$b("Exon Models:"),
                   shinyWidgets::prettyCheckbox(
                      inputId="show_gene_model",
                      value=TRUE,
                      icon=icon("check"),
                      status="warning",
-                     label="Show gene-exon model"
+                     label="Show gene model"
                   ),
                   conditionalPanel(
                      condition="input.show_gene_model == true",
@@ -283,7 +304,7 @@ sashimiAppUI <- function
                         value=FALSE,
                         icon=icon("check"),
                         status="warning",
-                        label="Show transcript-exon model"
+                        label="Show transcripts"
                      ),
                      conditionalPanel(
                         condition="input.show_tx_model == true",
@@ -295,29 +316,27 @@ sashimiAppUI <- function
                            value=TRUE,
                            icon=icon("check"),
                            status="warning",
-                           label="Detected transcripts only"
+                           label="Detected only"
                         )
                      )
                   ),
                   br(),
-                  tags$b("Axis Settings:"),
-                  shinyWidgets::prettyCheckbox(
-                     inputId="share_y_axis",
-                     value=TRUE,
-                     icon=icon("check"),
-                     status="success",
-                     label="Shared y-axis range"
-                  ),
                   conditionalPanel(
                      condition="input.do_plotly == false",
-                     sliderInput(
+                     shinyWidgets::sliderTextInput(
                         inputId="exon_label_size",
-                        label="Exon label size",
-                        min=2,
-                        width="80%",
-                        max=20,
-                        value=5,
-                        step=0.5
+                        label="Exon font sizing:",
+                        choices=c("-4 smaller",
+                           "-3 smaller",
+                           "-2 smaller",
+                           "-1 smaller",
+                           "Default",
+                           "+1 larger",
+                           "+2 larger",
+                           "+3 larger",
+                           "+4 larger"),
+                        selected="Default",
+                        grid=TRUE
                      )
                   )
                )

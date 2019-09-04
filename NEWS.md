@@ -8,6 +8,31 @@ as with other functions. Only affected directly calling
 `getGRcoverageFromBw()` since other functions passed the
 directory as an argument, and thus probably only me.
 
+## changes
+
+* The default plotly does not enable highlighting. It is currently
+too slow and laggy, subject of future optimization.
+* Font sizing is reworked, to start with 14 point font and
+add/subtract from that font size. It converts to ggplot2
+convention of `"mm"` units, since it appears to ignore grid
+`"pt"` units. The bast plot font size can be adjusted, affecting
+everything including exon labels. The exon labels can separately
+be adjusted relative to the base font size.
+* The coordinate label on the R-shiny app includes the gene,
+to make it clear when a new gene search results in a new
+coordinate range.
+* The `scale_factor` values are applied outside the memoise
+cache strategy, which should allow modifying the `scale_factor`
+values without invalidating the cache. It seems correct to
+cache the unadjusted data, then separately apply any adjustment.
+* The `"farrisdata"` package was added to the `"Guides"` tab
+which lists the versions of relevant packages.
+* The plot config side menu icon was changed from `"wrench"`
+to `"gear"`, thanks to @DivadNojnarg of the
+`"RinteRface/shinydashboardPlus"` package on Github!
+* Updated R package dependencies for minimum versions for
+`"shinydashboardPlus"` and `"farrisdata"`.
+
 # splicejam version 0.0.47.900
 
 ## Changes

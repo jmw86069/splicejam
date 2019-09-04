@@ -104,7 +104,20 @@ sashimiAppServer <- function
    });
    show_detected_tx_d <- debounce(show_detected_tx, debounce_ms);
    exon_label_size <- reactive({
-      input$exon_label_size;
+      font_sizing <- input$exon_label_size;
+      base_font_size <- 1.0 * dplyr::case_when(
+         igrepHas("-4", font_sizing) ~ -4,
+         igrepHas("-3", font_sizing) ~ -3,
+         igrepHas("-2", font_sizing) ~ -2,
+         igrepHas("-1", font_sizing) ~ -1,
+         igrepHas("Default", font_sizing) ~ 0,
+         igrepHas("+1", font_sizing) ~ 1,
+         igrepHas("+2", font_sizing) ~ 2,
+         igrepHas("+3", font_sizing) ~ 3,
+         igrepHas("+4", font_sizing) ~ 4,
+         igrepHas(".", font_sizing) ~ 0
+      );
+      base_font_size;
    });
    exon_label_size_d <- debounce(exon_label_size, debounce_ms);
    panel_height <- reactive({
@@ -112,7 +125,20 @@ sashimiAppServer <- function
    });
    panel_height_d <- debounce(panel_height, debounce_ms);
    font_sizing <- reactive({
-      input$font_sizing;
+      font_sizing <- input$font_sizing;
+      base_font_size <- 1.0 * dplyr::case_when(
+         igrepHas("-4", font_sizing) ~ -4,
+         igrepHas("-3", font_sizing) ~ -3,
+         igrepHas("-2", font_sizing) ~ -2,
+         igrepHas("-1", font_sizing) ~ -1,
+         igrepHas("Default", font_sizing) ~ 0,
+         igrepHas("+1", font_sizing) ~ 1,
+         igrepHas("+2", font_sizing) ~ 2,
+         igrepHas("+3", font_sizing) ~ 3,
+         igrepHas("+4", font_sizing) ~ 4,
+         igrepHas(".", font_sizing) ~ 0
+      );
+      base_font_size * 1.5;
    });
    font_sizing_d <- debounce(font_sizing, debounce_ms);
    do_plotly <- reactive({
@@ -151,7 +177,9 @@ sashimiAppServer <- function
          printDebug("update gene slider bar, length(flatExonsByGene1):", length(flatExonsByGene1));
          printDebug("update gene slider bar, length(flatExonsByGene1[[gene]]):", length(flatExonsByGene1[[gene]]));
          chr_range <- as.data.frame(range(flatExonsByGene1[[gene]]))[,c("start", "end")];
-         coords_label <- paste0("Coordinate range ",
+         coords_label <- paste0("Coordinate range for ",
+            gene,
+            " on ",
             as.character(seqnames(head(flatExonsByGene1[[gene]], 1))),
             ":");
          if ("gene_nameExon" %in% colnames(values(flatExonsByGene1[[gene]]))) {
@@ -419,21 +447,21 @@ sashimiAppServer <- function
                      flatExonsByTx=flatExonsByTx[names(flatExonsByTx) %in% detectedTx],
                      label_coords=get_gene_coords(),
                      ref2c=ref2c,
-                     exonLabelSize=exon_label_size_d());
+                     exonLabelSize=14 + exon_label_size_d() + font_sizing_d());
                } else {
                   gg_gene <- gene2gg(gene=gene,
                      flatExonsByGene=flatExonsByGene1,
                      flatExonsByTx=flatExonsByTx,
                      label_coords=get_gene_coords(),
                      ref2c=ref2c,
-                     exonLabelSize=exon_label_size_d());
+                     exonLabelSize=14 + exon_label_size_d() + font_sizing_d());
                }
             } else {
                gg_gene <- gene2gg(gene=gene,
                   flatExonsByGene=flatExonsByGene1,
                   label_coords=get_gene_coords(),
                   ref2c=ref2c,
-                  exonLabelSize=exon_label_size_d());
+                  exonLabelSize=14 + exon_label_size_d() + font_sizing_d());
             }
             gg_gene <- gg_gene;
          }
@@ -461,15 +489,7 @@ sashimiAppServer <- function
          panel_height <- panel_height_d();
          # adjust base_size for fonts using exponent based upon panel height
          font_exp <- 1/3;
-         font_sizing <- font_sizing_d();
-         base_font_size <- dplyr::case_when(
-            igrepHas("-2", font_sizing) ~ 8,
-            igrepHas("-1", font_sizing) ~ 10,
-            igrepHas("Default", font_sizing) ~ 12,
-            igrepHas("+1", font_sizing) ~ 14,
-            igrepHas("+2", font_sizing) ~ 16,
-            igrepHas(".", font_sizing) ~ 12
-         )
+         base_font_size <- 16 + 1.0 * font_sizing_d();
          base_size <- base_font_size * (panel_height^font_exp)/(250^font_exp);
          plot_height <- panel_height * (num_samples + show_gene_model_d());
          if (verbose) {
@@ -477,11 +497,14 @@ sashimiAppServer <- function
                ", panel_height:", panel_height,
                ", base_size:", format(digits=1, base_size),
                ", base_font_size:", base_font_size,
-               ", font_sizing:", font_sizing,
                ", layout_ncol:", layout_ncol,
                ", plot_height:", plot_height);
          }
          if (do_plotly_d()) {
+            if (verbose) {
+               printDebug("sashimiAppServer(): ",
+                  "Preparing plotly output.");
+            }
             if (show_gene_model_d()) {
                ## use plotly, showing gene model
                ggly1 <- plotly::ggplotly(
@@ -515,7 +538,7 @@ sashimiAppServer <- function
                      ggly1,
                      ggly2,
                      nrows=2,
-                     heights=c(num_samples, 1)/(num_samples + 1),
+                     heights=c(num_samples, 2 + show_tx_model_d())/(num_samples + 2 + show_tx_model_d()),
                      shareX=TRUE
                   ) %>% layout(height=plot_height)
                );
@@ -561,6 +584,10 @@ sashimiAppServer <- function
             #   htmltools::as.tags(gg_ly)
             #);
          } else {
+            if (verbose) {
+               printDebug("sashimiAppServer(): ",
+                  "Preparing ggplot output.");
+            }
             ## Non-plotly static plot output
             if (length(get_gene_coords()) > 0) {
                if (show_gene_model_d()) {

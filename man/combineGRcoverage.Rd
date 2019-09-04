@@ -12,7 +12,9 @@ combineGRcoverage(gr, covNames = NULL, covName = NULL,
 containing NumericList class data.}
 
 \item{covNames}{character vector of \code{colnames(values(gr))}
-that contain coverage in NumericList format.}
+representing columns in \code{gr} that contain coverage data
+in NumericList format, for example data prepared
+with \code{getGRcoverageFromBw()}.}
 
 \item{covName}{character vector with length equal to
 \code{length(covNames)} representing the \code{sample_id} for each
@@ -23,8 +25,11 @@ for which the coverage data was obtained. When \code{NULL} the strand
 is inferred by the presence of any negative values.}
 
 \item{scaleFactors}{numeric vector length equal to \code{length(covNames)}
-of values to multiply by each coverage result, in order to
-normalized coverages to each other.}
+or expanded to that length. Values are multiplied by each
+coverage data result, intended to apply a normalization
+to each coverage value. A \code{-1} value can also be used
+to flip the score of negative strand data, in the event the
+source coverage data is scored only using positive values.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 

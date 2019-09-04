@@ -6,7 +6,7 @@
 \usage{
 gene2gg(gene = NULL, tx = NULL, flatExonsByGene = NULL,
   flatExonsByTx = NULL, geneColor = "dodgerblue", labelExons = TRUE,
-  exonLabelAngle = 90, exonLabelSize = 3,
+  exonLabelAngle = 90, exonLabelSize = 8,
   newValues = list(feature_type = "gap", subclass = "gap", gene_nameExon
   = "gap"), gene_order = c("first", "last"), return_type = c("grob",
   "df"), ref2c = NULL, hjust = 2, vjust = 0.5,
@@ -42,9 +42,9 @@ unique exon label.}
 indicating how to rotate exon labels, where \code{90} is
 vertical, and \code{0} is horizontal.}
 
-\item{exonLabelSize}{numeric value, compatible with
-argument \code{size} in \code{ggrepel::geom_text_repel()}, used
-to size exon labels when \code{labelExons=TRUE}.}
+\item{exonLabelSize}{numeric value or \code{unit} object from \code{grid::unit()}.
+Numeric values are assumed to have unit \code{"pt"} which refers to
+font point size. Used to size exon labels when \code{labelExons=TRUE}.}
 
 \item{newValues}{argument passed to \code{addGRLgaps()} to fill
 column values for newly created gap entries. It is useful

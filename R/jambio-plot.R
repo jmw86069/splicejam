@@ -1129,7 +1129,9 @@ getGRcoverageFromBw <- function
 #' @param gr GRanges object containing coverage data in columns
 #'    containing NumericList class data.
 #' @param covNames character vector of `colnames(values(gr))`
-#'    that contain coverage in NumericList format.
+#'    representing columns in `gr` that contain coverage data
+#'    in NumericList format, for example data prepared
+#'    with `getGRcoverageFromBw()`.
 #' @param covName character vector with length equal to
 #'    `length(covNames)` representing the `sample_id` for each
 #'    `covNames` entry.
@@ -1137,8 +1139,11 @@ getGRcoverageFromBw <- function
 #'    for which the coverage data was obtained. When `NULL` the strand
 #'    is inferred by the presence of any negative values.
 #' @param scaleFactors numeric vector length equal to `length(covNames)`
-#'    of values to multiply by each coverage result, in order to
-#'    normalized coverages to each other.
+#'    or expanded to that length. Values are multiplied by each
+#'    coverage data result, intended to apply a normalization
+#'    to each coverage value. A `-1` value can also be used
+#'    to flip the score of negative strand data, in the event the
+#'    source coverage data is scored only using positive values.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
@@ -1171,6 +1176,15 @@ combineGRcoverage <- function
       scaleFactors <- rep(scaleFactors, length.out=length(covNames));
    }
    names(scaleFactors) <- covNames;
+   if (verbose) {
+      printDebug("combineGRcoverage(): ",
+         "scaleFactors: ",
+         paste0(names(scaleFactors),
+            ":",
+            format(digits=2, trim=TRUE, scaleFactors)),
+         sep=", ");
+   }
+
    if (length(strands) == 0) {
       strands <- factor(sapply(seq_along(covNames), function(i){
          iCov <- covNames[[i]];
@@ -1458,19 +1472,21 @@ prepareSashimi <- function
    bwUrls <- nameVector(bwFilesDF[,c("url","url")]);
    bwSamples <- nameVector(bwFilesDF[,c("sample_id","url")]);
    bwUrlsL <- split(bwUrls, unname(bwSamples));
-   if ("scale_factor" %in% colnames(bwFilesDF)) {
-      bwScaleFactors <- rmNA(naValue=1,
-         bwFilesDF$scale_factor);
-   } else {
-      bwScaleFactors <- rep(1, length(bwUrls));
+   if (!"scale_factor" %in% colnames(bwFilesDF)) {
+      bwFilesDF$scale_factor <- rep(1, nrow(bwFilesDF));
    }
+   bwScaleFactors <- rmNA(naValue=1,
+      bwFilesDF$scale_factor);
    names(bwScaleFactors) <- names(bwUrls);
+   if (length(bwScaleFactors) > 0) {
+      printDebug("prepareSashimi(): ",
+         "bwScaleFactors:",
+         paste0(names(bwScaleFactors),
+            ":",
+            format(bwScaleFactors, digits=2, trim=TRUE)),
+         sep=", ");
+   }
    if (verbose) {
-      if (any(bwScaleFactors != 1)) {
-         printDebug("prepareSashimi(): ",
-            "bwScaleFactors:",
-            bwScaleFactors);
-      }
       printDebug("prepareSashimi(): ",
          "bwUrls:");
       if (length(bwUrls) > 0) {
@@ -1478,8 +1494,8 @@ prepareSashimi <- function
       } else {
          printDebug("No coverage files", fgText="red");
       }
-      printDebug("GRanges:");
-      print(gr);
+      #printDebug("GRanges:");
+      #print(gr);
    }
    ##
    ## Where possible, re-use covGR coverage supplied as GRanges
@@ -1514,20 +1530,24 @@ prepareSashimi <- function
          } else {
             covScaleFactors <- rep(1, length(covUrls));
          }
+
          ## Combine coverage per strand
          covGR2 <- combineGRcoverage(covGRuse,
             covName=covSamples,
             scaleFactors=covScaleFactors,
-            covNames=names(covUrls));
+            covNames=names(covUrls),
+            verbose=verbose);
          ## Obtain the new set of covNames
          covNames <- attr(covGR2, "covNames");
          covName <- attr(covGR2, "covName");
+
          ## Create polygon data.frame
          covDF <- exoncov2polygon(covGR2,
             ref2c=ref2c,
             covNames=covNames,
             sample_id=covName,
             coord_style="fortify",
+            verbose=verbose,
             ...);
          ## Enforce ordered factor levels for sample_id
          ## which also forces empty factor levels if applicable
@@ -1571,6 +1591,7 @@ prepareSashimi <- function
          shiny::setProgress(1/4,
             detail=paste0("Preparing bw coverage data for ", gene));
       }
+      ## Note that coverage is not scaled at this step
       covGR <- getGRcoverageFromBw(gr=gr,
          bwUrls=bwUrls,
          addGaps=addGaps,
@@ -1590,7 +1611,8 @@ prepareSashimi <- function
       covGR2 <- combineGRcoverage(covGR,
          covName=bwSamples,
          scaleFactors=bwScaleFactors,
-         covNames=names(bwUrls));
+         covNames=names(bwUrls),
+         verbose=verbose);
       #retVals$covGR <- covGR2;
       ## Obtain the new set of covNames
       covNames <- attr(covGR2, "covNames");
@@ -1698,17 +1720,20 @@ prepareSashimi <- function
    juncFilesDF <- filesDF[filesDF$type %in% "junction" &
       filesDF$sample_id %in% sample_id,c("url", "sample_id", "scale_factor"),drop=FALSE];
    juncUrls <- nameVector(juncFilesDF[,c("url", "sample_id")]);
-   juncSamples <- nameVector(juncFilesDF[,c("sample_id","sample_id")]);
+   juncSamples <- nameVector(juncFilesDF[,c("sample_id", "sample_id")]);
    juncUrlsL <- split(juncUrls, juncSamples);
    if (!"scale_factor" %in% colnames(juncFilesDF)) {
-      juncFilesDF$scale_factor <- 1;
+      juncFilesDF$scale_factor <- rep(1, nrow(juncFilesDF));
    }
-   juncScaleFactors <- nameVector(juncFilesDF[,c("scale_factor","sample_id")]);
-   if (verbose) {
+   juncScaleFactors <- rmNA(naValue=1,
+      nameVector(juncFilesDF[,c("scale_factor", "sample_id")]));
+   if (length(juncScaleFactors) > 0) {
       printDebug("prepareSashimi(): ",
-         "Applying scale_factor values to junction scores,",
-         "juncScaleFactors:",
-         format(juncScaleFactors, digits=2));
+         "juncScaleFactors: ",
+         paste0(names(juncScaleFactors),
+            ":",
+            format(juncScaleFactors, digits=2, trim=TRUE)),
+         sep=", ");
    }
    if (verbose) {
       printDebug("prepareSashimi(): ",
@@ -1731,7 +1756,7 @@ prepareSashimi <- function
       juncBedGR <- GRangesList(lapply(nameVectorN(juncUrls), function(iBedName){
          iBed <- juncUrls[[iBedName]];
          iBedNum <- match(iBedName, jamba::makeNames(names(juncUrls)));
-         iBedPct <- iBedNum / length(juncUrls);
+         iBedPct <- (iBedNum - 1) / length(juncUrls);
          if (do_shiny_progress) {
             if (!is.na(iBedPct)) {
                shiny::setProgress(
@@ -1752,13 +1777,20 @@ prepareSashimi <- function
                format(digits=1, juncScaleFactors[iBedName]),
                " for sample_id:", juncSamples[iBedName]);
          }
+         ## Question: should scale_factor be applied here within the cache,
+         ## or should cache just store the data without scale_factor, so
+         ## the scale_factor can be applied independently?
+         ## I think we know the answer is to cache the data, apply
+         ## scale_factor separately, to allow the scale_factor to be
+         ## changed as needed.
          if (use_memoise) {
             if (verbose) {
                import_juncs_m_cached <- memoise::has_cache(import_juncs_m)(
                   iBed,
                   juncNames=iBedName,
                   sample_id=juncSamples[iBedName],
-                  scale_factor=juncScaleFactors[iBedName],
+                  scale_factor=1,
+                  #scale_factor=juncScaleFactors[iBedName],
                   gr=gr);
                printDebug("prepareSashimi():",
                   "import_juncs_m_cached: ",
@@ -1768,7 +1800,8 @@ prepareSashimi <- function
                iBed,
                juncNames=iBedName,
                sample_id=juncSamples[iBedName],
-               scale_factor=juncScaleFactors[iBedName],
+               scale_factor=1,
+               #scale_factor=juncScaleFactors[iBedName],
                use_memoise=TRUE,
                memoise_junction_path=memoise_junction_path,
                gr=gr);
@@ -1776,8 +1809,13 @@ prepareSashimi <- function
             bed1 <- import_juncs_from_bed(iBed,
                juncNames=iBedName,
                sample_id=juncSamples[iBedName],
-               scale_factor=juncScaleFactors[iBedName],
+               scale_factor=1,
+               #scale_factor=juncScaleFactors[iBedName],
                gr=gr);
+         }
+         ## Apply scale_factor
+         if (length(bed1) > 0) {
+            values(bed1)$score <- values(bed1)$score * juncScaleFactors[iBedName];
          }
          bed1;
       }))@unlistData;
@@ -1827,9 +1865,9 @@ prepareSashimi <- function
       if (verbose) {
          printDebug("prepareSashimi(): ",
             "calling grl2df() on juncGR");
-         print(head(juncGR));
-         print(head(GenomicRanges::split(juncGR,
-            GenomicRanges::values(juncGR)[["sample_id"]])));
+         #print(head(juncGR));
+         #print(head(GenomicRanges::split(juncGR,
+         #   GenomicRanges::values(juncGR)[["sample_id"]])));
       }
       if (do_shiny_progress) {
          shiny::setProgress(3.5/4,
