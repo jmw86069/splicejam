@@ -963,7 +963,7 @@ getGRcoverageFromBw <- function
  default_feature_type="exon",
  feature_type_colname="feature_type",
  use_memoise=FALSE,
- memoise_coverage_path="memoise_coverage",
+ memoise_coverage_path="coverage_memoise",
  do_shiny_progress=FALSE,
  verbose=FALSE,
  ...)

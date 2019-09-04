@@ -1,3 +1,13 @@
+# splicejam version 0.0.48.900
+
+## bug fix
+
+* Fixed small bug in `getGRcoverageFromBw()` that used default
+memoise path `"memoise_coverage"` instead of `"coverage_memoise"`
+as with other functions. Only affected directly calling
+`getGRcoverageFromBw()` since other functions passed the
+directory as an argument, and thus probably only me.
+
 # splicejam version 0.0.47.900
 
 ## Changes
