@@ -58,4 +58,11 @@ ggWide2 <- ggWide +
 print(ggWide2);
 
 }
+\seealso{
+Other splicejam data: \code{\link{test_cov_gr}},
+  \code{\link{test_cov_wide_gr}},
+  \code{\link{test_exon_gr}}, \code{\link{test_junc_gr}},
+  \code{\link{test_junc_wide_gr}}
+}
+\concept{splicejam data}
 \keyword{datasets}

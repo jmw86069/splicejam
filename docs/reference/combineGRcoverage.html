@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.48.900</span>
       </span>
     </div>
 
@@ -142,7 +142,9 @@ containing NumericList class data.</p></td>
     <tr>
       <th>covNames</th>
       <td><p>character vector of <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(values(gr))</a></code>
-that contain coverage in NumericList format.</p></td>
+representing columns in <code>gr</code> that contain coverage data
+in NumericList format, for example data prepared
+with <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw()</a></code>.</p></td>
     </tr>
     <tr>
       <th>covName</th>
@@ -159,8 +161,11 @@ is inferred by the presence of any negative values.</p></td>
     <tr>
       <th>scaleFactors</th>
       <td><p>numeric vector length equal to <code><a href='https://www.rdocumentation.org/packages/base/topics/length'>length(covNames)</a></code>
-of values to multiply by each coverage result, in order to
-normalized coverages to each other.</p></td>
+or expanded to that length. Values are multiplied by each
+coverage data result, intended to apply a normalization
+to each coverage value. A <code>-1</code> value can also be used
+to flip the score of negative strand data, in the event the
+source coverage data is scored only using positive values.</p></td>
     </tr>
     <tr>
       <th>verbose</th>

@@ -51,4 +51,12 @@ gg3 +
       aes(x=x, y=y, group=id),
       alpha=0.6)
 }
+\seealso{
+Other splicejam data: \code{\link{test_cov_wide_gr}},
+  \code{\link{test_exon_gr}},
+  \code{\link{test_exon_wide_gr}},
+  \code{\link{test_junc_gr}},
+  \code{\link{test_junc_wide_gr}}
+}
+\concept{splicejam data}
 \keyword{datasets}

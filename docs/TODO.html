@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.48.900</span>
       </span>
     </div>
 
@@ -117,19 +117,37 @@
       <h1>NA</h1>
     </div>
 
-<div id="todo-for-jambio" class="section level2">
+<div id="todo-for-splicejam" class="section level2">
 <h2 class="hasAnchor">
-<a href="#todo-for-jambio" class="anchor"></a>TODO for jambio</h2>
+<a href="#todo-for-splicejam" class="anchor"></a>TODO for splicejam</h2>
+<div id="sashimi-usability-enhancements" class="section level3">
+<h3 class="hasAnchor">
+<a href="#sashimi-usability-enhancements" class="anchor"></a>Sashimi usability enhancements</h3>
+<ul>
+<li>Separate the function <code><a href="reference/sashimiAppConstants.html">sashimiAppConstants()</a></code> to its own proper standalone function, that prepares all the dependency data objects like <code>flatExonsByGene</code>, <code>flatExonsByTx</code>, <code>tx2geneDF</code>.</li>
+<li>New function to assemble <code>filesDF</code>. Essentially appends a file to an existing <code>data.frame</code>.</li>
+<li>New function <code>plotlySashimi()</code> that optionally includes the gene-transcript-exon model in the visualization.</li>
+<li>Zoom by exon range, using exon names. For example, <code>zoom_by=c("Gria1_exon11", "Gria1_exon16")</code>.</li>
+</ul>
+</div>
+<div id="sashimi-longer-term-enhancements" class="section level3">
+<h3 class="hasAnchor">
+<a href="#sashimi-longer-term-enhancements" class="anchor"></a>Sashimi longer term enhancements</h3>
+<ul>
+<li>Enable display of sample replicates. Actually, enable the grouping of <code>sample_id</code> entries. Default is to overlay replicates in the same facet panel, facet by <code>sample_group</code>. Alternative is to offset the y-axis similar to the <code>"ggridges"</code> package. Unclear if the layers coverage polygons, and junction arcs, will be out of sync; that is sample_1 should draw coverage and junctions, before sample_2 is drawn.</li>
+<li>Enable BAM file for coverage data. Defer filtering rules to the <code>Rsamtools</code> package, but show recommended examples for properly paired reads.</li>
+<li>Enable BAM file for junction data. Determine recommended filters for properly paired reads with minimum overlap width at each end of the junction.</li>
+<li>Enable Sashimi plots over a region, not just one gene range. Refactor of <code><a href="reference/prepareSashimi.html">prepareSashimi()</a></code> to take GRanges range an optional coordinate range, or multiple genes (which would imply the coordinate range if on the same chromosome).</li>
+<li>Create an example showing two genes with overlapping exons.</li>
+<li>Mock up an example that combines gene exons, ChIP-seq peaks, and ATAC-seq peaks, together into one schematic of a genome region. It should show before and after, compressing the “intervening sequences” between features.</li>
+<li>Mock up example showing <code><a href="reference/detectedTxInfo.html">detectedTxInfo()</a></code> output in the form of plots. For example, show percent max expression as a heatmap, each call labeled to show the counts, TPM, percentage, and whether it was called “detected” by the thresholds.</li>
+</ul>
+</div>
 <div id="farris-r-shiny-feedback" class="section level3">
 <h3 class="hasAnchor">
 <a href="#farris-r-shiny-feedback" class="anchor"></a>Farris R-shiny feedback</h3>
 <ul>
 <li>Recalculate scale factors, use reference genes from in situ hybridizations: Calm1, Camk2a, Camk2b, Actb, which show little to no change.</li>
-<li>Debug errors with certain genes: Arc, Pdgfa, Pdgfb. The error message is “cannot coerce”list" to DataFrame“. This bug appears to be resolved after refactoring <code>prepSashimi()</code> to return the full data.frame.</li>
-<li>Enable searching all genes, not just the detected genes.</li>
-<li>Allow option to specify the searchable genes: “Detected”, “All”, then eventually subset of genes based upon statistical hits in each comparison. Genes to test: Mpo, Hcar1.</li>
-<li>Debug <code><a href="reference/stackJunctions.html">stackJunctions()</a></code> in gene “Camk2d” at exons 14-15 and exons 17-18. The stacking appears to be mis-applied.</li>
-<li>Fix the display of plotly gene-exon models, currently shows an empty panel on some servers, but not in local development testing. Likely due to data.frame not containing some column or non-NA values when comparing the gene-exon model data.frame to the data.frame used to display sashimi data.</li>
 <li>Plotly two-column layout does not keep all columns of panels in sync when the x-axis is zoomed, the desired effect is to have the x-axis of each sashimi panel zoomed consistently, across however many columns are used for layout.</li>
 <li>Gria1 takes a while to display the first time, during which the app is not usable. Consider making plot rendering asynchronous to decouple the visualization from the use of the R-shiny app.</li>
 <li>The plotly exon coordinates show the overall coordinate range and not the specific exon.</li>
@@ -146,8 +164,7 @@
 <h3 class="hasAnchor">
 <a href="#testing" class="anchor"></a>Testing</h3>
 <ul>
-<li>
-<p>Implement methods in the testthat package to ensure a consistent suite of tests to confirm full functionality with updates. Highest priority functions, which would break parts of the workflow:</p>
+<li>Implement methods in the testthat package to ensure a consistent suite of tests to confirm full functionality with updates. Highest priority functions, which would break parts of the workflow:
 <ul>
 <li><code><a href="reference/flattenExonsBy.html">flattenExonsBy()</a></code></li>
 <li>

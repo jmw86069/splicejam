@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.48.900</span>
       </span>
     </div>
 
@@ -130,7 +130,7 @@
 
     <pre class="usage"><span class='fu'>gene2gg</span>(<span class='kw'>gene</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>tx</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>flatExonsByGene</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>flatExonsByTx</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>geneColor</span> <span class='kw'>=</span> <span class='st'>"dodgerblue"</span>, <span class='kw'>labelExons</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>exonLabelAngle</span> <span class='kw'>=</span> <span class='fl'>90</span>, <span class='kw'>exonLabelSize</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+  <span class='kw'>exonLabelAngle</span> <span class='kw'>=</span> <span class='fl'>90</span>, <span class='kw'>exonLabelSize</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>newValues</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>feature_type</span> <span class='kw'>=</span> <span class='st'>"gap"</span>, <span class='kw'>subclass</span> <span class='kw'>=</span> <span class='st'>"gap"</span>, <span class='kw'>gene_nameExon</span>
   <span class='kw'>=</span> <span class='st'>"gap"</span>), <span class='kw'>gene_order</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"first"</span>, <span class='st'>"last"</span>), <span class='kw'>return_type</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"grob"</span>,
   <span class='st'>"df"</span>), <span class='kw'>ref2c</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>hjust</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>vjust</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
@@ -182,9 +182,9 @@ vertical, and <code>0</code> is horizontal.</p></td>
     </tr>
     <tr>
       <th>exonLabelSize</th>
-      <td><p>numeric value, compatible with
-argument <code>size</code> in <code><a href='https://www.rdocumentation.org/packages/ggrepel/topics/geom_text_repel'>ggrepel::geom_text_repel()</a></code>, used
-to size exon labels when <code>labelExons=TRUE</code>.</p></td>
+      <td><p>numeric value or <code>unit</code> object from <code><a href='https://www.rdocumentation.org/packages/grid/topics/unit'>grid::unit()</a></code>.
+Numeric values are assumed to have unit <code>"pt"</code> which refers to
+font point size. Used to size exon labels when <code>labelExons=TRUE</code>.</p></td>
     </tr>
     <tr>
       <th>newValues</th>
@@ -275,7 +275,8 @@ for more customization.</p>
   <code><a href='stackJunctions.html'>stackJunctions</a></code></p>
 <p>Other jam ggplot2 functions: <code><a href='geom_diagonal_wide_arc.html'>geom_diagonal_wide_arc</a></code>,
   <code><a href='plotSashimi.html'>plotSashimi</a></code>,
-  <code><a href='splicejam-extensions.html'>splicejam-extensions</a></code></p>
+  <code><a href='splicejam-extensions.html'>splicejam-extensions</a></code>,
+  <code><a href='to_basic.GeomShape.html'>to_basic.GeomShape</a></code></p>
 <p>Other splicejam core functions: <code><a href='exoncov2polygon.html'>exoncov2polygon</a></code>,
   <code><a href='grl2df.html'>grl2df</a></code>, <code><a href='make_ref2compressed.html'>make_ref2compressed</a></code>,
   <code><a href='plotSashimi.html'>plotSashimi</a></code>, <code><a href='prepareSashimi.html'>prepareSashimi</a></code></p></div>
@@ -288,7 +289,7 @@ for more customization.</p>
    <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>values</span>(<span class='no'>test_exon_wide_gr</span>)[,<span class='st'>"gene_name"</span>]);
 
 <span class='co'># The most basic plot of exons</span>
-<span class='fu'>gene2gg</span>(<span class='kw'>gene</span><span class='kw'>=</span><span class='st'>"TestGene1"</span>, <span class='kw'>flatExonsByGene</span><span class='kw'>=</span><span class='no'>test_flatExonsByGene</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: failed to set names on the unlisted CompressedRleList object</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package 'data.table' was built under R version 3.5.2</span></div><div class='img'><img src='gene2gg-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>gene2gg</span>(<span class='kw'>gene</span><span class='kw'>=</span><span class='st'>"TestGene1"</span>, <span class='kw'>flatExonsByGene</span><span class='kw'>=</span><span class='no'>test_flatExonsByGene</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: failed to set names on the unlisted CompressedRleList object</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘data.table’ was built under R version 3.5.2</span></div><div class='img'><img src='gene2gg-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># You can be fancy and number the exons</span>
 <span class='no'>test_flatExonsByGene</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='assignGRLexonNames.html'>assignGRLexonNames</a></span>(<span class='no'>test_flatExonsByGene</span>,
    <span class='kw'>geneSymbolColname</span><span class='kw'>=</span><span class='st'>"gene_name"</span>);

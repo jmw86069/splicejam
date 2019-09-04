@@ -10,6 +10,10 @@ reference:
   desc: Functions aimed at RNA-seq analysis
   contents:
   - has_concept("jam RNA-seq functions")
+- title: Splicejam R-shiny functions
+  desc: Functions to enable Splicejam R-shiny
+  contents:
+  - has_concept("splicejam R-shiny functions")
 - title: ALE-specific RNA-seq functions
   desc: Functions specific to ALE (alternate last exon) RNA-seq analysis
   contents:
@@ -58,6 +62,10 @@ reference:
   desc: Functions aimed at manipulation of numeric data
   contents:
   - has_concept("jam numeric functions")
+- title: splicejam test data
+  desc: R data with exons, coverage, and splice junctions
+  contents:
+  - has_concept("splicejam data")
 - title: Import functions
   desc: Functions to import specific data formats
   contents:

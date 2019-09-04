@@ -42,3 +42,8 @@ inside each junction region, so that the junction arc height
 can be defined higher in order to minimize junction arc
 overlaps.
 }
+\seealso{
+Other RNA-seq functions: \code{\link{getGRcoverageFromBw}},
+  \code{\link{prepareSashimi}}
+}
+\concept{RNA-seq functions}

@@ -49,4 +49,12 @@ gg1 <- ggplot(junc_df, aes(x=x, y=y, group=id, fill=gr_name)) +
    colorjam::scale_fill_jam()
 print(gg1);
 }
+\seealso{
+Other splicejam data: \code{\link{test_cov_gr}},
+  \code{\link{test_cov_wide_gr}},
+  \code{\link{test_exon_gr}},
+  \code{\link{test_exon_wide_gr}},
+  \code{\link{test_junc_wide_gr}}
+}
+\concept{splicejam data}
 \keyword{datasets}

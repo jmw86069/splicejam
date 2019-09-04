@@ -17,6 +17,8 @@
 #'    begins at position 100, the junction would end at position
 #'    99.
 #'
+#' @family splicejam data
+#'
 #' @examples
 #' # The code below is used to create the junction test data
 #' suppressPackageStartupMessages(library(GenomicRanges));
@@ -66,6 +68,8 @@
 #'    begin at position 11. Similarly, if the connected exon
 #'    begins at position 100, the junction would end at position
 #'    99.
+#'
+#' @family splicejam data
 #'
 #' @examples
 #' # The code below is used to create the junction test data
@@ -130,6 +134,8 @@
 #'    exon for an arbitrary gene. It has one column of values,
 #'    `"gene_name"` used for Sashimi plot preparation.
 #'
+#' @family splicejam data
+#'
 #' @examples
 #' # The code below is used to create the exon test data
 #' suppressPackageStartupMessages(library(GenomicRanges));
@@ -167,6 +173,8 @@
 #' @format GRanges object where each segment represents one
 #'    exon for an arbitrary gene. It has one column of values,
 #'    `"gene_name"` used for Sashimi plot preparation.
+#'
+#' @family splicejam data
 #'
 #' @examples
 #' # The code below is used to create the exon test data
@@ -211,6 +219,8 @@
 #' This dataset represents exon GRanges with an additional column
 #' with NumericList values representing RNA-seq read coverage
 #' across these exons.
+#'
+#' @family splicejam data
 #'
 #' @examples
 #' suppressPackageStartupMessages(library(GenomicRanges));
@@ -261,6 +271,8 @@
 #' demonstrate the challenge with visualizing exon
 #' coverage data on a genomic scale. See examples
 #' for steps to compress the intron sizes.
+#'
+#' @family splicejam data
 #'
 #' @examples
 #' # The steps below demonstrate how to create coverage data manually

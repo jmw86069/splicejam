@@ -37,4 +37,12 @@ ggplot(grl2df(test_exon_gr), aes(x=x, y=y, group=id, fill=feature_type)) +
    colorjam::theme_jam() +
    colorjam::scale_fill_jam()
 }
+\seealso{
+Other splicejam data: \code{\link{test_cov_gr}},
+  \code{\link{test_cov_wide_gr}},
+  \code{\link{test_exon_wide_gr}},
+  \code{\link{test_junc_gr}},
+  \code{\link{test_junc_wide_gr}}
+}
+\concept{splicejam data}
 \keyword{datasets}

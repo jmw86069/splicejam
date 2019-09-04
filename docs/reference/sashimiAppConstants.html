@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.46.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.48.900</span>
       </span>
     </div>
 
@@ -128,8 +128,35 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>sashimiAppConstants</span>(<span class='no'>...</span>)</pre>
-        
+    <pre class="usage"><span class='fu'>sashimiAppConstants</span>(<span class='no'>...</span>, <span class='kw'>assign_global</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>empty_uses_farrisdata</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>use_memoise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>aboutExtra</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>filesDF</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>color_sub</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>gtf</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>txdb</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>tx2geneDF</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>exonsByTx</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>cdsByTx</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>detectedTx</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>detectedGenes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>flatExonsByGene</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>flatExonsByTx</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>...</th>
+      <td><p>additional arguments are ignored.</p></td>
+    </tr>
+    <tr>
+      <th>empty_uses_farrisdata</th>
+      <td><p>logical indicating whether to
+use data from the <code>"farrisdata"</code> R package if no default
+values are provided, and if that package is available.</p></td>
+    </tr>
+    <tr>
+      <th>aboutExtra</th>
+      <td><p>character string or html tag from <code>"htmltools"</code>
+suitable for use in a shiny app. This text is intended
+to display a description of data visualized in the R-shiny
+app, for example when run with <code><a href='launchSashimiApp.html'>launchSashimiApp()</a></code>.</p></td>
+    </tr>
+    </table>
+    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function defines several constant values
@@ -220,6 +247,7 @@ The <code>"aboutExtra"</code> content is displayed on the tab
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#details">Details</a></li>
 

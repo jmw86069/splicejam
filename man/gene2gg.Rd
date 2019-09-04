@@ -146,7 +146,8 @@ Other jam plot functions: \code{\link{bgaPlotly3d}},
 
 Other jam ggplot2 functions: \code{\link{geom_diagonal_wide_arc}},
   \code{\link{plotSashimi}},
-  \code{\link{splicejam-extensions}}
+  \code{\link{splicejam-extensions}},
+  \code{\link{to_basic.GeomShape}}
 
 Other splicejam core functions: \code{\link{exoncov2polygon}},
   \code{\link{grl2df}}, \code{\link{make_ref2compressed}},

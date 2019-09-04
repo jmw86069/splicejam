@@ -14,11 +14,13 @@ functions for building up the plot is encouraged.
 \seealso{
 Other jam ggplot2 functions: \code{\link{gene2gg}},
   \code{\link{geom_diagonal_wide_arc}},
-  \code{\link{plotSashimi}}
+  \code{\link{plotSashimi}},
+  \code{\link{to_basic.GeomShape}}
 
 Other jam ggplot2 functions: \code{\link{gene2gg}},
   \code{\link{geom_diagonal_wide_arc}},
-  \code{\link{plotSashimi}}
+  \code{\link{plotSashimi}},
+  \code{\link{to_basic.GeomShape}}
 }
 \concept{jam ggplot2 functions}
 \keyword{datasets}

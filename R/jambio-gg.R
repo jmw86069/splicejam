@@ -1554,6 +1554,8 @@ plotSashimi <- function
 #'    by plotly during rendering, after stats have been applied.
 #'    Currently only `data` is passed to `ggplot2::GeomPolygon`.
 #'
+#' @family jam ggplot2 functions
+#'
 #' @export
 to_basic.GeomShape <- function
 (data,

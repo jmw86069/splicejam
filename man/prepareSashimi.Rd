@@ -172,7 +172,8 @@ plotSashimi(sh1);
 
 }
 \seealso{
-Other RNA-seq functions: \code{\link{getGRcoverageFromBw}}
+Other RNA-seq functions: \code{\link{getGRcoverageFromBw}},
+  \code{\link{internal_junc_score}}
 
 Other jam plot functions: \code{\link{bgaPlotly3d}},
   \code{\link{factor2label}}, \code{\link{gene2gg}},

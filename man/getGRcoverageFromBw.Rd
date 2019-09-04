@@ -89,7 +89,8 @@ Other jam GRanges functions: \code{\link{addGRLgaps}},
   \code{\link{sortGRL}}, \code{\link{spliceGR2junctionDF}},
   \code{\link{stackJunctions}}
 
-Other RNA-seq functions: \code{\link{prepareSashimi}}
+Other RNA-seq functions: \code{\link{internal_junc_score}},
+  \code{\link{prepareSashimi}}
 }
 \concept{RNA-seq functions}
 \concept{jam GRanges functions}

@@ -2044,6 +2044,8 @@ prepareSashimi <- function
 #' can be defined higher in order to minimize junction arc
 #' overlaps.
 #'
+#' @family RNA-seq functions
+#'
 #' @return numeric vector named by `names(juncGR)` whose values
 #'    are the maximum score of internal overlapping junction ends.
 #'
