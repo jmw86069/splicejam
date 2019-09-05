@@ -1,3 +1,19 @@
+# splicejam version 0.0.49.900
+
+## changes
+
+* Updated the `"Guides"` tab of the R-shiny Sashimi app.
+It now also prints the R version, and the package
+versions of jam packages.
+* Updated `DESCRIPTION` to include higher specific
+version numbers for several packages, to force an update
+if needed.
+* Updated vignette to remove hard dependency on the `tximportData`
+package, making it optional. This change prevents the 250 MB
+package from being required only for the example vignette.
+In future, a random generated expression data matrix may
+be created.
+
 # splicejam version 0.0.48.900
 
 ## bug fix

@@ -1,9 +1,13 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.48.900
-Authors@R: person(given="James M.", family="Ward",
-    email="jmw86069@gmail.com", role=c("aut", "cre"))
+Version: 0.0.49.900
+Authors@R: c(
+    person(given="James M.", family="Ward",
+       email="jmw86069@gmail.com", role=c("aut", "cre")),
+    person(given="Shannon", family="Farris",
+       role=c("aut"))
+    )
 Maintainer: James M. Ward <jmw86069@gmail.com>
 Description: Jam Bioinformatics methods for RNA-seq and other genomics
     analysis methods. Sashimi coverage plots for RNA-seq, transcript isoform
@@ -11,9 +15,9 @@ Description: Jam Bioinformatics methods for RNA-seq and other genomics
     methods for manipulating gene expression data.
 Depends: R (>= 3.0.0)
 biocViews:
-Imports: jamba (>= 0.0.26.900),
-    jamma,
-    colorjam,
+Imports: jamba(>= 0.0.41.900),
+    jamma(>= 0.0.13.900),
+    colorjam(>= 0.0.12.900),
     data.table,
     GenomicRanges,
     GenomicFeatures,
@@ -27,7 +31,6 @@ Imports: jamba (>= 0.0.26.900),
     ggrepel,
     plyr,
     dplyr,
-    tximportData,
     shiny,
     shinydashboard,
     shinydashboardPlus(>= 0.7.5.9000),
@@ -45,6 +48,7 @@ Suggests:
     knitr,
     rmarkdown,
     tximport,
+    tximportData,
     TxDb.Mmusculus.UCSC.mm10.knownGene,
     org.Mm.eg.db,
     farrisdata(>= 0.0.9.900)

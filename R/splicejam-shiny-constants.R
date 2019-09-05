@@ -139,6 +139,9 @@ sashimiAppConstants <- function
       if (!inherits(aboutExtra, c("shiny.tag", "shiny.tag.list"))) {
          aboutExtra <- htmltools::tags$p(aboutExtra);
       }
+      printDebug("Using existing ",
+         "'aboutExtra'",
+         " as provided.")
       assign("aboutExtra",
          value=aboutExtra,
          envir=sashimi_env);
@@ -156,10 +159,20 @@ sashimiAppConstants <- function
       "flatExonsByTx");
    for (i in params) {
       if (length(get(i)) == 0 && exists(i, envir=globalenv(), inherits=FALSE)) {
-         assign(i, get(i, envir=globalenv(), inherits=FALSE));
+         ival <- get(i,
+            envir=globalenv(),
+            inherits=FALSE);
+         ## Assign to local function space
+         assign(i,
+            ival);
+         ## Assign to the specified environment
+         assign(i,
+            value=ival,
+            envir=sashimi_env);
       }
    }
-   if (length(filesDF) == 0 || nrow(filesDF) == 0) {
+   if (length(filesDF) == 0 ||
+         nrow(filesDF) == 0) {
       if (empty_uses_farrisdata && suppressPackageStartupMessages(require(farrisdata))) {
          printDebug("Using filesDF from ",
             "farrisdata::farris_sashimi_files_df");
@@ -168,24 +181,32 @@ sashimiAppConstants <- function
          assign("filesDF",
             value=filesDF,
             envir=sashimi_env);
-         if (length(aboutExtra) == 0) {
-            aboutExtra <- htmltools::tags$p("Data is provided by the farrisdata
-               package, which provides mouse hippocampal subregion-
-               and compartment-specific RNA-seq data described in
-               Farris et al 2019. Each 'sample_id' represents the
-               normalized RNA-seq aligned sequence coverage after
-               combining three biological replicates per sample group.
-               The purpose of this resource is to provide the community
-               with a user-friendly interface to mine the data for
-               isoform-specific differences across hippocampal subregions
-               (CA1, CA2, CA3, DG) and subcellular compartments
-               (Cell Body, Dendrites).");
-         }
+      } else {
+         empty_uses_farrisdata <- FALSE;
+      }
+   }
+   if (length(aboutExtra) == 0 &&
+         jamba::igrepHas("farris", filesDF$url) &&
+         empty_uses_farrisdata) {
+      if (length(aboutExtra) == 0) {
+         printDebug("Using farrisdata ",
+            "'aboutExtra'",
+            " text.");
+         aboutExtra <- htmltools::tags$p("Data is provided by the ",
+            strong("farrisdata"),
+            " package, which provides mouse hippocampal subregion-
+            and compartment-specific RNA-seq data described in
+            Farris et al 2019. Each 'sample_id' represents the
+            normalized RNA-seq aligned sequence coverage after
+            combining three biological replicates per sample group.
+            The purpose of this resource is to provide the community
+            with a user-friendly interface to mine the data for
+            isoform-specific differences across hippocampal subregions
+            (CA1, CA2, CA3, DG) and subcellular compartments
+            (CB = Cell Body, DE = Dendrites).");
          assign("aboutExtra",
             value=aboutExtra,
             envir=sashimi_env);
-      } else {
-         empty_uses_farrisdata <- FALSE;
       }
    }
    if (!all(c("sample_id", "url", "type") %in% colnames(filesDF))) {
@@ -501,10 +522,11 @@ sashimiAppConstants <- function
             tags$ul(
                tags$li(
                   strong(style="color:firebrick",
-                     "The methods were developed in support of:"),
+                     "The methods were developed in support of this manuscript"),
                   br(),
-                  a("S. Farris, J. M. Ward, K.E. Carstens, M. Samadi, Y. Wang and S. M. Dudek, 2019:",
-                     em("Hippocampal subregions express distinct dendritic transcriptomes that reveal unexpected differences in mitochondrial function in CA2"),
+                  a("S. Farris, J. M. Ward, K.E. Carstens, M. Samadi, Y. Wang and S. M. Dudek. ",
+                     "Cell Reports 2019 (Accepted). ",
+                     em("Hippocampal subregions express distinct dendritic transcriptomes that reveal unexpected differences in mitochondrial function in CA2."),
                      href="https://github.com/jmw86069/jampack")
                ),
                tags$li(
@@ -516,8 +538,11 @@ sashimiAppConstants <- function
                      href="http://biorxiv.org/content/early/2014/02/11/002576")
                )
             ),
-            tags$p("Relevant R package versions:"),
+            tags$p("Relevant R version info:"),
             tags$ul(
+               tags$li(
+                  strong(style="color:black", R.version.string)
+               ),
                tags$li(
                   strong(style="color:black", "jampack:"),
                   as.character(packageVersion("jampack"))
@@ -570,7 +595,10 @@ sashimiAppConstants <- function
          status="primary",
          style="background-color:aliceblue",
          aboutExtra,
-         tags$p("The ", em("Sashimi Plot"), " tab provides a visualization of
+         tags$h3("The Sashimi Plot Tab"),
+         tags$p(
+            "The Sashimi Plot tab",
+            " provides a visualization of
             gene transcript data from one or more biological samples,
             specific for RNA-seq (RNA sequencing of gene transcripts.)
             It combines several types of data important for insightful
@@ -640,7 +668,7 @@ sashimiAppConstants <- function
          style="background-color:aliceblue",
          tags$p("The typical workflow for viewing a Sashimi plot is described
             below:"),
-         tags$h2("Select the Sashimi Plot tab", style="color:navy"),
+         tags$h3("Select the Sashimi Plot tab"),
          tags$ul(
             tags$li(
                strong("Select a gene", style="color:navy"),

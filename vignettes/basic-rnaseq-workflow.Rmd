@@ -6,6 +6,7 @@ output:
   rmarkdown::html_vignette:
     fig_caption: yes
     toc: true
+    toc_depth: 4
     df_print: kable
 vignette: >
   %\VignetteIndexEntry{Splicejam basic RNAseq workflow}
@@ -37,20 +38,21 @@ suppressPackageStartupMessages(library(jamma));
 ## Salmon "quant.sf.gz" files
 
 This example begins with Salmon quantification files
-from the `tximportData` package.
+from the `tximportData` package (if available).
 
 ```{r, sample_data}
-suppressPackageStartupMessages(library(tximportData));
-dir <- system.file("extdata", package="tximportData");
-
-# read sample annotations as a data.frame
-samples <- read.table(file.path(dir, "samples.txt"), header=TRUE);
-samples;
-
-# define Salmon import files
-files <- jamba::nameVector(file.path(dir, "salmon", samples$run, "quant.sf.gz"),
-   samples$run);
-data.frame(files);
+if (suppressPackageStartupMessages(require(tximportData))) {
+   dir <- system.file("extdata", package="tximportData");
+   
+   # read sample annotations as a data.frame
+   samples <- read.table(file.path(dir, "samples.txt"), header=TRUE);
+   samples;
+   
+   # define Salmon import files
+   files <- jamba::nameVector(file.path(dir, "salmon", samples$run, "quant.sf.gz"),
+      samples$run);
+   data.frame(files);
+}
 ```
 
 ## Transcript-to-gene from GTF
@@ -61,72 +63,88 @@ For other ways of creating a `tx2gene` data.frame, see the vignette
 from the `tximport::tximport` package.
 
 For the purpose of this example, the GTF file is used from the
-`tximportData` package.
+`tximportData` package (if available).
 
 ```{r, make_tx2geneDF}
-gtfFile <- head(
-   list.files(pattern="gtf.gz",
-      path=system.file("extdata/salmon_dm", package="tximportData"),
-      full.names=TRUE),
-   1);
-gtfFile;
-tx2geneDF <- makeTx2geneFromGtf(GTF=gtfFile);
-txColname <- "transcript_id";
-geneColname <- "gene_name";
-print(head(tx2geneDF));
-
-## Alternatively, we load a prepared file from tximportData
-tx2geneDF <- data.table::fread(
-   file.path(dir, "tx2gene.gencode.v27.csv"),
-   sep=",",
-   data.table=FALSE);
-txColname <- colnames(tx2geneDF)[1];
-geneColname <- colnames(tx2geneDF)[2];
-
+if (suppressPackageStartupMessages(require(tximportData))) {
+   gtfFile <- head(
+      list.files(pattern="gtf.gz",
+         path=system.file("extdata/salmon_dm", package="tximportData"),
+         full.names=TRUE),
+      1);
+   gtfFile;
+   tx2geneDF <- makeTx2geneFromGtf(GTF=gtfFile);
+   txColname <- "transcript_id";
+   geneColname <- "gene_name";
+   print(head(tx2geneDF));
+   
+   ## Alternatively, we load a prepared file from tximportData
+   tx2geneDF <- data.table::fread(
+      file.path(dir, "tx2gene.gencode.v27.csv"),
+      sep=",",
+      data.table=FALSE);
+   txColname <- colnames(tx2geneDF)[1];
+   geneColname <- colnames(tx2geneDF)[2];
+}
 ```
 
 ## Import Salmon transcript data
 
-```{r, import_salmon_tx}
-txiTx <- tximport::tximport(files,
-   type="salmon",
-   txOut=TRUE);
+In this case, Salmon quantification files are imported,
+via the tximport package (if available).
 
-## Check the data returned
-jamba::sdim(txiTx);
+A summary of imported data is shown using the function
+`jamba::sdim()` which prints the dimensions of each
+object in a list.
+
+```{r, import_salmon_tx}
+if (suppressPackageStartupMessages(require(tximportData)) &&
+      suppressPackageStartupMessages(require(tximport))) {
+   txiTx <- tximport::tximport(files,
+      type="salmon",
+      txOut=TRUE);
+   
+   ## Check the data returned
+   jamba::sdim(txiTx);
+}
 ```
 
 ### SummarizedExperiment for transcript data
 
 It is helpful and consistent with other Bioconductor workflows
-to use a commonly-used object "SummarizedExperiment". This object
-stores gene data, biological sample data, and one or more
-data matrices in one convenient format.
+to use a commonly-used object `"SummarizedExperiment"`.
+This object stores gene data, biological sample data,
+and one or more data matrices containing assay data
+(measurements) in one convenient object.
 
 > Note: During this step, data is log2-transformed using
 the format `log2(1+x)`.
 
 ```{r, TxSE}
 ## Create SummarizedExperiment transcript object
-if (!"package:SummarizedExperiment" %in% search()) {
-   suppressPackageStartupMessages(library(SummarizedExperiment));
-}
+if (suppressPackageStartupMessages(require(SummarizedExperiment)) &&
+      exists("txiTx")) {
 
-assayNames <- intersect(c("abundance","counts"), names(txiTx));
-geneMatch <- match(rownames(txiTx[[assayNames[1]]]),
-   tx2geneDF[,txColname]);
-sampleDF <- data.frame(Sample=colnames(txiTx[[assayNames[1]]]),
-   Group=rep(c("A", "B"), length.out=ncol(txiTx[[assayNames[1]]])));
-TxSE <- SummarizedExperiment(
-   assays=lapply(txiTx[assayNames], function(x){log2(1+x)}),
-   rowData=DataFrame(tx2geneDF[geneMatch,,drop=FALSE]),
-   colData=DataFrame(sampleDF)
-)
+   assayNames <- intersect(c("abundance","counts"),
+      names(txiTx));
+   geneMatch <- match(rownames(txiTx[[assayNames[1]]]),
+      tx2geneDF[,txColname]);
+   sampleDF <- data.frame(
+      Sample=colnames(txiTx[[assayNames[1]]]),
+      Group=rep(c("A", "B"),
+         length.out=ncol(txiTx[[assayNames[1]]])));
+
+   TxSE <- SummarizedExperiment(
+      assays=lapply(txiTx[assayNames], function(x){log2(1+x)}),
+      rowData=DataFrame(tx2geneDF[geneMatch,,drop=FALSE]),
+      colData=DataFrame(sampleDF)
+   );
+}
 ```
 
 ## Import Salmon gene data using tx2geneDF
 
-If data was imported at the transcript level (above) then it
+If data were imported at the transcript level (above) then it
 can be summarized at the gene level without re-importing from
 the source files. Alternatively, it can be imported from source
 files without importing at the transcript level. Both methods
@@ -134,17 +152,21 @@ are shown below.
 
 ```{r, import_salmon_genes}
 ##
-if (exists("txiTx")) {
-   txiGene <- tximport::summarizeToGene(txiTx,
-      tx2gene=tx2geneDF[,c(txColname,geneColname)]);
-} else {
-   txiGene <- tximport::tximport(unname(files),
-      type="salmon",
-      tx2gene=tx2geneDF[,c(txColname,geneColname)]);
+if (suppressPackageStartupMessages(require(tximportData))) {
+   if (exists("txiTx")) {
+      ## Summarize transcript data to the gene level
+      txiGene <- tximport::summarizeToGene(txiTx,
+         tx2gene=tx2geneDF[,c(txColname,geneColname)]);
+   } else {
+      ## Import Salmon data and summarize to genes directly
+      txiGene <- tximport::tximport(unname(files),
+         type="salmon",
+         tx2gene=tx2geneDF[,c(txColname,geneColname)]);
+   }
+   
+   ## Check the data returned
+   jamba::sdim(txiGene);
 }
-
-## Check the data returned
-jamba::sdim(txiGene);
 ```
 
 ### SummarizedExperiment for gene data
@@ -164,19 +186,22 @@ the format `log2(1+x)`.
 
 ```{r, GeneSE}
 ## Create SummarizedExperiment transcript object
-
-assayNamesG <- intersect(c("abundance","counts"), names(txiGene));
-geneMatchG <- match(rownames(txiGene[[assayNames[1]]]),
-   tx2geneDF[,geneColname]);
-geneColnames <- unique(c(geneColname,
-   jamba::unvigrep("^trans|^tx", colnames(tx2geneDF))));
-sampleDF <- data.frame(Sample=colnames(txiGene[[assayNames[1]]]),
-   Group=rep(c("A", "B"), length.out=ncol(txiGene[[assayNames[1]]])));
-GeneSE <- SummarizedExperiment(
-   assays=lapply(txiGene[assayNamesG], function(x){log2(1+x)}),
-   rowData=DataFrame(tx2geneDF[geneMatchG,geneColnames,drop=FALSE]),
-   colData=DataFrame(sampleDF)
-)
+if (exists("txiGene")) {
+   assayNamesG <- intersect(c("abundance","counts"), names(txiGene));
+   geneMatchG <- match(rownames(txiGene[[assayNames[1]]]),
+      tx2geneDF[,geneColname]);
+   geneColnames <- unique(c(geneColname,
+      jamba::unvigrep("^trans|^tx", colnames(tx2geneDF))));
+   
+   sampleDF <- data.frame(Sample=colnames(txiGene[[assayNames[1]]]),
+      Group=rep(c("A", "B"), length.out=ncol(txiGene[[assayNames[1]]])));
+   
+   GeneSE <- SummarizedExperiment(
+      assays=lapply(txiGene[assayNamesG], function(x){log2(1+x)}),
+      rowData=DataFrame(tx2geneDF[geneMatchG,geneColnames,drop=FALSE]),
+      colData=DataFrame(sampleDF)
+   )
+}
 ```
 
 ## Transcript-level analysis steps
@@ -194,34 +219,36 @@ it can be performed without grouping, by setting
 `groups=colnames(TxSE)`.
 
 ```{r, define_detected_tx}
-cutoffTxExpr <- 7;
-cutoffTxTPMExpr <- 1;
-cutoffTxPctMax <- 10;
-detectedTxTPML <- defineDetectedTx(
-   iMatrixTx=assays(TxSE)[["counts"]],
-   iMatrixTxTPM=assays(TxSE)[["abundance"]],
-   groups=nameVector(colData(TxSE)$Group, colnames(TxSE)),
-   cutoffTxPctMax=cutoffTxPctMax,
-   cutoffTxExpr=cutoffTxExpr,
-   cutoffTxTPMExpr=cutoffTxTPMExpr,
-   tx2geneDF=renameColumn(rowData(TxSE),
-     from=c(geneColname,txColname),
-     to=c("gene_name","transcript_id")),
-   useMedian=FALSE,
-   verbose=FALSE);
-detectedTx <- detectedTxTPML$detectedTx;
-numDetectedTx <- length(detectedTx);
-detectedGenes <- mixedSort(unique(rowData(TxSE[detectedTx,])[,geneColname]));
-numDetectedGenes <- length(detectedGenes);
-printDebug("Defined ",
-   format(big.mark=",", numDetectedTx),
-   " detected Tx representing ",
-   format(big.mark=",", numDetectedGenes),
-   " genes.");
+if (exists("TxSE")) {
+   cutoffTxExpr <- 7;
+   cutoffTxTPMExpr <- 1;
+   cutoffTxPctMax <- 10;
+   detectedTxTPML <- defineDetectedTx(
+      iMatrixTx=assays(TxSE)[["counts"]],
+      iMatrixTxTPM=assays(TxSE)[["abundance"]],
+      groups=nameVector(colData(TxSE)$Group, colnames(TxSE)),
+      cutoffTxPctMax=cutoffTxPctMax,
+      cutoffTxExpr=cutoffTxExpr,
+      cutoffTxTPMExpr=cutoffTxTPMExpr,
+      tx2geneDF=renameColumn(rowData(TxSE),
+        from=c(geneColname,txColname),
+        to=c("gene_name","transcript_id")),
+      useMedian=FALSE,
+      verbose=FALSE);
+   detectedTx <- detectedTxTPML$detectedTx;
+   numDetectedTx <- length(detectedTx);
+   detectedGenes <- mixedSort(unique(rowData(TxSE[detectedTx,])[,geneColname]));
+   numDetectedGenes <- length(detectedGenes);
+   jamba::printDebug("Defined ",
+      format(big.mark=",", numDetectedTx),
+      " detected Tx representing ",
+      format(big.mark=",", numDetectedGenes),
+      " genes.");
+}
 ```
 
-* **{r format(numDetectedTx, scientific=FALSE, big.mark=",")} detected transcripts
-* **{r format(numDetectedGenes, scientific=FALSE, big.mark=",")} detected genes
+* **{r if (exists("TxSE")) format(numDetectedTx, scientific=FALSE, big.mark=",")} detected transcripts
+* **{r if (exists("TxSE")) format(numDetectedGenes, scientific=FALSE, big.mark=",")} detected genes
 
 #### Determining reasonable cutoff values
 
@@ -230,23 +257,25 @@ versus the pseudocounts, shown below.
 
 ```{r, tpm_counts, fig.height=5, fig.width=7, fig.cap="Salmon pseudocounts versus TPM"}
 ## For this plot, filter out all rows where TPM and abundance are zero.
-iWhich <- (assays(TxSE[,1])[["counts"]] > 0 &
-      assays(TxSE[,1])[["abundance"]] > 0);
-par("mfrow"=c(1,1), "mar"=c(5,4,4,2), "oma"=c(0,0,0,0));
-plotSmoothScatter(x=log2(1+assays(TxSE[iWhich,1])[["counts"]]),
-   y=log2(1+assays(TxSE[iWhich,1])[["abundance"]]),
-   xlab="counts",
-   ylab="abundance",
-   xaxt="n",
-   yaxt="n");
-jamba::minorLogTicksAxis(1,
-   logBase=2, displayBase=10, offset=1);
-jamba::minorLogTicksAxis(2,
-   logBase=2, displayBase=10, offset=1);
-abline(v=log2(1+cutoffTxExpr),
-   h=log2(1+cutoffTxTPMExpr),
-   lty="dashed",
-   col="red");
+if (exists("TxSE")) {
+   iWhich <- (assays(TxSE[,1])[["counts"]] > 0 &
+         assays(TxSE[,1])[["abundance"]] > 0);
+   par("mfrow"=c(1,1), "mar"=c(5,4,4,2), "oma"=c(0,0,0,0));
+   plotSmoothScatter(x=log2(1+assays(TxSE[iWhich,1])[["counts"]]),
+      y=log2(1+assays(TxSE[iWhich,1])[["abundance"]]),
+      xlab="counts",
+      ylab="abundance",
+      xaxt="n",
+      yaxt="n");
+   jamba::minorLogTicksAxis(1,
+      logBase=2, displayBase=10, offset=1);
+   jamba::minorLogTicksAxis(2,
+      logBase=2, displayBase=10, offset=1);
+   abline(v=log2(1+cutoffTxExpr),
+      h=log2(1+cutoffTxTPMExpr),
+      lty="dashed",
+      col="red");
+}
 ```
 
 Another method to determine suitable cutoff values is to
@@ -276,25 +305,26 @@ The `jammaplot` R package is available on Github:
 First show the pseudocount data:
 
 ```{r, jammaplot_counts, fig.height=7, fig.width=5}
-if (!"package:jamma" %in% search()) {
-   suppressPackageStartupMessages(library(jamma));
+if (exists("TxSE")) {
+   if (suppressPackageStartupMessages(require(jamma))) {
+      par("oma"=c(0,0,3,0));
+      jamma::jammaplot(
+         noiseFloor(minimum=0.0001,
+            newValue=NA,
+            assays(TxSE)[["counts"]]),
+         transFactor=0.3,
+         ylim=c(-3,3),
+         ablineV=log2(1+cutoffTxExpr),
+         titleBoxColor=colorjam::group2colors(colData(TxSE)$Group),
+         groupSuffix="",
+         titleCexFactor=1.2,
+         useMean=TRUE);
+      title(outer=TRUE,
+         main=paste0("MA-plot using Salmon pseudocounts\n",
+            paste0("Showing pseudocount cutoff value approximately ",
+               log2(1+cutoffTxExpr))));
+   }
 }
-par("oma"=c(0,0,3,0));
-jamma::jammaplot(
-   noiseFloor(minimum=0.0001,
-      newValue=NA,
-      assays(TxSE)[["counts"]]),
-   transFactor=0.3,
-   ylim=c(-3,3),
-   ablineV=log2(1+cutoffTxExpr),
-   titleBoxColor=colorjam::group2colors(colData(TxSE)$Group),
-   groupSuffix="",
-   titleCexFactor=1.2,
-   useMean=TRUE);
-title(outer=TRUE,
-   main=paste0("MA-plot using Salmon pseudocounts\n",
-      paste0("Showing pseudocount cutoff value approximately ",
-         log2(1+cutoffTxExpr))));
 ```
 
 In the MA-plots above, one expects each sample to have roughly
@@ -313,23 +343,25 @@ of data normalization.
 Next show the TPM data:
 
 ```{r, jammaplot_tpm, fig.height=7, fig.width=5}
-par("oma"=c(0,0,3,0));
-jamma::jammaplot(
-   noiseFloor(minimum=0.0001,
-      newValue=NA,
-      assays(TxSE)[["abundance"]]),
-   transFactor=0.3,
-   ylim=c(-3,3),
-   ablineV=log2(1+cutoffTxTPMExpr),
-   titleBoxColor=colorjam::group2colors(colData(TxSE)$Group),
-   groupSuffix="",
-   displayMAD=TRUE,
-   titleCexFactor=1.2,
-   useMean=TRUE);
-title(outer=TRUE,
-   main=paste0("MA-plot using Salmon TPM\n",
-      paste0("Showing TPM cutoff value approximately ",
-         log2(1+cutoffTxTPMExpr))));
+if (exists("TxSE")) {
+   par("oma"=c(0,0,3,0));
+   jamma::jammaplot(
+      noiseFloor(minimum=0.0001,
+         newValue=NA,
+         assays(TxSE)[["abundance"]]),
+      transFactor=0.3,
+      ylim=c(-3,3),
+      ablineV=log2(1+cutoffTxTPMExpr),
+      titleBoxColor=colorjam::group2colors(colData(TxSE)$Group),
+      groupSuffix="",
+      displayMAD=TRUE,
+      titleCexFactor=1.2,
+      useMean=TRUE);
+   title(outer=TRUE,
+      main=paste0("MA-plot using Salmon TPM\n",
+         paste0("Showing TPM cutoff value approximately ",
+            log2(1+cutoffTxTPMExpr))));
+}
 ```
 
 The typical remedy for certain MA-plot patterns are summarized
@@ -368,33 +400,35 @@ as a delimiter between factors, for example `"Wildtype_Control"` and
 `"Mutant_Treated"`.
 
 ```{r, design_matrices}
-## Design matrix is defined by the sample groups
-iSamples <- colnames(TxSE);
-iGroups <- jamba::nameVector(
-   colData(TxSE[,iSamples])$Group,
-      iSamples);
-
-## Use the function groups2contrasts()
-iDC <- groups2contrasts(iGroups, returnDesign=TRUE);
-iDesign <- iDC$iDesign;
-iContrasts <- iDC$iContrasts;
-
-printDebug("iDesign:");
-print(iDesign);
-printDebug("iContrasts:");
-print(iContrasts);
-
-## Alternative method
-if (1 == 2) {
-   iDesign <- stats::model.matrix(~0+iGroups);
-   colnames(iDesign) <- levels(iGroups);
-   rownames(iDesign) <- names(iGroups);
-   # Alternative format, useful for custom contrasts
-   iContrasts <- limma::makeContrasts(
-      contrasts=c(
-         "CA2_DE-CA2_CB",
-         "CA1_DE-CA1_CB"),
-      levels=iDesign);
+if (exists("TxSE")) {
+   ## Design matrix is defined by the sample groups
+   iSamples <- colnames(TxSE);
+   iGroups <- jamba::nameVector(
+      colData(TxSE[,iSamples])$Group,
+         iSamples);
+   
+   ## Use the function groups2contrasts()
+   iDC <- groups2contrasts(iGroups, returnDesign=TRUE);
+   iDesign <- iDC$iDesign;
+   iContrasts <- iDC$iContrasts;
+   
+   printDebug("iDesign:");
+   print(iDesign);
+   printDebug("iContrasts:");
+   print(iContrasts);
+   
+   ## Alternative method
+   if (1 == 2) {
+      iDesign <- stats::model.matrix(~0+iGroups);
+      colnames(iDesign) <- levels(iGroups);
+      rownames(iDesign) <- names(iGroups);
+      # Alternative format, useful for custom contrasts
+      iContrasts <- limma::makeContrasts(
+         contrasts=c(
+            "CA2_DE-CA2_CB",
+            "CA1_DE-CA1_CB"),
+         levels=iDesign);
+   }
 }
 ```
 
@@ -408,11 +442,13 @@ the design and contrast matrices to view the samples used in each
 contrast.
 
 ```{r, validate_design}
-all(colnames(TxSE) == iSamples)
-all(iSamples == rownames(iDesign))
-all(colnames(iDesign) == rownames(iContrasts))
-
-iDesign %*% iContrasts;
+if (exists("TxSE")) {
+   all(colnames(TxSE) == iSamples)
+   all(iSamples == rownames(iDesign))
+   all(colnames(iDesign) == rownames(iContrasts))
+   
+   iDesign %*% iContrasts;
+}
 ```
 
 #### runDiffSplice()
@@ -423,28 +459,30 @@ Note that all abundance values of zero are set to `NA`,
 so they do not contribute to the analysis.
 
 ```{r, run_diff_splice}
-iMatrixTxTPM <- assays(TxSE[,iSamples])[["abundance"]];
-iMatrixTxTPM[iMatrixTxTPM == 0] <- NA;
-diffSpliceL <- runDiffSplice(
-   iMatrixTx=iMatrixTxTPM,
-   detectedTx=detectedTx,
-   tx2geneDF=tx2geneDF,
-   txColname=txColname,
-   geneColname=geneColname,
-   iDesign=iDesign,
-   iContrasts=iContrasts,
-   cutoffFDR=0.05,
-   cutoffFold=1.5,
-   collapseByGene=TRUE,
-   spliceTest="t",
-   verbose=FALSE,
-   useVoom=FALSE);
-diffSpliceHitsL <- lapply(diffSpliceL$statsDFs, function(iDF){
-   hitColname <- head(vigrep("^hit ", colnames(iDF)), 1);
-   as.character(subset(iDF, iDF[[hitColname]] != 0)[,geneColname]);
-});
-printDebug("Differential isoform hits per contrast:");
-print(sdim(diffSpliceHitsL));
+if (exists("TxSE")) {
+   iMatrixTxTPM <- assays(TxSE[,iSamples])[["abundance"]];
+   iMatrixTxTPM[iMatrixTxTPM == 0] <- NA;
+   diffSpliceL <- runDiffSplice(
+      iMatrixTx=iMatrixTxTPM,
+      detectedTx=detectedTx,
+      tx2geneDF=tx2geneDF,
+      txColname=txColname,
+      geneColname=geneColname,
+      iDesign=iDesign,
+      iContrasts=iContrasts,
+      cutoffFDR=0.05,
+      cutoffFold=1.5,
+      collapseByGene=TRUE,
+      spliceTest="t",
+      verbose=FALSE,
+      useVoom=FALSE);
+   diffSpliceHitsL <- lapply(diffSpliceL$statsDFs, function(iDF){
+      hitColname <- head(vigrep("^hit ", colnames(iDF)), 1);
+      as.character(subset(iDF, iDF[[hitColname]] != 0)[,geneColname]);
+   });
+   printDebug("Differential isoform hits per contrast:");
+   print(sdim(diffSpliceHitsL));
+}
 ```
 
 #### Export DiffSplice results to Excel
@@ -488,20 +526,22 @@ biological sample in its own group. The results will be equivalent
 to running normal COA (or PCA).
 
 ```{r run_bga}
-if (suppressPackageStartupMessages(require(made4))) {
-   bgaExprThreshold <- 5;
-   bgaExprs <- assays(GeneSE)$counts;
-   ## Apply a noise floor so all (data < threshold) is set to threshold
-   bgaExprs[bgaExprs < bgaExprThreshold] <- bgaExprThreshold;
-   ## Then require rows to have some difference between the
-   ## minimum and maximum value.
-   bgaExprsUse <- bgaExprs[rowMins(bgaExprs) < rowMaxs(bgaExprs),,drop=FALSE];
-   #nrow(bgaExprsUse);
-   
-   geneBga <- bga(dataset=bgaExprsUse,
-      classvec=nameVector(colData(GeneSE)$Group,
-         colnames(GeneSE)),
-      type="coa");
+if (exists("TxSE")) {
+   if (suppressPackageStartupMessages(require(made4))) {
+      bgaExprThreshold <- 5;
+      bgaExprs <- assays(GeneSE)$counts;
+      ## Apply a noise floor so all (data < threshold) is set to threshold
+      bgaExprs[bgaExprs < bgaExprThreshold] <- bgaExprThreshold;
+      ## Then require rows to have some difference between the
+      ## minimum and maximum value.
+      bgaExprsUse <- bgaExprs[rowMins(bgaExprs) < rowMaxs(bgaExprs),,drop=FALSE];
+      #nrow(bgaExprsUse);
+      
+      geneBga <- bga(dataset=bgaExprsUse,
+         classvec=nameVector(colData(GeneSE)$Group,
+            colnames(GeneSE)),
+         type="coa");
+   }
 }
 ```
 
@@ -518,8 +558,14 @@ main requirement is a vector of colors, where the vector
 names match the sample group names. If no `colorSub`
 is supplied, default colors will be defined.
 
+> Note: The steps below are disabled for the purpose of this
+example data, which does not contain proper sample groups
+with replicates. However, the commands below are adequate
+for a typical RNA-seq experimental design.
+
 ```{r bga_plotly, dependson=c("bga_plot","color_sub"), fig.height=8, fig.width=8}
-if (1 == 2 && suppressPackageStartupMessages(require(made4)) &&
+if (1 == 2 &&
+      suppressPackageStartupMessages(require(made4)) &&
       suppressPackageStartupMessages(require(plotly))) {
    colorSubBga <- colorjam::group2colors(colData(GeneSE)$Group);
    
@@ -534,6 +580,9 @@ if (1 == 2 && suppressPackageStartupMessages(require(made4)) &&
       sceneX=0, sceneY=1, sceneZ=1,
       verbose=TRUE);
    print(geneBgaly);
+   
+   ## Example for saving the BGA plot to an HTML file
+   #
    #htmlwidgets::saveWidget(geneBgaly,
    #   file="RNAseq_BGA_clustering.html",
    #   title="RNA-seq BGA clustering");

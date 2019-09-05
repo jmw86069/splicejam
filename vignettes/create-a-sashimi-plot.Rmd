@@ -6,6 +6,7 @@ output:
   rmarkdown::html_vignette:
     fig_caption: yes
     toc: true
+    toc_depth: 4
     df_print: kable
 vignette: >
   %\VignetteIndexEntry{Create a Sashimi Plot}
