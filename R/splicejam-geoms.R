@@ -108,8 +108,8 @@ StatDiagonalWideArc <- ggproto('StatDiagonalWideArc', Stat,
          strength);
       upper <- ggforce:::add_controls(upper[rev(seq_len(nrow(upper))), ],
          strength)
-      lower <- ggforce::StatBezier$compute_layer(lower, list(n=n))
-      upper <- ggforce::StatBezier$compute_layer(upper, list(n=n))
+      lower <- ggforce::StatBezier$compute_panel(lower, scales, n)
+      upper <- ggforce::StatBezier$compute_panel(upper, scales, n)
       lower$group <- as.integer(gsub("_v[12]$", "", levels(new_group)[lower$group]));
       upper$group <- as.integer(gsub("_v[12]$", "", levels(new_group)[upper$group]));
       lower <- lower[order(lower$group, lower$x),];

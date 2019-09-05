@@ -403,7 +403,7 @@ The argument `covNames` must contain one of more columns in
 ```{r, cov_plots, fig.height=5, fig.width=7}
 # To plot a simple GRanges object
 widecovdf <- exoncov2polygon(test_cov_wide_gr, covNames="sample_A");
-
+suppressPackageStartupMessages(require(ggplot2));
 ggWide3 <- ggplot(widecovdf,
       aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
    ggforce::geom_shape(alpha=0.7) +
@@ -525,11 +525,13 @@ format using the UCSC tool `bigBedToBed`.
 
 
 ```{r, prepare_sashimi}
-shGria1 <- prepareSashimi(gene="Gria1",
-   flatExonsByGene=flatExonsByGeneMm10,
-   minJunctionScore=100,
-   sample_id=c("CA1_CB", "CA2_CB"),
-   filesDF=filesDF)
+if (exists("flatExonsByGeneMm10")) {
+   shGria1 <- prepareSashimi(gene="Gria1",
+      flatExonsByGene=flatExonsByGeneMm10,
+      minJunctionScore=100,
+      sample_id=c("CA1_CB", "CA2_CB"),
+      filesDF=filesDF);
+}
 ```
 
 ### Data provided using GRanges objects
@@ -579,12 +581,14 @@ object, which can be printed to create a plot, or
 can be modified as needed.
 
 ```{r, plot_sashimi, fig.height=10, fig.width=8}
-ggGria1 <- plotSashimi(shGria1,
-   junc_color=alpha2col("goldenrod1", 0.4),
-   junc_fill=alpha2col("goldenrod1", 0.4),
-   show=c("coverage", "junction", "junctionLabels"),
-   fill_scheme="sample_id");
-print(ggGria1);
+if (exists("shGria1")) {
+   ggGria1 <- plotSashimi(shGria1,
+      junc_color=alpha2col("goldenrod1", 0.4),
+      junc_fill=alpha2col("goldenrod1", 0.4),
+      show=c("coverage", "junction", "junctionLabels"),
+      fill_scheme="sample_id");
+   print(ggGria1);
+}
 ```
 
 
@@ -610,7 +614,8 @@ plot with a Sashimi plot, meeting the required
 guidelines.
 
 ```{r, plot_sashimi_exons, fig.height=8, fig.width=7}
-if (suppressPackageStartupMessages(require(cowplot))) {
+if (suppressPackageStartupMessages(require(cowplot)) &&
+      exists("ggGria1")) {
    cpGria1 <- cowplot::plot_grid(
       ggGria1 + theme(axis.text.x=element_blank()) + xlab(NULL),
       ggGria1exonsTx + ggtitle(NULL) + expand_limits(y=-2),
@@ -625,7 +630,8 @@ if (suppressPackageStartupMessages(require(cowplot))) {
 ### Sashimi plot with unscaled introns
 
 ```{r plot_sashimi_wide, fig.height=10, fig.width=7}
-if (require(cowplot)) {
+if (require(cowplot) &&
+      exists("ggGria1")) {
    cpWide <- cowplot::plot_grid(ncol=1,
       ggGria1 + scale_x_continuous() + theme(axis.text.x=element_blank()) + xlab(NULL),
       gg2full,
@@ -655,7 +661,7 @@ coordinates into compressed coordinates.
 
 ```{r, zoom_sashimi, fig.height=5, fig.width=7}
 plotSashimi(sh1) + 
-   facet_zoom(xlim=sh1$ref2c$transform(c(370, 410)));
+   ggforce::facet_zoom(xlim=sh1$ref2c$transform(c(370, 410)));
 ```
 
 #### Zoom multiple panels
@@ -669,30 +675,31 @@ each plot
 * the plots are arranged together using `cowplot::plot_grid()`.
 
 ```{r, zoom_gria1, fig.height=10, fig.width=12}
-zoomStart <- start(flatExonsByGeneMm10[["Gria1"]]["Gria1_exon14"]);
-zoomEnd <- end(flatExonsByGeneMm10[["Gria1"]]["Gria1_exon18a"]);
-
-# Now prepare sashimi data
-shGria1L <- lapply(c("CA1_CB", "CA2_CB"), function(iSample){
-   # devtools::load_all("/Users/wardjm/Projects/Ward/splicejam")
-   shX <- prepareSashimi(gene="Gria1",
-      flatExonsByGene=flatExonsByGeneMm10,
-      minJunctionScore=100,
-      sample_id=iSample,
-      doStackJunctions=FALSE,
-      filesDF=filesDF);
-});
-ggGriaL <- lapply(shGria1L, function(shX){
-      ggX <- plotSashimi(shX) +
-         facet_zoom(xlim=shX$ref2c$transform(c(zoomStart, zoomEnd)));
-});
-
-# now use cowplot
-if (require(cowplot)) {
-   cpMulti <- do.call(cowplot::plot_grid, ggGriaL);
-   print(cpMulti);
+if (exists("flatExonsByGeneMm10")) {
+   zoomStart <- start(flatExonsByGeneMm10[["Gria1"]]["Gria1_exon14"]);
+   zoomEnd <- end(flatExonsByGeneMm10[["Gria1"]]["Gria1_exon18a"]);
+   
+   # Now prepare sashimi data
+   shGria1L <- lapply(c("CA1_CB", "CA2_CB"), function(iSample){
+      # devtools::load_all("/Users/wardjm/Projects/Ward/splicejam")
+      shX <- prepareSashimi(gene="Gria1",
+         flatExonsByGene=flatExonsByGeneMm10,
+         minJunctionScore=100,
+         sample_id=iSample,
+         doStackJunctions=FALSE,
+         filesDF=filesDF);
+   });
+   ggGriaL <- lapply(shGria1L, function(shX){
+         ggX <- plotSashimi(shX) +
+            ggforce::facet_zoom(xlim=shX$ref2c$transform(c(zoomStart, zoomEnd)));
+   });
+   
+   # now use cowplot
+   if (require(cowplot)) {
+      cpMulti <- do.call(cowplot::plot_grid, ggGriaL);
+      print(cpMulti);
+   }
 }
-
 
 ```
 
