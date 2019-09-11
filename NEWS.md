@@ -32,6 +32,23 @@ un-scaled coordinates, which keeps the x, y, and z axis scales
 proportional to their relative contribution, which visually
 reinforces the relative strength of separation in each dimension.
 
+# splicejam version 0.0.50.900
+
+## bug fixes
+
+* Fixed regression in `stat_diagonal_wide_arc()` which calls
+`ggforce::StatBezier`. Version 3.1.0 of ggforce changed the
+required call to that function, breaking the dependency and
+causing junction arcs to be invisible as a result. The new
+interface mimics how `ggforce::stat_diagonal_wide()` calls
+`ggforce::StatBezier`. I hope the interface does not change
+in future.
+* Added package version dependency for `ggforce` version 0.3.1,
+which is the point where the API changed with `ggforce::StatBezier`.
+* Fixed vignettes which assumed optional R packages were installed,
+for example `org.Mm.eg.db`. Now if the package is not available,
+it skips the corresponding sections.
+
 # splicejam version 0.0.49.900
 
 ## changes
