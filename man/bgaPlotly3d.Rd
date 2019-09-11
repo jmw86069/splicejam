@@ -11,10 +11,13 @@ bgaPlotly3d(bgaInfo, axes = c(1, 2, 3), superGroups = NULL,
   ellipseType = c("ellipsoid", "alphahull", "none"),
   ellipseOpacity = 0.2, useScaledCoords = FALSE,
   geneColor = "#555555", geneScaleFactor = 1, geneLwd = 2,
-  geneAlpha = 0.7, maxGenes = 50, centroidLwd = 15,
-  centroidAlpha = 0.3, sceneX = -1.25, sceneY = 1.25,
-  sceneZ = 1.25, main = "", plot_bgcolor = "#eeeeee",
-  paper_bgcolor = "#dddddd", debug = FALSE, verbose = TRUE, ...)
+  geneAlpha = 0.7, geneLabels = NULL, maxGenes = 50,
+  centroidLwd = 15, centroidAlpha = 0.3,
+  textposition_centroid = "top center",
+  textposition_sample = "middle right", sceneX = -1.25,
+  sceneY = 1.25, sceneZ = 1.25, main = "",
+  plot_bgcolor = "#eeeeee", paper_bgcolor = "#dddddd",
+  sampleGroups = NULL, debug = FALSE, verbose = TRUE, ...)
 }
 \arguments{
 \item{bgaInfo}{object of class \code{"bga"} as created by \code{made4::bga()}.}
@@ -79,11 +82,23 @@ position of genes relative to the origin.}
 \item{geneLwd, geneAlpha}{parameters used to customize the line width
 and alpha transparency of gene points, respectively.}
 
+\item{geneLabels}{character vector of gene labels to use instead
+of rownames. The \code{names(geneLabels)} are expected to match
+\code{rownames(bgaInfo$bet$co)}. This option is intended to allow
+display of gene symbols, instead of an assay identifier like
+probe set name.}
+
 \item{maxGenes}{integer maximum number of genes to display.}
 
 \item{centroidLwd, centroidAlpha}{parameters used to customize the
 line width and alpha transparency of vectors drawn to sample
 centroids, respectively.}
+
+\item{textposition_centroid, textposition_sample}{character vector
+containing values used as the \code{plotly} argument \code{"textposition"}
+to position text labels for centroids, and samples. Each
+vector is extended to the number of labels, which allows
+each label to be individually positioned.}
 
 \item{sceneX, sceneY, sceneZ}{parameters used to define the camera
 position in 3-D space as defined by plotly. Frankly, the ability
@@ -93,6 +108,16 @@ call.}
 
 \item{main}{character string used as a title on the plotly
 visualization.}
+
+\item{sampleGroups}{vector of character or factor values. The
+names are expected to contain values in
+\code{rownames(bgaInfo$ord$ord$tab)}, which are also the colnames
+of the data matrix used in \code{made4::bga()}. The values in
+\code{sampleGroups} are used to re-group samples, which effectively
+calculates new sample group centroids used in this
+visualization. It is intended to be used when the \code{made4::bga()}
+is used without grouping, for example when each sample replicate
+is defined as its own group.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 
@@ -117,6 +142,33 @@ This function takes the output from \code{made4::bga()} (class \code{"bga"})
 and creates a 3D plotly visualization which shows the samples,
 sample centroids, and optionally a subset of genes in the same
 BGA component space.
+
+For general guidance, when the data contains four or more sample
+groups, this function can be called to produce a 3-D plot.
+BGA itself produces \code{n-1} dimensions, therefore when there are
+fewer than four groups, a 3-D plot cannot be produced.
+
+When analyzing data with fewer than four groups, it is sometimes
+helpful to cluster samples individually. This approach is roughly
+equivalent to performing PCA or COA directly, but is sometimes
+convenient in being consistent with calling \code{made4::bga()}, as
+it also applies the same scaling method used in \code{made4:bga()}
+prior to calling PCA or COA. In that case, the groups can still
+be displayed by \code{bgaPlotly3d()} by defining the \code{sampleGroups}
+argument. The result will display typical PCA or COA coordinates,
+but visually displays the centroid of each sample group.
+
+This function is especially useful when there are multiple
+sample groups that belong to a "supergroup" -- a higher level
+of grouping. Consider an experiment with two cell lines treated
+over multiple time points. The samples would be assigned to
+a group based upon cell_line and time, then each group would
+be assigned to a supergroup based upon cell_line. The output
+plot will display each sample group, group centroid, then
+connect group centroids in order by the supergroup.
+The order of groups within each supergroup is determined
+either by factor levels, or by the order returned by
+\code{jamba::mixedSort()} which performs a proper alphanumeric sort.
 }
 \seealso{
 Other jam plot functions: \code{\link{factor2label}},

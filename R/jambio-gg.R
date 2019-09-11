@@ -733,7 +733,7 @@ gene2gg <- function
    }
    ## Calculate a reasonable y-axis minimum to allow for exon labels,
    ## based upon the number of transcripts being displayed
-   ymin <- (-0.1 +
+   ymin <- (-0.5 +
          -1 * (exonLabelMm/3) *
          ((labelExons*1) * length(grl1a1))/2);
    ## Put it together

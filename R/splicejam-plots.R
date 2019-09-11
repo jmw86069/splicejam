@@ -8,6 +8,33 @@
 #' sample centroids, and optionally a subset of genes in the same
 #' BGA component space.
 #'
+#' For general guidance, when the data contains four or more sample
+#' groups, this function can be called to produce a 3-D plot.
+#' BGA itself produces `n-1` dimensions, therefore when there are
+#' fewer than four groups, a 3-D plot cannot be produced.
+#'
+#' When analyzing data with fewer than four groups, it is sometimes
+#' helpful to cluster samples individually. This approach is roughly
+#' equivalent to performing PCA or COA directly, but is sometimes
+#' convenient in being consistent with calling `made4::bga()`, as
+#' it also applies the same scaling method used in `made4:bga()`
+#' prior to calling PCA or COA. In that case, the groups can still
+#' be displayed by `bgaPlotly3d()` by defining the `sampleGroups`
+#' argument. The result will display typical PCA or COA coordinates,
+#' but visually displays the centroid of each sample group.
+#'
+#' This function is especially useful when there are multiple
+#' sample groups that belong to a "supergroup" -- a higher level
+#' of grouping. Consider an experiment with two cell lines treated
+#' over multiple time points. The samples would be assigned to
+#' a group based upon cell_line and time, then each group would
+#' be assigned to a supergroup based upon cell_line. The output
+#' plot will display each sample group, group centroid, then
+#' connect group centroids in order by the supergroup.
+#' The order of groups within each supergroup is determined
+#' either by factor levels, or by the order returned by
+#' `jamba::mixedSort()` which performs a proper alphanumeric sort.
+#'
 #' @return plotly object sufficient to render an HTML page containing
 #' a 3-D BGA plot.
 #'
@@ -65,10 +92,20 @@
 #'    position of genes relative to the origin.
 #' @param geneLwd,geneAlpha parameters used to customize the line width
 #'    and alpha transparency of gene points, respectively.
+#' @param geneLabels character vector of gene labels to use instead
+#'    of rownames. The `names(geneLabels)` are expected to match
+#'    `rownames(bgaInfo$bet$co)`. This option is intended to allow
+#'    display of gene symbols, instead of an assay identifier like
+#'    probe set name.
 #' @param maxGenes integer maximum number of genes to display.
 #' @param centroidLwd,centroidAlpha parameters used to customize the
 #'    line width and alpha transparency of vectors drawn to sample
 #'    centroids, respectively.
+#' @param textposition_centroid,textposition_sample character vector
+#'    containing values used as the `plotly` argument `"textposition"`
+#'    to position text labels for centroids, and samples. Each
+#'    vector is extended to the number of labels, which allows
+#'    each label to be individually positioned.
 #' @param sceneX,sceneY,sceneZ parameters used to define the camera
 #'    position in 3-D space as defined by plotly. Frankly, the ability
 #'    to customize the starting position is fairly confusing, but these
@@ -76,6 +113,15 @@
 #'    call.
 #' @param main character string used as a title on the plotly
 #'    visualization.
+#' @param sampleGroups vector of character or factor values. The
+#'    names are expected to contain values in
+#'    `rownames(bgaInfo$ord$ord$tab)`, which are also the colnames
+#'    of the data matrix used in `made4::bga()`. The values in
+#'    `sampleGroups` are used to re-group samples, which effectively
+#'    calculates new sample group centroids used in this
+#'    visualization. It is intended to be used when the `made4::bga()`
+#'    is used without grouping, for example when each sample replicate
+#'    is defined as its own group.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional parameters are ignored
 #'
@@ -101,15 +147,19 @@ bgaPlotly3d <- function
  geneScaleFactor=1,
  geneLwd=2,
  geneAlpha=0.7,
+ geneLabels=NULL,
  maxGenes=50,
  centroidLwd=15,
  centroidAlpha=0.3,
+ textposition_centroid="top center",
+ textposition_sample="middle right",
  sceneX=-1.25,
  sceneY=1.25,
  sceneZ=1.25,
  main="",
  plot_bgcolor="#eeeeee",
  paper_bgcolor="#dddddd",
+ sampleGroups=NULL,
  debug=FALSE,
  verbose=TRUE,
  ...)
@@ -164,10 +214,68 @@ bgaPlotly3d <- function
    ## - add gene points using top N genes
    ##   - (optional) draw line from origin to each gene
 
-   ## Define some colors
-   sampleGroups <- bgaInfo$fac;
-   names(sampleGroups) <- rownames(bgaInfo$ord$ord$tab);
+   ## Pull out coordinates for convenience
+   ## pre-sample coordinates (un-scaled)
+   samplecoords_unscaled <- bgaInfo$bet$ls;
+   ## group coordinates (scaled)
+   groupcoords_scaled <- bgaInfo$bet$l1;
+   ## group coordinates (un-scaled)
+   groupcoords_unscaled <- bgaInfo$bet$li;
+   ## Calculate the scaling factor adjustment
+   scale_factor1 <- head(groupcoords_scaled / groupcoords_unscaled, 1);
+   scale_factor <- scale_factor1[rep(1, nrow(samplecoords_unscaled)),,drop=FALSE];
+   samplecoords_scaled <- samplecoords_unscaled * scale_factor;
+   rownames(samplecoords_scaled) <- rownames(samplecoords_unscaled);
 
+   ## Confirm the sample grouping
+   if (length(sampleGroups) == 0 || identical(sampleGroups, bgaInfo$fac)) {
+      sampleGroups <- bgaInfo$fac;
+      names(sampleGroups) <- rownames(bgaInfo$ord$ord$tab);
+   } else {
+      ## Use different sample groupings, re-calculate sample centroids
+      if (!is.factor(sampleGroups)) {
+         sampleGroups <- factor(sampleGroups,
+            levels=unique(as.character(sampleGroups)));
+      }
+      if (length(names(sampleGroups)) == 0) {
+         names(sampleGroups) <- rownames(bgaInfo$ord$ord$tab);
+      } else {
+         sampleGroups <- sampleGroups[rownames(bgaInfo$ord$ord$tab)];
+      }
+      if (length(sampleGroups) != nrow(bgaInfo$ord$ord$tab)) {
+         stop("sampleGroups does not match dimensions in bgaInfo, nrow(bgaInfo$ord$ord$tab)");
+      }
+      ## re-calculate sample centroids and update bgaInfo
+      if (verbose) {
+         printDebug("bgaPlotly3d(): ",
+            "Re-calculating sample centroids using sampleGroups:");
+         print(sampleGroups);
+      }
+      samplecoords_unscaled1 <- samplecoords_unscaled;
+      groupcoords_scaled1 <- groupcoords_scaled;
+      groupcoords_unscaled1 <- groupcoords_unscaled;
+      groupcoords_unscaled <- shrinkMatrix(samplecoords_unscaled,
+         groupBy=sampleGroups,
+         shrinkFunc=mean,
+         returnClass="matrix");
+      colnames(groupcoords_unscaled) <- colnames(groupcoords_unscaled1);
+      scale_factor <- scale_factor1[rep(1, nrow(groupcoords_unscaled)),,drop=FALSE];
+      groupcoords_scaled <- groupcoords_unscaled * scale_factor;
+      rownames(groupcoords_scaled) <- rownames(groupcoords_unscaled);
+      if (verbose) {
+         printDebug("bgaPlotly3d(): ",
+            "groupcoords_unscaled:");
+         print(groupcoords_unscaled);
+         printDebug("bgaPlotly3d(): ",
+            "groupcoords_scaled:");
+         print(groupcoords_scaled);
+      }
+      bgaInfo$bet$li <- groupcoords_unscaled;
+      bgaInfo$bet$l1 <- groupcoords_scaled;
+      bgaInfo$fac <- sampleGroups;
+   }
+
+   ## Define some colors
    sampleColors <- jamba::nameVector(
       colorjam::group2colors(as.character(sampleGroups),
       colorSub=colorSub),
@@ -175,7 +283,6 @@ bgaPlotly3d <- function
    groupNameColors <- jamba::nameVector(
       sampleColors[match(unique(sampleGroups), sampleGroups)],
       unique(sampleGroups));
-
    if (verbose) {
       jamba::printDebug("bgaPlotly3d(): ",
          "sampleGroups:");
@@ -198,20 +305,25 @@ bgaPlotly3d <- function
 
    ############################################################
    ## Define axis columns
-   Xs <- colnames(bgaInfo$bet$ls)[axes[1]];
-   Ys <- colnames(bgaInfo$bet$ls)[axes[2]];
-   Zs <- colnames(bgaInfo$bet$ls)[axes[3]];
+   ## Sample coordinate colname
+   Xs <- colnames(samplecoords_unscaled)[axes[1]];
+   Ys <- colnames(samplecoords_unscaled)[axes[2]];
+   Zs <- colnames(samplecoords_unscaled)[axes[3]];
    if (useScaledCoords) {
-      Xsc <- colnames(bgaInfo$bet$l1)[axes[1]];
-      Ysc <- colnames(bgaInfo$bet$l1)[axes[2]];
-      Zsc <- colnames(bgaInfo$bet$l1)[axes[3]];
+      ## Sample centroid coordinate colname
+      Xsc <- colnames(groupcoords_scaled)[axes[1]];
+      Ysc <- colnames(groupcoords_scaled)[axes[2]];
+      Zsc <- colnames(groupcoords_scaled)[axes[3]];
+      ## Gene coordinate colname
       Xg <- colnames(bgaInfo$bet$c1)[axes[1]];
       Yg <- colnames(bgaInfo$bet$c1)[axes[2]];
       Zg <- colnames(bgaInfo$bet$c1)[axes[3]];
    } else {
-      Xsc <- colnames(bgaInfo$bet$li)[axes[1]];
-      Ysc <- colnames(bgaInfo$bet$li)[axes[2]];
-      Zsc <- colnames(bgaInfo$bet$li)[axes[3]];
+      ## Sample centroid coordinate colname
+      Xsc <- colnames(groupcoords_unscaled)[axes[1]];
+      Ysc <- colnames(groupcoords_unscaled)[axes[2]];
+      Zsc <- colnames(groupcoords_unscaled)[axes[3]];
+      ## Gene coordinate colname
       Xg <- colnames(bgaInfo$bet$co)[axes[1]];
       Yg <- colnames(bgaInfo$bet$co)[axes[2]];
       Zg <- colnames(bgaInfo$bet$co)[axes[3]];
@@ -236,14 +348,22 @@ bgaPlotly3d <- function
    ## Sample segments to centroid
    if (useScaledCoords) {
       dfSamplesDF <- data.frame(
-         Label=rownames(bgaInfo$bet$ls),
-         bgaInfo$bet$ls[,names(axesVs)],
-         bgaInfo$bet$l1[as.character(sampleGroups),names(axesVsc)]);
+         Label=rownames(samplecoords_scaled),
+         samplecoords_scaled[,names(axesVs)],
+         groupcoords_scaled[as.character(sampleGroups),names(axesVsc)]);
    } else {
       dfSamplesDF <- data.frame(
-         Label=rownames(bgaInfo$bet$ls),
-         bgaInfo$bet$ls[,names(axesVs)],
-         bgaInfo$bet$li[as.character(sampleGroups),names(axesVsc)]);
+         Label=rownames(samplecoords_unscaled),
+         samplecoords_unscaled[,names(axesVs)],
+         groupcoords_unscaled[as.character(sampleGroups),names(axesVsc)]);
+   }
+   if (verbose) {
+      printDebug("bgaPlotly3d(): ",
+         "head(dfSamplesDF):");
+      print(head(dfSamplesDF, 12));
+      printDebug("bgaPlotly3d(): ",
+         "head(samplecoords_unscaled):");
+      print(head(samplecoords_unscaled, 12));
    }
    dfSamples <- rownames(dfSamplesDF);
    dfSampleLinesDF <- dfWide2segments(
@@ -271,11 +391,11 @@ bgaPlotly3d <- function
    i2keep <- match(unique(sampleGroups), dfSampleLinesDF[i2,"Label"]);
    dfSampleLinesDF[i2,"Label"] <- "";
    dfSampleLinesDF[i2[i2keep],"Label"] <- as.character(dfSampleLinesDF$groupName)[i2[i2keep]];
-   dfSampleLinesDF[,"textposition"] <- "top center";
+   dfSampleLinesDF[,"textposition"] <- textposition_sample;
    if (drawSampleLabels) {
-      dfSampleLinesDF[i1,"textposition"] <- "top center";
+      dfSampleLinesDF[i1,"textposition"] <- textposition_sample;
    }
-   dfSampleLinesDF[i2[i2keep],"textposition"] <- "middle right";
+   dfSampleLinesDF[i2[i2keep],"textposition"] <- textposition_centroid;
    if (verbose) {
       jamba::printDebug("bgaPlotly3d(): ",
          "head(dfSampleLinesDF, 20):");
@@ -289,19 +409,19 @@ bgaPlotly3d <- function
       axesVscO <- paste0("origin_", names(axesVsc));
       if (useScaledCoords) {
          dfCVDF <- data.frame(
-            Label=rownames(bgaInfo$bet$l1),
+            Label=rownames(groupcoords_scaled),
             jamba::renameColumn(
-               bgaInfo$bet$l1[sampleGroups,names(axesVsc)]*0,
+               groupcoords_scaled[sampleGroups,names(axesVsc)]*0,
                from=names(axesVsc),
                to=paste0("origin_", names(axesVsc))),
-            bgaInfo$bet$l1[sampleGroups,names(axesVsc)]);
+            groupcoords_scaled[sampleGroups,names(axesVsc)]);
       } else {
          dfCVDF <- data.frame(
-            Label=rownames(bgaInfo$bet$li),
-            renameColumn(bgaInfo$bet$li[sampleGroups,names(axesVsc)]*0,
+            Label=rownames(groupcoords_unscaled),
+            renameColumn(groupcoords_unscaled[sampleGroups,names(axesVsc)]*0,
                from=names(axesVsc),
                to=paste0("origin_", names(axesVsc))),
-            bgaInfo$bet$li[sampleGroups,names(axesVsc)]);
+            groupcoords_unscaled[sampleGroups,names(axesVsc)]);
       }
       #dfCV <- rownames(dfCVDF);
       dfCVLDF <- dfWide2segments(dfCVDF,
@@ -320,9 +440,9 @@ bgaPlotly3d <- function
       i2keep <- match(unique(sampleGroups), dfCVLDF[i2,"Label"]);
       dfCVLDF[i2,"Label"] <- "";
       dfCVLDF[i2[i2keep],"Label"] <- as.character(dfCVLDF$groupName)[i2[i2keep]];
-      dfCVLDF[,"textposition"] <- "top center";
-      dfCVLDF[i1,"textposition"] <- "top center";
-      dfCVLDF[i2[i2keep],"textposition"] <- "middle right";
+      dfCVLDF[,"textposition"] <- textposition_centroid;
+      dfCVLDF[i1,"textposition"] <- textposition_centroid;
+      dfCVLDF[i2[i2keep],"textposition"] <- textposition_centroid;
    }
 
 
@@ -347,7 +467,7 @@ bgaPlotly3d <- function
                bgaInfo$bet$co[iGenes,names(axesVg)]*0,
                from=names(axesVg),
                to=paste0("origin_", names(axesVg))),
-            bgaInfo$bet$co[iGenes,names(axesVg)]);
+            bgaInfo$bet$co[iGenes,names(axesVg)]*geneScaleFactor);
       }
       ## Determine distance from origin
       if (length(highlightGenes) > 0) {
@@ -378,6 +498,14 @@ bgaPlotly3d <- function
          axes1=names(axesVg), axes2=axesVgO);
       dfVgLDF$Name <- rep(dfVgDF$Label, each=3);
       dfVgLDF$groupName <- rep(dfVgDF$Label, each=3);
+      if (length(geneLabels) > 0 && names(geneLabels) > 0) {
+         geneMatch <- match(dfVgLDF$groupName, names(geneLabels));
+         print(table(is.na(geneMatch)));
+         dfVgLDF[,"groupName"] <- geneLabels[dfVgLDF$Name];
+         dfVgLDF[,"Name"] <- dfVgLDF[,"groupName"];
+         printDebug("head(dfVgLDF):");
+         print(head(dfVgLDF, 20));
+      }
       dfVgLDF$Symbol <- rep(c("circle","circle-open","x"), nrow(dfVgDF));
       dfVgLDF$size <- rep(c(2,0,0), nrow(dfVgDF));
       dfVgLDF$color <- geneColor;
@@ -387,12 +515,16 @@ bgaPlotly3d <- function
       dfVgLDF[,"Label"] <- "";
       dfVgLDF[i1,"Label"] <- dfVgLDF$Name[i1];
       dfVgLDF[i2,"Label"] <- as.character(dfVgLDF$groupName)[i2];
-      i2keep <- match(unique(iGenes), dfVgLDF[i2,"Label"]);
-      dfVgLDF[i2,"Label"] <- "";
+      if (length(geneLabels) > 0) {
+         i2keep <- match(unique(geneLabels[iGenes]), dfVgLDF[i2,"Label"]);
+      } else {
+         i2keep <- match(unique(iGenes), dfVgLDF[i2,"Label"]);
+      }
       dfVgLDF[i2[i2keep],"Label"] <- as.character(dfVgLDF$groupName)[i2[i2keep]];
+      dfVgLDF[i2,"Label"] <- "";
       dfVgLDF[,"textposition"] <- "top center";
       dfVgLDF[i1,"textposition"] <- "top center";
-      dfVgLDF[i2[i2keep],"textposition"] <- "middle right";
+      dfVgLDF[i2[i2keep],"textposition"] <- "top center";
       if (verbose) {
          jamba::printDebug("bgaPlotly3d(): ",
             "head(dfVgLDF, 10):");
@@ -421,6 +553,7 @@ bgaPlotly3d <- function
       z=as.formula(paste0("~", Zs)),
       mode="markers+lines",
       text=dfSampleLinesDF$Label,
+      textposition=dfSampleLinesDF$textposition,
       hoverinfo="text",
       line=list(
          width=5,
@@ -574,12 +707,17 @@ bgaPlotly3d <- function
                paste0(iGroup,
                   " group hull (", closestRcolor(iGroupColor), ")"));
          }
-         iName <- head(paste0(iGroup, " group hull (", closestRcolor(iGroupColor), ")"), 1);
+         iName <- head(paste0(iGroup,
+            " group hull (",
+            colorjam::closestRcolor(iGroupColor),
+            ")"), 1);
          iEllipseDF <- data.frame(x=iEllipse$vb[1,],
             y=iEllipse$vb[2,],
             z=iEllipse$vb[3,],
-            name=factor(rep(iGroup, length(iEllipse$vb[2,])), levels=levels(sampleGroups)),
-            color=rep(iGroupColor, length(iEllipse$vb[2,]))
+            name=factor(rep(iGroup, length(iEllipse$vb[2,])),
+               levels=levels(sampleGroups)),
+            color=rep(iGroupColor,
+               length(iEllipse$vb[2,]))
          );
          ## Add to the plotly object
          p11 <- p11 %>% add_trace(
@@ -621,10 +759,17 @@ bgaPlotly3d <- function
          names(superGroups) <- names(sampleGroups);
       }
       if (all(names(superGroups) %in% names(sampleGroups))) {
-         superGroupsDF <- data.frame(superGroups=superGroups,
-            sampleGroups=sampleGroups[names(superGroups)],
-            color=sampleColors[names(superGroups)],
-            bgaInfo$bet$li[as.character(sampleGroups[names(superGroups)]),c(Xsc,Ysc,Zsc)]);
+         if (useScaledCoords) {
+            superGroupsDF <- data.frame(superGroups=superGroups,
+               sampleGroups=sampleGroups[names(superGroups)],
+               color=sampleColors[names(superGroups)],
+               groupcoords_scaled[as.character(sampleGroups[names(superGroups)]),c(Xsc,Ysc,Zsc)]);
+         } else {
+            superGroupsDF <- data.frame(superGroups=superGroups,
+               sampleGroups=sampleGroups[names(superGroups)],
+               color=sampleColors[names(superGroups)],
+               groupcoords_unscaled[as.character(sampleGroups[names(superGroups)]),c(Xsc,Ysc,Zsc)]);
+         }
          superGroupDF <- unique(superGroupsDF);
          superGroupDF <- mixedSortDF(superGroupDF);
          if (verbose) {

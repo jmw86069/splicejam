@@ -1,5 +1,20 @@
 ## TODO for splicejam
 
+## Bug fixes
+
+* `prepareSashimi()` throws an error when `flatExonsByGene`
+contains different seqlevels than the `BigWigFile`, usually
+when `flatExonsByGene` contains more seqlevels than present
+in the `BigWigFile`. It happens even when the exon features
+of interest involve seqlevels present in `BigWigFile`.
+The fix is to reduce the seqlevels in `flatExonsByGene`
+to match those in the `BigWigFile`, or to reduce seqlevels
+to actual features in `flatExonsByGene`. At that point
+an error would accurately reflect that `BigWigFile` does
+not contain seqlevels for the requested seqlevels, and
+thus would be helpful.
+
+
 ### Sashimi usability enhancements
 
 * Separate the function `sashimiAppConstants()` to its own

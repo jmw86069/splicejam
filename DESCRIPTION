@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.49.900
+Version: 0.0.51.900
 Authors@R: c(
     person(given="James M.", family="Ward",
        email="jmw86069@gmail.com", role=c("aut", "cre")),

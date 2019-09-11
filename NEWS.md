@@ -1,3 +1,37 @@
+# splicejam version 0.0.51.900
+
+## changes
+
+* `bgaPlotly3d()` new argument `sampleGroups` allows data to
+be re-grouped to define custom group centroids. Main driver is
+when running BGA on un-grouped data, for example where each
+replicate is its own group. Using `sampleGroups` allows the
+proper sample group to be highlighted on the plot. This scenario
+is mainly only advised when needing to run standard PCA or COA,
+or when there are fewer than four groups, since BGA produces
+`n-1` dimensions. Code was also slightly update to prepare
+for broader use outside of BGA.
+* `bgaPlotly3d()` was updated to handle the `"textposition"` argument
+to plotly labels, allowing individual adjustment of each centroid
+and sample label.
+* `bgaPlotly3d()` new argument `geneLabels` allows replacing
+gene identifier with a custom label, for example replacing
+assay ID with gene symbol.
+* `gene2gg()` updated to maintain a minimum y-axis range when
+`labelExons=FALSE`. Previously the exons could be cropped.
+
+## bug fixes
+
+* `bgaPlotly3d()` bug fixed which prevented display of scaled
+coordinates from the `bgaInfo` object, mainly because the scaled
+coordinates are not supplied for individual samples. Instead the
+scaling factor (adjustment used to convert centroid coordinates
+from raw to scaled) is applied to sample coordinates to produce
+equivalent scaled coordinates. That said, I recommend using
+un-scaled coordinates, which keeps the x, y, and z axis scales
+proportional to their relative contribution, which visually
+reinforces the relative strength of separation in each dimension.
+
 # splicejam version 0.0.49.900
 
 ## changes
