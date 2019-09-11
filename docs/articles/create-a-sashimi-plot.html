@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.49.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.51.900</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <h1>Create a Sashimi Plot</h1>
                         <h4 class="author">James M. Ward</h4>
             
-            <h4 class="date">2019-09-05</h4>
+            <h4 class="date">2019-09-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jmw86069/splicejam/blob/master/vignettes/create-a-sashimi-plot.Rmd"><code>vignettes/create-a-sashimi-plot.Rmd</code></a></small>
       <div class="hidden name"><code>create-a-sashimi-plot.Rmd</code></div>
@@ -430,13 +430,13 @@ test_cov_wide_gr;
 <h3 class="hasAnchor">
 <a href="#plotting-exon-coverage-data" class="anchor"></a>Plotting exon coverage data</h3>
 <p>Some basic plotting functions are provided, in fact they are rolled into the Sashimi plot itself. They can help visualize the coverage by itself.</p>
-<p>The function <code><a href="../reference/exoncov2polygon.html">splicejam::exoncov2polygon()</a></code> converts coverage to polygons, by default it returns a format convenient for <code>geom_polygon()</code> or <code><a href="https://ggforce.data-imaginist.com/reference/geom_shape.html">ggforce::geom_shape()</a></code>, but if <code>coord_style="base"</code> then it returns a matrix with blank rows separating each polygon, suitable for R base graphics using <code><a href="https://www.rdocumentation.org/packages/graphics/topics/polygon">graphics::polygon()</a></code>.</p>
+<p>The function <code><a href="../reference/exoncov2polygon.html">splicejam::exoncov2polygon()</a></code> converts coverage to polygons, by default it returns a format convenient for <code><a href="https://ggplot2.tidyverse.org/reference/geom_polygon.html">geom_polygon()</a></code> or <code><a href="https://ggforce.data-imaginist.com/reference/geom_shape.html">ggforce::geom_shape()</a></code>, but if <code>coord_style="base"</code> then it returns a matrix with blank rows separating each polygon, suitable for R base graphics using <code><a href="https://www.rdocumentation.org/packages/graphics/topics/polygon">graphics::polygon()</a></code>.</p>
 <p>The argument <code>covNames</code> must contain one of more columns in <code><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames(values(test_cov_wide_gr))</a></code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># To plot a simple GRanges object</span>
 widecovdf &lt;-<span class="st"> </span><span class="kw"><a href="../reference/exoncov2polygon.html">exoncov2polygon</a></span>(test_cov_wide_gr, <span class="dt">covNames=</span><span class="st">"sample_A"</span>);
-
-ggWide3 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(widecovdf,
-      <span class="kw">aes</span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">group=</span>gr, <span class="dt">fill=</span>gr, <span class="dt">color=</span>gr)) <span class="op">+</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(ggplot2));
+ggWide3 &lt;-<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(widecovdf,
+      <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">group=</span>gr, <span class="dt">fill=</span>gr, <span class="dt">color=</span>gr)) <span class="op">+</span>
 <span class="st">   </span>ggforce<span class="op">::</span><span class="kw"><a href="https://ggforce.data-imaginist.com/reference/geom_shape.html">geom_shape</a></span>(<span class="dt">alpha=</span><span class="fl">0.7</span>) <span class="op">+</span>
 <span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/theme_jam">theme_jam</a></span>() <span class="op">+</span>
 <span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam">scale_fill_jam</a></span>() <span class="op">+</span>
@@ -456,9 +456,9 @@ ref2c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/make_
 
 <span class="co"># Repeat ggplot using ref2c$trans_grc</span>
 ggWide3c &lt;-<span class="st"> </span>ggWide3 <span class="op">+</span>
-<span class="st">   </span><span class="kw">scale_x_continuous</span>(<span class="dt">trans=</span>ref2c<span class="op">$</span>trans_grc) <span class="op">+</span>
-<span class="st">   </span><span class="kw">xlab</span>(<span class="st">"chr1 (compressed introns)"</span>) <span class="op">+</span>
-<span class="st">   </span><span class="kw">ggtitle</span>(<span class="st">"exons (compressed introns)"</span>);
+<span class="st">   </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span>(<span class="dt">trans=</span>ref2c<span class="op">$</span>trans_grc) <span class="op">+</span>
+<span class="st">   </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span>(<span class="st">"chr1 (compressed introns)"</span>) <span class="op">+</span>
+<span class="st">   </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span>(<span class="st">"exons (compressed introns)"</span>);
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggWide3c);</code></pre></div>
 <p><img src="create-a-sashimi-plot_files/figure-html/compress_intron_cov-1.png" width="672"></p>
 </div>
@@ -495,14 +495,14 @@ test_junc_wide_gr;
 junc_wide_df &lt;-<span class="kw"><a href="../reference/grl2df.html">grl2df</a></span>(test_junc_wide_gr,
    <span class="dt">shape=</span><span class="st">"junction"</span>);
 
-ggWide1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(junc_wide_df,
-      <span class="kw">aes</span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">group=</span>gr_name, <span class="dt">fill=</span>gr_name, <span class="dt">color=</span>gr_name)) <span class="op">+</span>
+ggWide1 &lt;-<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(junc_wide_df,
+      <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">group=</span>gr_name, <span class="dt">fill=</span>gr_name, <span class="dt">color=</span>gr_name)) <span class="op">+</span>
 <span class="st">   </span>splicejam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/splicejam/topics/geom_diagonal_wide_arc">geom_diagonal_wide_arc</a></span>() <span class="op">+</span>
 <span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/theme_jam">theme_jam</a></span>() <span class="op">+</span>
 <span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/scale_fill_jam">scale_fill_jam</a></span>(<span class="dt">alpha=</span><span class="fl">0.7</span>) <span class="op">+</span>
 <span class="st">   </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/scale_color_jam">scale_color_jam</a></span>() <span class="op">+</span>
-<span class="st">   </span><span class="kw">xlab</span>(<span class="st">"chr1"</span>) <span class="op">+</span>
-<span class="st">   </span><span class="kw">ggtitle</span>(<span class="st">"junctions (full intron width)"</span>)
+<span class="st">   </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span>(<span class="st">"chr1"</span>) <span class="op">+</span>
+<span class="st">   </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span>(<span class="st">"junctions (full intron width)"</span>)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggWide1);</code></pre></div>
 <p><img src="create-a-sashimi-plot_files/figure-html/plot_test_junc-1.png" width="672"></p>
 <p>For more insight into creating a Sashimi plot manually, see the help for data <code><a href="../reference/test_junc_wide_gr.html">splicejam::test_junc_wide_gr</a></code>.</p>
@@ -516,13 +516,15 @@ ggWide1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(junc_wide_d
 <h3 class="hasAnchor">
 <a href="#data-obtained-from-external-files" class="anchor"></a>Data obtained from external files</h3>
 <p>For this example, we use the Gria1 gene in mouse mm10, pulling from a web-accessible track hub. Note that the <code>bigBed</code> files were already converted to <code>BED12</code> format using the UCSC tool <code>bigBedToBed</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">shGria1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepareSashimi.html">prepareSashimi</a></span>(<span class="dt">gene=</span><span class="st">"Gria1"</span>,
-   <span class="dt">flatExonsByGene=</span>flatExonsByGeneMm10,
-   <span class="dt">minJunctionScore=</span><span class="dv">100</span>,
-   <span class="dt">sample_id=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"CA1_CB"</span>, <span class="st">"CA2_CB"</span>),
-   <span class="dt">filesDF=</span>filesDF)
-<span class="co">#&gt; ##  (11:49:50) 05Sep2019:  prepareSashimi(): bwScaleFactors:https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA1CB492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA1CB492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA2CB492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA2CB492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw:3 </span>
-<span class="co">#&gt; ##  (11:49:55) 05Sep2019:  prepareSashimi(): juncScaleFactors: CA1_CB:1, CA2_CB:1</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"flatExonsByGeneMm10"</span>)) {
+   shGria1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepareSashimi.html">prepareSashimi</a></span>(<span class="dt">gene=</span><span class="st">"Gria1"</span>,
+      <span class="dt">flatExonsByGene=</span>flatExonsByGeneMm10,
+      <span class="dt">minJunctionScore=</span><span class="dv">100</span>,
+      <span class="dt">sample_id=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"CA1_CB"</span>, <span class="st">"CA2_CB"</span>),
+      <span class="dt">filesDF=</span>filesDF);
+}
+<span class="co">#&gt; ##  (16:58:01) 11Sep2019:  prepareSashimi(): bwScaleFactors:https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA1CB492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA1CB492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA2CB492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA2CB492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw:3 </span>
+<span class="co">#&gt; ##  (16:58:07) 11Sep2019:  prepareSashimi(): juncScaleFactors: CA1_CB:1, CA2_CB:1</span></code></pre></div>
 </div>
 <div id="data-provided-using-granges-objects" class="section level3">
 <h3 class="hasAnchor">
@@ -558,12 +560,14 @@ sh1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepare
 <a href="#plot-sashimi-data" class="anchor"></a>Plot Sashimi Data</h2>
 <p>Once the Sashimi data is prepared, the <code><a href="../reference/plotSashimi.html">splicejam::plotSashimi()</a></code> function is used to create a visualization that can be customized in several ways.</p>
 <p>The output of <code><a href="../reference/plotSashimi.html">splicejam::plotSashimi()</a></code> is a <code>ggplot</code> object, which can be printed to create a plot, or can be modified as needed.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ggGria1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/plotSashimi.html">plotSashimi</a></span>(shGria1,
-   <span class="dt">junc_color=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/alpha2col">alpha2col</a></span>(<span class="st">"goldenrod1"</span>, <span class="fl">0.4</span>),
-   <span class="dt">junc_fill=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/alpha2col">alpha2col</a></span>(<span class="st">"goldenrod1"</span>, <span class="fl">0.4</span>),
-   <span class="dt">show=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"coverage"</span>, <span class="st">"junction"</span>, <span class="st">"junctionLabels"</span>),
-   <span class="dt">fill_scheme=</span><span class="st">"sample_id"</span>);
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggGria1);</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"shGria1"</span>)) {
+   ggGria1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/plotSashimi.html">plotSashimi</a></span>(shGria1,
+      <span class="dt">junc_color=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/alpha2col">alpha2col</a></span>(<span class="st">"goldenrod1"</span>, <span class="fl">0.4</span>),
+      <span class="dt">junc_fill=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/alpha2col">alpha2col</a></span>(<span class="st">"goldenrod1"</span>, <span class="fl">0.4</span>),
+      <span class="dt">show=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"coverage"</span>, <span class="st">"junction"</span>, <span class="st">"junctionLabels"</span>),
+      <span class="dt">fill_scheme=</span><span class="st">"sample_id"</span>);
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(ggGria1);
+}</code></pre></div>
 <p><img src="create-a-sashimi-plot_files/figure-html/plot_sashimi-1.png" width="768"></p>
 <div id="adding-gene-exon-model-to-a-sashimi-plot" class="section level3">
 <h3 class="hasAnchor">
@@ -577,10 +581,11 @@ sh1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepare
 <li>The x-axis labels of Sashimi plot panels should be hidden, since the gene-exon plot will display the genomic coordinates.</li>
 </ul>
 <p>The example below demonstrates combining a gene-exon plot with a Sashimi plot, meeting the required guidelines.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot))) {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot)) <span class="op">&amp;&amp;</span>
+<span class="st">      </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"ggGria1"</span>)) {
    cpGria1 &lt;-<span class="st"> </span>cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(
-      ggGria1 <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">axis.text.x=</span><span class="kw">element_blank</span>()) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="ot">NULL</span>),
-      ggGria1exonsTx <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="ot">NULL</span>) <span class="op">+</span><span class="st"> </span><span class="kw">expand_limits</span>(<span class="dt">y=</span><span class="op">-</span><span class="dv">2</span>),
+      ggGria1 <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="dt">axis.text.x=</span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span>()) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span>(<span class="ot">NULL</span>),
+      ggGria1exonsTx <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span>(<span class="ot">NULL</span>) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/expand_limits.html">expand_limits</a></span>(<span class="dt">y=</span><span class="op">-</span><span class="dv">2</span>),
       <span class="dt">ncol=</span><span class="dv">1</span>,
       <span class="dt">align=</span><span class="st">"v"</span>, 
       <span class="dt">axis=</span><span class="st">"lr"</span>,
@@ -592,9 +597,10 @@ sh1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepare
 <div id="sashimi-plot-with-unscaled-introns" class="section level3">
 <h3 class="hasAnchor">
 <a href="#sashimi-plot-with-unscaled-introns" class="anchor"></a>Sashimi plot with unscaled introns</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot)) {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot) <span class="op">&amp;&amp;</span>
+<span class="st">      </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"ggGria1"</span>)) {
    cpWide &lt;-<span class="st"> </span>cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(<span class="dt">ncol=</span><span class="dv">1</span>,
-      ggGria1 <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_continuous</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">axis.text.x=</span><span class="kw">element_blank</span>()) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="ot">NULL</span>),
+      ggGria1 <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="dt">axis.text.x=</span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span>()) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span>(<span class="ot">NULL</span>),
       gg2full,
       <span class="dt">axis=</span><span class="st">"lr"</span>,
       <span class="dt">align=</span><span class="st">"v"</span>);
@@ -619,7 +625,7 @@ sh1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepare
 <p>The example below shows the <code><a href="https://ggforce.data-imaginist.com/reference/facet_zoom.html">ggforce::facet_zoom()</a></code> capability.</p>
 <p>Note the most important step is to transform the x-axis values when using <code>xlim</code> to subset the range. The <code><a href="../reference/prepareSashimi.html">splicejam::prepareSashimi()</a></code> function returns <code>x$ref2c$transform()</code> which transforms genomic coordinates into compressed coordinates.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plotSashimi.html">plotSashimi</a></span>(sh1) <span class="op">+</span><span class="st"> </span>
-<span class="st">   </span><span class="kw">facet_zoom</span>(<span class="dt">xlim=</span>sh1<span class="op">$</span>ref2c<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/transform">transform</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">370</span>, <span class="dv">410</span>)));</code></pre></div>
+<span class="st">   </span>ggforce<span class="op">::</span><span class="kw"><a href="https://ggforce.data-imaginist.com/reference/facet_zoom.html">facet_zoom</a></span>(<span class="dt">xlim=</span>sh1<span class="op">$</span>ref2c<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/transform">transform</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">370</span>, <span class="dv">410</span>)));</code></pre></div>
 <p><img src="create-a-sashimi-plot_files/figure-html/zoom_sashimi-1.png" width="672"></p>
 </div>
 <div id="zoom-multiple-panels" class="section level4">
@@ -631,33 +637,35 @@ sh1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepare
 <li>the <code><a href="https://ggforce.data-imaginist.com/reference/facet_zoom.html">ggforce::facet_zoom()</a></code> method above is applied to each plot</li>
 <li>the plots are arranged together using <code><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">cowplot::plot_grid()</a></code>.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">zoomStart &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/start">start</a></span>(flatExonsByGeneMm10[[<span class="st">"Gria1"</span>]][<span class="st">"Gria1_exon14"</span>]);
-zoomEnd &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/start">end</a></span>(flatExonsByGeneMm10[[<span class="st">"Gria1"</span>]][<span class="st">"Gria1_exon18a"</span>]);
-
-<span class="co"># Now prepare sashimi data</span>
-shGria1L &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"CA1_CB"</span>, <span class="st">"CA2_CB"</span>), <span class="cf">function</span>(iSample){
-   <span class="co"># devtools::load_all("/Users/wardjm/Projects/Ward/splicejam")</span>
-   shX &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepareSashimi.html">prepareSashimi</a></span>(<span class="dt">gene=</span><span class="st">"Gria1"</span>,
-      <span class="dt">flatExonsByGene=</span>flatExonsByGeneMm10,
-      <span class="dt">minJunctionScore=</span><span class="dv">100</span>,
-      <span class="dt">sample_id=</span>iSample,
-      <span class="dt">doStackJunctions=</span><span class="ot">FALSE</span>,
-      <span class="dt">filesDF=</span>filesDF);
-});
-<span class="co">#&gt; ##  (11:50:10) 05Sep2019:  prepareSashimi(): bwScaleFactors:https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA1CB492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA1CB492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw:3 </span>
-<span class="co">#&gt; ##  (11:50:13) 05Sep2019:  prepareSashimi(): juncScaleFactors: CA1_CB:1 </span>
-<span class="co">#&gt; ##  (11:50:15) 05Sep2019:  prepareSashimi(): bwScaleFactors:https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA2CB492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA2CB492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw:3 </span>
-<span class="co">#&gt; ##  (11:50:18) 05Sep2019:  prepareSashimi(): juncScaleFactors: CA2_CB:1</span>
-ggGriaL &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(shGria1L, <span class="cf">function</span>(shX){
-      ggX &lt;-<span class="st"> </span><span class="kw"><a href="../reference/plotSashimi.html">plotSashimi</a></span>(shX) <span class="op">+</span>
-<span class="st">         </span><span class="kw">facet_zoom</span>(<span class="dt">xlim=</span>shX<span class="op">$</span>ref2c<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/transform">transform</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(zoomStart, zoomEnd)));
-});
-
-<span class="co"># now use cowplot</span>
-<span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot)) {
-   cpMulti &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/do.call">do.call</a></span>(cowplot<span class="op">::</span>plot_grid, ggGriaL);
-   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(cpMulti);
-}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"flatExonsByGeneMm10"</span>)) {
+   zoomStart &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/start">start</a></span>(flatExonsByGeneMm10[[<span class="st">"Gria1"</span>]][<span class="st">"Gria1_exon14"</span>]);
+   zoomEnd &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/start">end</a></span>(flatExonsByGeneMm10[[<span class="st">"Gria1"</span>]][<span class="st">"Gria1_exon18a"</span>]);
+   
+   <span class="co"># Now prepare sashimi data</span>
+   shGria1L &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"CA1_CB"</span>, <span class="st">"CA2_CB"</span>), <span class="cf">function</span>(iSample){
+      <span class="co"># devtools::load_all("/Users/wardjm/Projects/Ward/splicejam")</span>
+      shX &lt;-<span class="st"> </span><span class="kw"><a href="../reference/prepareSashimi.html">prepareSashimi</a></span>(<span class="dt">gene=</span><span class="st">"Gria1"</span>,
+         <span class="dt">flatExonsByGene=</span>flatExonsByGeneMm10,
+         <span class="dt">minJunctionScore=</span><span class="dv">100</span>,
+         <span class="dt">sample_id=</span>iSample,
+         <span class="dt">doStackJunctions=</span><span class="ot">FALSE</span>,
+         <span class="dt">filesDF=</span>filesDF);
+   });
+   ggGriaL &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(shGria1L, <span class="cf">function</span>(shX){
+         ggX &lt;-<span class="st"> </span><span class="kw"><a href="../reference/plotSashimi.html">plotSashimi</a></span>(shX) <span class="op">+</span>
+<span class="st">            </span>ggforce<span class="op">::</span><span class="kw"><a href="https://ggforce.data-imaginist.com/reference/facet_zoom.html">facet_zoom</a></span>(<span class="dt">xlim=</span>shX<span class="op">$</span>ref2c<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/transform">transform</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(zoomStart, zoomEnd)));
+   });
+   
+   <span class="co"># now use cowplot</span>
+   <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(cowplot)) {
+      cpMulti &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/do.call">do.call</a></span>(cowplot<span class="op">::</span>plot_grid, ggGriaL);
+      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(cpMulti);
+   }
+}
+<span class="co">#&gt; ##  (16:58:23) 11Sep2019:  prepareSashimi(): bwScaleFactors:https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA1CB492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA1CB492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw:3 </span>
+<span class="co">#&gt; ##  (16:58:25) 11Sep2019:  prepareSashimi(): juncScaleFactors: CA1_CB:1 </span>
+<span class="co">#&gt; ##  (16:58:28) 11Sep2019:  prepareSashimi(): bwScaleFactors:https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA2CB492_1.sickle.merged.cutadapt.STAR_mm10.pos.bw:3, https://orio.niehs.nih.gov/ucscview/farrisHub/mm10/NS50211CA2CB492_1.sickle.merged.cutadapt.STAR_mm10.neg.bw:3 </span>
+<span class="co">#&gt; ##  (16:58:31) 11Sep2019:  prepareSashimi(): juncScaleFactors: CA2_CB:1</span></code></pre></div>
 <p><img src="create-a-sashimi-plot_files/figure-html/zoom_gria1-1.png" width="1152"></p>
 </div>
 </div>
