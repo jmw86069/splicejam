@@ -1,3 +1,39 @@
+# splicejam version 0.0.52.900
+
+## enhancements
+
+* Slight enhancement to `prepareSashimi()` to change the
+`"name"` column to a factor, in order to force the drawing
+order of junction arcs, so junctions are drawn in order of
+most dominant, to least dominant, then shorter spans to
+longer spans. Smaller score, wider junctions are drawn last,
+since they are typically the most difficult to see otherwise.
+"Dominant"" refers to the
+`junction_rank` calculated by having the highest score
+among junctions that start or end at the same coordinate:
+`junction_rank=3` means the junction has the highest score
+on both sides, and has the darkest color;
+`junction_rank=2` has the highest score on one side but 
+not both sides, and is lighter in color; and
+`junction_rank=1` does not have the highest score on
+either side of the junction, and has the lightest color.
+The `junction_rank=1` entries are now drawn last, since
+they typically have the lowest scores, and are small
+and thus easily obscured.
+
+## bug fixes
+
+* `splicejam-sashimi-server()` was updated to handle changes
+in the gene search field properly, avoiding edge cases
+with un-detected genes that have no sashimi data.
+* `prepareSashimi()` was updated to handle absence of splice
+junction data, in a more robust way.
+* `spliceGR2junctionDF()` was updated to handle missing
+junction data, ultimately returning NULL which is easier
+handle consistently by other downstream functions.
+Also made small update to handle `sample_id` as a factor
+when input data is supplied only as a GRanges object.
+
 # splicejam version 0.0.51.900
 
 ## changes

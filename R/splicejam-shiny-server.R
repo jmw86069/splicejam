@@ -173,9 +173,9 @@ sashimiAppServer <- function
       if (length(gene) > 0 && nchar(gene) > 0) {
          ## Handle "All Genes" where it is not present in flatExonsByGene
          flatExonsByGene1 <- get_flat_gene_exons();
-         printDebug("update gene slider bar, gene:", gene);
-         printDebug("update gene slider bar, length(flatExonsByGene1):", length(flatExonsByGene1));
-         printDebug("update gene slider bar, length(flatExonsByGene1[[gene]]):", length(flatExonsByGene1[[gene]]));
+         printDebug("update gene slider bar, gene:", gene,
+            ", length(flatExonsByGene1):", length(flatExonsByGene1),
+            ", length(flatExonsByGene1[[gene]]):", length(flatExonsByGene1[[gene]]));
          chr_range <- as.data.frame(range(flatExonsByGene1[[gene]]))[,c("start", "end")];
          coords_label <- paste0("Coordinate range for ",
             gene,
@@ -210,6 +210,12 @@ sashimiAppServer <- function
             );
          }
       }
+   });
+
+   get_active_gene <- reactive({
+      input$calc_gene_params;
+      gene <- isolate(input$gene);
+      gene;
    });
 
    get_flat_gene_exons <- reactive({
@@ -308,6 +314,7 @@ sashimiAppServer <- function
    get_sashimi_data <- reactive({
       input$calc_gene_params;
       shinyjs::disable("calc_gene_params");
+      #gene <- get_active_gene();
       gene <- isolate(input$gene);
       flatExonsByGene1 <- get_flat_gene_exons_plot();
       if (length(gene) == 0) {
@@ -382,6 +389,7 @@ sashimiAppServer <- function
       }
 
       flatExonsByGene1 <- get_flat_gene_exons_plot();
+      gene <- get_active_gene();
 
       # Update in parent environment
       #sashimi_data <- sashimi_data;
@@ -394,9 +402,6 @@ sashimiAppServer <- function
             )
          );
       } else {
-         if (!exists("gene") || length(gene) == 0) {
-            gene <- isolate(input$gene);
-         }
          if (share_y_axis_d()) {
             facet_scales <- "fixed";
          } else {

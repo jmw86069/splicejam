@@ -4689,6 +4689,9 @@ spliceGR2junctionDF <- function
    spliceColnames <- c("seqnames", "start", "end", "nameFrom", "nameTo",
       scoreColname, "strand", sampleColname);
    spliceCountsDF <- as.data.frame(spliceGRgene[toUse])[,spliceColnames,drop=FALSE];
+   if (nrow(spliceCountsDF) == 0) {
+      return(NULL);
+   }
    spliceCountsDF[,"nameFromTo"] <- pasteByRow(spliceCountsDF[,c("nameFrom","nameTo"),drop=FALSE],
       sep=" ",
       na.rm=TRUE);

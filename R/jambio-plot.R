@@ -1479,12 +1479,14 @@ prepareSashimi <- function
       bwFilesDF$scale_factor);
    names(bwScaleFactors) <- names(bwUrls);
    if (length(bwScaleFactors) > 0) {
-      printDebug("prepareSashimi(): ",
-         "bwScaleFactors:",
-         paste0(names(bwScaleFactors),
-            ":",
-            format(bwScaleFactors, digits=2, trim=TRUE)),
-         sep=", ");
+      if (verbose) {
+         printDebug("prepareSashimi(): ",
+            "bwScaleFactors:",
+            paste0(basename(names(bwScaleFactors)),
+               ":",
+               format(bwScaleFactors, digits=2, trim=TRUE)),
+            sep=", ");
+      }
    }
    if (verbose) {
       printDebug("prepareSashimi(): ",
@@ -1707,8 +1709,20 @@ prepareSashimi <- function
             exonsGR=gr,
             sampleColname="sample_id");
          ## Subset junctions by minimum score
-         if (length(minJunctionScore) > 0 && minJunctionScore > 0) {
+         if (length(minJunctionScore) > 0 &&
+               minJunctionScore > 0 &&
+               length(juncDF1) > 0) {
             juncDF1 <- subset(juncDF1, abs(score) >= minJunctionScore);
+         }
+         if (length(juncDF1) == 0 || nrow(juncDF1) == 0) {
+            juncDF1 <- NULL;
+         } else {
+            ## Enforce ordered factor levels for sample_id
+            ## which also forces empty factor levels if applicable
+            juncDF1$sample_id <- factor(
+               as.character(juncDF1$sample_id),
+               levels=unique(sample_id)
+            );
          }
       }
    } else {
@@ -1727,7 +1741,7 @@ prepareSashimi <- function
    }
    juncScaleFactors <- rmNA(naValue=1,
       nameVector(juncFilesDF[,c("scale_factor", "sample_id")]));
-   if (length(juncScaleFactors) > 0) {
+   if (verbose && length(juncScaleFactors) > 0) {
       printDebug("prepareSashimi(): ",
          "juncScaleFactors: ",
          paste0(names(juncScaleFactors),
@@ -1840,18 +1854,29 @@ prepareSashimi <- function
       } else {
          juncDF1 <- juncDF1f;
       }
+      if (length(juncDF1) == 0 || nrow(juncDF1) == 0) {
+         juncDF1 <- NULL;
+      }
       ## Subset junctions by minimum score
-      if (length(minJunctionScore) > 0 && minJunctionScore > 0) {
+      if (length(minJunctionScore) > 0 &&
+            minJunctionScore > 0 &&
+            length(juncDF1) > 0) {
          juncDF1 <- subset(juncDF1, abs(score) >= minJunctionScore);
       }
-      ## Enforce ordered factor levels for sample_id
-      ## which also forces empty factor levels if applicable
-      juncDF1$sample_id <- factor(
-         as.character(juncDF1$sample_id),
-         levels=unique(sample_id)
-      );
+      if (length(juncDF1) == 0 || nrow(juncDF1) == 0) {
+         juncDF1 <- NULL;
+      } else {
+         ## Enforce ordered factor levels for sample_id
+         ## which also forces empty factor levels if applicable
+         juncDF1$sample_id <- factor(
+            as.character(juncDF1$sample_id),
+            levels=unique(sample_id)
+         );
+      }
    }
-   if (exists("juncDF1") && length(juncDF1) > 0 && nrow(juncDF1) > 0) {
+   if (exists("juncDF1") &&
+         length(juncDF1) > 0 &&
+         length(dim(juncDF1)) > 1) {
       juncGR <- as(
          renameColumn(juncDF1,
             from="ref",
@@ -1956,6 +1981,9 @@ prepareSashimi <- function
       covDF$name <- pasteByRow(covDF[,c("gr", "cov", "sample_id")], sep=" ");
       covDF$feature <- covDF$gr;
       covDF$row <- seq_len(nrow(covDF));
+      ## define name as factor to maintain the drawing order
+      covDF$name <- factor(covDF$name,
+         levels=unique(covDF$name));
    } else {
       covDF <- NULL;
    }
@@ -1967,6 +1995,9 @@ prepareSashimi <- function
       exonLabelDF$feature <- exonLabelDF$gr;
       exonLabelDF$row <- seq_len(nrow(exonLabelDF));
       exonLabelDF$color_by <- NA;
+      ## define name as factor to maintain the drawing order
+      exonLabelDF$name <- factor(exonLabelDF$name,
+         levels=unique(exonLabelDF$name));
    } else {
       exonLabelDF <- NULL;
    }
@@ -1976,6 +2007,21 @@ prepareSashimi <- function
       juncDF$name <- pasteByRow(juncDF[,c("nameFromTo", "sample_id")], sep=" ");
       juncDF$feature <- juncDF$nameFromTo;
       juncDF$row <- seq_len(nrow(juncDF));
+      junction_spans <- abs(
+         shrinkMatrix(juncDF$x, groupBy=juncDF$name, min, returnClass="matrix") -
+            shrinkMatrix(juncDF$x, groupBy=juncDF$name, max, returnClass="matrix"))[,1];
+      juncDF$junction_span <- junction_spans[as.character(juncDF$name)];
+      ## order the name column using junction_rank
+      ## has affect on drawing order, making lower junction_rank
+      ## drawn last, since they are typically small and otherwise
+      ## easily obscured by the higher rank and larger junctions.
+      if (length(unique(juncDF$junction_rank)) > 1) {
+         junc_name_levels <- unique(
+            mixedSortDF(juncDF,
+               byCols=c("-junction_rank", "-junction_span", "row"))$name);
+         juncDF$name <- factor(juncDF$name,
+            levels=junc_name_levels);
+      }
    } else {
       juncDF <- NULL;
    }
@@ -1985,6 +2031,9 @@ prepareSashimi <- function
       juncLabelDF$name <- pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
       juncLabelDF$feature <- juncLabelDF$nameFromTo;
       juncLabelDF$row <- seq_len(nrow(juncLabelDF));
+      ## define name as factor to maintain the drawing order
+      juncLabelDF$name <- factor(juncLabelDF$name,
+         levels=unique(juncLabelDF$name));
    } else {
       juncLabelDF <- NULL;
    }
