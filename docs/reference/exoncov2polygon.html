@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.51.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.53.900</span>
       </span>
     </div>
 
@@ -235,7 +235,7 @@ which is the intended input for <code>exoncov2polygon()</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># use some test data</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>GenomicRanges</span>));</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘GenomeInfoDb’ was built under R version 3.5.2</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggplot2</span>));</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘ggplot2’ was built under R version 3.5.2</span></div><div class='input'>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>GenomicRanges</span>));</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'GenomeInfoDb' was built under R version 3.5.2</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggplot2</span>));</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'ggplot2' was built under R version 3.5.2</span></div><div class='input'>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>test_cov_gr</span>);
 <span class='co'># prepare polygon coordinates</span>
 <span class='no'>exondf</span> <span class='kw'>&lt;-</span> <span class='fu'>exoncov2polygon</span>(<span class='no'>test_cov_gr</span>, <span class='kw'>covNames</span><span class='kw'>=</span><span class='st'>"sample_A"</span>);

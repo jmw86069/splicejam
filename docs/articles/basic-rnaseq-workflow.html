@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.51.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.53.900</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <h1>Splicejam basic RNAseq workflow</h1>
                         <h4 class="author">James M. Ward</h4>
             
-            <h4 class="date">2019-09-11</h4>
+            <h4 class="date">2019-09-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jmw86069/splicejam/blob/master/vignettes/basic-rnaseq-workflow.Rmd"><code>vignettes/basic-rnaseq-workflow.Rmd</code></a></small>
       <div class="hidden name"><code>basic-rnaseq-workflow.Rmd</code></div>
@@ -100,7 +100,7 @@
 <h2 class="hasAnchor">
 <a href="#r-setup" class="anchor"></a>R setup</h2>
 <p>First, set up the R environment with basic packages loaded.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(splicejam));
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(splicejam));
 <span class="co">#&gt; Warning: replacing previous import 'GenomicRanges::shift' by</span>
 <span class="co">#&gt; 'data.table::shift' when loading 'splicejam'</span>
 <span class="co">#&gt; Warning: replacing previous import 'data.table::last' by 'dplyr::last' when</span>
@@ -119,13 +119,13 @@
 <span class="co">#&gt; 'plotly::last_plot' when loading 'splicejam'</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(colorjam));
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(jamba));
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(jamma));</code></pre></div>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(jamma));</code></pre>
 </div>
 <div id="salmon-quant-sf-gz-files" class="section level2">
 <h2 class="hasAnchor">
 <a href="#salmon-quant-sf-gz-files" class="anchor"></a>Salmon “quant.sf.gz” files</h2>
 <p>This example begins with Salmon quantification files from the <code>tximportData</code> package (if available).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(tximportData))) {
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(tximportData))) {
    dir &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.file">system.file</a></span>(<span class="st">"extdata"</span>, <span class="dt">package=</span><span class="st">"tximportData"</span>);
    
    <span class="co"># read sample annotations as a data.frame</span>
@@ -133,8 +133,8 @@
    samples;
    
    <span class="co"># define Salmon import files</span>
-   files &lt;-<span class="st"> </span>jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/nameVector">nameVector</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/file.path">file.path</a></span>(dir, <span class="st">"salmon"</span>, samples<span class="op">$</span>run, <span class="st">"quant.sf.gz"</span>),
-      samples<span class="op">$</span>run);
+   files &lt;-<span class="st"> </span>jamba::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/nameVector">nameVector</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/file.path">file.path</a></span>(dir, <span class="st">"salmon"</span>, samples$run, <span class="st">"quant.sf.gz"</span>),
+      samples$run);
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(files);
 }
 <span class="co">#&gt;                                                                                           files</span>
@@ -143,14 +143,14 @@
 <span class="co">#&gt; ERR188329 /Users/wardjm/Library/R/3.5/library/tximportData/extdata/salmon/ERR188329/quant.sf.gz</span>
 <span class="co">#&gt; ERR188288 /Users/wardjm/Library/R/3.5/library/tximportData/extdata/salmon/ERR188288/quant.sf.gz</span>
 <span class="co">#&gt; ERR188021 /Users/wardjm/Library/R/3.5/library/tximportData/extdata/salmon/ERR188021/quant.sf.gz</span>
-<span class="co">#&gt; ERR188356 /Users/wardjm/Library/R/3.5/library/tximportData/extdata/salmon/ERR188356/quant.sf.gz</span></code></pre></div>
+<span class="co">#&gt; ERR188356 /Users/wardjm/Library/R/3.5/library/tximportData/extdata/salmon/ERR188356/quant.sf.gz</span></code></pre>
 </div>
 <div id="transcript-to-gene-from-gtf" class="section level2">
 <h2 class="hasAnchor">
 <a href="#transcript-to-gene-from-gtf" class="anchor"></a>Transcript-to-gene from GTF</h2>
 <p>The transcript-to-gene association will be stored in a data.frame <code>tx2geneDF</code>, in this case using <code><a href="../reference/makeTx2geneFromGtf.html">splicejam::makeTx2geneFromGtf()</a></code>. For other ways of creating a <code>tx2gene</code> data.frame, see the vignette from the <code><a href="https://www.rdocumentation.org/packages/tximport/topics/tximport">tximport::tximport</a></code> package.</p>
 <p>For the purpose of this example, the GTF file is used from the <code>tximportData</code> package (if available).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(tximportData))) {
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(tximportData))) {
    gtfFile &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(
       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list.files">list.files</a></span>(<span class="dt">pattern=</span><span class="st">"gtf.gz"</span>,
          <span class="dt">path=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.file">system.file</a></span>(<span class="st">"extdata/salmon_dm"</span>, <span class="dt">package=</span><span class="st">"tximportData"</span>),
@@ -163,7 +163,7 @@
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(tx2geneDF));
    
    ## Alternatively, we load a prepared file from tximportData
-   tx2geneDF &lt;-<span class="st"> </span>data.table<span class="op">::</span><span class="kw">fread</span>(
+   tx2geneDF &lt;-<span class="st"> </span>data.table::<span class="kw">fread</span>(
       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/file.path">file.path</a></span>(dir, <span class="st">"tx2gene.gencode.v27.csv"</span>),
       <span class="dt">sep=</span><span class="st">","</span>,
       <span class="dt">data.table=</span><span class="ot">FALSE</span>);
@@ -184,21 +184,21 @@
 <span class="co">#&gt; 3 FBgn0000008              a   FBtr0071763</span>
 <span class="co">#&gt; 4 FBgn0000008              a   FBtr0342981</span>
 <span class="co">#&gt; 5 FBgn0000008              a   FBtr0071764</span>
-<span class="co">#&gt; 6 FBgn0000014          abd-A   FBtr0306337</span></code></pre></div>
+<span class="co">#&gt; 6 FBgn0000014          abd-A   FBtr0306337</span></code></pre>
 </div>
 <div id="import-salmon-transcript-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#import-salmon-transcript-data" class="anchor"></a>Import Salmon transcript data</h2>
 <p>In this case, Salmon quantification files are imported, via the tximport package (if available).</p>
 <p>A summary of imported data is shown using the function <code><a href="https://www.rdocumentation.org/packages/jamba/topics/sdim">jamba::sdim()</a></code> which prints the dimensions of each object in a list.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(tximportData)) <span class="op">&amp;&amp;</span>
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(tximportData)) &amp;&amp;
 <span class="st">      </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(tximport))) {
-   txiTx &lt;-<span class="st"> </span>tximport<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/tximport/topics/tximport">tximport</a></span>(files,
+   txiTx &lt;-<span class="st"> </span>tximport::<span class="kw"><a href="https://www.rdocumentation.org/packages/tximport/topics/tximport">tximport</a></span>(files,
       <span class="dt">type=</span><span class="st">"salmon"</span>,
       <span class="dt">txOut=</span><span class="ot">TRUE</span>);
    
    ## Check the data returned
-   jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/sdim">sdim</a></span>(txiTx);
+   jamba::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/sdim">sdim</a></span>(txiTx);
 }
 <span class="co">#&gt; Warning: package 'tximport' was built under R version 3.5.2</span>
 <span class="co">#&gt; reading in files with read_tsv</span>
@@ -207,7 +207,7 @@
 <span class="co">#&gt; abundance           200401    6    matrix</span>
 <span class="co">#&gt; counts              200401    6    matrix</span>
 <span class="co">#&gt; length              200401    6    matrix</span>
-<span class="co">#&gt; countsFromAbundance      1      character</span></code></pre></div>
+<span class="co">#&gt; countsFromAbundance      1      character</span></code></pre>
 <div id="summarizedexperiment-for-transcript-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#summarizedexperiment-for-transcript-data" class="anchor"></a>SummarizedExperiment for transcript data</h3>
@@ -215,8 +215,8 @@
 <blockquote>
 <p>Note: During this step, data is log2-transformed using the format <code><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2(1+x)</a></code>.</p>
 </blockquote>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Create SummarizedExperiment transcript object
-<span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(SummarizedExperiment)) <span class="op">&amp;&amp;</span>
+<pre class="sourceCode r"><code class="sourceCode r">## Create SummarizedExperiment transcript object
+if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(SummarizedExperiment)) &amp;&amp;
 <span class="st">      </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"txiTx"</span>)) {
 
    assayNames &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sets">intersect</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"abundance"</span>,<span class="st">"counts"</span>),
@@ -229,34 +229,34 @@
          <span class="dt">length.out=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">ncol</a></span>(txiTx[[assayNames[<span class="dv">1</span>]]])));
 
    TxSE &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/RangedSummarizedExperiment-class">SummarizedExperiment</a></span>(
-      <span class="dt">assays=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(txiTx[assayNames], <span class="cf">function</span>(x){<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>x)}),
+      <span class="dt">assays=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(txiTx[assayNames], function(x){<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+x)}),
       <span class="dt">rowData=</span><span class="kw">DataFrame</span>(tx2geneDF[geneMatch,,<span class="dt">drop=</span><span class="ot">FALSE</span>]),
       <span class="dt">colData=</span><span class="kw">DataFrame</span>(sampleDF)
    );
 }
 <span class="co">#&gt; Warning: package 'GenomeInfoDb' was built under R version 3.5.2</span>
-<span class="co">#&gt; Warning: package 'BiocParallel' was built under R version 3.5.2</span></code></pre></div>
+<span class="co">#&gt; Warning: package 'BiocParallel' was built under R version 3.5.2</span></code></pre>
 </div>
 </div>
 <div id="import-salmon-gene-data-using-tx2genedf" class="section level2">
 <h2 class="hasAnchor">
 <a href="#import-salmon-gene-data-using-tx2genedf" class="anchor"></a>Import Salmon gene data using tx2geneDF</h2>
 <p>If data were imported at the transcript level (above) then it can be summarized at the gene level without re-importing from the source files. Alternatively, it can be imported from source files without importing at the transcript level. Both methods are shown below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##
-<span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(tximportData))) {
-   <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"txiTx"</span>)) {
+<pre class="sourceCode r"><code class="sourceCode r">##
+if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(tximportData))) {
+   if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"txiTx"</span>)) {
       ## Summarize transcript data to the gene level
-      txiGene &lt;-<span class="st"> </span>tximport<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/tximport/topics/tximport">summarizeToGene</a></span>(txiTx,
+      txiGene &lt;-<span class="st"> </span>tximport::<span class="kw"><a href="https://www.rdocumentation.org/packages/tximport/topics/tximport">summarizeToGene</a></span>(txiTx,
          <span class="dt">tx2gene=</span>tx2geneDF[,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(txColname,geneColname)]);
-   } <span class="cf">else</span> {
+   } else {
       ## Import Salmon data and summarize to genes directly
-      txiGene &lt;-<span class="st"> </span>tximport<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/tximport/topics/tximport">tximport</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unname">unname</a></span>(files),
+      txiGene &lt;-<span class="st"> </span>tximport::<span class="kw"><a href="https://www.rdocumentation.org/packages/tximport/topics/tximport">tximport</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unname">unname</a></span>(files),
          <span class="dt">type=</span><span class="st">"salmon"</span>,
          <span class="dt">tx2gene=</span>tx2geneDF[,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(txColname,geneColname)]);
    }
    
    ## Check the data returned
-   jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/sdim">sdim</a></span>(txiGene);
+   jamba::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/sdim">sdim</a></span>(txiGene);
 }
 <span class="co">#&gt; summarizing abundance</span>
 <span class="co">#&gt; summarizing counts</span>
@@ -265,7 +265,7 @@
 <span class="co">#&gt; abundance           58288    6    matrix</span>
 <span class="co">#&gt; counts              58288    6    matrix</span>
 <span class="co">#&gt; length              58288    6    matrix</span>
-<span class="co">#&gt; countsFromAbundance     1      character</span></code></pre></div>
+<span class="co">#&gt; countsFromAbundance     1      character</span></code></pre>
 <div id="summarizedexperiment-for-gene-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#summarizedexperiment-for-gene-data" class="anchor"></a>SummarizedExperiment for gene data</h3>
@@ -276,23 +276,23 @@
 <blockquote>
 <p>Note: During this step, data is log2-transformed using the format <code><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2(1+x)</a></code>.</p>
 </blockquote>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Create SummarizedExperiment transcript object
-<span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"txiGene"</span>)) {
+<pre class="sourceCode r"><code class="sourceCode r">## Create SummarizedExperiment transcript object
+if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"txiGene"</span>)) {
    assayNamesG &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sets">intersect</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"abundance"</span>,<span class="st">"counts"</span>), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(txiGene));
    geneMatchG &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/match">match</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(txiGene[[assayNames[<span class="dv">1</span>]]]),
       tx2geneDF[,geneColname]);
    geneColnames &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unique">unique</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(geneColname,
-      jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/unvigrep">unvigrep</a></span>(<span class="st">"^trans|^tx"</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(tx2geneDF))));
+      jamba::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/unvigrep">unvigrep</a></span>(<span class="st">"^trans|^tx"</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(tx2geneDF))));
    
    sampleDF &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">Sample=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(txiGene[[assayNames[<span class="dv">1</span>]]]),
       <span class="dt">Group=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"A"</span>, <span class="st">"B"</span>), <span class="dt">length.out=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">ncol</a></span>(txiGene[[assayNames[<span class="dv">1</span>]]])));
    
    GeneSE &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/RangedSummarizedExperiment-class">SummarizedExperiment</a></span>(
-      <span class="dt">assays=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(txiGene[assayNamesG], <span class="cf">function</span>(x){<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>x)}),
+      <span class="dt">assays=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(txiGene[assayNamesG], function(x){<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+x)}),
       <span class="dt">rowData=</span><span class="kw">DataFrame</span>(tx2geneDF[geneMatchG,geneColnames,<span class="dt">drop=</span><span class="ot">FALSE</span>]),
       <span class="dt">colData=</span><span class="kw">DataFrame</span>(sampleDF)
    )
-}</code></pre></div>
+}</code></pre>
 </div>
 </div>
 <div id="transcript-level-analysis-steps" class="section level2">
@@ -303,14 +303,14 @@
 <a href="#define-detected-transcripts" class="anchor"></a>Define detected transcripts</h3>
 <p>Often the RNA-seq data includes a number of transcripts for which there is no detectable signal. Several filtering methods are encapsulated into a function <code><a href="../reference/defineDetectedTx.html">defineDetectedTx()</a></code> to filter transcript isoform data which should be considered below the effective limit of detection.</p>
 <p>At this step, group mean values are used for filtering, however it can be performed without grouping, by setting <code>groups=colnames(TxSE)</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
    cutoffTxExpr &lt;-<span class="st"> </span><span class="dv">7</span>;
    cutoffTxTPMExpr &lt;-<span class="st"> </span><span class="dv">1</span>;
    cutoffTxPctMax &lt;-<span class="st"> </span><span class="dv">10</span>;
    detectedTxTPML &lt;-<span class="st"> </span><span class="kw"><a href="../reference/defineDetectedTx.html">defineDetectedTx</a></span>(
       <span class="dt">iMatrixTx=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE)[[<span class="st">"counts"</span>]],
       <span class="dt">iMatrixTxTPM=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE)[[<span class="st">"abundance"</span>]],
-      <span class="dt">groups=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/nameVector">nameVector</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(TxSE)<span class="op">$</span>Group, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(TxSE)),
+      <span class="dt">groups=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/nameVector">nameVector</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(TxSE)$Group, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(TxSE)),
       <span class="dt">cutoffTxPctMax=</span>cutoffTxPctMax,
       <span class="dt">cutoffTxExpr=</span>cutoffTxExpr,
       <span class="dt">cutoffTxTPMExpr=</span>cutoffTxTPMExpr,
@@ -319,18 +319,18 @@
         <span class="dt">to=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"gene_name"</span>,<span class="st">"transcript_id"</span>)),
       <span class="dt">useMedian=</span><span class="ot">FALSE</span>,
       <span class="dt">verbose=</span><span class="ot">FALSE</span>);
-   detectedTx &lt;-<span class="st"> </span>detectedTxTPML<span class="op">$</span>detectedTx;
+   detectedTx &lt;-<span class="st"> </span>detectedTxTPML$detectedTx;
    numDetectedTx &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(detectedTx);
    detectedGenes &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/mixedSort">mixedSort</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/unique">unique</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">rowData</a></span>(TxSE[detectedTx,])[,geneColname]));
    numDetectedGenes &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(detectedGenes);
-   jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"Defined "</span>,
+   jamba::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"Defined "</span>,
       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/format">format</a></span>(<span class="dt">big.mark=</span><span class="st">","</span>, numDetectedTx),
       <span class="st">" detected Tx representing "</span>,
       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/format">format</a></span>(<span class="dt">big.mark=</span><span class="st">","</span>, numDetectedGenes),
       <span class="st">" genes."</span>);
 }
 <span class="co">#&gt; Warning: package 'colorspace' was built under R version 3.5.2</span>
-<span class="co">#&gt; ##  (16:57:15) 11Sep2019:  Defined 44,255 detected Tx representing 15,720 genes.</span></code></pre></div>
+<span class="co">#&gt; ##  (23:15:55) 24Sep2019:  Defined 44,255 detected Tx representing 15,720 genes.</span></code></pre>
 <ul>
 <li>**{r if (exists(“TxSE”)) format(numDetectedTx, scientific=FALSE, big.mark=“,”)} detected transcripts</li>
 <li>**{r if (exists(“TxSE”)) format(numDetectedGenes, scientific=FALSE, big.mark=“,”)} detected genes</li>
@@ -339,23 +339,23 @@
 <h4 class="hasAnchor">
 <a href="#determining-reasonable-cutoff-values" class="anchor"></a>Determining reasonable cutoff values</h4>
 <p>Some of the cutoff values can be visualized by plotting the TPM versus the pseudocounts, shown below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## For this plot, filter out all rows where TPM and abundance are zero.
-<span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   iWhich &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE[,<span class="dv">1</span>])[[<span class="st">"counts"</span>]] <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span>
-<span class="st">         </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE[,<span class="dv">1</span>])[[<span class="st">"abundance"</span>]] <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>);
+<pre class="sourceCode r"><code class="sourceCode r">## For this plot, filter out all rows where TPM and abundance are zero.
+if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
+   iWhich &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE[,<span class="dv">1</span>])[[<span class="st">"counts"</span>]] &gt;<span class="st"> </span><span class="dv">0</span> &amp;
+<span class="st">         </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE[,<span class="dv">1</span>])[[<span class="st">"abundance"</span>]] &gt;<span class="st"> </span><span class="dv">0</span>);
    <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/par">par</a></span>(<span class="st">"mfrow"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="st">"mar"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">5</span>,<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">2</span>), <span class="st">"oma"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>));
-   <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/plotSmoothScatter">plotSmoothScatter</a></span>(<span class="dt">x=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE[iWhich,<span class="dv">1</span>])[[<span class="st">"counts"</span>]]),
-      <span class="dt">y=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE[iWhich,<span class="dv">1</span>])[[<span class="st">"abundance"</span>]]),
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/plotSmoothScatter">plotSmoothScatter</a></span>(<span class="dt">x=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE[iWhich,<span class="dv">1</span>])[[<span class="st">"counts"</span>]]),
+      <span class="dt">y=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE[iWhich,<span class="dv">1</span>])[[<span class="st">"abundance"</span>]]),
       <span class="dt">xlab=</span><span class="st">"counts"</span>,
       <span class="dt">ylab=</span><span class="st">"abundance"</span>,
       <span class="dt">xaxt=</span><span class="st">"n"</span>,
       <span class="dt">yaxt=</span><span class="st">"n"</span>);
-   jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/minorLogTicksAxis">minorLogTicksAxis</a></span>(<span class="dv">1</span>,
+   jamba::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/minorLogTicksAxis">minorLogTicksAxis</a></span>(<span class="dv">1</span>,
       <span class="dt">logBase=</span><span class="dv">2</span>, <span class="dt">displayBase=</span><span class="dv">10</span>, <span class="dt">offset=</span><span class="dv">1</span>);
-   jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/minorLogTicksAxis">minorLogTicksAxis</a></span>(<span class="dv">2</span>,
+   jamba::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/minorLogTicksAxis">minorLogTicksAxis</a></span>(<span class="dv">2</span>,
       <span class="dt">logBase=</span><span class="dv">2</span>, <span class="dt">displayBase=</span><span class="dv">10</span>, <span class="dt">offset=</span><span class="dv">1</span>);
-   <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/abline">abline</a></span>(<span class="dt">v=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxExpr),
-      <span class="dt">h=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxTPMExpr),
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/abline">abline</a></span>(<span class="dt">v=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+cutoffTxExpr),
+      <span class="dt">h=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+cutoffTxTPMExpr),
       <span class="dt">lty=</span><span class="st">"dashed"</span>,
       <span class="dt">col=</span><span class="st">"red"</span>);
 }
@@ -366,7 +366,7 @@
 <span class="co">#&gt; subscript is an array, passing it thru as.vector() first</span>
 <span class="co">#&gt; Warning in any(majorLabels): coercing argument of type 'double' to logical</span>
 
-<span class="co">#&gt; Warning in any(majorLabels): coercing argument of type 'double' to logical</span></code></pre></div>
+<span class="co">#&gt; Warning in any(majorLabels): coercing argument of type 'double' to logical</span></code></pre>
 <div class="figure">
 <img src="basic-rnaseq-workflow_files/figure-html/tpm_counts-1.png" alt="Salmon pseudocounts versus TPM" width="672"><p class="caption">
 Salmon pseudocounts versus TPM
@@ -388,26 +388,26 @@ Salmon pseudocounts versus TPM
 <p><code><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">devtools::install_github("jmw86069/jamma")</a></code></p>
 </blockquote>
 <p>First show the pseudocount data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(jamma))) {
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
+   if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(jamma))) {
       <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/par">par</a></span>(<span class="st">"oma"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">3</span>,<span class="dv">0</span>));
-      jamma<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamma/topics/jammaplot">jammaplot</a></span>(
+      jamma::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamma/topics/jammaplot">jammaplot</a></span>(
          <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/noiseFloor">noiseFloor</a></span>(<span class="dt">minimum=</span><span class="fl">0.0001</span>,
             <span class="dt">newValue=</span><span class="ot">NA</span>,
             <span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE)[[<span class="st">"counts"</span>]]),
          <span class="dt">transFactor=</span><span class="fl">0.3</span>,
-         <span class="dt">ylim=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="dv">3</span>,<span class="dv">3</span>),
-         <span class="dt">ablineV=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxExpr),
-         <span class="dt">titleBoxColor=</span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/group2colors">group2colors</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(TxSE)<span class="op">$</span>Group),
+         <span class="dt">ylim=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(-<span class="dv">3</span>,<span class="dv">3</span>),
+         <span class="dt">ablineV=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+cutoffTxExpr),
+         <span class="dt">titleBoxColor=</span>colorjam::<span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/group2colors">group2colors</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(TxSE)$Group),
          <span class="dt">groupSuffix=</span><span class="st">""</span>,
          <span class="dt">titleCexFactor=</span><span class="fl">1.2</span>,
          <span class="dt">useMean=</span><span class="ot">TRUE</span>);
       <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/title">title</a></span>(<span class="dt">outer=</span><span class="ot">TRUE</span>,
          <span class="dt">main=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MA-plot using Salmon pseudocounts</span><span class="ch">\n</span><span class="st">"</span>,
             <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Showing pseudocount cutoff value approximately "</span>,
-               <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxExpr))));
+               <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+cutoffTxExpr))));
    }
-}</code></pre></div>
+}</code></pre>
 <p><img src="basic-rnaseq-workflow_files/figure-html/jammaplot_counts-1.png" width="480"></p>
 <p>In the MA-plots above, one expects each sample to have roughly horizontal distribution, centered at <code>y=0</code>, which means the median transcript expression is roughly unchanged across all samples(<code>y=0</code>), and that the signal is roughly consistent from the low to high end of expression (horizontal).</p>
 <p>Whenever a sample has bulk of its expression above (or below) <code>y=0</code>, it suggests there is overall higher (or lower) signal for all transcripts in that sample, which is counter to most assumptions of data normalization.</p>
@@ -416,16 +416,16 @@ Salmon pseudocounts versus TPM
 <h4 class="hasAnchor">
 <a href="#ma-plots-of-tpm-data" class="anchor"></a>MA-plots of TPM data</h4>
 <p>Next show the TPM data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
    <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/par">par</a></span>(<span class="st">"oma"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">3</span>,<span class="dv">0</span>));
-   jamma<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamma/topics/jammaplot">jammaplot</a></span>(
+   jamma::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamma/topics/jammaplot">jammaplot</a></span>(
       <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/noiseFloor">noiseFloor</a></span>(<span class="dt">minimum=</span><span class="fl">0.0001</span>,
          <span class="dt">newValue=</span><span class="ot">NA</span>,
          <span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE)[[<span class="st">"abundance"</span>]]),
       <span class="dt">transFactor=</span><span class="fl">0.3</span>,
-      <span class="dt">ylim=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="dv">3</span>,<span class="dv">3</span>),
-      <span class="dt">ablineV=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxTPMExpr),
-      <span class="dt">titleBoxColor=</span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/group2colors">group2colors</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(TxSE)<span class="op">$</span>Group),
+      <span class="dt">ylim=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(-<span class="dv">3</span>,<span class="dv">3</span>),
+      <span class="dt">ablineV=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+cutoffTxTPMExpr),
+      <span class="dt">titleBoxColor=</span>colorjam::<span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/group2colors">group2colors</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(TxSE)$Group),
       <span class="dt">groupSuffix=</span><span class="st">""</span>,
       <span class="dt">displayMAD=</span><span class="ot">TRUE</span>,
       <span class="dt">titleCexFactor=</span><span class="fl">1.2</span>,
@@ -433,8 +433,8 @@ Salmon pseudocounts versus TPM
    <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/title">title</a></span>(<span class="dt">outer=</span><span class="ot">TRUE</span>,
       <span class="dt">main=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MA-plot using Salmon TPM</span><span class="ch">\n</span><span class="st">"</span>,
          <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Showing TPM cutoff value approximately "</span>,
-            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxTPMExpr))));
-}</code></pre></div>
+            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log2</a></span>(<span class="dv">1</span>+cutoffTxTPMExpr))));
+}</code></pre>
 <p><img src="basic-rnaseq-workflow_files/figure-html/jammaplot_tpm-1.png" width="480"></p>
 <p>The typical remedy for certain MA-plot patterns are summarized briefly below:</p>
 <ol style="list-style-type: decimal">
@@ -453,17 +453,17 @@ Salmon pseudocounts versus TPM
 <h4 class="hasAnchor">
 <a href="#design-and-contrast-matrices" class="anchor"></a>Design and Contrast matrices</h4>
 <p>Before statistical comparisons can be performed, the design matrix and contrast matrix must be defined. The function <code><a href="../reference/groups2contrasts.html">groups2contrasts()</a></code> makes it convenient to convert group names to a set of contrasts. The group names are assumed to have underscore “_" as a delimiter between factors, for example <code>"Wildtype_Control"</code> and <code>"Mutant_Treated"</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
    ## Design matrix is defined by the sample groups
    iSamples &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(TxSE);
-   iGroups &lt;-<span class="st"> </span>jamba<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/nameVector">nameVector</a></span>(
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(TxSE[,iSamples])<span class="op">$</span>Group,
+   iGroups &lt;-<span class="st"> </span>jamba::<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/nameVector">nameVector</a></span>(
+      <span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(TxSE[,iSamples])$Group,
          iSamples);
    
    ## Use the function groups2contrasts()
    iDC &lt;-<span class="st"> </span><span class="kw"><a href="../reference/groups2contrasts.html">groups2contrasts</a></span>(iGroups, <span class="dt">returnDesign=</span><span class="ot">TRUE</span>);
-   iDesign &lt;-<span class="st"> </span>iDC<span class="op">$</span>iDesign;
-   iContrasts &lt;-<span class="st"> </span>iDC<span class="op">$</span>iContrasts;
+   iDesign &lt;-<span class="st"> </span>iDC$iDesign;
+   iContrasts &lt;-<span class="st"> </span>iDC$iContrasts;
    
    <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"iDesign:"</span>);
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(iDesign);
@@ -471,12 +471,12 @@ Salmon pseudocounts versus TPM
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(iContrasts);
    
    ## Alternative method
-   <span class="cf">if</span> (<span class="dv">1</span> <span class="op">==</span><span class="st"> </span><span class="dv">2</span>) {
-      iDesign &lt;-<span class="st"> </span>stats<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/model.matrix">model.matrix</a></span>(<span class="op">~</span><span class="dv">0</span><span class="op">+</span>iGroups);
+   if (<span class="dv">1</span> ==<span class="st"> </span><span class="dv">2</span>) {
+      iDesign &lt;-<span class="st"> </span>stats::<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/model.matrix">model.matrix</a></span>(~<span class="dv">0</span>+iGroups);
       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(iDesign) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/levels">levels</a></span>(iGroups);
       <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(iDesign) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(iGroups);
       <span class="co"># Alternative format, useful for custom contrasts</span>
-      iContrasts &lt;-<span class="st"> </span>limma<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/limma/topics/makeContrasts">makeContrasts</a></span>(
+      iContrasts &lt;-<span class="st"> </span>limma::<span class="kw">makeContrasts</span>(
          <span class="dt">contrasts=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(
             <span class="st">"CA2_DE-CA2_CB"</span>,
             <span class="st">"CA1_DE-CA1_CB"</span>),
@@ -484,7 +484,7 @@ Salmon pseudocounts versus TPM
    }
 }
 <span class="co">#&gt; Warning: package 'arules' was built under R version 3.5.2</span>
-<span class="co">#&gt; ##  (16:57:21) 11Sep2019:  iDesign: </span>
+<span class="co">#&gt; ##  (23:16:00) 24Sep2019:  iDesign: </span>
 <span class="co">#&gt;           A B</span>
 <span class="co">#&gt; ERR188297 1 0</span>
 <span class="co">#&gt; ERR188088 0 1</span>
@@ -492,19 +492,19 @@ Salmon pseudocounts versus TPM
 <span class="co">#&gt; ERR188288 0 1</span>
 <span class="co">#&gt; ERR188021 1 0</span>
 <span class="co">#&gt; ERR188356 0 1</span>
-<span class="co">#&gt; ##  (16:57:21) 11Sep2019:  iContrasts: </span>
+<span class="co">#&gt; ##  (23:16:00) 24Sep2019:  iContrasts: </span>
 <span class="co">#&gt;       Contrasts</span>
 <span class="co">#&gt; Levels B-A</span>
 <span class="co">#&gt;      A  -1</span>
-<span class="co">#&gt;      B   1</span></code></pre></div>
+<span class="co">#&gt;      B   1</span></code></pre>
 <p>Note that it is important to keep the colnames(TxSE), design matrix, and contrast matrix in proper order. For this reason, <code>iSamples</code> is defined as <code><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames(TxSE)</a></code>, which should equal <code><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames(iDesign)</a></code>. Finally, <code><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames(iDesign)</a></code> should equal <code><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames(iContrasts)</a></code>.</p>
 <p>As a fun matrix math review, you can print the crossproduct of the design and contrast matrices to view the samples used in each contrast.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all">all</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(TxSE) <span class="op">==</span><span class="st"> </span>iSamples)
-   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all">all</a></span>(iSamples <span class="op">==</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(iDesign))
-   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all">all</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(iDesign) <span class="op">==</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(iContrasts))
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all">all</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(TxSE) ==<span class="st"> </span>iSamples)
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all">all</a></span>(iSamples ==<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(iDesign))
+   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all">all</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(iDesign) ==<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">rownames</a></span>(iContrasts))
    
-   iDesign <span class="op">%*%</span><span class="st"> </span>iContrasts;
+   iDesign %*%<span class="st"> </span>iContrasts;
 }
 <span class="co">#&gt;            Contrasts</span>
 <span class="co">#&gt;             B-A</span>
@@ -513,15 +513,15 @@ Salmon pseudocounts versus TPM
 <span class="co">#&gt;   ERR188329  -1</span>
 <span class="co">#&gt;   ERR188288   1</span>
 <span class="co">#&gt;   ERR188021  -1</span>
-<span class="co">#&gt;   ERR188356   1</span></code></pre></div>
+<span class="co">#&gt;   ERR188356   1</span></code></pre>
 </div>
 <div id="rundiffsplice" class="section level4">
 <h4 class="hasAnchor">
 <a href="#rundiffsplice" class="anchor"></a>runDiffSplice()</h4>
 <p>Given an expression data matrix, design matrix, and contrast matrix, <code><a href="../reference/runDiffSplice.html">splicejam::runDiffSplice()</a></code> can be called. Note that all abundance values of zero are set to <code>NA</code>, so they do not contribute to the analysis.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
    iMatrixTxTPM &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(TxSE[,iSamples])[[<span class="st">"abundance"</span>]];
-   iMatrixTxTPM[iMatrixTxTPM <span class="op">==</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>;
+   iMatrixTxTPM[iMatrixTxTPM ==<span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>;
    diffSpliceL &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runDiffSplice.html">runDiffSplice</a></span>(
       <span class="dt">iMatrixTx=</span>iMatrixTxTPM,
       <span class="dt">detectedTx=</span>detectedTx,
@@ -536,9 +536,9 @@ Salmon pseudocounts versus TPM
       <span class="dt">spliceTest=</span><span class="st">"t"</span>,
       <span class="dt">verbose=</span><span class="ot">FALSE</span>,
       <span class="dt">useVoom=</span><span class="ot">FALSE</span>);
-   diffSpliceHitsL &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(diffSpliceL<span class="op">$</span>statsDFs, <span class="cf">function</span>(iDF){
+   diffSpliceHitsL &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(diffSpliceL$statsDFs, function(iDF){
       hitColname &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/vigrep">vigrep</a></span>(<span class="st">"^hit "</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(iDF)), <span class="dv">1</span>);
-      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/subset">subset</a></span>(iDF, iDF[[hitColname]] <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>)[,geneColname]);
+      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/subset">subset</a></span>(iDF, iDF[[hitColname]] !=<span class="st"> </span><span class="dv">0</span>)[,geneColname]);
    });
    <span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/printDebug">printDebug</a></span>(<span class="st">"Differential isoform hits per contrast:"</span>);
    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/sdim">sdim</a></span>(diffSpliceHitsL));
@@ -549,9 +549,9 @@ Salmon pseudocounts versus TPM
 <span class="co">#&gt; Number of genes with 1 exon:  0 </span>
 <span class="co">#&gt; Mean number of exons in a gene:  4 </span>
 <span class="co">#&gt; Max number of exons in a gene:  26 </span>
-<span class="co">#&gt; ##  (16:57:26) 11Sep2019:  Differential isoform hits per contrast: </span>
+<span class="co">#&gt; ##  (23:16:04) 24Sep2019:  Differential isoform hits per contrast: </span>
 <span class="co">#&gt;     rows     class</span>
-<span class="co">#&gt; B-A  594 character</span></code></pre></div>
+<span class="co">#&gt; B-A  594 character</span></code></pre>
 </div>
 <div id="export-diffsplice-results-to-excel" class="section level4">
 <h4 class="hasAnchor">
@@ -571,36 +571,36 @@ Salmon pseudocounts versus TPM
 <p>The BGA technique is based upon results from an underlying clustering method such as PCA or COA, and therefore inherits potential weaknesses of such tools. In short, it is sometimes helpful to filter genes or transcripts by minimum expression, roughly above the level of statistical noise.</p>
 <p>For the example below, the gene summary TPM values are used as input, and correspondence analysis (COA) is chosen as the underlying clustering algorithm.</p>
 <p>In the absence of sample groups, BGA can be run with each biological sample in its own group. The results will be equivalent to running normal COA (or PCA).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(made4))) {
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"TxSE"</span>)) {
+   if (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(made4))) {
       bgaExprThreshold &lt;-<span class="st"> </span><span class="dv">5</span>;
-      bgaExprs &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(GeneSE)<span class="op">$</span>counts;
+      bgaExprs &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">assays</a></span>(GeneSE)$counts;
       ## Apply a noise floor so all (data &lt; threshold) is set to threshold
-      bgaExprs[bgaExprs <span class="op">&lt;</span><span class="st"> </span>bgaExprThreshold] &lt;-<span class="st"> </span>bgaExprThreshold;
+      bgaExprs[bgaExprs &lt;<span class="st"> </span>bgaExprThreshold] &lt;-<span class="st"> </span>bgaExprThreshold;
       ## Then require rows to have some difference between the
       ## minimum and maximum value.
-      bgaExprsUse &lt;-<span class="st"> </span>bgaExprs[<span class="kw">rowMins</span>(bgaExprs) <span class="op">&lt;</span><span class="st"> </span><span class="kw">rowMaxs</span>(bgaExprs),,drop=<span class="ot">FALSE</span>];
+      bgaExprsUse &lt;-<span class="st"> </span>bgaExprs[<span class="kw">rowMins</span>(bgaExprs) &lt;<span class="st"> </span><span class="kw">rowMaxs</span>(bgaExprs),,drop=<span class="ot">FALSE</span>];
       <span class="co">#nrow(bgaExprsUse);</span>
       
       geneBga &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/made4/topics/bga">bga</a></span>(<span class="dt">dataset=</span>bgaExprsUse,
-         <span class="dt">classvec=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/nameVector">nameVector</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(GeneSE)<span class="op">$</span>Group,
+         <span class="dt">classvec=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/jamba/topics/nameVector">nameVector</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(GeneSE)$Group,
             <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(GeneSE)),
          <span class="dt">type=</span><span class="st">"coa"</span>);
    }
 }
-<span class="co">#&gt; Warning: package 'gplots' was built under R version 3.5.2</span></code></pre></div>
+<span class="co">#&gt; Warning: package 'gplots' was built under R version 3.5.2</span></code></pre>
 <div id="bga-plotly-visualization" class="section level4">
 <h4 class="hasAnchor">
 <a href="#bga-plotly-visualization" class="anchor"></a>BGA plotly visualization</h4>
-<p>A convenient tool to view the output in 3-D employs the plotly R package (<a href="https://CRAN.R-project.org/package=plotly" class="uri">https://CRAN.R-project.org/package=plotly</a> ). A helper function is available <code><a href="../reference/bgaPlotly3d.html">splicejam::bgaPlotly3d()</a></code>.</p>
+<p>A convenient tool to view the output in 3-D employs the plotly R package (<a href="https://CRAN.R-project.org/package=plotly">https://CRAN.R-project.org/package=plotly</a> ). A helper function is available <code><a href="../reference/bgaPlotly3d.html">splicejam::bgaPlotly3d()</a></code>.</p>
 <p>At this point it is also helpful to define sample group colors which can help represent the experimental design. The function <code><a href="https://www.rdocumentation.org/packages/colorjam/topics/group2colors">colorjam::group2colors()</a></code> is used, but the main requirement is a vector of colors, where the vector names match the sample group names. If no <code>colorSub</code> is supplied, default colors will be defined.</p>
 <blockquote>
 <p>Note: The steps below are disabled for the purpose of this example data, which does not contain proper sample groups with replicates. However, the commands below are adequate for a typical RNA-seq experimental design.</p>
 </blockquote>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="dv">1</span> <span class="op">==</span><span class="st"> </span><span class="dv">2</span> <span class="op">&amp;&amp;</span>
-<span class="st">      </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(made4)) <span class="op">&amp;&amp;</span>
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="dv">1</span> ==<span class="st"> </span><span class="dv">2</span> &amp;&amp;
+<span class="st">      </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(made4)) &amp;&amp;
 <span class="st">      </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(plotly))) {
-   colorSubBga &lt;-<span class="st"> </span>colorjam<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/group2colors">group2colors</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(GeneSE)<span class="op">$</span>Group);
+   colorSubBga &lt;-<span class="st"> </span>colorjam::<span class="kw"><a href="https://www.rdocumentation.org/packages/colorjam/topics/group2colors">group2colors</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/SummarizedExperiment-class">colData</a></span>(GeneSE)$Group);
    
    geneBgaly &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bgaPlotly3d.html">bgaPlotly3d</a></span>(geneBga,
       <span class="dt">axes=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),
@@ -608,7 +608,7 @@ Salmon pseudocounts versus TPM
       <span class="dt">useScaledCoords=</span><span class="ot">FALSE</span>,
       <span class="dt">drawVectors=</span><span class="st">"none"</span>,
       <span class="dt">drawSampleLabels=</span><span class="ot">FALSE</span>,
-      <span class="dt">superGroups=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">gsub</a></span>(<span class="st">"_.+"</span>, <span class="st">""</span>, geneBga<span class="op">$</span>fac),
+      <span class="dt">superGroups=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">gsub</a></span>(<span class="st">"_.+"</span>, <span class="st">""</span>, geneBga$fac),
       <span class="dt">ellipseType=</span><span class="st">"none"</span>,
       <span class="dt">sceneX=</span><span class="dv">0</span>, <span class="dt">sceneY=</span><span class="dv">1</span>, <span class="dt">sceneZ=</span><span class="dv">1</span>,
       <span class="dt">verbose=</span><span class="ot">TRUE</span>);
@@ -619,7 +619,7 @@ Salmon pseudocounts versus TPM
    <span class="co">#htmlwidgets::saveWidget(geneBgaly,</span>
    <span class="co">#   file="RNAseq_BGA_clustering.html",</span>
    <span class="co">#   title="RNA-seq BGA clustering");</span>
-}</code></pre></div>
+}</code></pre>
 </div>
 </div>
 </div>

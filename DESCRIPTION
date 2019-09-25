@@ -1,11 +1,16 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.52.900
+Version: 0.0.53.900
 Authors@R: c(
-    person(given="James M.", family="Ward",
-       email="jmw86069@gmail.com", role=c("aut", "cre")),
-    person(given="Shannon", family="Farris",
+    person(given="James M.",
+       family="Ward",
+       email="jmw86069@gmail.com",
+       comment=c(ORCID="0000-0002-9510-2848"),
+       role=c("aut", "cre")),
+    person(given="Shannon",
+       family="Farris",
+       comment=c(ORCID="0000-0003-4473-1684"),
        role=c("aut"))
     )
 Maintainer: James M. Ward <jmw86069@gmail.com>

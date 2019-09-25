@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.51.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.53.900</span>
       </span>
     </div>
 
@@ -90,22 +90,66 @@
     
     
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+
+
 <div id="splicejam" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#splicejam" class="anchor"></a>splicejam</h1></div>
-<p>The goal of splicejam is to provide analysis methods related to RNA-seq data, spliced transcript isoform analysis, and similar bioinformatics methods.</p>
+<a href="#splicejam" class="anchor"></a>splicejam <img src="reference/figures/splicejam_logo.png" width="133px" height="154px" align="right" style="padding-left:10px;background-color:white;">
+</h1></div>
+<p>Splicejam was created to analyze and visualize RNA-seq and transcript isoform splicing data. Splicejam aims to provide sashimi plots with enough customizations to support publication-quality figures.</p>
+<p>An example sashimi plot is shown below for the gene <em>Gria1</em>. Each panel shows transcript expression in a region of mouse hippocampus, where “CA1_CB” shows data that originated from cell bodies of CA1, and “CA2_CB” shows corresponding data from cell bodies of CA2.</p>
+<p><br></p>
+<p><img src="reference/figures/README-gria1_sashimi-1.png" width="1344"></p>
+<figure><img src="reference/figures/mouse_hippocampus.png" width="25%" height="25%" align="right" style="padding-left:10px;background-color:white;"><figcaption>
+A depiction of the CA1 and CA2 regions of mouse hippocampus is shown in Fig 4a from <a href="https://dx.doi.org/10.1038/nrn.2015.22">Dudek et al. Nature Reviews Neuroscience(2016)</a>
+</figcaption></figure><p><br></p>
+<div id="features-of-a-splicejam-sashimi-plot" class="section level2">
+<h2 class="hasAnchor">
+<a href="#features-of-a-splicejam-sashimi-plot" class="anchor"></a>Features of a splicejam sashimi plot:</h2>
+<ul>
+<li>The dark color polygons represent RNA transcript sequence coverage for exons in the Gria1 gene.</li>
+<li>Wide ribbons are drawn to indicate splice junctions, areas where the sequences are aligned with a wide gap, typically spanning two exons.</li>
+<li>The thickness of the ribbon (in height) represents the number of aligned reads that span the gap, usually about 70-80% the height of the adjacent exons.</li>
+<li>The ribbons are shaded light to dark based upon how predominant the splice junction is from exon to exon. The darkest ribbons represent the most predominant path from exon to exon through the gene.</li>
+<li>Introns are drawn with a fixed width (along the x-axis) and do not use genome coordinates. Introns are normally about 100 times wider than exons, and when drawn to scale obscure the detailed coverage of the exons. The x-axis labels indicate genome coordinates.</li>
+</ul>
+</div>
+<div id="sashimi-plot-at-closer-range" class="section level2">
+<h2 class="hasAnchor">
+<a href="#sashimi-plot-at-closer-range" class="anchor"></a>Sashimi plot at closer range</h2>
+<p>The x-axis range is adjusted in the following plot to show more detail around the differentially spliced exons. Notice the relative heights of the exons differ across CA1 and CA2, consistent with the corresponding changes in splice junctions. Clearly CA1 and CA2 favor different and mutually exclusive exons for Gria1.</p>
+<p><img src="reference/figures/README-gria1_sashimi_zoom-1.png" width="768"></p>
+<p>Incidentally, these two isoforms of Gria1 represent the <a href="https://www.sciencedirect.com/topics/neuroscience/gria1">“flop” and “flip”</a> forms of the AMPA receptor complex. In human, the genes Gria2, Gria3, and Gria4 comprise the AMPA receptor complex, and each genes has two isoforms with “flop” and “flip” designations.</p>
+</div>
 <div id="package-reference" class="section level2">
 <h2 class="hasAnchor">
 <a href="#package-reference" class="anchor"></a>Package Reference</h2>
 <p>A full online function reference is available via the pkgdown documentation:</p>
-<p><a href="https://jmw86069.github.io/splicejam">Full splicejam command reference</a></p>
-<p>The splicejam package is part of a suite of R packages called “jampack” which is available through GitHub, see <a href="https://github.com/jmw86069/jampack" class="uri">https://github.com/jmw86069/jampack</a></p>
+<p>Full splicejam command reference: <a href="https://jmw86069.github.io/splicejam"></a><a href="https://jmw86069.github.io/splicejam">https://jmw86069.github.io/splicejam</a></p>
+<p>The splicejam package is part of a suite of R packages called “jampack” which is available through GitHub, see <a href="https://github.com/jmw86069/jampack"></a><a href="https://github.com/jmw86069/jampack">https://github.com/jmw86069/jampack</a></p>
 </div>
 <div id="how-to-install" class="section level2">
 <h2 class="hasAnchor">
 <a href="#how-to-install" class="anchor"></a>How to install</h2>
 <p>Install using the R package <code>devtools</code> and this command:</p>
 <pre><code><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">devtools::install_github("jmw86069/splicejam")</a></code></pre>
+</div>
+<div id="about-sashimi-plots" class="section level2">
+<h2 class="hasAnchor">
+<a href="#about-sashimi-plots" class="anchor"></a>About sashimi plots</h2>
+<p>Sashimi plots were originally envisioned by MISO, which introduced the innovative idea to compress intron width in order to reveal the detailed exon sequence coverage, and to highlight changes in splice junctions.</p>
+<p>Katz, Y, Wang ET, Silterra J, Schwartz S, Wong B, Thorvaldsdóttir H, Robinson JT, Mesirov JP, Airoldi EM, Burge, CB. <em>Sashimi plots: Quantitative visualization of alternative isoform expression from RNA-seq data.</em> <a href="http://biorxiv.org/content/early/2014/02/11/002576">http://biorxiv.org/content/early/2014/02/11/002576</a></p>
+<p>Splicejam re-envisions classic sashimi plots by displaying splice junctions as wide arcs proportional in size to the number of junction reads, making them directly comparable to exon coverages on the same plot. Inspired by:</p>
+<ul>
+<li>
+<a href="https://en.wikipedia.org/wiki/Sankey_diagram">Sankey plots</a>,</li>
+<li>
+<a href="https://en.wikipedia.org/wiki/Flow_diagram">flow diagrams</a>,</li>
+<li>
+<a href="https://en.wikipedia.org/wiki/Alluvial_diagram">Alluvial diagrams</a>.</li>
+</ul>
+<p>These ribbons were ultimately made feasible to implement in R thanks to the package <a href="https://ggforce.data-imaginist.com/">ggforce</a> which implemented <a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">geom_diagonal_wide</a>.</p>
 </div>
 </div>
   </div>
@@ -129,8 +173,8 @@
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>James M. Ward <br><small class="roles"> Author, maintainer </small>  </li>
-<li>Shannon Farris <br><small class="roles"> Author </small>  </li>
+<li>James M. Ward <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-9510-2848" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID" height="16"></a> </li>
+<li>Shannon Farris <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-4473-1684" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID" height="16"></a> </li>
 </ul>
 </div>
 

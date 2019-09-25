@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.51.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.53.900</span>
       </span>
     </div>
 
@@ -289,7 +289,7 @@ for more customization.</p>
    <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>values</span>(<span class='no'>test_exon_wide_gr</span>)[,<span class='st'>"gene_name"</span>]);
 
 <span class='co'># The most basic plot of exons</span>
-<span class='fu'>gene2gg</span>(<span class='kw'>gene</span><span class='kw'>=</span><span class='st'>"TestGene1"</span>, <span class='kw'>flatExonsByGene</span><span class='kw'>=</span><span class='no'>test_flatExonsByGene</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: failed to set names on the unlisted CompressedRleList object</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘data.table’ was built under R version 3.5.2</span></div><div class='img'><img src='gene2gg-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>gene2gg</span>(<span class='kw'>gene</span><span class='kw'>=</span><span class='st'>"TestGene1"</span>, <span class='kw'>flatExonsByGene</span><span class='kw'>=</span><span class='no'>test_flatExonsByGene</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: failed to set names on the unlisted CompressedRleList object</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package 'data.table' was built under R version 3.5.2</span></div><div class='img'><img src='gene2gg-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># You can be fancy and number the exons</span>
 <span class='no'>test_flatExonsByGene</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='assignGRLexonNames.html'>assignGRLexonNames</a></span>(<span class='no'>test_flatExonsByGene</span>,
    <span class='kw'>geneSymbolColname</span><span class='kw'>=</span><span class='st'>"gene_name"</span>);

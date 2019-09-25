@@ -1,3 +1,13 @@
+# splicejam version 0.0.53.900
+
+## changes
+
+* New README.Rmd file with a visual example and description
+of a sashimi plot. New small data object `"demodata"` which
+contains the minimum required to produce the Gria1 plot.
+* Added splicejam hexsticker with an embedded sashimi plot.
+An R package isn't an R package without a hexsticker.
+
 # splicejam version 0.0.52.900
 
 ## enhancements
