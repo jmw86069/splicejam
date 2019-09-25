@@ -510,7 +510,7 @@ simplifyXY <- function
 compressPolygonM <- function
 (polyM,
  ref2c,
- minRatio=3,
+ minRatio=5,
  verbose=FALSE,
  ...)
 {
@@ -540,6 +540,8 @@ compressPolygonM <- function
    }
    if (verbose) {
       printDebug("compressPolygonM(): ",
+         "data_style:", data_style);
+      printDebug("compressPolygonM(): ",
          "polyMratios:", head(polyMratios, 20));
    }
 
@@ -554,8 +556,9 @@ compressPolygonM <- function
       polyMlengths);
 
    polyDFL <- split(polyDF, polyMrepN);
-   whichComp <- which(polyMratios >= minRatio);
-   whichNorm <- which(polyMratios < minRatio);
+   sdim_polyDFL <- sdim(polyDFL)$rows;
+   whichComp <- which(polyMratios >= minRatio & sdim_polyDFL > 5);
+   whichNorm <- which(polyMratios < minRatio | sdim_polyDFL <= 5);
    if (length(whichComp) == 0) {
       return(polyM);
    }
@@ -678,6 +681,15 @@ compressPolygonM <- function
 #'    `names(gr)` used to separate each polygon.
 #' @param ref2c optional list containing output from `make_ref2compressed()`,
 #'    used to compress the GRanges coordinates.
+#' @param compress_introns logical indicating whether to compress
+#'    the coverage polygon coordinates to approximately the same
+#'    number of pixels per inch as the exon polygons. This option
+#'    greatly reduces the size of the polygon, since introns are
+#'    already about 50 to 100 times wider than exons, and when
+#'    `ref2c` is supplied, the introns are visibly compressed
+#'    to a fixed width on the x-axis. The data has many more
+#'    x-axis coordinates than the data visualization, this argument
+#'    is intended to reduce the intron coordinates accordingly.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
@@ -710,6 +722,7 @@ exoncov2polygon <- function
  doPlot=FALSE,
  coord_style=c("fortify", "base", "list", "all"),
  ref2c=NULL,
+ compress_introns=TRUE,
  verbose=FALSE,
  ...)
 {
@@ -829,13 +842,20 @@ exoncov2polygon <- function
       retVals$covPolyML <- covPolyML;
 
       ## Compress polygon
-      if (length(ref2c) > 0) {
+      if (length(ref2c) > 0 && compress_introns) {
+         t1 <- Sys.time();
          compCovPolyML <- lapply(covPolyML, function(iL){
             iML <- compressPolygonM(iL,
                ref2c=ref2c,
                coord_style=coord_style,
                verbose=verbose);
          });
+         t2 <- Sys.time();
+         if (verbose) {
+            printDebug("exoncov2polygon(): ",
+               "Completed polygon compression:",
+               format(t2 - t1));
+         }
          retVals$compCovPolyML <- compCovPolyML;
          #return(compCovPolyML);
          covPolyML <- compCovPolyML;
@@ -856,7 +876,7 @@ exoncov2polygon <- function
    }
 
       ## Compress polygon
-      if (length(ref2c) > 0) {
+      if (1 == 2 && length(ref2c) > 0 && compress_introns) {
          compCovPolyML <- lapply(covPolyML, function(iL){
             iML <- compressPolygonM(iL,
                ref2compressed=ref2c,
@@ -868,7 +888,7 @@ exoncov2polygon <- function
    ## Optionally plot coverage
    if (doPlot) {
       if ("base" %in% coord_style) {
-         if (exists(compCovPolyML)) {
+         if (exists("compCovPolyML")) {
             par("mfrow"=c(2,1));
          }
          polyCol <- colorjam::rainbowJam(length(covPolyL[[1]]));
@@ -879,7 +899,7 @@ exoncov2polygon <- function
          polygon(rbindList(covPolyML),
             border=polyCol,
             col=polyCol);
-         if (exists(compCovPolyML)) {
+         if (exists("compCovPolyML")) {
             plot(rbindList(compCovPolyML),
                pch=".",
                xaxt="n",
@@ -1307,6 +1327,15 @@ combineGRcoverage <- function
 #'    to a fixed width. When `ref2c` is not supplied, and
 #'    `compressGR=TRUE`, then `ref2c` is created using
 #'    `make_ref2compressed()`.
+#' @param compress_introns logical indicating whether to compress
+#'    the coverage polygon coordinates to approximately the same
+#'    number of pixels per inch as the exon polygons. This option
+#'    greatly reduces the size of the polygon, since introns are
+#'    already about 50 to 100 times wider than exons, and when
+#'    `compressGR` is `TRUE`, the introns are visibly compressed
+#'    to a fixed width on the x-axis. The data has many more
+#'    x-axis coordinates than the data visualization, this argument
+#'    is intended to reduce the intron coordinates accordingly.
 #' @param ref2c list object output from `make_ref2compressed()` used
 #'    to compress axis coordinates, to compress polygon coverage
 #'    data in compressed regions, and to adjust splice junction arcs
@@ -1372,6 +1401,7 @@ prepareSashimi <- function
  addGaps=TRUE,
  baseline=0,
  compressGR=TRUE,
+ compress_introns=TRUE,
  ref2c=NULL,
  gap_feature_type="intron",
  default_feature_type="exon",
@@ -1549,6 +1579,7 @@ prepareSashimi <- function
             covNames=covNames,
             sample_id=covName,
             coord_style="fortify",
+            compress_introns=compress_introns,
             verbose=verbose,
             ...);
          ## Enforce ordered factor levels for sample_id
@@ -1634,6 +1665,7 @@ prepareSashimi <- function
          covNames=covNames,
          sample_id=covName,
          coord_style="fortify",
+         compress_introns=compress_introns,
          verbose=verbose,
          ...);
       if (any(c("all", "covDF") %in% return_data)) {

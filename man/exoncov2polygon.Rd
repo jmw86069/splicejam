@@ -7,7 +7,7 @@
 exoncov2polygon(gr, covNames = NULL, sample_id = NULL,
   baseline = NULL, gapWidth = 250, doPlot = FALSE,
   coord_style = c("fortify", "base", "list", "all"), ref2c = NULL,
-  verbose = FALSE, ...)
+  compress_introns = TRUE, verbose = FALSE, ...)
 }
 \arguments{
 \item{gr}{GRanges where \code{colnames(values(gr))} is present in \code{covNames},
@@ -31,6 +31,16 @@ with columns \code{"cov"} and \code{"gr"} indicating the values in \code{covName
 
 \item{ref2c}{optional list containing output from \code{make_ref2compressed()},
 used to compress the GRanges coordinates.}
+
+\item{compress_introns}{logical indicating whether to compress
+the coverage polygon coordinates to approximately the same
+number of pixels per inch as the exon polygons. This option
+greatly reduces the size of the polygon, since introns are
+already about 50 to 100 times wider than exons, and when
+\code{ref2c} is supplied, the introns are visibly compressed
+to a fixed width on the x-axis. The data has many more
+x-axis coordinates than the data visualization, this argument
+is intended to reduce the intron coordinates accordingly.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 

@@ -1,3 +1,27 @@
+# splicejam version 0.0.54.900
+
+## bug fixed
+
+* Fixed bug in `compressPolyM()` edge case, polygons with only
+two x values and y values all zero; threw an error
+`Error in x[idx1, ] : only 0's may be mixed with negative subscripts`.
+New rule requires at least 5 x-axis values, otherwise compression
+doesn't seem necessary anyway.
+
+## changes
+
+* New argument `compress_introns` added to `exoncov2polygon()`
+and `prepareSashimi()`, which determines whether to call
+`compressPolygonM()` when creating polygon coordiantes for
+coverage data. Setting `compress_introns=FALSE` saves
+about 20% of the time it takes to prepare sashimi data.
+* Changed default `compressPolyM()` argument from `minRatio=3`
+to `minRatio=5`, the threshold of compression above which
+polygon coordinates are adjusted.
+* Changed `sashimiAppServer()` to create the memoise version
+of `prepareSashimi()` only once, instead of re-creating it each
+time. Probably no noticeable effect, but it feels better.
+
 # splicejam version 0.0.53.900
 
 ## changes

@@ -6,11 +6,12 @@
 \usage{
 prepareSashimi(flatExonsByGene = NULL, filesDF = NULL, gene,
   sample_id = NULL, minJunctionScore = 10, gapWidth = 200,
-  addGaps = TRUE, baseline = 0, compressGR = TRUE, ref2c = NULL,
-  gap_feature_type = "intron", default_feature_type = "exon",
-  feature_type_colname = "feature_type", exon_label_type = c("none",
-  "repel", "mark"), junc_label_type = c("repel", "mark", "none"),
-  return_data = c("df", "ref2c"), include_strand = c("both", "+", "-"),
+  addGaps = TRUE, baseline = 0, compressGR = TRUE,
+  compress_introns = TRUE, ref2c = NULL, gap_feature_type = "intron",
+  default_feature_type = "exon", feature_type_colname = "feature_type",
+  exon_label_type = c("none", "repel", "mark"),
+  junc_label_type = c("repel", "mark", "none"), return_data = c("df",
+  "ref2c"), include_strand = c("both", "+", "-"),
   junc_color = alpha2col("goldenrod3", 0.7),
   junc_fill = alpha2col("goldenrod1", 0.4), doStackJunctions = TRUE,
   coord_method = c("coord", "scale", "none"), scoreFactor = 1,
@@ -55,6 +56,16 @@ coordinates in the output data, where gaps/introns are set
 to a fixed width. When \code{ref2c} is not supplied, and
 \code{compressGR=TRUE}, then \code{ref2c} is created using
 \code{make_ref2compressed()}.}
+
+\item{compress_introns}{logical indicating whether to compress
+the coverage polygon coordinates to approximately the same
+number of pixels per inch as the exon polygons. This option
+greatly reduces the size of the polygon, since introns are
+already about 50 to 100 times wider than exons, and when
+\code{compressGR} is \code{TRUE}, the introns are visibly compressed
+to a fixed width on the x-axis. The data has many more
+x-axis coordinates than the data visualization, this argument
+is intended to reduce the intron coordinates accordingly.}
 
 \item{ref2c}{list object output from \code{make_ref2compressed()} used
 to compress axis coordinates, to compress polygon coverage

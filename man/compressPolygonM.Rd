@@ -4,7 +4,7 @@
 \alias{compressPolygonM}
 \title{Compress genome coordinates of a matrix of polygons}
 \usage{
-compressPolygonM(polyM, ref2c, minRatio = 3, verbose = FALSE, ...)
+compressPolygonM(polyM, ref2c, minRatio = 5, verbose = FALSE, ...)
 }
 \arguments{
 \item{polyM}{data.frame including \code{x},\code{y} coordinates of polygons,

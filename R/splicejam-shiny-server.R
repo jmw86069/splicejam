@@ -326,8 +326,10 @@ sashimiAppServer <- function
       }
 
       ## Wrap the workflow in a progress bar
-      prepareSashimi_m <- memoise::memoise(prepareSashimi,
-         cache=memoise::cache_filesystem("sashimidata_memoise"));
+      if (!exists("prepareSashimi_m")) {
+         prepareSashimi_m <- memoise::memoise(prepareSashimi,
+            cache=memoise::cache_filesystem("sashimidata_memoise"));
+      }
 
       ## Define sample_id from sample selection
       sample_id <- get_sample_id();
