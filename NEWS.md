@@ -1,3 +1,17 @@
+# splicejam version 0.0.55.900
+
+## changes
+
+* Changed `plotSashimi()` argument default
+`ylab="read depth"`, previously it was `"score"`.
+In future, normalized data might use `ylab="normalized read depth"`
+but that would be a custom option for the analyst.
+* `plotSashimi()` arguments `"xlabel"` and `"xlabel_ref"` control
+the x-axis label, which by default `xlabel_ref=TRUE` will use
+the reference (chromosome) as the x-axis label, which makes
+sense because the axis shows chromosome coordinates. The `"xlabel"`
+argument is intended to allow a fully custom label.
+
 # splicejam version 0.0.54.900
 
 ## bug fixed

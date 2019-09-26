@@ -9,9 +9,10 @@ plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
   junc_color = alpha2col("goldenrod2", 0.3),
   junc_fill = alpha2col("goldenrod2", 0.9), junc_alpha = 0.8,
   fill_scheme = c("sample_id", "exon"), color_sub = NULL,
-  ylabel = "score", use_jam_themes = TRUE, apply_facet = TRUE,
-  facet_scales = "free_y", ref2c = NULL, label_coords = NULL,
-  do_highlight = FALSE, verbose = FALSE, ...)
+  ylabel = "read depth", xlabel = NULL, xlabel_ref = TRUE,
+  use_jam_themes = TRUE, apply_facet = TRUE, facet_scales = "free_y",
+  ref2c = NULL, label_coords = NULL, do_highlight = FALSE,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{sashimi}{Sashimi data prepared by \code{prepareSashimi()} which
@@ -64,6 +65,14 @@ respectively for coverage and junction data. Scores are
 also adjusted using the \code{scale_factor} value for each
 \code{sample_id} as defined in the \code{filesDF}. Set to \code{NULL} to
 hide the y-axis label completely.}
+
+\item{xlabel}{character string used to define the x-axis name,
+which takes priority over argument \code{xlabel_ref}. When
+\code{xlabel} is \code{NULL} and \code{xlabel_ref} is \code{FALSE}, then the
+x-axis name is \code{""}, which displays no x-axis label.}
+
+\item{xlabel_ref}{logical indicating whether the x-axis name
+should be determined by the reference (chromosome).}
 
 \item{use_jam_themes}{logical indicating whether to apply
 \code{colorjam::theme_jam()}, by default for the ggplot theme.}

@@ -1235,6 +1235,12 @@ stackJunctions <- function
 #'    also adjusted using the `scale_factor` value for each
 #'    `sample_id` as defined in the `filesDF`. Set to `NULL` to
 #'    hide the y-axis label completely.
+#' @param xlabel character string used to define the x-axis name,
+#'    which takes priority over argument `xlabel_ref`. When
+#'    `xlabel` is `NULL` and `xlabel_ref` is `FALSE`, then the
+#'    x-axis name is `""`, which displays no x-axis label.
+#' @param xlabel_ref logical indicating whether the x-axis name
+#'    should be determined by the reference (chromosome).
 #' @param use_jam_themes logical indicating whether to apply
 #'    `colorjam::theme_jam()`, by default for the ggplot theme.
 #' @param apply_facet logical indicating whether to apply
@@ -1278,7 +1284,9 @@ plotSashimi <- function
  junc_alpha=0.8,
  fill_scheme=c("sample_id", "exon"),
  color_sub=NULL,
- ylabel="score",
+ ylabel="read depth",
+ xlabel=NULL,
+ xlabel_ref=TRUE,
  use_jam_themes=TRUE,
  apply_facet=TRUE,
  facet_scales="free_y",
@@ -1506,13 +1514,26 @@ plotSashimi <- function
       }
    }
 
+   ## Determine an appropriate x-axis label
+   if (length(xlabel) == 0) {
+      if (length(xlabel_ref) > 0 && xlabel_ref) {
+         xlabel <- as.character(unique(seqnames(attr(sashimi$ref2c, "gr"))));
+      } else {
+         xlabel <- "";
+      }
+   }
+
    if ("scale" %in% coord_method) {
       gg_sashimi <- gg_sashimi +
-         scale_x_continuous(trans=sashimi$ref2c$trans_grc);
+         scale_x_continuous(trans=sashimi$ref2c$trans_grc,
+            name=xlabel);
    } else if ("coord" %in% coord_method) {
       gg_sashimi <- gg_sashimi +
-         coord_trans(x=sashimi$ref2c$trans_grc);
+         coord_trans(x=sashimi$ref2c$trans_grc) +
+         #coord_cartesian(expand=FALSE) +
+         xlab(xlabel);
    }
+
    if (use_jam_themes) {
       gg_sashimi <- gg_sashimi +
          colorjam::theme_jam(
