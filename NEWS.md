@@ -1,3 +1,12 @@
+# splicejam version 0.0.56.900
+
+## Bug fixes
+
+* Fixed rare error in `annotateGRfromGR()` with numeric columns,
+which failed to initialize a new GRanges column with numeric(0)
+instead of using a numeric form of NA, which was accomplished
+with `c(0, NA)[2]`.
+
 # splicejam version 0.0.55.900
 
 ## changes

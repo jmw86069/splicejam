@@ -518,7 +518,7 @@ tx2ale <- function
    threeUtrGRLdetGeneGRLred2 <- annotateGRLfromGRL(
       threeUtrGRLdetGeneGRLred,
       threeUtrGRLdetGeneGRL,
-      verbose=verbose);
+      verbose=FALSE);
 
    ####################################################
    ## Assign ALE numbers in stranded order for each gene
@@ -2264,6 +2264,14 @@ annotateGRfromGR <- function
          }
       }
       if (length(numCols) > 0 && !is.null(stringShrunkDF)) {
+         if (verbose) {
+            printDebug("annotateGRfromGR(): ",
+               "Combining ",
+               "string",
+               " and ",
+               "numeric",
+               " data.frames");
+         }
          grOL1 <- data.frame(check.names=FALSE,
             stringsAsFactors=FALSE,
             stringShrunkDF,
@@ -2295,16 +2303,16 @@ annotateGRfromGR <- function
 
    ## Now append each column, meanwhile fix some issues with ,-delimiters
    for (iCol in colnames(grOL1)) {
+      if (verbose) {
+         printDebug("annotateGRfromGR(): ",
+            "Appending column to GRanges:",
+            iCol);
+      }
       if (igrepHas("integer|numeric", class(grOL1[,iCol]))) {
-         GenomicRanges::values(GR1)[,iCol] <- numeric(0);
+         GenomicRanges::values(GR1)[,iCol] <- c(0, NA)[2];
       } else {
          grOL1[,iCol] <- gsub(", ", ",", grOL1[,iCol]);
          GenomicRanges::values(GR1)[,iCol] <- "";
-      }
-      if (verbose) {
-         printDebug("annotateGRfromGR(): ",
-            "head(grOL1):");
-         print(head(grOL1, 5));
       }
       GenomicRanges::values(GR1)[grOLqAll,iCol] <- grOL1[,iCol];
       blankRows <- seq_along(GR1)[-grOLqAll];
