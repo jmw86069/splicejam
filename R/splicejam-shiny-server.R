@@ -397,6 +397,8 @@ sashimiAppServer <- function
       #sashimi_data <- sashimi_data;
       if (length(sashimi_data) == 0) {
          ## Todo: make empty plot a minimum height in pixels
+         printDebug("Rendering blank panel for ",
+            "sashimiplot_output");
          tagList(
             renderPlot(
                height=300,
@@ -409,11 +411,9 @@ sashimiAppServer <- function
          } else {
             facet_scales <- "free_y";
          }
-         if (!isolate(input$do_plotly)) {
-            do_highlight <- FALSE;
-         } else {
-            do_highlight <- TRUE;
-         }
+         ## do_plotly <- do_plotly_d()
+         #do_highlight <- (enable_highlights_d() && do_plotly_d());
+         do_highlight <- (do_plotly_d());
 
          ## Obtain the baseline ggplot object
          gg_sashimi <- plotSashimi(sashimi_data,
@@ -524,15 +524,6 @@ sashimiAppServer <- function
                   #plotly::style(
                   #   hoveron="fill"
                   #);
-               if (1 == 2 && enable_highlights_d()) {
-                  ggly1 <- ggly1 %>%
-                     plotly::highlight(
-                        on="plotly_hover",
-                        off="plotly_doubleclick",
-                        opacityDim=0.8,
-                        selected=attrs_selected(
-                           line=list(color="#444444")));
-               }
                ggly2 <- plotly::ggplotly(
                   gg_gene +
                      colorjam::theme_jam(base_size=base_size) +
@@ -565,12 +556,14 @@ sashimiAppServer <- function
                      coord_cartesian(xlim=get_gene_coords()),
                   tooltip="text",
                   height=plot_height
-               )# %>% style(hoveron="fill");
+               )
+               # %>% style(hoveron="fill");
                if (enable_highlights_d()) {
                   gg_ly <- gg_ly %>%
                      highlight("plotly_hover",
                         opacityDim=0.8,
-                        selected=attrs_selected(line=list(color="#444444")));
+                        selected=attrs_selected(
+                           line=list(color="#444444")));
                }
             }
             ## Remove the color legend (again)
@@ -583,13 +576,11 @@ sashimiAppServer <- function
                gg_ly %>%
                   layout(margin=list(r=100, l=70, t=20, b=70))
             });
-            plotlyOutput(
+            plotly_out <- plotlyOutput(
                "plotly",
                height=plot_height
             );
-            #tagList(
-            #   htmltools::as.tags(gg_ly)
-            #);
+            plotly_out;
          } else {
             if (verbose) {
                printDebug("sashimiAppServer(): ",

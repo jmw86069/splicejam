@@ -1,3 +1,21 @@
+# splicejam version 0.0.57.900
+
+## Bug fixes
+
+* Fixed issue with plotly rendering in R-shiny context, it
+was throwing an error `"TypeError: postRenderHandlers is undefined"`.
+Upon deeper inspection, the `uiOutput()` element being used
+to display both ggplot and ggplotly output, was somehow not
+providing the plotly javascript dependencies to include
+relevant `postRenderHandlers`. The workaround was to add an empty
+`plotlyOutput("plotly_blank")` to the UI, which appears
+to cause the required javascript dependencies to be loaded.
+Stackoverflow threads and Github issues suggest there exists a
+method to load dependencies when embedding htmlwidgets
+inside tagList context -- for example when embedding a custom
+htmlwidget inside a table cell.
+Perhaps the proper remedy is related.
+
 # splicejam version 0.0.56.900
 
 ## Bug fixes

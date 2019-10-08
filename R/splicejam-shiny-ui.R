@@ -214,7 +214,8 @@ sashimiAppUI <- function
                      shinycssloaders::withSpinner(
                         uiOutput("sashimiplot_output"),
                         type=8
-                     )
+                     ),
+                     plotlyOutput("plotly_blank")
                   )
                ),
                sidebar_width=25,

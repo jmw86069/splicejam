@@ -1448,7 +1448,8 @@ plotSashimi <- function
             "Including coverage and splice junctions.");
       }
       gg_sashimi <- gg_sashimi +
-         geom_polygon(
+         #geom_polygon(
+         ggforce::geom_shape(
             data=. %>% filter(type %in% "coverage"),
             show.legend=FALSE) +
          geom_diagonal_wide_arc(
@@ -1460,6 +1461,7 @@ plotSashimi <- function
             "Including coverage without splice junctions.");
       }
       gg_sashimi <- gg_sashimi +
+         #geom_polygon(
          ggforce::geom_shape(
             data=. %>% filter(type %in% "coverage"),
             show.legend=FALSE
