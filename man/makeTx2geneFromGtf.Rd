@@ -4,10 +4,16 @@
 \alias{makeTx2geneFromGtf}
 \title{Make tx2gene data.frame from a GTF file}
 \usage{
-makeTx2geneFromGtf(GTF, geneAttrNames = c("gene_id", "gene_name",
-  "gene_type"), txAttrNames = c("transcript_id", "transcript_type"),
-  geneFeatureType = "gene", txFeatureType = c("transcript", "mRNA"),
-  nrows = -1L, verbose = FALSE, ...)
+makeTx2geneFromGtf(
+  GTF,
+  geneAttrNames = c("gene_id", "gene_name", "gene_type"),
+  txAttrNames = c("transcript_id", "transcript_type"),
+  geneFeatureType = "gene",
+  txFeatureType = c("transcript", "mRNA"),
+  nrows = -1L,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{GTF}{character file name sent to \code{data.table::fread()}. When the
@@ -74,16 +80,18 @@ results into R for downstream processing.}
 }
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{defineDetectedTx}},
-  \code{\link{detectedTxInfo}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsBy}},
-  \code{\link{groups2contrasts}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{flattenExonsBy}()},
+\code{\link{groups2contrasts}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{runDiffSplice}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 }
 \concept{jam RNA-seq functions}

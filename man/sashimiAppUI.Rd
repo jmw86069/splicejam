@@ -22,8 +22,9 @@ calls \code{shiny::shinyApp()}, using arguments \code{server}, \code{ui},
 argument \code{ui}.
 }
 \seealso{
-Other splicejam R-shiny functions: \code{\link{launchSashimiApp}},
-  \code{\link{sashimiAppConstants}},
-  \code{\link{sashimiAppServer}}
+Other splicejam R-shiny functions: 
+\code{\link{launchSashimiApp}()},
+\code{\link{sashimiAppConstants}()},
+\code{\link{sashimiAppServer}()}
 }
 \concept{splicejam R-shiny functions}

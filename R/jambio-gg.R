@@ -158,14 +158,14 @@ grl2df <- function
    offset <- width / 2;
    if ("GRanges" %in% class(grl)) {
       if (verbose) {
-         printDebug("grl2df(): ",
+         jamba::printDebug("grl2df(): ",
             "converting input to GRangesList");
       }
       grl <- GRangesList(list(gr=grl));
    }
    if (addGaps && !"junction" %in% shape) {
       if (verbose) {
-         printDebug("grl2df(): ",
+         jamba::printDebug("grl2df(): ",
             "calling addGRLgaps()");
       }
       grl <- addGRLgaps(grl,
@@ -179,7 +179,7 @@ grl2df <- function
    ## multi-rectangle features, to indicate strandedness.
    if ("rectangle" %in% shape) {
       if (verbose) {
-         printDebug("grl2df(): ",
+         jamba::printDebug("grl2df(): ",
             "rectangle processing");
       }
       xCoords <- as.vector(rbind(
@@ -195,7 +195,7 @@ grl2df <- function
          1);
       if (length(width_colname_use) > 0) {
          if (verbose) {
-            printDebug("grl2df(): ",
+            jamba::printDebug("grl2df(): ",
                "width_colname_use:",
                width_colname_use);
          }
@@ -222,7 +222,7 @@ grl2df <- function
             S4Vectors::elementNROWS(grl));
          ySeqnames <- as.character(unlist(GenomicRanges::seqnames(grl)));
          abs_rank <- function(x){
-            xu <- nameVector(unique(x));
+            xu <- jamba::nameVector(unique(x));
             xr <- rank(xu, ties.method="min");
             unname(xr[as.character(x)] - 1);
          }
@@ -285,12 +285,12 @@ grl2df <- function
       #############################################################
       ## optionally stack junction ends so they do not overlap
       if (verbose) {
-         printDebug("grl2df(): ",
+         jamba::printDebug("grl2df(): ",
             "junction processing");
       }
       if (!all(scoreFactor == 1)) {
          if (verbose) {
-            printDebug("grl2df(): ",
+            jamba::printDebug("grl2df(): ",
                "scoreFactor:",
                scoreFactor);
          }
@@ -299,7 +299,7 @@ grl2df <- function
       }
       if (doStackJunctions) {
          if (verbose) {
-            printDebug("grl2df(): ",
+            jamba::printDebug("grl2df(): ",
                "stackJunctions()");
          }
          if (length(baseline) == 0) {
@@ -355,7 +355,7 @@ grl2df <- function
       yScore <- GenomicRanges::values(grl@unlistData)[[scoreColname]] * 1;
       yMaxStartEnd <- pmax(abs(yStart), abs(yEnd));
       if (verbose) {
-         printDebug("grl2df(): ",
+         jamba::printDebug("grl2df(): ",
             "calling internal_junc_score()");
          print(head(as.data.frame(grl@unlistData), 20));
          print(tail(as.data.frame(grl@unlistData), 20));
@@ -370,7 +370,7 @@ grl2df <- function
          verbose=verbose,
          ...);
       if (verbose) {
-         printDebug("grl2df(): ",
+         jamba::printDebug("grl2df(): ",
             "internalMaxScore:", internalMaxScore);
       }
 
@@ -608,7 +608,7 @@ gene2gg <- function
          stop("gene was not found in names(flatExonsByGene)");
       }
       if (verbose) {
-         printDebug("gene2gg(): ",
+         jamba::printDebug("gene2gg(): ",
             "flatExonsByGene[gene]");
       }
       grl1a <- flatExonsByGene[names(flatExonsByGene) %in% gene];
@@ -620,14 +620,14 @@ gene2gg <- function
       if (length(gene) > 0) {
          if ("gene_name" %in% colnames(values(flatExonsByTx))) {
             if (verbose) {
-               printDebug("gene2gg(): ",
+               jamba::printDebug("gene2gg(): ",
                   "values(flatExonsByTx)$gene_name %in% gene");
             }
             grl1 <- subset(flatExonsByTx, gene_name %in% gene);
          } else if (length(tx2geneDF) > 0 &&
             "gene_name" %in% colnames(tx2geneDF)) {
             if (verbose) {
-               printDebug("gene2gg(): ",
+               jamba::printDebug("gene2gg(): ",
                   "subset(tx2geneDF, gene_name %in% gene)$transcript_id");
             }
             tx <- unique(c(tx,
@@ -652,12 +652,16 @@ gene2gg <- function
       return(NULL);
    }
    if ("first" %in% gene_order) {
-      grl1a1 <- GRangesList(c(grl1, grl1a));
+      grl1a1 <- GRangesList(c(
+         rev(grl1),
+         grl1a));
    } else {
-      grl1a1 <- GRangesList(c(grl1a, grl1));
+      grl1a1 <- GRangesList(c(
+         grl1a,
+         rev(grl1)));
    }
    if (verbose) {
-      printDebug("class(grl1a1):", class(grl1a1));
+      jamba::printDebug("class(grl1a1):", class(grl1a1));
    }
    if (length(grl1a1) == 0) {
       stop("no exon models found for the gene and tx arguments given.");
@@ -667,36 +671,58 @@ gene2gg <- function
       newValues=newValues,
       ...);
 
-   ## ggplot2
+   ## Refactor to colorization
+   ## - apply geneColor as a vector to each GRangesList named entry
+   ## - apply gradient by subclass within each GRangesList named color
+   if (length(geneColor) == 2) {
+      geneColor <- jamba::nameVector(
+         rep(geneColor,
+            c(length(grl1a), length(grl1))),
+         c(names(grl1a), names(grl1)));
+   }
+   gc <- jamba::nameVector(rep(geneColor,
+      length.out=length(grl1a1)),
+      names(grl1a1));
+   if (length(names(geneColor)) > 0) {
+      gc[names(geneColor)] <- geneColor;
+   }
+   if (verbose) {
+      jamba::printDebug("grl2df(): ",
+         names(gc),
+         fgText=list("orange", setTextContrastColor(gc)),
+         bgText=list(NA, gc));
+   }
    colorColname <- head(
       intersect(c("subclass", "feature_type"),
          colnames(grl1a1df)),
       1);
-   subclassV <- provigrep(
-      c("noncds", "utr", "cds", "exon", "intron", "gap", "^NA$", "."),
-      rmNA(naValue="NA",
-         unique(grl1a1df[[colorColname]]))
-      );
-   colorSubV <- color2gradient(
-      nameVector(rep(geneColor, length.out=length(subclassV)),
-         subclassV));
-   if (verbose) {
-      printDebug("gene2gg(): ",
-         "colorSubV:", names(colorSubV),
-         fgtext=list(c("orange"), c("dodgerblue"), list(colorSubV)));
-      printDebug(colorSubV);
-      printDebug("subclassV:", subclassV);
+   ## For now, color by grl_name and subclass
+   ## In future, define colors for each gr_name, which will allow
+   ## highlighting individual features if needed.
+   if (length(colorColname) > 0) {
+      grl1a1df$color_by <- pasteByRow(grl1a1df[,c("grl_name", colorColname)]);
+      subclassV <- provigrep(
+         c("noncds", "utr", "cds", "exon", "intron", "gap", "^NA$", "."),
+         rmNA(naValue="NA",
+            unique(grl1a1df[[colorColname]]))
+      )
+      colorSubV <- unlist(lapply(names(grl1a1), function(iname){
+         jamba::color2gradient(
+            jamba::nameVector(
+               rep(gc[iname],
+                  length.out=length(subclassV)),
+               paste0(iname, "_", subclassV)));
+      }));
+   } else {
+      ## If for some reason there is no subclass,feature_type
+      ## we just color by the gene itself
+      grl1a1df$color_by <- grl1a1df$grl_name;
+      colorSubV <- gc;
    }
-   #showColors(colorSubSubclass);
-   #colorSubSubclass <- c(cds="navy", noncds="dodgerblue", gap="grey30");
+
    ## Make a data.frame to label each exon
    exonLabelDF <- NULL;
    if (labelExons) {
-      #exonLabelDF <- renameColumn(
-      #   from="groupBy",
-      #   to="gene_nameExon",
-      #   shrinkMatrix(grl1a1df[,c("x","y")],
-      #      groupBy=grl1a1df[,"gene_nameExon"]));
       exonLabelDF <- renameColumn(
          from="groupBy",
          to="id",
@@ -721,7 +747,7 @@ gene2gg <- function
    if (length(ref2c) == 0) {
       if (compressGaps) {
          if (verbose) {
-            printDebug("gene2gg(): ",
+            jamba::printDebug("gene2gg(): ",
                "grl1a1:");
             print(grl1a1);
          }
@@ -732,21 +758,26 @@ gene2gg <- function
       }
    }
    ## Calculate a reasonable y-axis minimum to allow for exon labels,
-   ## based upon the number of transcripts being displayed
+   ## based upon the number of transcripts being displayed.
+   ## Todo: Clean up this code - non-overlapping labels are still
+   ## a jumbled mess very often.
    ymin <- (-0.5 +
          -1 * (exonLabelMm/3) *
          ((labelExons*1) * length(grl1a1))/2);
+
    ## Put it together
    grl1a1gg <- ggplot2::ggplot(grl1a1df,
          aes(x=x,
             y=y,
-            fill=subclass,
-            color=subclass,
+            fill=color_by,
+            color=color_by,
             text=paste0(sub("_", "<br>", gr_name),
                "<br>",subclass,
                "<br>",
                seqnames,
-               ":", paste(scales::comma(range(x)), collapse="-")
+               ":",
+               paste(scales::comma(range(x), accuracy=1),
+                  collapse="-")
             ),
             group=id)) +
       ggforce::geom_shape(show.legend=FALSE) +
@@ -806,6 +837,9 @@ gene2gg <- function
    }
    if ("df" %in% return_type) {
       return(grl1a1df);
+   }
+   if (length(ref2c) > 0) {
+      attr(grl1a1gg, "ref2c") <- ref2c;
    }
    grl1a1gg;
 }
@@ -1008,7 +1042,7 @@ stackJunctions <- function
    ## Optionally enforce strandedness
    if (strandedScore) {
       if (verbose) {
-         printDebug("stackJunctions(): ",
+         jamba::printDebug("stackJunctions(): ",
             "Adjusting score by strand, using scoreFactor:",
             scoreFactor);
       }
@@ -1019,7 +1053,7 @@ stackJunctions <- function
          abs(GenomicRanges::values(gr)[[scoreColname]]);
    } else {
       if (verbose) {
-         printDebug("stackJunctions(): ",
+         jamba::printDebug("stackJunctions(): ",
             "Adjusting unstranded score, using scoreFactor:",
             scoreFactor);
       }
@@ -1029,7 +1063,7 @@ stackJunctions <- function
    GenomicRanges::values(gr)[[scoreColname]] <- scoreV;
 
    if (verbose) {
-      printDebug("stackJunctions(): ",
+      jamba::printDebug("stackJunctions(): ",
          "matchFrom:", matchFrom,
          ", matchTo:", matchTo);
    }
@@ -1047,10 +1081,10 @@ stackJunctions <- function
    exonsTo <- gsub("[.][-]*[0-9]+$", "",
       exonsTo);
    if (verbose) {
-      printDebug("stackJunctions(): ",
+      jamba::printDebug("stackJunctions(): ",
          "head(exonsFrom):",
          head(exonsFrom, 10));
-      printDebug("stackJunctions(): ",
+      jamba::printDebug("stackJunctions(): ",
          "head(exonsTo):",
          head(exonsTo, 10));
    }
@@ -1059,7 +1093,7 @@ stackJunctions <- function
    ## to each exon
    allExons <- mixedSort(unique(
       c(exonsFrom, exonsTo)));
-   baselineV <- nameVector(
+   baselineV <- jamba::nameVector(
       rep(0,
          length.out=length(allExons)),
       allExons);
@@ -1074,7 +1108,7 @@ stackJunctions <- function
    ## Start position
    ## group by exonsFrom which allows the spliceBuffer to work
    if (verbose) {
-      printDebug("stackJunctions(): ",
+      jamba::printDebug("stackJunctions(): ",
          "Stacking exonsFrom");
    }
    if (length(tcount(names(gr), minCount=2)) > 0) {
@@ -1091,13 +1125,13 @@ stackJunctions <- function
       groupBy=exonsFrom[order1],
       shrinkFunc=c);
    if (verbose) {
-      printDebug("head(yStart_df):");
+      jamba::printDebug("head(yStart_df):");
       print(head(yStart_df, 20));
       print(gr[yRow_df$x]);
-      printDebug("exonsFrom:", exonsFrom);
-      printDebug("baselineV:");
+      jamba::printDebug("exonsFrom:", exonsFrom);
+      jamba::printDebug("baselineV:");
       print(baselineV);
-      printDebug("baselineV[exonsFrom]:", baselineV[exonsFrom]);
+      jamba::printDebug("baselineV[exonsFrom]:", baselineV[exonsFrom]);
    }
    order1rev <- match(names(gr), yRow_df$x);
    GenomicRanges::values(gr)[,"yStart"] <- yStart_df$x[order1rev] + baselineV[exonsFrom];
@@ -1105,7 +1139,7 @@ stackJunctions <- function
    ## End position
    ## group by exonsTo which allows the spliceBuffer to work
    if (verbose) {
-      printDebug("stackJunctions(): ",
+      jamba::printDebug("stackJunctions(): ",
          "Stacking exonsTo");
    }
    order2 <- do.call(order, list(exonsTo, width(gr)));
@@ -1155,7 +1189,7 @@ stackJunctions <- function
          nfts_colname <- "nameFromToSample";
       }
       if (verbose) {
-         printDebug("stackJunctions(): ",
+         jamba::printDebug("stackJunctions(): ",
             "Calculating junction ranks with sampleColname:",
             sampleColname);
       }
@@ -1282,6 +1316,7 @@ plotSashimi <- function
  junc_color=alpha2col("goldenrod2", 0.3),
  junc_fill=alpha2col("goldenrod2", 0.9),
  junc_alpha=0.8,
+ junc_accuracy=1,
  fill_scheme=c("sample_id", "exon"),
  color_sub=NULL,
  ylabel="read depth",
@@ -1400,10 +1435,10 @@ plotSashimi <- function
    ## Pull out the data.frame
    cjDF <- sashimi$df;
    if (verbose) {
-      printDebug("plotSashimi(): ",
+      jamba::printDebug("plotSashimi(): ",
          "head(df):");
       print(head(sashimi$df));
-      printDebug("plotSashimi(): ",
+      jamba::printDebug("plotSashimi(): ",
          "table(sashimi$df$color_by):");
       print(table(sashimi$df$color_by));
    }
@@ -1441,10 +1476,10 @@ plotSashimi <- function
          name=ylabel);
 
    # Add coverage layer
-   color_sub_d <- makeColorDarker(color_sub, darkFactor=1.2);
+   color_sub_d <- jamba::makeColorDarker(color_sub, darkFactor=1.2);
    if (all(c("coverage","junction") %in% cjDF$type)) {
       if (verbose) {
-         printDebug("plotSashimi(): ",
+         jamba::printDebug("plotSashimi(): ",
             "Including coverage and splice junctions.");
       }
       gg_sashimi <- gg_sashimi +
@@ -1454,10 +1489,12 @@ plotSashimi <- function
             show.legend=FALSE) +
          geom_diagonal_wide_arc(
             data=. %>% filter(type %in% "junction"),
-            show.legend=FALSE);
+            show.legend=FALSE,
+            alpha=junc_alpha,
+            strength=0.4);
    } else if ("coverage" %in% cjDF$type) {
       if (verbose) {
-         printDebug("plotSashimi(): ",
+         jamba::printDebug("plotSashimi(): ",
             "Including coverage without splice junctions.");
       }
       gg_sashimi <- gg_sashimi +
@@ -1468,7 +1505,7 @@ plotSashimi <- function
          );
    } else if ("junction" %in% cjDF$type) {
       if (verbose) {
-         printDebug("plotSashimi(): ",
+         jamba::printDebug("plotSashimi(): ",
             "Including splice junctions without coverage.");
       }
       gg_sashimi <- gg_sashimi +
@@ -1485,13 +1522,13 @@ plotSashimi <- function
          "junction_label" %in% cjDF$type) {
       if (do_highlight) {
          if (verbose) {
-            printDebug("plotSashimi(): ",
+            jamba::printDebug("plotSashimi(): ",
                "Disabled junction labels because do_highlight=",
                do_highlight);
          }
       } else {
          if (verbose) {
-            printDebug("plotSashimi(): ",
+            jamba::printDebug("plotSashimi(): ",
                "Adding junction labels.");
          }
          if (length(label_coords) == 0) {
@@ -1510,7 +1547,8 @@ plotSashimi <- function
                color="black",
                #fill="transparent",
                aes(
-                  label=scales::comma(score)
+                  label=scales::comma(score,
+                     accuracy=junc_accuracy)
                )
             );
       }

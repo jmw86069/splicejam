@@ -61,11 +61,12 @@ gg3 +
       alpha=0.6)
 }
 \seealso{
-Other splicejam data: \code{\link{test_cov_gr}},
-  \code{\link{test_exon_gr}},
-  \code{\link{test_exon_wide_gr}},
-  \code{\link{test_junc_gr}},
-  \code{\link{test_junc_wide_gr}}
+Other splicejam data: 
+\code{\link{test_cov_gr}},
+\code{\link{test_exon_gr}},
+\code{\link{test_exon_wide_gr}},
+\code{\link{test_junc_gr}},
+\code{\link{test_junc_wide_gr}}
 }
 \concept{splicejam data}
 \keyword{datasets}

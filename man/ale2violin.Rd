@@ -4,11 +4,23 @@
 \alias{ale2violin}
 \title{Prepare ALE data for violin plots}
 \usage{
-ale2violin(iMatrixAle = NULL, iMatrixAleGrp = NULL, groups,
-  facet_groups = groups, facet_name = "Group", maxGroupMeanALE = 2,
-  removeAboveAleNum = "ale3", maxGroupMeanFloor = 0,
-  returnAll = FALSE, geneLists, lineAlpha = 0.1, subsetFunc = NULL,
-  make_ggplots = TRUE, verbose = FALSE, ...)
+ale2violin(
+  iMatrixAle = NULL,
+  iMatrixAleGrp = NULL,
+  groups,
+  facet_groups = groups,
+  facet_name = "Group",
+  maxGroupMeanALE = 2,
+  removeAboveAleNum = "ale3",
+  maxGroupMeanFloor = 0,
+  returnAll = FALSE,
+  geneLists,
+  lineAlpha = 0.1,
+  subsetFunc = NULL,
+  make_ggplots = TRUE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{groups}{vector of group labels, named by \code{colnames(iMatrixALE)}.}
@@ -70,7 +82,8 @@ to the output data, then returns a tall data.frame sufficient
 for viewing as a violin plot using \code{ggplot2::geom_violin()}.
 }
 \seealso{
-Other jam ALE-specific RNA-seq functions: \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{tx2ale}}
+Other jam ALE-specific RNA-seq functions: 
+\code{\link{getFirstStrandedFromGRL}()},
+\code{\link{tx2ale}()}
 }
 \concept{jam ALE-specific RNA-seq functions}

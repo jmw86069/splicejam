@@ -4,10 +4,18 @@
 \alias{addGRLgaps}
 \title{Add gaps between GRangesList regions}
 \usage{
-addGRLgaps(grl, strandSpecific = TRUE, gapname = "gap",
-  suffix = "_v", newValues = list(feature_type = "gap"),
-  default_feature_type = "exon", feature_type_colname = "feature_type",
-  doSort = TRUE, verbose = FALSE, ...)
+addGRLgaps(
+  grl,
+  strandSpecific = TRUE,
+  gapname = "gap",
+  suffix = "_v",
+  newValues = list(feature_type = "gap"),
+  default_feature_type = "exon",
+  feature_type_colname = "feature_type",
+  doSort = TRUE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{grl}{GRangesList object}
@@ -17,7 +25,7 @@ per strand, see \code{getGRLgaps()}.}
 
 \item{gapname, suffix}{character vector supplying the name to assign to new
 gap GRanges elements, using \code{jamba::makeNames()} with \code{suffix} as
-described to define non-duplicated names. If \code{gapname is NULL} then
+described to define non-duplicated names. If \verb{gapname is NULL} then
 no names are assigned to new gap GRanges entries, however when the
 input \code{gr} GRanges object has names, the concatenation of gaps
 causes names \code{""} to be assigned to all gap GRanges elements, which
@@ -58,7 +66,7 @@ is supplied, the values for gaps GRanges elements will be assigned,
 otherwise any column values present in \code{gr} will be \code{NA} for
 gaps elements. The names of gaps elements are assigned using
 \code{gapname} then are made unique using \code{jamba::makeNames()},
-unless \code{gapname is NULL}.
+unless \verb{gapname is NULL}.
 }
 \description{
 Add gaps between GRangesList regions
@@ -93,20 +101,23 @@ addGRLgaps(grl, strandSpecific=FALSE);
 
 }
 \seealso{
-Other jam GRanges functions: \code{\link{addGRgaps}},
-  \code{\link{annotateGRLfromGRL}},
-  \code{\link{annotateGRfromGR}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{findOverlapsGRL}},
-  \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{getGRLgaps}},
-  \code{\link{getGRcoverageFromBw}},
-  \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
-  \code{\link{spliceGR2junctionDF}},
-  \code{\link{stackJunctions}}
+Other jam GRanges functions: 
+\code{\link{addGRgaps}()},
+\code{\link{annotateGRLfromGRL}()},
+\code{\link{annotateGRfromGR}()},
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{findOverlapsGRL}()},
+\code{\link{getFirstStrandedFromGRL}()},
+\code{\link{getGRLgaps}()},
+\code{\link{getGRcoverageFromBw}()},
+\code{\link{getGRgaps}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortGRL}()},
+\code{\link{spliceGR2junctionDF}()},
+\code{\link{stackJunctions}()}
 }
 \concept{jam GRanges functions}

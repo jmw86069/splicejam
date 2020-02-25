@@ -29,13 +29,14 @@ a text connection around the input text.
 \examples{
 
 psls <- c(
-   "2252\\t0\\t0\\t0\\t0\\t0\\t5\\t56285\\t+\\tQuery_Sequence\\t2252\\t0\\t2252\\tReference_Sequence\\t99095\\t1992\\t60529\\t6\\t227,86,71,79,77,1712,\\t0,227,313,384,463,540,\\t1992,6931,11020,39871,45861,58817,",
-   "664\\t0\\t0\\t0\\t1\\t3\\t1\\t1\\t+\\tQuery_Sequence\\t2252\\t1291\\t1958\\tReference_Sequence\\t99095\\t58842\\t59507\\t2\\t657,7,\\t1291,1951,\\t58842,59500,"
+   "2252\t0\t0\t0\t0\t0\t5\t56285\t+\tQuery_Sequence\t2252\t0\t2252\tReference_Sequence\t99095\t1992\t60529\t6\t227,86,71,79,77,1712,\t0,227,313,384,463,540,\t1992,6931,11020,39871,45861,58817,",
+   "664\t0\t0\t0\t1\t3\t1\t1\t+\tQuery_Sequence\t2252\t1291\t1958\tReference_Sequence\t99095\t58842\t59507\t2\t657,7,\t1291,1951,\t58842,59500,"
    );
 psl2df(textConnection(psls), verbose=TRUE)
 
 }
 \seealso{
-Other jam data import functions: \code{\link{import_juncs_from_bed}}
+Other jam data import functions: 
+\code{\link{import_juncs_from_bed}()}
 }
 \concept{jam data import functions}

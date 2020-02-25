@@ -4,9 +4,18 @@
 \alias{annotateGRLfromGRL}
 \title{Annotate GRangesList from GRangesList objects}
 \usage{
-annotateGRLfromGRL(GRL1, GRL2, annoName1 = "name", annoName2 = "name",
-  grlOL = NULL, add_grl_name = FALSE, returnType = c("GRL", "GR"),
-  splitColname = annoName1, verbose = FALSE, ...)
+annotateGRLfromGRL(
+  GRL1,
+  GRL2,
+  annoName1 = "name",
+  annoName2 = "name",
+  grlOL = NULL,
+  add_grl_name = FALSE,
+  returnType = c("GRL", "GR"),
+  splitColname = annoName1,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{GRL1}{GRangesList query}
@@ -97,19 +106,23 @@ annotateGRLfromGRL(grl1, grl2);
 
 }
 \seealso{
-Other jam GRanges functions: \code{\link{addGRLgaps}},
-  \code{\link{addGRgaps}}, \code{\link{annotateGRfromGR}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{findOverlapsGRL}},
-  \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{getGRLgaps}},
-  \code{\link{getGRcoverageFromBw}},
-  \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
-  \code{\link{spliceGR2junctionDF}},
-  \code{\link{stackJunctions}}
+Other jam GRanges functions: 
+\code{\link{addGRLgaps}()},
+\code{\link{addGRgaps}()},
+\code{\link{annotateGRfromGR}()},
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{findOverlapsGRL}()},
+\code{\link{getFirstStrandedFromGRL}()},
+\code{\link{getGRLgaps}()},
+\code{\link{getGRcoverageFromBw}()},
+\code{\link{getGRgaps}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortGRL}()},
+\code{\link{spliceGR2junctionDF}()},
+\code{\link{stackJunctions}()}
 }
 \concept{jam GRanges functions}

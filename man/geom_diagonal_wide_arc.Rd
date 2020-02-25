@@ -5,14 +5,31 @@
 \alias{stat_diagonal_wide_arc}
 \title{Draw an area defined by an upper and lower diagonal into an arc}
 \usage{
-stat_diagonal_wide_arc(mapping = NULL, data = NULL, geom = "shape",
-  position = "identity", n = 100, strength = 0.5, na.rm = FALSE,
-  show.legend = NA, inherit.aes = TRUE, ...)
+stat_diagonal_wide_arc(
+  mapping = NULL,
+  data = NULL,
+  geom = "shape",
+  position = "identity",
+  n = 100,
+  strength = 0.5,
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE,
+  ...
+)
 
-geom_diagonal_wide_arc(mapping = NULL, data = NULL,
-  stat = "diagonal_wide_arc", position = "identity", n = 100,
-  na.rm = FALSE, strength = 0.5, show.legend = NA,
-  inherit.aes = TRUE, ...)
+geom_diagonal_wide_arc(
+  mapping = NULL,
+  data = NULL,
+  stat = "diagonal_wide_arc",
+  position = "identity",
+  n = 100,
+  na.rm = FALSE,
+  strength = 0.5,
+  show.legend = NA,
+  inherit.aes = TRUE,
+  ...
+)
 }
 \arguments{
 \item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}} or
@@ -111,19 +128,22 @@ ggplot(data) +
 
 }
 \seealso{
-Other jam ggplot2 functions: \code{\link{gene2gg}},
-  \code{\link{plotSashimi}},
-  \code{\link{splicejam-extensions}},
-  \code{\link{to_basic.GeomShape}}
+Other jam ggplot2 functions: 
+\code{\link{gene2gg}()},
+\code{\link{plotSashimi}()},
+\code{\link{splicejam-extensions}},
+\code{\link{to_basic.GeomShape}()}
 
-Other jam ggplot2 functions: \code{\link{gene2gg}},
-  \code{\link{plotSashimi}},
-  \code{\link{splicejam-extensions}},
-  \code{\link{to_basic.GeomShape}}
+Other jam ggplot2 functions: 
+\code{\link{gene2gg}()},
+\code{\link{plotSashimi}()},
+\code{\link{splicejam-extensions}},
+\code{\link{to_basic.GeomShape}()}
 
-Other jam ggplot2 functions: \code{\link{gene2gg}},
-  \code{\link{plotSashimi}},
-  \code{\link{splicejam-extensions}},
-  \code{\link{to_basic.GeomShape}}
+Other jam ggplot2 functions: 
+\code{\link{gene2gg}()},
+\code{\link{plotSashimi}()},
+\code{\link{splicejam-extensions}},
+\code{\link{to_basic.GeomShape}()}
 }
 \concept{jam ggplot2 functions}

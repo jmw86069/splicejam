@@ -4,14 +4,28 @@
 \alias{gene2gg}
 \title{Gene GRangesList to ggplot2 grob}
 \usage{
-gene2gg(gene = NULL, tx = NULL, flatExonsByGene = NULL,
-  flatExonsByTx = NULL, geneColor = "dodgerblue", labelExons = TRUE,
-  exonLabelAngle = 90, exonLabelSize = 8,
-  newValues = list(feature_type = "gap", subclass = "gap", gene_nameExon
-  = "gap"), gene_order = c("first", "last"), return_type = c("grob",
-  "df"), ref2c = NULL, hjust = 2, vjust = 0.5,
-  direction = c("both", "x", "y"), compressGaps = TRUE,
-  tx2geneDF = NULL, label_coords = NULL, verbose = FALSE, ...)
+gene2gg(
+  gene = NULL,
+  tx = NULL,
+  flatExonsByGene = NULL,
+  flatExonsByTx = NULL,
+  geneColor = "dodgerblue",
+  labelExons = TRUE,
+  exonLabelAngle = 90,
+  exonLabelSize = 8,
+  newValues = list(feature_type = "gap", subclass = "gap", gene_nameExon = "gap"),
+  gene_order = c("first", "last"),
+  return_type = c("grob", "df"),
+  ref2c = NULL,
+  hjust = 2,
+  vjust = 0.5,
+  direction = c("both", "x", "y"),
+  compressGaps = TRUE,
+  tx2geneDF = NULL,
+  label_coords = NULL,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{gene}{character string of the gene to plot, compared
@@ -138,20 +152,27 @@ ggGria1 <- gene2gg("Gria1",
 
 }
 \seealso{
-Other jam plot functions: \code{\link{bgaPlotly3d}},
-  \code{\link{factor2label}}, \code{\link{grl2df}},
-  \code{\link{jitter_norm}}, \code{\link{plotSashimi}},
-  \code{\link{prepareSashimi}},
-  \code{\link{stackJunctions}}
+Other jam plot functions: 
+\code{\link{bgaPlotly3d}()},
+\code{\link{factor2label}()},
+\code{\link{grl2df}()},
+\code{\link{jitter_norm}()},
+\code{\link{plotSashimi}()},
+\code{\link{prepareSashimi}()},
+\code{\link{stackJunctions}()}
 
-Other jam ggplot2 functions: \code{\link{geom_diagonal_wide_arc}},
-  \code{\link{plotSashimi}},
-  \code{\link{splicejam-extensions}},
-  \code{\link{to_basic.GeomShape}}
+Other jam ggplot2 functions: 
+\code{\link{geom_diagonal_wide_arc}()},
+\code{\link{plotSashimi}()},
+\code{\link{splicejam-extensions}},
+\code{\link{to_basic.GeomShape}()}
 
-Other splicejam core functions: \code{\link{exoncov2polygon}},
-  \code{\link{grl2df}}, \code{\link{make_ref2compressed}},
-  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}}
+Other splicejam core functions: 
+\code{\link{exoncov2polygon}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{plotSashimi}()},
+\code{\link{prepareSashimi}()}
 }
 \concept{jam ggplot2 functions}
 \concept{jam plot functions}

@@ -4,20 +4,41 @@
 \alias{bgaPlotly3d}
 \title{Create an interactive 3-D BGA plotly visualization}
 \usage{
-bgaPlotly3d(bgaInfo, axes = c(1, 2, 3), superGroups = NULL,
-  superGroupAlpha = 0.3, superGroupLwd = 25, arrowSmoothFactor = 8,
-  colorSub = NULL, drawVectors = c("none", "centroids", "genes"),
-  highlightGenes = NULL, drawSampleLabels = TRUE,
+bgaPlotly3d(
+  bgaInfo,
+  axes = c(1, 2, 3),
+  superGroups = NULL,
+  superGroupAlpha = 0.3,
+  superGroupLwd = 25,
+  arrowSmoothFactor = 8,
+  colorSub = NULL,
+  drawVectors = c("none", "centroids", "genes"),
+  highlightGenes = NULL,
+  drawSampleLabels = TRUE,
   ellipseType = c("ellipsoid", "alphahull", "none"),
-  ellipseOpacity = 0.2, useScaledCoords = FALSE,
-  geneColor = "#555555", geneScaleFactor = 1, geneLwd = 2,
-  geneAlpha = 0.7, geneLabels = NULL, maxGenes = 50,
-  centroidLwd = 15, centroidAlpha = 0.3,
+  ellipseOpacity = 0.2,
+  useScaledCoords = FALSE,
+  geneColor = "#555555",
+  geneScaleFactor = 1,
+  geneLwd = 2,
+  geneAlpha = 0.7,
+  geneLabels = NULL,
+  maxGenes = 50,
+  centroidLwd = 15,
+  centroidAlpha = 0.3,
   textposition_centroid = "top center",
-  textposition_sample = "middle right", sceneX = -1.25,
-  sceneY = 1.25, sceneZ = 1.25, main = "",
-  plot_bgcolor = "#eeeeee", paper_bgcolor = "#dddddd",
-  sampleGroups = NULL, debug = FALSE, verbose = TRUE, ...)
+  textposition_sample = "middle right",
+  sceneX = -1.25,
+  sceneY = 1.25,
+  sceneZ = 1.25,
+  main = "",
+  plot_bgcolor = "#eeeeee",
+  paper_bgcolor = "#dddddd",
+  sampleGroups = NULL,
+  debug = FALSE,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{bgaInfo}{object of class \code{"bga"} as created by \code{made4::bga()}.}
@@ -171,15 +192,20 @@ either by factor levels, or by the order returned by
 \code{jamba::mixedSort()} which performs a proper alphanumeric sort.
 }
 \seealso{
-Other jam plot functions: \code{\link{factor2label}},
-  \code{\link{gene2gg}}, \code{\link{grl2df}},
-  \code{\link{jitter_norm}}, \code{\link{plotSashimi}},
-  \code{\link{prepareSashimi}},
-  \code{\link{stackJunctions}}
+Other jam plot functions: 
+\code{\link{factor2label}()},
+\code{\link{gene2gg}()},
+\code{\link{grl2df}()},
+\code{\link{jitter_norm}()},
+\code{\link{plotSashimi}()},
+\code{\link{prepareSashimi}()},
+\code{\link{stackJunctions}()}
 
-Other jam spatial functions: \code{\link{compressPolygonM}},
-  \code{\link{dfWide2segments}}, \code{\link{simplifyXY}},
-  \code{\link{spline3d}}
+Other jam spatial functions: 
+\code{\link{compressPolygonM}()},
+\code{\link{dfWide2segments}()},
+\code{\link{simplifyXY}()},
+\code{\link{spline3d}()}
 }
 \concept{jam plot functions}
 \concept{jam spatial functions}

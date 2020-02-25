@@ -38,8 +38,10 @@ line segment drawing when used with a plotting function that recognizes
 line breaks via empty rows, for example plotly.
 }
 \seealso{
-Other jam spatial functions: \code{\link{bgaPlotly3d}},
-  \code{\link{compressPolygonM}}, \code{\link{simplifyXY}},
-  \code{\link{spline3d}}
+Other jam spatial functions: 
+\code{\link{bgaPlotly3d}()},
+\code{\link{compressPolygonM}()},
+\code{\link{simplifyXY}()},
+\code{\link{spline3d}()}
 }
 \concept{jam spatial functions}

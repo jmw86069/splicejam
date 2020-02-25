@@ -25,20 +25,23 @@ for each chromosome (using \code{GenomicRanges::seqnames(gr)}), and when \code{s
 it determines gaps in stranded fashion.
 }
 \seealso{
-Other jam GRanges functions: \code{\link{addGRLgaps}},
-  \code{\link{addGRgaps}},
-  \code{\link{annotateGRLfromGRL}},
-  \code{\link{annotateGRfromGR}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{findOverlapsGRL}},
-  \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{getGRLgaps}},
-  \code{\link{getGRcoverageFromBw}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
-  \code{\link{spliceGR2junctionDF}},
-  \code{\link{stackJunctions}}
+Other jam GRanges functions: 
+\code{\link{addGRLgaps}()},
+\code{\link{addGRgaps}()},
+\code{\link{annotateGRLfromGRL}()},
+\code{\link{annotateGRfromGR}()},
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{findOverlapsGRL}()},
+\code{\link{getFirstStrandedFromGRL}()},
+\code{\link{getGRLgaps}()},
+\code{\link{getGRcoverageFromBw}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortGRL}()},
+\code{\link{spliceGR2junctionDF}()},
+\code{\link{stackJunctions}()}
 }
 \concept{jam GRanges functions}

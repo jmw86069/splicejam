@@ -4,12 +4,22 @@
 \alias{annotateGRfromGR}
 \title{Annotate GRanges using another GRanges object}
 \usage{
-annotateGRfromGR(GR1, GR2, grOL = NULL, numAsStrings = FALSE,
-  stringShrinkFunc = function(...) {     jamba::cPasteUnique(..., doSort
-  = TRUE) }, numShrinkFunc = sum, addStringCols = NULL,
+annotateGRfromGR(
+  GR1,
+  GR2,
+  grOL = NULL,
+  numAsStrings = FALSE,
+  stringShrinkFunc = function(...) {     jamba::cPasteUnique(..., doSort = TRUE) },
+  numShrinkFunc = sum,
+  addStringCols = NULL,
   type = c("any", "start", "end", "within", "equal"),
-  ignore.strand = FALSE, select = "all", sep = ",",
-  verbose = FALSE, DEBUG = FALSE, ...)
+  ignore.strand = FALSE,
+  select = "all",
+  sep = ",",
+  verbose = FALSE,
+  DEBUG = FALSE,
+  ...
+)
 }
 \arguments{
 \item{GR1}{GRanges object, the reference object to which annotations
@@ -151,20 +161,23 @@ annotateGRLfromGRL(grl1, grl2);
 
 }
 \seealso{
-Other jam GRanges functions: \code{\link{addGRLgaps}},
-  \code{\link{addGRgaps}},
-  \code{\link{annotateGRLfromGRL}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{findOverlapsGRL}},
-  \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{getGRLgaps}},
-  \code{\link{getGRcoverageFromBw}},
-  \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
-  \code{\link{spliceGR2junctionDF}},
-  \code{\link{stackJunctions}}
+Other jam GRanges functions: 
+\code{\link{addGRLgaps}()},
+\code{\link{addGRgaps}()},
+\code{\link{annotateGRLfromGRL}()},
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{findOverlapsGRL}()},
+\code{\link{getFirstStrandedFromGRL}()},
+\code{\link{getGRLgaps}()},
+\code{\link{getGRcoverageFromBw}()},
+\code{\link{getGRgaps}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortGRL}()},
+\code{\link{spliceGR2junctionDF}()},
+\code{\link{stackJunctions}()}
 }
 \concept{jam GRanges functions}

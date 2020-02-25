@@ -4,12 +4,20 @@
 \alias{sortSamples}
 \title{Sort biological sample labels for experimental design}
 \usage{
-sortSamples(x, controlTerms = c("WT|wildtype",
-  "(^|[-_ ])(NT|NTC)($|[-_ ]|[0-9])", "ETOH", "control|ctrl|ctl",
-  "Vehicle|veh", "none|empty|blank", "scramble", "ttx", "PBS", "knockout",
-  "mutant"), sortFunc = jamba::mixedSort, preControlTerms = NULL,
-  postControlTerms = NULL, ignore.case = TRUE, boundary = TRUE,
-  perl = boundary, keepFactorsAsIs = TRUE, ...)
+sortSamples(
+  x,
+  controlTerms = c("WT|wildtype", "(^|[-_ ])(NT|NTC)($|[-_ ]|[0-9])", "ETOH",
+    "control|ctrl|ctl", "Vehicle|veh", "none|empty|blank", "scramble", "ttx", "PBS",
+    "knockout", "mutant"),
+  sortFunc = jamba::mixedSort,
+  preControlTerms = NULL,
+  postControlTerms = NULL,
+  ignore.case = TRUE,
+  boundary = TRUE,
+  perl = boundary,
+  keepFactorsAsIs = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{character vector or factor}
@@ -77,21 +85,23 @@ sortSamples(c("Trt_12h", "Trt_9h", "Trt_1h", "Trt_9h", "Fixated", "Vehicle"),
 
 }
 \seealso{
-Other jam string functions: \code{\link{escapeWhitespaceRegexp}},
-  \code{\link{strsplitOrdered}}
+Other jam string functions: 
+\code{\link{escapeWhitespaceRegexp}()},
+\code{\link{strsplitOrdered}()}
 
-Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{defineDetectedTx}},
-  \code{\link{detectedTxInfo}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsBy}},
-  \code{\link{groups2contrasts}},
-  \code{\link{makeTx2geneFromGtf}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}},
-  \code{\link{spliceGR2junctionDF}}
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{flattenExonsBy}()},
+\code{\link{groups2contrasts}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{runDiffSplice}()},
+\code{\link{spliceGR2junctionDF}()}
 }
 \concept{jam RNA-seq functions}
 \concept{jam string functions}

@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analysis and Visualization of Gene Splice Variants and Transcriptome Data • splicejam</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Analysis and Visualization of Gene Splice Variants and Transcriptome Data">
 <meta property="og:description" content="Jam Bioinformatics methods for RNA-seq and other genomics
     analysis methods. Sashimi coverage plots for RNA-seq, transcript isoform
@@ -21,7 +22,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-article">
+    <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -33,7 +34,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.53.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
       </span>
     </div>
 
@@ -41,7 +42,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -70,7 +71,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/jmw86069/splicejam">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -83,16 +84,9 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
-  <div class="col-md-9 contents">
-    
-
-    
-    
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-
-
+  <div class="contents col-md-9">
 <div id="splicejam" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#splicejam" class="anchor"></a>splicejam <img src="reference/figures/splicejam_logo.png" width="133px" height="154px" align="right" style="padding-left:10px;background-color:white;">
@@ -100,7 +94,7 @@
 <p>Splicejam was created to analyze and visualize RNA-seq and transcript isoform splicing data. Splicejam aims to provide sashimi plots with enough customizations to support publication-quality figures.</p>
 <p>An example sashimi plot is shown below for the gene <em>Gria1</em>. Each panel shows transcript expression in a region of mouse hippocampus, where “CA1_CB” shows data that originated from cell bodies of CA1, and “CA2_CB” shows corresponding data from cell bodies of CA2.</p>
 <p><br></p>
-<p><img src="reference/figures/README-gria1_sashimi-1.png" width="1344"></p>
+<p><img src="reference/figures/README-gria1_sashimi-1.png"></p>
 <figure><img src="reference/figures/mouse_hippocampus.png" width="25%" height="25%" align="right" style="padding-left:10px;background-color:white;"><figcaption>
 A depiction of the CA1 and CA2 regions of mouse hippocampus is shown in Fig 4a from <a href="https://dx.doi.org/10.1038/nrn.2015.22">Dudek et al. Nature Reviews Neuroscience(2016)</a>
 </figcaption></figure><p><br></p>
@@ -119,27 +113,27 @@ A depiction of the CA1 and CA2 regions of mouse hippocampus is shown in Fig 4a f
 <h2 class="hasAnchor">
 <a href="#sashimi-plot-at-closer-range" class="anchor"></a>Sashimi plot at closer range</h2>
 <p>The x-axis range is adjusted in the following plot to show more detail around the differentially spliced exons. Notice the relative heights of the exons differ across CA1 and CA2, consistent with the corresponding changes in splice junctions. Clearly CA1 and CA2 favor different and mutually exclusive exons for Gria1.</p>
-<p><img src="reference/figures/README-gria1_sashimi_zoom-1.png" width="768"></p>
+<p><img src="reference/figures/README-gria1_sashimi_zoom-1.png"></p>
 <p>Incidentally, these two isoforms of Gria1 represent the <a href="https://www.sciencedirect.com/topics/neuroscience/gria1">“flop” and “flip”</a> forms of the AMPA receptor complex. In human, the genes Gria2, Gria3, and Gria4 comprise the AMPA receptor complex, and each genes has two isoforms with “flop” and “flip” designations.</p>
 </div>
 <div id="package-reference" class="section level2">
 <h2 class="hasAnchor">
 <a href="#package-reference" class="anchor"></a>Package Reference</h2>
 <p>A full online function reference is available via the pkgdown documentation:</p>
-<p>Full splicejam command reference: <a href="https://jmw86069.github.io/splicejam"></a><a href="https://jmw86069.github.io/splicejam">https://jmw86069.github.io/splicejam</a></p>
-<p>The splicejam package is part of a suite of R packages called “jampack” which is available through GitHub, see <a href="https://github.com/jmw86069/jampack"></a><a href="https://github.com/jmw86069/jampack">https://github.com/jmw86069/jampack</a></p>
+<p>Full splicejam command reference: <a href="https://jmw86069.github.io/splicejam" class="uri">https://jmw86069.github.io/splicejam</a></p>
+<p>The splicejam package is part of a suite of R packages called “jampack” which is available through GitHub, see <a href="https://github.com/jmw86069/jampack" class="uri">https://github.com/jmw86069/jampack</a></p>
 </div>
 <div id="how-to-install" class="section level2">
 <h2 class="hasAnchor">
 <a href="#how-to-install" class="anchor"></a>How to install</h2>
 <p>Install using the R package <code>devtools</code> and this command:</p>
-<pre><code><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">devtools::install_github("jmw86069/splicejam")</a></code></pre>
+<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"jmw86069/splicejam"</span>)</code></pre></div>
 </div>
 <div id="about-sashimi-plots" class="section level2">
 <h2 class="hasAnchor">
 <a href="#about-sashimi-plots" class="anchor"></a>About sashimi plots</h2>
 <p>Sashimi plots were originally envisioned by MISO, which introduced the innovative idea to compress intron width in order to reveal the detailed exon sequence coverage, and to highlight changes in splice junctions.</p>
-<p>Katz, Y, Wang ET, Silterra J, Schwartz S, Wong B, Thorvaldsdóttir H, Robinson JT, Mesirov JP, Airoldi EM, Burge, CB. <em>Sashimi plots: Quantitative visualization of alternative isoform expression from RNA-seq data.</em> <a href="http://biorxiv.org/content/early/2014/02/11/002576">http://biorxiv.org/content/early/2014/02/11/002576</a></p>
+<p>Katz, Y, Wang ET, Silterra J, Schwartz S, Wong B, Thorvaldsdóttir H, Robinson JT, Mesirov JP, Airoldi EM, Burge, CB. <em>Sashimi plots: Quantitative visualization of alternative isoform expression from RNA-seq data.</em> <a href="http://biorxiv.org/content/early/2014/02/11/002576" class="uri">http://biorxiv.org/content/early/2014/02/11/002576</a></p>
 <p>Splicejam re-envisions classic sashimi plots by displaying splice junctions as wide arcs proportional in size to the number of junction reads, making them directly comparable to exon coverages on the same plot. Inspired by:</p>
 <ul>
 <li>
@@ -173,13 +167,12 @@ A depiction of the CA1 and CA2 regions of mouse hippocampus is shown in Fig 4a f
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>James M. Ward <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-9510-2848" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID" height="16"></a> </li>
-<li>Shannon Farris <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-4473-1684" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID" height="16"></a> </li>
+<li>James M. Ward <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-9510-2848" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID"></a> </li>
+<li>Shannon Farris <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-4473-1684" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID"></a> </li>
 </ul>
 </div>
 
-      </div>
-
+  </div>
 </div>
 
 
@@ -188,12 +181,14 @@ A depiction of the CA1 and CA2 regions of mouse hippocampus is shown in Fig 4a f
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

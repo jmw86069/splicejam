@@ -4,12 +4,26 @@
 \alias{groups2contrasts}
 \title{Define experimental contrasts from sample groups}
 \usage{
-groups2contrasts(iFactors, groupColumns = NULL, iSamples = NULL,
-  iDesign = NULL, factorOrder = NULL, omitGrep = "[-,]",
-  maxDepth = 2, currentDepth = 1, factorSep = "_",
-  contrastSep = "-", renameFirstDepth = TRUE, returnDesign = FALSE,
-  removePairs = NULL, makeUnique = TRUE, addContrastNamesDF = NULL,
-  preControlTerms = NULL, verbose = FALSE, ...)
+groups2contrasts(
+  iFactors,
+  groupColumns = NULL,
+  iSamples = NULL,
+  iDesign = NULL,
+  factorOrder = NULL,
+  omitGrep = "[-,]",
+  maxDepth = 2,
+  currentDepth = 1,
+  factorSep = "_",
+  contrastSep = "-",
+  renameFirstDepth = TRUE,
+  returnDesign = FALSE,
+  removePairs = NULL,
+  makeUnique = TRUE,
+  addContrastNamesDF = NULL,
+  preControlTerms = NULL,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{iFactors}{vector of sample groups with one entry per sample,
@@ -141,20 +155,23 @@ groups2contrasts(as.character(iGroups), preControlTerms=c("WT"), factorOrder=2:1
 
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{defineDetectedTx}},
-  \code{\link{detectedTxInfo}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsBy}},
-  \code{\link{makeTx2geneFromGtf}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{flattenExonsBy}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{runDiffSplice}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 
-Other jam design functions: \code{\link{curateDFtoDF}},
-  \code{\link{curateVtoDF}}
+Other jam design functions: 
+\code{\link{curateDFtoDF}()},
+\code{\link{curateVtoDF}()}
 }
 \concept{jam RNA-seq functions}
 \concept{jam design functions}

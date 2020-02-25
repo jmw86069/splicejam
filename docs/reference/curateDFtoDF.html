@@ -8,21 +8,25 @@
 
 <title>Curate data.frame into a data.frame — curateDFtoDF • splicejam</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,10 +34,11 @@
 
 
 
-<meta property="og:title" content="Curate data.frame into a data.frame — curateDFtoDF" />
 
+<meta property="og:title" content="Curate data.frame into a data.frame — curateDFtoDF" />
 <meta property="og:description" content="Curate data.frame into a data.frame" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -45,6 +50,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
 
 
   </head>
@@ -63,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.53.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
       </span>
     </div>
 
@@ -71,7 +77,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -97,11 +103,10 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/jmw86069/splicejam">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -112,6 +117,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -123,15 +129,21 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Curate data.frame into a data.frame</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>curateDFtoDF</span>(<span class='no'>x</span>, <span class='kw'>curationL2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>matchWholeString</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>trimWhitespace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>whitespace</span> <span class='kw'>=</span> <span class='st'>"_ "</span>, <span class='kw'>expandWhitespace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>keepAllColnames</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
-    
+    <pre class="usage"><span class='fu'>curateDFtoDF</span>(
+  <span class='no'>x</span>,
+  <span class='kw'>curationL2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>matchWholeString</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>trimWhitespace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>whitespace</span> <span class='kw'>=</span> <span class='st'>"_ "</span>,
+  <span class='kw'>expandWhitespace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>keepAllColnames</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='no'>...</span>
+)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -143,7 +155,7 @@
       <th>curationL2</th>
       <td><p>list with curation rules as described above, or
 a character vector of yaml files, which will be imported into
-a list format using <code><a href='https://www.rdocumentation.org/packages/yaml/topics/yaml.load'>yaml::yaml.load_file()</a></code>.</p></td>
+a list format using <code><a href='https://rdrr.io/pkg/yaml/man/yaml.load.html'>yaml::yaml.load_file()</a></code>.</p></td>
     </tr>
     <tr>
       <th>matchWholeString, trimWhitespace, whitespace, expandWhitespace</th>
@@ -167,7 +179,7 @@ the curation steps.</p></td>
       <td><p>additional arguments are passed to <code><a href='curateVtoDF.html'>curateVtoDF()</a></code></p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function takes a data.frame as input, where one or more
@@ -180,16 +192,17 @@ column of the input data.frame.</p>
 loaded into a list with this type of setup:</p>
 <p><code>curationL2 &lt;- yaml::yaml.load_file("curation.yaml")</code>.</p>
 <p>The structure of curationL2:</p><ul>
-<li><p><code>curationL2</code> is a list object, whose <code><a href='https://www.rdocumentation.org/packages/base/topics/names'>names(curationL2)</a></code> are values
-in <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(x)</a></code> and represent column of data used as input.</p></li>
+<li><p><code>curationL2</code> is a list object, whose <code><a href='https://rdrr.io/r/base/names.html'>names(curationL2)</a></code> are values
+in <code><a href='https://rdrr.io/r/base/colnames.html'>colnames(x)</a></code> and represent column of data used as input.</p></li>
 <li><p>each list element in <code>curationL2</code> is also a list, whose
 <code>names</code> represent colnames to create or update in the output
 <code>data.frame</code>.</p></li>
 <li><p>these lists contain character vectors <code>length=2</code> containing
-a regular expression substitution pattern (see <code><a href='https://www.rdocumentation.org/packages/base/topics/grep'>base::gsub</a></code>),
+a regular expression substitution pattern (see <code><a href='https://rdrr.io/r/base/grep.html'>base::gsub</a></code>),
 and a replacement pattern.</p></li>
 </ul>
-    <p>The list is processed in order, and names can be repeated as
+
+<p>The list is processed in order, and names can be repeated as
 necessary to apply the proper substitution patterns in the
 order required. New columns created during the curation may also
 be used in later curation steps.</p>
@@ -224,7 +237,8 @@ To_ColnameE:</p></li>
 <li><p>replacementF</p></li>
 </ul></li>
 </ul>
-    <p>When the rule creates a colname already present in colnames(x),
+
+<p>When the rule creates a colname already present in colnames(x),
 then only values specifically matched by the substitution patterns
 are modified. For example, this technique can be used to modify
 the group assignment of a Sample_ID:</p>
@@ -235,12 +249,13 @@ Group:</p><ul>
 <li><p>WildType</p></li>
 </ul></li>
 </ul>
-    <p>The rules above will match <code>"Sample1234"</code> in the <code>"Sample_ID"</code> column
+
+<p>The rules above will match <code>"Sample1234"</code> in the <code>"Sample_ID"</code> column
 of x, and assign <code>"WildType"</code> to the <code>"Group"</code> column only for
 matching entries.</p>
-<p>In addition to values in <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames(x)</a></code>, the "from" value may
+<p>In addition to values in <code><a href='https://rdrr.io/r/base/colnames.html'>colnames(x)</a></code>, the "from" value may
 also be <code>"rownames"</code> which will cause the curation rules to
-act upon values in <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames(x)</a></code> instead of values in a specific
+act upon values in <code><a href='https://rdrr.io/r/base/colnames.html'>rownames(x)</a></code> instead of values in a specific
 column of <code>x</code>.</p>
 <p>Note that if a "to" column does not already exist, then all values
 in the "from" column which do not match any substitution pattern
@@ -248,7 +263,7 @@ will be used to fill the remainder of the "to" column.
 Once the "to" column exists, then only entries with a matching
 substitution pattern are replaced using the replacement pattern.</p>
 <p>For example, for NanoString data, the column <code>"CartridgeWell"</code> can be
-derived from <code><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames(x)</a></code>, after which the new column <code>"CartridgeWell"</code>
+derived from <code><a href='https://rdrr.io/r/base/colnames.html'>rownames(x)</a></code>, after which the new column <code>"CartridgeWell"</code>
 can be used in subsequent curation steps.</p>
 <p>Additional notes:</p><ul>
 <li><p>The substitution pattern is automatically expanded to include the
@@ -256,48 +271,48 @@ whole input string, if not already present. For example supplying <code>"WT"</co
 will match <code>"^.*(WT).*$"</code>. However if the substitution pattern is
 <code>"^.*(WT).*$"</code> then it will not be expanded.</p></li>
 <li><p>When the substitution pattern is expanded, the string is also enclosed
-in parentheses <code>"()"</code> which means the replacement can use <code>"\1"</code> to
+in parentheses <code>"()"</code> which means the replacement can use <code>"\\1"</code> to
 use the successfully matched pattern as the output string. For example
 if <code>"WT"</code> and <code>"Mutant"</code> are always valid genotypes, then it would
 be sufficient to define substitution pattern <code>"WT|Mutant"</code> and
-replacement pattern <code>"\1"</code>.</p></li>
+replacement pattern <code>"\\1"</code>.</p></li>
 <li><p>When the substitution pattern is expanded, and the string is enclosed
 in parentheses, any parentheses in the substitution pattern are therefore
 one level deeper, for example <code>"file([A-Z]+)"</code> will be expanded to
 <code>"^.*(file([A-Z]+)).*$"</code>. See the example below, where the replacement
-pattern uses <code>"\2"</code> to use only the internal parentheses.</p></li>
+pattern uses <code>"\\2"</code> to use only the internal parentheses.</p></li>
 </ul>
-    
+
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other jam design functions: <code><a href='curateVtoDF.html'>curateVtoDF</a></code>,
-  <code><a href='groups2contrasts.html'>groups2contrasts</a></code></p></div>
-    
+    <div class='dont-index'><p>Other jam design functions: 
+<code><a href='curateVtoDF.html'>curateVtoDF</a>()</code>,
+<code><a href='groups2contrasts.html'>groups2contrasts</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>123</span>);
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>filename</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste</a></span>(
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='st'>"file"</span>,
-      <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/lapply'>sapply</a></span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='kw'>function</span>(<span class='no'>i</span>) {
-         <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sample'>sample</a></span>(<span class='no'>LETTERS</span>, <span class='fl'>5</span>), <span class='kw'>collapse</span><span class='kw'>=</span><span class='st'>""</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>123</span>);
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>filename</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(
+   <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"file"</span>,
+      <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>sapply</a></span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='kw'>function</span>(<span class='no'>i</span>) {
+         <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='no'>LETTERS</span>, <span class='fl'>5</span>), <span class='kw'>collapse</span><span class='kw'>=</span><span class='st'>""</span>)
       })),
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"WT"</span>, <span class='st'>"Mut"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>),
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Veh"</span>,<span class='st'>"EtOH"</span>), <span class='fl'>3</span>),
+   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"WT"</span>, <span class='st'>"Mut"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>),
+   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Veh"</span>,<span class='st'>"EtOH"</span>), <span class='fl'>3</span>),
    <span class='kw'>sep</span><span class='kw'>=</span><span class='st'>"_"</span>));
 <span class='no'>df</span>;</div><div class='output co'>#&gt;             filename
-#&gt; 1   fileHTJUW_WT_Veh
-#&gt; 2  fileBNVMK_WT_EtOH
-#&gt; 3   fileYLQNC_WT_Veh
-#&gt; 4 fileXGBHU_Mut_EtOH
-#&gt; 5  fileXRPWO_Mut_Veh
-#&gt; 6 fileHTJUW_Mut_EtOH</div><div class='input'>
+#&gt; 1   fileOSNCJ_WT_Veh
+#&gt; 2  fileRVKET_WT_EtOH
+#&gt; 3   fileNVESI_WT_Veh
+#&gt; 4 fileCHGJI_Mut_EtOH
+#&gt; 5  fileSDNQK_Mut_Veh
+#&gt; 6 fileOSNCJ_Mut_EtOH</div><div class='input'>
 <span class='co'># Note a couple ways of accomplishing similar results:</span>
 <span class='co'># Genotype matches "WT|wildtype" and replaces with "WT",</span>
 <span class='co'># then matches "Mut|mutant" and replaces with "Mut"</span>
 <span class='co'>#</span>
 <span class='co'># Treatment matches "Veh|EtOH" and simply replaces with</span>
 <span class='co'># whatever was matched</span>
-<span class='no'>curationYaml</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(
+<span class='no'>curationYaml</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(
 <span class='st'>"filename:
   Genotype:
   - - WT|wildtype
@@ -314,7 +329,7 @@ pattern uses <code>"\2"</code> to use only the internal parentheses.</p></li>
   - - file([A-Z]+)
     - \\2"</span>);
 <span class='co'># print the curation.yaml to show its structure</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/cat'>cat</a></span>(<span class='no'>curationYaml</span>)</div><div class='output co'>#&gt; filename:
+<span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span>(<span class='no'>curationYaml</span>)</div><div class='output co'>#&gt; filename:
 #&gt;   Genotype:
 #&gt;   - - WT|wildtype
 #&gt;     - WT
@@ -328,34 +343,32 @@ pattern uses <code>"\2"</code> to use only the internal parentheses.</p></li>
 #&gt;     - \1
 #&gt;   FileStem:
 #&gt;   - - file([A-Z]+)
-#&gt;     - \2</div><div class='input'><span class='no'>curationL</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>yaml</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/yaml/topics/yaml.load'>yaml.load</a></span>(<span class='no'>curationYaml</span>);
-<span class='fu'>curateDFtoDF</span>(<span class='no'>df</span>, <span class='no'>curationL</span>);</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'colorspace' was built under R version 3.5.2</span></div><div class='output co'>#&gt; ##  (<span style='color: #00FFFF;font-weight: bold;'>23:14:55</span><span>) 24Sep2019:  </span><span style='color: #FF5F00;'>curateDFtoDF(): </span><span style='color: #005FFF;'>Applying curation to column:</span><span style='color: #FF5F00;'>filename</span><span> 
-#&gt; ##  (</span><span style='color: #00FFFF;font-weight: bold;'>23:14:55</span><span>) 24Sep2019:  </span><span style='color: #FF5F00;'>curateVtoDF(): </span><span style='color: #005FFF;'>Creating column:</span><span style='color: #FF5F00;'>Genotype</span><span> 
-#&gt; ##  (</span><span style='color: #00FFFF;font-weight: bold;'>23:14:55</span><span>) 24Sep2019:  </span><span style='color: #FF5F00;'>curateVtoDF(): </span><span style='color: #005FFF;'>Creating column:</span><span style='color: #FF5F00;'>Treatment</span><span> 
-#&gt; ##  (</span><span style='color: #00FFFF;font-weight: bold;'>23:14:55</span><span>) 24Sep2019:  </span><span style='color: #FF5F00;'>curateVtoDF(): </span><span style='color: #005FFF;'>Creating column:</span><span style='color: #FF5F00;'>File</span><span> 
-#&gt; ##  (</span><span style='color: #00FFFF;font-weight: bold;'>23:14:56</span><span>) 24Sep2019:  </span><span style='color: #FF5F00;'>curateVtoDF(): </span><span style='color: #005FFF;'>Creating column:</span><span style='color: #FF5F00;'>FileStem</span><span> </div><div class='output co'>#&gt;   Genotype Treatment      File FileStem           filename
-#&gt; 1       WT       Veh fileHTJUW    HTJUW   fileHTJUW_WT_Veh
-#&gt; 2       WT      EtOH fileBNVMK    BNVMK  fileBNVMK_WT_EtOH
-#&gt; 3       WT       Veh fileYLQNC    YLQNC   fileYLQNC_WT_Veh
-#&gt; 4      Mut      EtOH fileXGBHU    XGBHU fileXGBHU_Mut_EtOH
-#&gt; 5      Mut       Veh fileXRPWO    XRPWO  fileXRPWO_Mut_Veh
-#&gt; 6      Mut      EtOH fileHTJUW    HTJUW fileHTJUW_Mut_EtOH</div><div class='input'>
+#&gt;     - \2</div><div class='input'><span class='no'>curationL</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>yaml</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/yaml/man/yaml.load.html'>yaml.load</a></span>(<span class='no'>curationYaml</span>);
+<span class='fu'>curateDFtoDF</span>(<span class='no'>df</span>, <span class='no'>curationL</span>);</div><div class='output co'>#&gt; ##  (<span style='color: #00BBBB;font-weight: bold;'>12:19:23</span><span>) 25Feb2020:  </span><span style='color: #BB0000;'>curateDFtoDF(): </span><span style='color: #0000BB;'>Applying curation to column:</span><span style='color: #BB0000;'>filename</span><span> 
+#&gt; ##  (</span><span style='color: #00BBBB;font-weight: bold;'>12:19:23</span><span>) 25Feb2020:  </span><span style='color: #BB0000;'>curateVtoDF(): </span><span style='color: #0000BB;'>Creating column:</span><span style='color: #BB0000;'>Genotype</span><span> 
+#&gt; ##  (</span><span style='color: #00BBBB;font-weight: bold;'>12:19:24</span><span>) 25Feb2020:  </span><span style='color: #BB0000;'>curateVtoDF(): </span><span style='color: #0000BB;'>Creating column:</span><span style='color: #BB0000;'>Treatment</span><span> 
+#&gt; ##  (</span><span style='color: #00BBBB;font-weight: bold;'>12:19:24</span><span>) 25Feb2020:  </span><span style='color: #BB0000;'>curateVtoDF(): </span><span style='color: #0000BB;'>Creating column:</span><span style='color: #BB0000;'>File</span><span> 
+#&gt; ##  (</span><span style='color: #00BBBB;font-weight: bold;'>12:19:24</span><span>) 25Feb2020:  </span><span style='color: #BB0000;'>curateVtoDF(): </span><span style='color: #0000BB;'>Creating column:</span><span style='color: #BB0000;'>FileStem</span><span> </div><div class='output co'>#&gt;   Genotype Treatment      File FileStem           filename
+#&gt; 1       WT       Veh fileOSNCJ    OSNCJ   fileOSNCJ_WT_Veh
+#&gt; 2       WT      EtOH fileRVKET    RVKET  fileRVKET_WT_EtOH
+#&gt; 3       WT       Veh fileNVESI    NVESI   fileNVESI_WT_Veh
+#&gt; 4      Mut      EtOH fileCHGJI    CHGJI fileCHGJI_Mut_EtOH
+#&gt; 5      Mut       Veh fileSDNQK    SDNQK  fileSDNQK_Mut_Veh
+#&gt; 6      Mut      EtOH fileOSNCJ    OSNCJ fileOSNCJ_Mut_EtOH</div><div class='input'>
 </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#details">Details</a></li>
-
       <li><a href="#see-also">See also</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -363,13 +376,16 @@ pattern uses <code>"\2"</code> to use only the internal parentheses.</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

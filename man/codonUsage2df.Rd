@@ -38,7 +38,8 @@ codonDF <- codonUsage2df(codonFile);
 
 }
 \seealso{
-Other jam codon usage functions: \code{\link{dna2codon}},
-  \code{\link{jamCai}}
+Other jam codon usage functions: 
+\code{\link{dna2codon}()},
+\code{\link{jamCai}()}
 }
 \concept{jam codon usage functions}

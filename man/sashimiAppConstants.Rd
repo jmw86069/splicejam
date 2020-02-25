@@ -4,12 +4,24 @@
 \alias{sashimiAppConstants}
 \title{Sashimi Shiny app constants}
 \usage{
-sashimiAppConstants(..., assign_global = TRUE,
-  empty_uses_farrisdata = TRUE, use_memoise = TRUE,
-  aboutExtra = NULL, filesDF = NULL, color_sub = NULL, gtf = NULL,
-  txdb = NULL, tx2geneDF = NULL, exonsByTx = NULL, cdsByTx = NULL,
-  detectedTx = NULL, detectedGenes = NULL, flatExonsByGene = NULL,
-  flatExonsByTx = NULL)
+sashimiAppConstants(
+  ...,
+  assign_global = TRUE,
+  empty_uses_farrisdata = TRUE,
+  use_memoise = TRUE,
+  aboutExtra = NULL,
+  filesDF = NULL,
+  color_sub = NULL,
+  gtf = NULL,
+  txdb = NULL,
+  tx2geneDF = NULL,
+  exonsByTx = NULL,
+  cdsByTx = NULL,
+  detectedTx = NULL,
+  detectedGenes = NULL,
+  flatExonsByGene = NULL,
+  flatExonsByTx = NULL
+)
 }
 \arguments{
 \item{...}{additional arguments are ignored.}
@@ -45,7 +57,7 @@ The following values will be used from the environment,
 searching up the environment parent chain until it finds
 a match, until searching the global environment. Similarly,
 this function also defines variables in the environment using
-the \code{<<-} operator, which by default also searches up the
+the \verb{<<-} operator, which by default also searches up the
 environment chain until it finds a match, otherwise
 populating the global environment.
 
@@ -113,8 +125,9 @@ The \code{"aboutExtra"} content is displayed on the tab
 \code{"About Sashimi Plots"} at the top.
 }
 \seealso{
-Other splicejam R-shiny functions: \code{\link{launchSashimiApp}},
-  \code{\link{sashimiAppServer}},
-  \code{\link{sashimiAppUI}}
+Other splicejam R-shiny functions: 
+\code{\link{launchSashimiApp}()},
+\code{\link{sashimiAppServer}()},
+\code{\link{sashimiAppUI}()}
 }
 \concept{splicejam R-shiny functions}

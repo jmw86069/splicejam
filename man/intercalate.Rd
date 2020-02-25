@@ -31,6 +31,7 @@ intercalate(A, B)
 
 }
 \seealso{
-Other jam list functions: \code{\link{list2im}}
+Other jam list functions: 
+\code{\link{list2im}()}
 }
 \concept{jam list functions}

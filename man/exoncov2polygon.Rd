@@ -4,10 +4,19 @@
 \alias{exoncov2polygon}
 \title{Convert exon coverage to polygons}
 \usage{
-exoncov2polygon(gr, covNames = NULL, sample_id = NULL,
-  baseline = NULL, gapWidth = 250, doPlot = FALSE,
-  coord_style = c("fortify", "base", "list", "all"), ref2c = NULL,
-  compress_introns = TRUE, verbose = FALSE, ...)
+exoncov2polygon(
+  gr,
+  covNames = NULL,
+  sample_id = NULL,
+  baseline = NULL,
+  gapWidth = 250,
+  doPlot = FALSE,
+  coord_style = c("fortify", "base", "list", "all"),
+  ref2c = NULL,
+  compress_introns = TRUE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{gr}{GRanges where \code{colnames(values(gr))} is present in \code{covNames},
@@ -92,37 +101,45 @@ print(gg3);
 \seealso{
 \code{test_cov_wide_gr()} for examples
 
-Other jam GRanges functions: \code{\link{addGRLgaps}},
-  \code{\link{addGRgaps}},
-  \code{\link{annotateGRLfromGRL}},
-  \code{\link{annotateGRfromGR}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{findOverlapsGRL}},
-  \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{getGRLgaps}},
-  \code{\link{getGRcoverageFromBw}},
-  \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
-  \code{\link{spliceGR2junctionDF}},
-  \code{\link{stackJunctions}}
+Other jam GRanges functions: 
+\code{\link{addGRLgaps}()},
+\code{\link{addGRgaps}()},
+\code{\link{annotateGRLfromGRL}()},
+\code{\link{annotateGRfromGR}()},
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{findOverlapsGRL}()},
+\code{\link{getFirstStrandedFromGRL}()},
+\code{\link{getGRLgaps}()},
+\code{\link{getGRcoverageFromBw}()},
+\code{\link{getGRgaps}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortGRL}()},
+\code{\link{spliceGR2junctionDF}()},
+\code{\link{stackJunctions}()}
 
-Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{defineDetectedTx}},
-  \code{\link{detectedTxInfo}},
-  \code{\link{flattenExonsBy}},
-  \code{\link{groups2contrasts}},
-  \code{\link{makeTx2geneFromGtf}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{flattenExonsBy}()},
+\code{\link{groups2contrasts}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{runDiffSplice}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 
-Other splicejam core functions: \code{\link{gene2gg}},
-  \code{\link{grl2df}}, \code{\link{make_ref2compressed}},
-  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}}
+Other splicejam core functions: 
+\code{\link{gene2gg}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{plotSashimi}()},
+\code{\link{prepareSashimi}()}
 }
 \concept{jam GRanges functions}
 \concept{jam RNA-seq functions}

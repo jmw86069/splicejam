@@ -4,15 +4,29 @@
 \alias{plotSashimi}
 \title{Jam Sashimi plot}
 \usage{
-plotSashimi(sashimi, show = c("coverage", "junction", "junctionLabels"),
-  coord_method = c("scale", "coord", "none"), exonsGrl = NULL,
+plotSashimi(
+  sashimi,
+  show = c("coverage", "junction", "junctionLabels"),
+  coord_method = c("scale", "coord", "none"),
+  exonsGrl = NULL,
   junc_color = alpha2col("goldenrod2", 0.3),
-  junc_fill = alpha2col("goldenrod2", 0.9), junc_alpha = 0.8,
-  fill_scheme = c("sample_id", "exon"), color_sub = NULL,
-  ylabel = "read depth", xlabel = NULL, xlabel_ref = TRUE,
-  use_jam_themes = TRUE, apply_facet = TRUE, facet_scales = "free_y",
-  ref2c = NULL, label_coords = NULL, do_highlight = FALSE,
-  verbose = FALSE, ...)
+  junc_fill = alpha2col("goldenrod2", 0.9),
+  junc_alpha = 0.8,
+  junc_accuracy = 1,
+  fill_scheme = c("sample_id", "exon"),
+  color_sub = NULL,
+  ylabel = "read depth",
+  xlabel = NULL,
+  xlabel_ref = TRUE,
+  use_jam_themes = TRUE,
+  apply_facet = TRUE,
+  facet_scales = "free_y",
+  ref2c = NULL,
+  label_coords = NULL,
+  do_highlight = FALSE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{sashimi}{Sashimi data prepared by \code{prepareSashimi()} which
@@ -122,21 +136,27 @@ plotSashimi(sh1);
 
 }
 \seealso{
-Other jam plot functions: \code{\link{bgaPlotly3d}},
-  \code{\link{factor2label}}, \code{\link{gene2gg}},
-  \code{\link{grl2df}}, \code{\link{jitter_norm}},
-  \code{\link{prepareSashimi}},
-  \code{\link{stackJunctions}}
+Other jam plot functions: 
+\code{\link{bgaPlotly3d}()},
+\code{\link{factor2label}()},
+\code{\link{gene2gg}()},
+\code{\link{grl2df}()},
+\code{\link{jitter_norm}()},
+\code{\link{prepareSashimi}()},
+\code{\link{stackJunctions}()}
 
-Other jam ggplot2 functions: \code{\link{gene2gg}},
-  \code{\link{geom_diagonal_wide_arc}},
-  \code{\link{splicejam-extensions}},
-  \code{\link{to_basic.GeomShape}}
+Other jam ggplot2 functions: 
+\code{\link{gene2gg}()},
+\code{\link{geom_diagonal_wide_arc}()},
+\code{\link{splicejam-extensions}},
+\code{\link{to_basic.GeomShape}()}
 
-Other splicejam core functions: \code{\link{exoncov2polygon}},
-  \code{\link{gene2gg}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{prepareSashimi}}
+Other splicejam core functions: 
+\code{\link{exoncov2polygon}()},
+\code{\link{gene2gg}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{prepareSashimi}()}
 }
 \concept{jam ggplot2 functions}
 \concept{jam plot functions}

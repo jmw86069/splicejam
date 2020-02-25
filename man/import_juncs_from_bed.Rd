@@ -4,9 +4,17 @@
 \alias{import_juncs_from_bed}
 \title{Import splice junction data from BED file}
 \usage{
-import_juncs_from_bed(iBed, juncNames, sample_id, scale_factor,
-  use_memoise = FALSE, memoise_junction_path = "junctions_memoise",
-  gr = NULL, verbose = FALSE, ...)
+import_juncs_from_bed(
+  iBed,
+  juncNames,
+  sample_id,
+  scale_factor,
+  use_memoise = FALSE,
+  memoise_junction_path = "junctions_memoise",
+  gr = NULL,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{iBed}{path or URL to one BED file containing splice
@@ -44,6 +52,7 @@ a gzipped BED file. However, "bigBed" format cannot be used,
 since the rtracklayer package does not support that format.
 }
 \seealso{
-Other jam data import functions: \code{\link{psl2df}}
+Other jam data import functions: 
+\code{\link{psl2df}()}
 }
 \concept{jam data import functions}

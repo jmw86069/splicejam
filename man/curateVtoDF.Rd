@@ -4,9 +4,17 @@
 \alias{curateVtoDF}
 \title{Curate vector into a data.frame}
 \usage{
-curateVtoDF(x, curationL = NULL, matchWholeString = TRUE,
-  trimWhitespace = TRUE, whitespace = "_ ", expandWhitespace = TRUE,
-  previous = NULL, verbose = TRUE, ...)
+curateVtoDF(
+  x,
+  curationL = NULL,
+  matchWholeString = TRUE,
+  trimWhitespace = TRUE,
+  whitespace = "_ ",
+  expandWhitespace = TRUE,
+  previous = NULL,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{character vector as input}
@@ -165,7 +173,8 @@ curateVtoDF(x, curationL);
 
 }
 \seealso{
-Other jam design functions: \code{\link{curateDFtoDF}},
-  \code{\link{groups2contrasts}}
+Other jam design functions: 
+\code{\link{curateDFtoDF}()},
+\code{\link{groups2contrasts}()}
 }
 \concept{jam design functions}

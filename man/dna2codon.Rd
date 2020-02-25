@@ -34,7 +34,8 @@ dna2codon(dnaext1);
 
 }
 \seealso{
-Other jam codon usage functions: \code{\link{codonUsage2df}},
-  \code{\link{jamCai}}
+Other jam codon usage functions: 
+\code{\link{codonUsage2df}()},
+\code{\link{jamCai}()}
 }
 \concept{jam codon usage functions}

@@ -8,21 +8,25 @@
 
 <title>Launch Sashimi R-shiny application — launchSashimiApp • splicejam</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,10 +34,11 @@
 
 
 
-<meta property="og:title" content="Launch Sashimi R-shiny application — launchSashimiApp" />
 
+<meta property="og:title" content="Launch Sashimi R-shiny application — launchSashimiApp" />
 <meta property="og:description" content="Launch Sashimi R-shiny application" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -45,6 +50,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
 
 
   </head>
@@ -63,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.53.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
       </span>
     </div>
 
@@ -71,7 +77,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -97,11 +103,10 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/jmw86069/splicejam">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -112,6 +117,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -123,22 +129,20 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Launch Sashimi R-shiny application</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>launchSashimiApp</span>(<span class='no'>...</span>, <span class='kw'>options</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>1200</span>))</pre>
-    
+    <pre class="usage"><span class='fu'>launchSashimiApp</span>(<span class='no'>...</span>, <span class='kw'>options</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>1200</span>))</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>...</th>
-      <td><p>additional arguments are passed to <code><a href='https://www.rdocumentation.org/packages/shiny/topics/shinyApp'>shiny::shinyApp()</a></code>.</p></td>
+      <td><p>additional arguments are passed to <code><a href='https://rdrr.io/pkg/shiny/man/shinyApp.html'>shiny::shinyApp()</a></code>.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function launches the Sashimi visualization
@@ -160,7 +164,7 @@ The <code>"scale_factor"</code> values can be edited, then the
 data with the new <code>"scale_factor"</code> values.</p>
 <p>More about using R environments:</p>
 <p>One comment about the environment. The <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code>
-function uses the <code><a href='https://www.rdocumentation.org/packages/base/topics/exists'>exists()</a></code> function to check for existing
+function uses the <code><a href='https://rdrr.io/r/base/exists.html'>exists()</a></code> function to check for existing
 objects, and the <code>&lt;&lt;-</code> operator, which updates
 R objects, both these methods search up the parent
 environment chain to find a matching object name.</p>
@@ -172,16 +176,15 @@ variables can be passed through the <code>dots</code> argument <code>...</code>
 when calling <code>launchSashimiApp()</code>.</p>
 <p>For example <code>launchSashimiApp(filesDF=farris_sashimi_files_df)</code>
 will define a local variable <code>filesDF</code> in the context
-of <code>launchSashimiApp()</code>. The <code><a href='https://www.rdocumentation.org/packages/base/topics/exists'>exists()</a></code> function will recognize
+of <code>launchSashimiApp()</code>. The <code><a href='https://rdrr.io/r/base/exists.html'>exists()</a></code> function will recognize
 this object and use it as-is. Any updates to <code>filesDF</code> using
 <code>&lt;&lt;-</code> will update the object in the local function environment.</p>
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other splicejam R-shiny functions: <code><a href='sashimiAppConstants.html'>sashimiAppConstants</a></code>,
-  <code><a href='sashimiAppServer.html'>sashimiAppServer</a></code>,
-  <code><a href='sashimiAppUI.html'>sashimiAppUI</a></code></p></div>
-    
+    <div class='dont-index'><p>Other splicejam R-shiny functions: 
+<code><a href='sashimiAppConstants.html'>sashimiAppConstants</a>()</code>,
+<code><a href='sashimiAppServer.html'>sashimiAppServer</a>()</code>,
+<code><a href='sashimiAppUI.html'>sashimiAppUI</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'># Note: disabled for web page examples
@@ -193,16 +196,14 @@ this object and use it as-is. Any updates to <code>filesDF</code> using
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#details">Details</a></li>
-
       <li><a href="#see-also">See also</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -210,13 +211,16 @@ this object and use it as-is. Any updates to <code>filesDF</code> using
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

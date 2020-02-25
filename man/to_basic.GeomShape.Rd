@@ -29,9 +29,10 @@ when invoking \code{plotly::ggplotly()} and this function was not
 consistently used in that process for some reason.
 }
 \seealso{
-Other jam ggplot2 functions: \code{\link{gene2gg}},
-  \code{\link{geom_diagonal_wide_arc}},
-  \code{\link{plotSashimi}},
-  \code{\link{splicejam-extensions}}
+Other jam ggplot2 functions: 
+\code{\link{gene2gg}()},
+\code{\link{geom_diagonal_wide_arc}()},
+\code{\link{plotSashimi}()},
+\code{\link{splicejam-extensions}}
 }
 \concept{jam ggplot2 functions}

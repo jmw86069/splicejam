@@ -4,9 +4,16 @@
 \alias{factor2label}
 \title{Convert factor to a factor label}
 \usage{
-factor2label(x, valuesL = NULL, types = c("count", "none"),
-  aggFun = mean, digits = 3, big.mark = ",", itemName = "items",
-  ...)
+factor2label(
+  x,
+  valuesL = NULL,
+  types = c("count", "none"),
+  aggFun = mean,
+  digits = 3,
+  big.mark = ",",
+  itemName = "items",
+  ...
+)
 }
 \arguments{
 \item{x}{factor vector}
@@ -54,10 +61,13 @@ factor2label(x);
 
 }
 \seealso{
-Other jam plot functions: \code{\link{bgaPlotly3d}},
-  \code{\link{gene2gg}}, \code{\link{grl2df}},
-  \code{\link{jitter_norm}}, \code{\link{plotSashimi}},
-  \code{\link{prepareSashimi}},
-  \code{\link{stackJunctions}}
+Other jam plot functions: 
+\code{\link{bgaPlotly3d}()},
+\code{\link{gene2gg}()},
+\code{\link{grl2df}()},
+\code{\link{jitter_norm}()},
+\code{\link{plotSashimi}()},
+\code{\link{prepareSashimi}()},
+\code{\link{stackJunctions}()}
 }
 \concept{jam plot functions}

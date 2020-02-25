@@ -4,8 +4,7 @@
 \alias{spline3d}
 \title{Calculate a spline curve fit in 3-D}
 \usage{
-spline3d(x, y = NULL, z = NULL, lengthFactor = 4, verbose = FALSE,
-  ...)
+spline3d(x, y = NULL, z = NULL, lengthFactor = 4, verbose = FALSE, ...)
 }
 \arguments{
 \item{x}{numeric vector or numeric \code{matrix} or \code{data.frame} with \code{colnames(x)}
@@ -32,8 +31,10 @@ a 3-D spline curve to connect the points. It essentially calls
 row rank.
 }
 \seealso{
-Other jam spatial functions: \code{\link{bgaPlotly3d}},
-  \code{\link{compressPolygonM}},
-  \code{\link{dfWide2segments}}, \code{\link{simplifyXY}}
+Other jam spatial functions: 
+\code{\link{bgaPlotly3d}()},
+\code{\link{compressPolygonM}()},
+\code{\link{dfWide2segments}()},
+\code{\link{simplifyXY}()}
 }
 \concept{jam spatial functions}

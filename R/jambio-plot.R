@@ -1977,11 +1977,19 @@ prepareSashimi <- function
          grepl("_v1_v[23]$", id_name));
       shrink_colnames <- intersect(c("x","y","score","junction_rank"),
          colnames(juncLabelDF1));
+      ## Define junction placement at max position, in stranded fashion
+      juncLabelDF_y <- renameColumn(
+         shrinkMatrix(juncLabelDF1[,"y",drop=FALSE],
+            shrinkFunc=function(x){max(abs(x))*sign(max(x))},
+            groupBy=juncLabelDF1[,"nameFromToSample"]),
+         from="groupBy",
+         to="nameFromToSample");
       juncLabelDF <- renameColumn(
          shrinkMatrix(juncLabelDF1[,shrink_colnames,drop=FALSE],
             groupBy=juncLabelDF1[,"nameFromToSample"]),
          from="groupBy",
          to="nameFromToSample");
+      juncLabelDF$y <- juncLabelDF_y$y;
       juncLabelDF[,c("nameFromTo","sample_id")] <- rbindList(
          strsplit(juncLabelDF[,"nameFromToSample"], ":!:"));
       juncLabelDF[,c("nameFrom", "nameTo")] <- rbindList(

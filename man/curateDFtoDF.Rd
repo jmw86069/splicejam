@@ -4,9 +4,17 @@
 \alias{curateDFtoDF}
 \title{Curate data.frame into a data.frame}
 \usage{
-curateDFtoDF(x, curationL2 = NULL, matchWholeString = TRUE,
-  trimWhitespace = TRUE, whitespace = "_ ", expandWhitespace = TRUE,
-  keepAllColnames = TRUE, verbose = TRUE, ...)
+curateDFtoDF(
+  x,
+  curationL2 = NULL,
+  matchWholeString = TRUE,
+  trimWhitespace = TRUE,
+  whitespace = "_ ",
+  expandWhitespace = TRUE,
+  keepAllColnames = TRUE,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{data.frame}
@@ -143,16 +151,16 @@ whole input string, if not already present. For example supplying \code{"WT"}
 will match \code{"^.*(WT).*$"}. However if the substitution pattern is
 \code{"^.*(WT).*$"} then it will not be expanded.
 \item When the substitution pattern is expanded, the string is also enclosed
-in parentheses \code{"()"} which means the replacement can use \code{"\\1"} to
+in parentheses \code{"()"} which means the replacement can use \code{"\\\\1"} to
 use the successfully matched pattern as the output string. For example
 if \code{"WT"} and \code{"Mutant"} are always valid genotypes, then it would
 be sufficient to define substitution pattern \code{"WT|Mutant"} and
-replacement pattern \code{"\\1"}.
+replacement pattern \code{"\\\\1"}.
 \item When the substitution pattern is expanded, and the string is enclosed
 in parentheses, any parentheses in the substitution pattern are therefore
 one level deeper, for example \code{"file([A-Z]+)"} will be expanded to
 \code{"^.*(file([A-Z]+)).*$"}. See the example below, where the replacement
-pattern uses \code{"\\2"} to use only the internal parentheses.
+pattern uses \code{"\\\\2"} to use only the internal parentheses.
 }
 }
 \examples{
@@ -196,7 +204,8 @@ curateDFtoDF(df, curationL);
 
 }
 \seealso{
-Other jam design functions: \code{\link{curateVtoDF}},
-  \code{\link{groups2contrasts}}
+Other jam design functions: 
+\code{\link{curateVtoDF}()},
+\code{\link{groups2contrasts}()}
 }
 \concept{jam design functions}

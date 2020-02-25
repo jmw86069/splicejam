@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.57.900
+Version: 0.0.58.900
 Authors@R: c(
     person(given="James M.",
        family="Ward",
@@ -69,5 +69,5 @@ Remotes: github::jmw86069/jamba,
 URL: http://github.com/jmw86069/splicejam
 BugReports: http://github.com/jmw86069/splicejam/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 VignetteBuilder: knitr

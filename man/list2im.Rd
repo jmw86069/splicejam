@@ -44,6 +44,7 @@ list2im(l1);
 
 }
 \seealso{
-Other jam list functions: \code{\link{intercalate}}
+Other jam list functions: 
+\code{\link{intercalate}()}
 }
 \concept{jam list functions}

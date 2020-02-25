@@ -4,11 +4,18 @@
 \alias{assignGRLexonNames}
 \title{Assign exon names to GRangesList}
 \usage{
-assignGRLexonNames(GRL, geneSymbolColname = "geneSymbol",
+assignGRLexonNames(
+  GRL,
+  geneSymbolColname = "geneSymbol",
   exonNameColname = paste0(geneSymbolColname, "Exon"),
-  suffix = "_exon", renameOnes = FALSE, filterTwoStrand = TRUE,
-  checkDisjoin = c("warn", "none", "stop"), assignGRLnames = TRUE,
-  verbose = FALSE, ...)
+  suffix = "_exon",
+  renameOnes = FALSE,
+  filterTwoStrand = TRUE,
+  checkDisjoin = c("warn", "none", "stop"),
+  assignGRLnames = TRUE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{GRL}{GRangesList input object. Ideally, the input GRanges are
@@ -64,7 +71,7 @@ suffix.
 
 For example the exon labels below:
 
-\code{|======|......|======|=======|======|......|======|=======|}
+\verb{|======|......|======|=======|======|......|======|=======|}
 \code{.exon1.........exon2a.exon2b..exon2c........exon3a..exon3b.}
 
 The full name for each feature will become:
@@ -82,33 +89,38 @@ to number exons to indicate the numbered contiguous exon, with suffix
 to indicate the sub-section of each exon.
 }
 \seealso{
-Other jam GRanges functions: \code{\link{addGRLgaps}},
-  \code{\link{addGRgaps}},
-  \code{\link{annotateGRLfromGRL}},
-  \code{\link{annotateGRfromGR}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{findOverlapsGRL}},
-  \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{getGRLgaps}},
-  \code{\link{getGRcoverageFromBw}},
-  \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
-  \code{\link{spliceGR2junctionDF}},
-  \code{\link{stackJunctions}}
+Other jam GRanges functions: 
+\code{\link{addGRLgaps}()},
+\code{\link{addGRgaps}()},
+\code{\link{annotateGRLfromGRL}()},
+\code{\link{annotateGRfromGR}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{findOverlapsGRL}()},
+\code{\link{getFirstStrandedFromGRL}()},
+\code{\link{getGRLgaps}()},
+\code{\link{getGRcoverageFromBw}()},
+\code{\link{getGRgaps}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortGRL}()},
+\code{\link{spliceGR2junctionDF}()},
+\code{\link{stackJunctions}()}
 
-Other jam RNA-seq functions: \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{defineDetectedTx}},
-  \code{\link{detectedTxInfo}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsBy}},
-  \code{\link{groups2contrasts}},
-  \code{\link{makeTx2geneFromGtf}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}
+Other jam RNA-seq functions: 
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{flattenExonsBy}()},
+\code{\link{groups2contrasts}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{runDiffSplice}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 }
 \concept{jam GRanges functions}
 \concept{jam RNA-seq functions}

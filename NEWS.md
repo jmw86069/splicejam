@@ -1,3 +1,57 @@
+# splicejam version 0.0.58.900
+
+## Ongoing issues with file caching and R-shiny efficiencies
+
+* The `launchSashimiApp()` function which starts the R-shiny app
+sometimes encounters errors when the required files are not
+available, as has been the case with server or network outages.
+Since each requested file is stored in a `memoise` local
+file cache, a previously-accessed gene should pull from the cache
+and avoid these errors. But newly accessed genes result in
+corrupted (or zero-size) cache files. Splicejam tries to
+detect corrupt cache files and reload from the source
+(referring to `filesDF`) however this process is proving to
+be imperfect, and the sort of thing that is difficult to
+debug. 
+* The remedy for weird errors in the R-shiny app is usually 
+to remove all *_memoise subdirectories,
+which forces the cache to be rebuilt.
+* Some reference numbers regarding speed: In our testing, the typical
+new gene request takes about 10-20 seconds to retrieve data,
+assemble the ggplot object, then display the plot -- for 8 covergae
+files and 8 junction files.
+A cached gene takes about 3-5 seconds to display the plot,
+almost all of that time is ggplot rendering its own plot object.
+In principle, R-shiny has the ability to cache rendered
+ggplot objects, which results in response of less than 1 second
+for cached *rendered* plots.
+However that process only works when the cached rendered plot has
+identical dimensions to the newly requested plot.
+Splicejam currently scales the plot to size of the web browser,
+which means the benefit would only help each browser size.
+For example, splicejam works really well on a phone web browser (!),
+somewhat surprising to me, but it turns out to be great. 
+I use it quite a lot when I'm on the go, between meetings,
+and admittedly during some meetings.
+
+## Updates to existing functions
+
+* `prepareSashimi()` now positions junction labels at the maximum
+edge of the junction arc, in stranded fashion. Might consider
+adding text adjustment so the label is not centered at the edge.
+* `plotSashimi()` now applies `scales::comma(..., accuracy=1)` by
+default, which removed the decimal values from junction labels.
+Some recent update to `scales::comma()` seems to have caused
+decimal values to appear by default. A new argument `junc_accuracy`
+is passed to `scales::comma(..., accuracy=junc_accuracy)` to
+allow customization.
+* `plotSashimi()` fixed issue where `junc_alpha` was only being applied
+when data contained junctions without coverage, now the `junc_alpha` is
+applied in all cases.
+* `sashimiAppServer()` now displays the strand of the gene found
+in the top search pane, which allows someone to set the coverage strand
+consistent with the gene if desired.
+
 # splicejam version 0.0.57.900
 
 ## Bug fixes

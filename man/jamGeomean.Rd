@@ -73,6 +73,7 @@ jamGeomean(x);
 
 }
 \seealso{
-Other jam numeric functions: \code{\link{geomean}}
+Other jam numeric functions: 
+\code{\link{geomean}()}
 }
 \concept{jam numeric functions}

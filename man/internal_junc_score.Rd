@@ -4,8 +4,13 @@
 \alias{internal_junc_score}
 \title{maximum overlapping internal junction score}
 \usage{
-internal_junc_score(juncGR, scoreColname = "score",
-  sampleColname = "sample_id", verbose = FALSE, ...)
+internal_junc_score(
+  juncGR,
+  scoreColname = "score",
+  sampleColname = "sample_id",
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{juncGR}{GRanges containing splice junctions, with numeric
@@ -43,7 +48,8 @@ can be defined higher in order to minimize junction arc
 overlaps.
 }
 \seealso{
-Other RNA-seq functions: \code{\link{getGRcoverageFromBw}},
-  \code{\link{prepareSashimi}}
+Other RNA-seq functions: 
+\code{\link{getGRcoverageFromBw}()},
+\code{\link{prepareSashimi}()}
 }
 \concept{RNA-seq functions}

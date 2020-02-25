@@ -181,7 +181,8 @@ sashimiAppServer <- function
             gene,
             " on ",
             as.character(seqnames(head(flatExonsByGene1[[gene]], 1))),
-            ":");
+            " (", as.character(strand(head(flatExonsByGene1[[gene]], 1))),
+            "):");
          if ("gene_nameExon" %in% colnames(values(flatExonsByGene1[[gene]]))) {
             exon_names <- jamba::mixedSort(
                values(flatExonsByGene1[[gene]])$gene_nameExon);

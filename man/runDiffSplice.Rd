@@ -4,11 +4,23 @@
 \alias{runDiffSplice}
 \title{Perform differential isoform analysis using diffSplice}
 \usage{
-runDiffSplice(iMatrixTx, detectedTx = rownames(iMatrixTx), tx2geneDF,
-  txColname = "transcript_id", geneColname = "gene_name", iDesign,
-  iContrasts, cutoffFDR = 0.05, cutoffFold = 1.5,
-  collapseByGene = TRUE, spliceTest = c("t", "simes", "F"),
-  sep = " ", useVoom = TRUE, verbose = FALSE, ...)
+runDiffSplice(
+  iMatrixTx,
+  detectedTx = rownames(iMatrixTx),
+  tx2geneDF,
+  txColname = "transcript_id",
+  geneColname = "gene_name",
+  iDesign,
+  iContrasts,
+  cutoffFDR = 0.05,
+  cutoffFold = 1.5,
+  collapseByGene = TRUE,
+  spliceTest = c("t", "simes", "F"),
+  sep = " ",
+  useVoom = TRUE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{iMatrixTx}{numeric matrix of expression, with transcripts as
@@ -202,17 +214,18 @@ tools for RNA-seq read counts.
 \emph{Genome Biology} \strong{15}, R29.
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{defineDetectedTx}},
-  \code{\link{detectedTxInfo}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsBy}},
-  \code{\link{groups2contrasts}},
-  \code{\link{makeTx2geneFromGtf}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{flattenExonsBy}()},
+\code{\link{groups2contrasts}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 }
 \concept{jam RNA-seq functions}

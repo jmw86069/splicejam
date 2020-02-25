@@ -35,7 +35,8 @@ This function is equivalent to \code{seqinr::cai()} except that it
 runs in vectorized form and is markedly more efficient.
 }
 \seealso{
-Other jam codon usage functions: \code{\link{codonUsage2df}},
-  \code{\link{dna2codon}}
+Other jam codon usage functions: 
+\code{\link{codonUsage2df}()},
+\code{\link{dna2codon}()}
 }
 \concept{jam codon usage functions}

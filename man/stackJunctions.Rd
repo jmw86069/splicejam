@@ -4,9 +4,18 @@
 \alias{stackJunctions}
 \title{Stack the y-axis position of junctions}
 \usage{
-stackJunctions(gr, scoreColname = "score", sampleColname = "sample_id",
-  scoreFactor = 1, matchFrom = NULL, matchTo = NULL,
-  strandedScore = TRUE, baseline = NULL, verbose = FALSE, ...)
+stackJunctions(
+  gr,
+  scoreColname = "score",
+  sampleColname = "sample_id",
+  scoreFactor = 1,
+  matchFrom = NULL,
+  matchTo = NULL,
+  strandedScore = TRUE,
+  baseline = NULL,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{gr}{GRanges object representing splice junctions.}
@@ -163,26 +172,33 @@ ggplot(grlJunc2df_samples, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
 
 }
 \seealso{
-Other jam plot functions: \code{\link{bgaPlotly3d}},
-  \code{\link{factor2label}}, \code{\link{gene2gg}},
-  \code{\link{grl2df}}, \code{\link{jitter_norm}},
-  \code{\link{plotSashimi}}, \code{\link{prepareSashimi}}
+Other jam plot functions: 
+\code{\link{bgaPlotly3d}()},
+\code{\link{factor2label}()},
+\code{\link{gene2gg}()},
+\code{\link{grl2df}()},
+\code{\link{jitter_norm}()},
+\code{\link{plotSashimi}()},
+\code{\link{prepareSashimi}()}
 
-Other jam GRanges functions: \code{\link{addGRLgaps}},
-  \code{\link{addGRgaps}},
-  \code{\link{annotateGRLfromGRL}},
-  \code{\link{annotateGRfromGR}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{findOverlapsGRL}},
-  \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{getGRLgaps}},
-  \code{\link{getGRcoverageFromBw}},
-  \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
-  \code{\link{spliceGR2junctionDF}}
+Other jam GRanges functions: 
+\code{\link{addGRLgaps}()},
+\code{\link{addGRgaps}()},
+\code{\link{annotateGRLfromGRL}()},
+\code{\link{annotateGRfromGR}()},
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{findOverlapsGRL}()},
+\code{\link{getFirstStrandedFromGRL}()},
+\code{\link{getGRLgaps}()},
+\code{\link{getGRcoverageFromBw}()},
+\code{\link{getGRgaps}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortGRL}()},
+\code{\link{spliceGR2junctionDF}()}
 }
 \concept{jam GRanges functions}
 \concept{jam plot functions}

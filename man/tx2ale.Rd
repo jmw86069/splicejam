@@ -4,9 +4,17 @@
 \alias{tx2ale}
 \title{tx2ale: detect alternative last exons (ALE) from transcript data}
 \usage{
-tx2ale(gtf = NULL, txdb = NULL, threeUtrGRL = NULL,
-  detectedTx = NULL, tx2geneDF = NULL, iMatrix = NULL,
-  aleMethod = c("first", "range"), verbose = FALSE, ...)
+tx2ale(
+  gtf = NULL,
+  txdb = NULL,
+  threeUtrGRL = NULL,
+  detectedTx = NULL,
+  tx2geneDF = NULL,
+  iMatrix = NULL,
+  aleMethod = c("first", "range"),
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{gtf}{character path to a GTF file, used to import gene models
@@ -128,7 +136,8 @@ This function depends upon custom functions: \code{annotateGRLfromGRL()},
 \code{annotateGRfromGR()}, and \code{assignGRLexonNames()}.
 }
 \seealso{
-Other jam ALE-specific RNA-seq functions: \code{\link{ale2violin}},
-  \code{\link{getFirstStrandedFromGRL}}
+Other jam ALE-specific RNA-seq functions: 
+\code{\link{ale2violin}()},
+\code{\link{getFirstStrandedFromGRL}()}
 }
 \concept{jam ALE-specific RNA-seq functions}

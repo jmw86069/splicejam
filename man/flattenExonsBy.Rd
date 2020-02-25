@@ -4,10 +4,18 @@
 \alias{flattenExonsBy}
 \title{Flatten exons by gene or transcript}
 \usage{
-flattenExonsBy(exonsByTx, tx2geneDF, by = c("gene", "tx"),
-  detectedTx = NULL, genes = NULL, txColname = "transcript_id",
-  geneColname = "gene_name", cdsByTx = NULL, cdsByGene = NULL,
-  verbose = FALSE)
+flattenExonsBy(
+  exonsByTx,
+  tx2geneDF,
+  by = c("gene", "tx"),
+  detectedTx = NULL,
+  genes = NULL,
+  txColname = "transcript_id",
+  geneColname = "gene_name",
+  cdsByTx = NULL,
+  cdsByGene = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{exonsByTx}{GRangesList named by transcript, containing one or
@@ -86,14 +94,14 @@ for example \code{exon1a}, \code{exon1b}, \code{exon1c}.
 
 A text schematic is shown below:
 
-\code{|=======|======|......|=======|.....|=======|=======|=======|}
+\verb{|=======|======|......|=======|.....|=======|=======|=======|}
 
-\code{|.exon1a|exon1b|......|.exon2.|.....|.exon3a|.exon3b|.exon3c|}
+\verb{|.exon1a|exon1b|......|.exon2.|.....|.exon3a|.exon3b|.exon3c|}
 
 Where
 \itemize{
-\item \code{|====|} represents an exon,
-\item \code{|====|====|} represents one contiguous exon with two
+\item \verb{|====|} represents an exon,
+\item \verb{|====|====|} represents one contiguous exon with two
 sub-divided parts, and
 \item \code{.....} represents an intron.
 }
@@ -106,17 +114,19 @@ has the by-product of removing potentially erroneous
 transcripts which often has no supporting observed data.
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{defineDetectedTx}},
-  \code{\link{detectedTxInfo}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{groups2contrasts}},
-  \code{\link{makeTx2geneFromGtf}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{groups2contrasts}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{runDiffSplice}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 }
 \concept{GRanges functions}
 \concept{jam RNA-seq functions}

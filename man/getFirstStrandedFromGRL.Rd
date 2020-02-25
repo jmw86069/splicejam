@@ -4,8 +4,12 @@
 \alias{getFirstStrandedFromGRL}
 \title{Get first stranded GRanges feature per GRangesList}
 \usage{
-getFirstStrandedFromGRL(grl, method = c("direct", "endoapply", "flank"),
-  verbose = FALSE, ...)
+getFirstStrandedFromGRL(
+  grl,
+  method = c("direct", "endoapply", "flank"),
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{grl}{GRangesList}
@@ -56,23 +60,28 @@ getFirstStrandedFromGRL(grl)
 
 }
 \seealso{
-Other jam ALE-specific RNA-seq functions: \code{\link{ale2violin}},
-  \code{\link{tx2ale}}
+Other jam ALE-specific RNA-seq functions: 
+\code{\link{ale2violin}()},
+\code{\link{tx2ale}()}
 
-Other jam GRanges functions: \code{\link{addGRLgaps}},
-  \code{\link{addGRgaps}},
-  \code{\link{annotateGRLfromGRL}},
-  \code{\link{annotateGRfromGR}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{findOverlapsGRL}}, \code{\link{getGRLgaps}},
-  \code{\link{getGRcoverageFromBw}},
-  \code{\link{getGRgaps}}, \code{\link{grl2df}},
-  \code{\link{make_ref2compressed}}, \code{\link{sortGRL}},
-  \code{\link{spliceGR2junctionDF}},
-  \code{\link{stackJunctions}}
+Other jam GRanges functions: 
+\code{\link{addGRLgaps}()},
+\code{\link{addGRgaps}()},
+\code{\link{annotateGRLfromGRL}()},
+\code{\link{annotateGRfromGR}()},
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{findOverlapsGRL}()},
+\code{\link{getGRLgaps}()},
+\code{\link{getGRcoverageFromBw}()},
+\code{\link{getGRgaps}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortGRL}()},
+\code{\link{spliceGR2junctionDF}()},
+\code{\link{stackJunctions}()}
 }
 \concept{jam ALE-specific RNA-seq functions}
 \concept{jam GRanges functions}

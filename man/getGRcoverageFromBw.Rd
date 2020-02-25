@@ -4,11 +4,19 @@
 \alias{getGRcoverageFromBw}
 \title{Get coverage for GRanges from bigWig files}
 \usage{
-getGRcoverageFromBw(gr, bwUrls, addGaps = FALSE,
-  gap_feature_type = "gap", default_feature_type = "exon",
-  feature_type_colname = "feature_type", use_memoise = FALSE,
+getGRcoverageFromBw(
+  gr,
+  bwUrls,
+  addGaps = FALSE,
+  gap_feature_type = "gap",
+  default_feature_type = "exon",
+  feature_type_colname = "feature_type",
+  use_memoise = FALSE,
   memoise_coverage_path = "coverage_memoise",
-  do_shiny_progress = FALSE, verbose = FALSE, ...)
+  do_shiny_progress = FALSE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{gr}{GRanges object}
@@ -74,23 +82,28 @@ Note that this function uses \code{rtracklayer::import.bw()} which
 they describe does not work on the Windows platform.
 }
 \seealso{
-Other jam GRanges functions: \code{\link{addGRLgaps}},
-  \code{\link{addGRgaps}},
-  \code{\link{annotateGRLfromGRL}},
-  \code{\link{annotateGRfromGR}},
-  \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{findOverlapsGRL}},
-  \code{\link{getFirstStrandedFromGRL}},
-  \code{\link{getGRLgaps}}, \code{\link{getGRgaps}},
-  \code{\link{grl2df}}, \code{\link{make_ref2compressed}},
-  \code{\link{sortGRL}}, \code{\link{spliceGR2junctionDF}},
-  \code{\link{stackJunctions}}
+Other jam GRanges functions: 
+\code{\link{addGRLgaps}()},
+\code{\link{addGRgaps}()},
+\code{\link{annotateGRLfromGRL}()},
+\code{\link{annotateGRfromGR}()},
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{findOverlapsGRL}()},
+\code{\link{getFirstStrandedFromGRL}()},
+\code{\link{getGRLgaps}()},
+\code{\link{getGRgaps}()},
+\code{\link{grl2df}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{sortGRL}()},
+\code{\link{spliceGR2junctionDF}()},
+\code{\link{stackJunctions}()}
 
-Other RNA-seq functions: \code{\link{internal_junc_score}},
-  \code{\link{prepareSashimi}}
+Other RNA-seq functions: 
+\code{\link{internal_junc_score}()},
+\code{\link{prepareSashimi}()}
 }
 \concept{RNA-seq functions}
 \concept{jam GRanges functions}

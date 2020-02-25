@@ -7,19 +7,6 @@
 simplifyXY(xy, minN = 3, restrictDegrees = NULL, ...)
 }
 \arguments{
-\item{xy}{numeric matrix with two columns representing x,y coordinates.}
-
-\item{minN}{integer value to define the minimal number of repeated
-values before the compression is used. By definition, three consecutive
-points must have the same slope in order for compression to be
-effective, otherwise the original coordinates will be returned.}
-
-\item{restrictDegrees}{numeric vector of degrees to restrict the
-simplification. For exmample \code{restrictDegrees=c(0,180)} will only
-simplify horizontal lines.}
-
-\item{...}{additional arguments are ignored.}
-
 \item{xy}{numeric matrix of two columns x,y}
 
 \item{minN}{integer minimum number of consecutive points to
@@ -57,8 +44,10 @@ legend("topleft", pch=c(1, 20, 17),# box.col="black", border="black",
 
 }
 \seealso{
-Other jam spatial functions: \code{\link{bgaPlotly3d}},
-  \code{\link{compressPolygonM}},
-  \code{\link{dfWide2segments}}, \code{\link{spline3d}}
+Other jam spatial functions: 
+\code{\link{bgaPlotly3d}()},
+\code{\link{compressPolygonM}()},
+\code{\link{dfWide2segments}()},
+\code{\link{spline3d}()}
 }
 \concept{jam spatial functions}

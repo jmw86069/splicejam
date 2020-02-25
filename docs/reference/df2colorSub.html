@@ -8,21 +8,25 @@
 
 <title>Convert data.frame to categorical colors — df2colorSub • splicejam</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,10 +34,11 @@
 
 
 
-<meta property="og:title" content="Convert data.frame to categorical colors — df2colorSub" />
 
+<meta property="og:title" content="Convert data.frame to categorical colors — df2colorSub" />
 <meta property="og:description" content="Convert data.frame to categorical colors" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -45,6 +50,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
 
 
   </head>
@@ -63,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.53.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
       </span>
     </div>
 
@@ -71,7 +77,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -97,11 +103,10 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/jmw86069/splicejam">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -112,6 +117,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -123,13 +129,11 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Convert data.frame to categorical colors</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>df2colorSub</span>(<span class='no'>x</span>, <span class='kw'>colorSub</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -151,49 +155,45 @@ values in the input data.frame <code>x</code>.</p></td>
       <td><p>additional parameters are passed to <code>colorjam::group2color()</code>.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>data.frame of the same dimensions as the input <code>x</code> data.frame,
 where values have been substituted with R colors.</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function is a temporary placeholder function which simply
 provides categorical colors for values in each column of the input
 <code>data.frame</code>. If colors are provided using the named color vector
 <code>colorSub</code>, they are used to substitute values in each column,
-otherwise <code><a href='https://www.rdocumentation.org/packages/colorjam/topics/group2colors'>colorjam::group2colors()</a></code> is used to create categorical
-colors, which itself uses <code><a href='https://www.rdocumentation.org/packages/colorjam/topics/rainbowJam'>colorjam::rainbowJam()</a></code>.</p>
+otherwise <code><a href='https://rdrr.io/pkg/colorjam/man/group2colors.html'>colorjam::group2colors()</a></code> is used to create categorical
+colors, which itself uses <code><a href='https://rdrr.io/pkg/colorjam/man/rainbowJam.html'>colorjam::rainbowJam()</a></code>.</p>
 <p>Note that providing <code>colorSub</code> helps keep colors consistent, otherwise
 each column is independently colorized.</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>colorSub1</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/colorjam/topics/group2colors'>group2colors</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>6</span>]);
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>one</span><span class='kw'>=</span><span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>6</span>],
-   <span class='kw'>two</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>3</span>:<span class='fl'>4</span>], <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>),
-   <span class='kw'>three</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>5</span>:<span class='fl'>6</span>], <span class='fl'>3</span>));
+    <pre class="examples"><div class='input'><span class='no'>colorSub1</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/colorjam/man/group2colors.html'>group2colors</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>6</span>]);
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>one</span><span class='kw'>=</span><span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>6</span>],
+   <span class='kw'>two</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>3</span>:<span class='fl'>4</span>], <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>),
+   <span class='kw'>three</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>5</span>:<span class='fl'>6</span>], <span class='fl'>3</span>));
 <span class='no'>dfColors</span> <span class='kw'>&lt;-</span> <span class='fu'>df2colorSub</span>(<span class='no'>df</span>, <span class='no'>colorSub1</span>);
-<span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/jamba/topics/imageByColors'>imageByColors</a></span>(<span class='no'>dfColors</span>, <span class='kw'>cellnote</span><span class='kw'>=</span><span class='no'>df</span>);</div><div class='img'><img src='df2colorSub-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/jamba/man/imageByColors.html'>imageByColors</a></span>(<span class='no'>dfColors</span>, <span class='kw'>cellnote</span><span class='kw'>=</span><span class='no'>df</span>);</div><div class='img'><img src='df2colorSub-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Or in one step</span>
-<span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/jamba/topics/imageByColors'>imageByColors</a></span>(<span class='fu'>df2colorSub</span>(<span class='no'>df</span>), <span class='kw'>cellnote</span><span class='kw'>=</span><span class='no'>df</span>);</div><div class='img'><img src='df2colorSub-2.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/jamba/man/imageByColors.html'>imageByColors</a></span>(<span class='fu'>df2colorSub</span>(<span class='no'>df</span>), <span class='kw'>cellnote</span><span class='kw'>=</span><span class='no'>df</span>);</div><div class='img'><img src='df2colorSub-2.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -201,13 +201,16 @@ each column is independently colorized.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

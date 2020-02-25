@@ -4,9 +4,16 @@
 \alias{strsplitOrdered}
 \title{Split the elements of an ordered factor vector}
 \usage{
-strsplitOrdered(x, split = "_", fixed = FALSE, perl = FALSE,
-  useBytes = FALSE, sortFunc = jamba::mixedSort, keepOrder = TRUE,
-  ...)
+strsplitOrdered(
+  x,
+  split = "_",
+  fixed = FALSE,
+  perl = FALSE,
+  useBytes = FALSE,
+  sortFunc = jamba::mixedSort,
+  keepOrder = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{character or factor vector.}
@@ -48,7 +55,8 @@ strsplitOrdered(iGroups, "_");
 
 }
 \seealso{
-Other jam string functions: \code{\link{escapeWhitespaceRegexp}},
-  \code{\link{sortSamples}}
+Other jam string functions: 
+\code{\link{escapeWhitespaceRegexp}()},
+\code{\link{sortSamples}()}
 }
 \concept{jam string functions}

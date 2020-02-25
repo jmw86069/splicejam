@@ -38,7 +38,7 @@ More about using R environments:
 
 One comment about the environment. The \code{sashimiAppConstants()}
 function uses the \code{exists()} function to check for existing
-objects, and the \code{<<-} operator, which updates
+objects, and the \verb{<<-} operator, which updates
 R objects, both these methods search up the parent
 environment chain to find a matching object name.
 
@@ -53,7 +53,7 @@ For example \code{launchSashimiApp(filesDF=farris_sashimi_files_df)}
 will define a local variable \code{filesDF} in the context
 of \code{launchSashimiApp()}. The \code{exists()} function will recognize
 this object and use it as-is. Any updates to \code{filesDF} using
-\code{<<-} will update the object in the local function environment.
+\verb{<<-} will update the object in the local function environment.
 }
 \examples{
 # Note: disabled for web page examples
@@ -61,8 +61,9 @@ this object and use it as-is. Any updates to \code{filesDF} using
 
 }
 \seealso{
-Other splicejam R-shiny functions: \code{\link{sashimiAppConstants}},
-  \code{\link{sashimiAppServer}},
-  \code{\link{sashimiAppUI}}
+Other splicejam R-shiny functions: 
+\code{\link{sashimiAppConstants}()},
+\code{\link{sashimiAppServer}()},
+\code{\link{sashimiAppUI}()}
 }
 \concept{splicejam R-shiny functions}

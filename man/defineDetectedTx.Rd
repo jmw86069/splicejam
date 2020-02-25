@@ -4,12 +4,23 @@
 \alias{defineDetectedTx}
 \title{Define detected transcripts}
 \usage{
-defineDetectedTx(iMatrixTx = NULL, iMatrixTxGrp = NULL,
-  iMatrixTxTPM = NULL, iMatrixTxTPMGrp = NULL, groups = NULL,
-  tx2geneDF = NULL, cutoffTxPctMax = 10, cutoffTxExpr = 5,
-  cutoffTxTPMExpr = 2, txColname = "transcript_id",
-  geneColname = "gene_name", zeroAsNA = TRUE, useMedian = FALSE,
-  verbose = FALSE, ...)
+defineDetectedTx(
+  iMatrixTx = NULL,
+  iMatrixTxGrp = NULL,
+  iMatrixTxTPM = NULL,
+  iMatrixTxTPMGrp = NULL,
+  groups = NULL,
+  tx2geneDF = NULL,
+  cutoffTxPctMax = 10,
+  cutoffTxExpr = 5,
+  cutoffTxTPMExpr = 2,
+  txColname = "transcript_id",
+  geneColname = "gene_name",
+  zeroAsNA = TRUE,
+  useMedian = FALSE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{iMatrixTx}{numeric matrix of read counts (or pseudocounts) with
@@ -106,7 +117,7 @@ Kallisto), along with alternative TPM quantitation, to determine
 the observed "detected" transcript space for a given experiment.
 
 Each input data matrix is assumed to be appropriately log-transformed,
-typically using \code{log2(1+x)}. If any value is \code{>= 50} then the data
+typically using \code{log2(1+x)}. If any value is \verb{>= 50} then the data
 matrix will be log2-transformed using \code{log2(1+x)}.
 
 The criteria must be met in at least one sample group, but all
@@ -131,7 +142,7 @@ that we considered to be spuriously expressed.
 There are three default requirements for a transcript to be considered
 "detected".
 \enumerate{
-\item An isoform must be expressed at least 10% of the max isoform for
+\item An isoform must be expressed at least 10\% of the max isoform for
 a given gene, using TPM values.
 \item An isoform must have at least log2(32) pseudocounts to be considered
 detected, based upon our view of Salmon pseudocount data using MA-plots.
@@ -169,16 +180,18 @@ value of zero represents absence of data. Any group mean that is
 filters.
 }
 \seealso{
-Other jam RNA-seq functions: \code{\link{assignGRLexonNames}},
-  \code{\link{closestExonToJunctions}},
-  \code{\link{combineGRcoverage}},
-  \code{\link{detectedTxInfo}},
-  \code{\link{exoncov2polygon}},
-  \code{\link{flattenExonsBy}},
-  \code{\link{groups2contrasts}},
-  \code{\link{makeTx2geneFromGtf}},
-  \code{\link{make_ref2compressed}},
-  \code{\link{runDiffSplice}}, \code{\link{sortSamples}},
-  \code{\link{spliceGR2junctionDF}}
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{flattenExonsBy}()},
+\code{\link{groups2contrasts}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{runDiffSplice}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 }
 \concept{jam RNA-seq functions}
