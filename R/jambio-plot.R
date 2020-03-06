@@ -95,7 +95,7 @@ make_ref2compressed <- function
       gapWidth <- max(c(10,
          round(median(GenomicRanges::width(GenomicRanges::reduce(gr))) / 2)));
       if (verbose) {
-         printDebug("make_ref2compressed(): ",
+         jamba::printDebug("make_ref2compressed(): ",
             "determined gapWidth:",
             format(gapWidth,
                scientific=FALSE,
@@ -136,7 +136,7 @@ make_ref2compressed <- function
 
    ##
    if (verbose) {
-      printDebug("make_ref2compressed(): ",
+      jamba::printDebug("make_ref2compressed(): ",
          "newCoords");
    }
    newCoords <- cumsum(newWidths);
@@ -196,7 +196,7 @@ make_ref2compressed <- function
    }
    ## TODO: expand the range of coordinates so approxfun() will not fail
    if (verbose) {
-      printDebug("make_ref2compressed(): ",
+      jamba::printDebug("make_ref2compressed(): ",
          "approxfun");
    }
    ref2compressed <- approxfun(x=lookupCoordDF[,1],
@@ -208,7 +208,7 @@ make_ref2compressed <- function
 
    ## Add a convenience function for GRanges objects
    if (verbose) {
-      printDebug("make_ref2compressed(): ",
+      jamba::printDebug("make_ref2compressed(): ",
          "ref2compressedGR");
    }
    ref2compressedGR <- function(gr) {
@@ -247,7 +247,7 @@ make_ref2compressed <- function
       grlc;
    }
    if (verbose) {
-      printDebug("make_ref2compressed(): ",
+      jamba::printDebug("make_ref2compressed(): ",
          "retVals");
    }
 
@@ -263,11 +263,11 @@ make_ref2compressed <- function
       xvals <- unique(sort(xFixed));
       xvals <- xvals[xvals >= min(x) & xvals <= max(x)];
       if (verbose) {
-         printDebug("breaks_gr(): ",
+         jamba::printDebug("breaks_gr(): ",
             "x:", x);
-         printDebug("breaks_gr(): ",
+         jamba::printDebug("breaks_gr(): ",
             "limits:", limits);
-         printDebug("breaks_gr(): ",
+         jamba::printDebug("breaks_gr(): ",
             "n:", n);
       }
       if (n > length(xvals)) {
@@ -285,11 +285,11 @@ make_ref2compressed <- function
     ...)
    {
       if (verbose) {
-         printDebug("minor_breaks(): ",
+         jamba::printDebug("minor_breaks(): ",
             "x:", x);
-         printDebug("minor_breaks(): ",
+         jamba::printDebug("minor_breaks(): ",
             "limits:", limits);
-         printDebug("minor_breaks(): ",
+         jamba::printDebug("minor_breaks(): ",
             "n:", n);
       }
       nUse <- length(b) * n;
@@ -539,9 +539,9 @@ compressPolygonM <- function
       polyMlengths <- sdim(polyML)[,1];
    }
    if (verbose) {
-      printDebug("compressPolygonM(): ",
+      jamba::printDebug("compressPolygonM(): ",
          "data_style:", data_style);
-      printDebug("compressPolygonM(): ",
+      jamba::printDebug("compressPolygonM(): ",
          "polyMratios:", head(polyMratios, 20));
    }
 
@@ -598,13 +598,13 @@ compressPolygonM <- function
          k=iMultiple,
          endrule="keep");
       if (1 == 2) {
-         printDebug("head(iDFu):");print(head(iDFu));
-         printDebug("head(iYnew):", head(iYnew));
-         printDebug("head(iMultiple):", head(iMultiple));
-         printDebug("head(iN):", head(iN));
-         printDebug("head(iSeqNew):", head(iSeqNew));
-         printDebug("head(iYrunmax):", head(iYrunmax));
-         printDebug("head(iSeqSub):", head(iSeqSub));
+         jamba::printDebug("head(iDFu):");print(head(iDFu));
+         jamba::printDebug("head(iYnew):", head(iYnew));
+         jamba::printDebug("head(iMultiple):", head(iMultiple));
+         jamba::printDebug("head(iN):", head(iN));
+         jamba::printDebug("head(iSeqNew):", head(iSeqNew));
+         jamba::printDebug("head(iYrunmax):", head(iYrunmax));
+         jamba::printDebug("head(iSeqSub):", head(iSeqSub));
       }
       iYsub <- approx(x=iSeqNew,
          y=iYrunmax,
@@ -770,7 +770,7 @@ exoncov2polygon <- function
 
    ## List of lists of polygons
    if (verbose) {
-      printDebug("exoncov2polygon(): ",
+      jamba::printDebug("exoncov2polygon(): ",
          "covNames:",
          covNames);
    }
@@ -797,8 +797,8 @@ exoncov2polygon <- function
             iBase,
             iBase);
          if (length(xVals) != length(yVals)) {
-            printDebug("length(xVals):", length(xVals));
-            printDebug("length(yVals):", length(yVals));
+            jamba::printDebug("length(xVals):", length(xVals));
+            jamba::printDebug("length(yVals):", length(yVals));
          }
          ## TODO: compress coordinates where y-value doesn't change
          if (length(xVals) > 0 && length(yVals) > 0) {
@@ -852,7 +852,7 @@ exoncov2polygon <- function
          });
          t2 <- Sys.time();
          if (verbose) {
-            printDebug("exoncov2polygon(): ",
+            jamba::printDebug("exoncov2polygon(): ",
                "Completed polygon compression:",
                format(t2 - t1));
          }
@@ -1008,7 +1008,7 @@ getGRcoverageFromBw <- function
    gap_feature_type <- head(c(gap_feature_type, "gap"), 1);
    if (addGaps) {
       if (verbose) {
-         printDebug("getGRcoverageFromBw(): ",
+         jamba::printDebug("getGRcoverageFromBw(): ",
             "addGRgaps()");
       }
       newValues <- list(feature_type=gap_feature_type);
@@ -1044,6 +1044,11 @@ getGRcoverageFromBw <- function
          cache=memoise::cache_filesystem(memoise_coverage_path));
    }
    ## Iterate bwUrls and get coverage from each
+   if (verbose) {
+      jamba::printDebug("getGRcoverageFromBw(): ",
+         "bwUrls:");
+      print(bwUrls);
+   }
    covL <- lapply(nameVectorN(bwUrls), function(iBw){
       bwUrl <- bwUrls[[iBw]];
       iBwNum <- match(iBw, names(bwUrls));
@@ -1058,25 +1063,29 @@ getGRcoverageFromBw <- function
                ")"));
       }
       if (verbose) {
-         printDebug("getGRcoverageFromBw(): ",
+         jamba::printDebug("getGRcoverageFromBw(): ",
             "Importing bwUrl:",
             bwUrl);
       }
       if (use_memoise) {
          if (verbose) {
-            printDebug("bwUrl:");
+            jamba::printDebug("bwUrl:");
             print(bwUrl);
             cov_has_cache <- memoise::has_cache(import_or_null_m)(
                bwUrl,
                gr=gr);
-            printDebug("   cov_has_cache:", cov_has_cache);
+            jamba::printDebug("   cov_has_cache:", cov_has_cache);
          }
          cov1 <- import_or_null_m(
             bwUrl,
             gr=gr);
          if (length(cov1) == 0) {
             # Repeat once for NULL cached results
-            printDebug("Repairing coverage cache.", fgText="seagreen1");
+            if (verbose) {
+               jamba::printDebug("getGRcoverageFromBw(): ",
+                  "Repairing coverage cache.",
+                  fgText=c("darkorange", "seagreen2"));
+            }
             if (do_shiny_progress && !is.na(iBwPct)) {
                shiny::setProgress(
                   value=0/2 + iBwPct/2,
@@ -1090,24 +1099,35 @@ getGRcoverageFromBw <- function
                bwUrl,
                gr=gr);
             if (cov_has_cache) {
-               memoise::drop_cache(import_or_null_m)(
-                  bwUrl,
-                  gr=gr);
+               cov1 <- tryCatch({
+                  memoise::drop_cache(import_or_null_m)(
+                     bwUrl,
+                     gr=gr);
+                  import_or_null_m(
+                     bwUrl,
+                     gr=gr);
+               }, error=function(e){
+                  jamba::printDebug("getGRcoverageFromBw(): ",
+                     "Error calling memoise::drop_cache(), calling import_or_null() directly.");
+                  import_or_null(
+                     bwUrl,
+                     gr=gr);
+               });
             }
-            cov1 <- import_or_null_m(
-               bwUrl,
-               gr=gr);
-         }
-         if (length(cov1) == 0) {
-            printDebug("Failed to repair coverage cache.", fgText="red");
-            if (do_shiny_progress && !is.na(iBwPct)) {
-               shiny::setProgress(
-                  value=0/2 + iBwPct/2,
-                  detail=paste0("Failed repair cov cache (",
-                     iBwNum,
-                     " of ",
-                     length(bwUrls),
-                     ")"));
+            if (length(cov1) == 0) {
+               jamba::printDebug("getGRcoverageFromBw(): ",
+                  "Failed to repair coverage cache for bwUrl: ",
+                  c("'", bwUrl, "'"), sep="",
+                  fgText=c("darkorange", "red"));
+               if (do_shiny_progress && !is.na(iBwPct)) {
+                  shiny::setProgress(
+                     value=0/2 + iBwPct/2,
+                     detail=paste0("Failed repair cov cache (",
+                        iBwNum,
+                        " of ",
+                        length(bwUrls),
+                        ")"));
+               }
             }
          }
       } else {
@@ -1119,6 +1139,9 @@ getGRcoverageFromBw <- function
    cov1nonzero <- (lengths(covL) > 0);
    if (any(cov1nonzero)) {
       GenomicRanges::values(gr)[,names(covL)[cov1nonzero]] <- S4Vectors::DataFrame(covL[cov1nonzero]);
+   }
+   if (any(!cov1nonzero)) {
+      attr(gr, "some_null") <- TRUE;
    }
    return(gr);
 }
@@ -1181,68 +1204,103 @@ combineGRcoverage <- function
    ##
    ## covName is used to group together replicates of a sample_id
    ## covNames is a unique name per coverage
-   if (any(!covNames %in% colnames(GenomicRanges::values(gr)))) {
-      stop("combineGRcoverage() requires covNames be present in colnames(values(gr)).");
-   }
+
+   ## define scaleFactors=1 if not supplied
    if (length(scaleFactors) == 0) {
       scaleFactors <- 1;
    }
+   ## ensure scaleFactors has length=length(covNames)
+   scaleFactors <- rep(scaleFactors,
+      length.out=length(covNames));
+   names(scaleFactors) <- covNames;
+
+   ## define covName="cov" if not supplied
    if (length(covName) == 0) {
       covName <- "cov";
    }
-   covName <- rep(covName, length.out=length(covNames));
+   ## ensure covName has length=length(covNames)
+   covName <- rep(covName,
+      length.out=length(covNames));
    names(covName) <- covNames;
-   if (length(scaleFactors) != length(covNames)) {
-      scaleFactors <- rep(scaleFactors, length.out=length(covNames));
-   }
-   names(scaleFactors) <- covNames;
-   if (verbose) {
-      printDebug("combineGRcoverage(): ",
-         "scaleFactors: ",
-         paste0(names(scaleFactors),
-            ":",
-            format(digits=2, trim=TRUE, scaleFactors)),
-         sep=", ");
-   }
 
-   if (length(strands) == 0) {
-      strands <- factor(sapply(seq_along(covNames), function(i){
-         iCov <- covNames[[i]];
-         ifelse(any(any(GenomicRanges::values(gr)[[iCov]] * scaleFactors[i] < 0) &
-               all(GenomicRanges::values(gr)[[iCov]] * scaleFactors[i] <= 0)),
-            "-",
-            "+")
-      }), levels=c("+", "-"));
-   }
-   if (!"factor" %in% class(strands)) {
-      strands <- factor(strands,
-         levels=jamba::provigrep(c("[+]|pos|plus", "[-]|neg|minus", "."),
-            unique(strands)));
-   }
-   covNamesL <- split(covNames, paste0(covName, strands));
-   covNameL <- split(covName, paste0(covName, strands));
-   for (iCovN in names(covNamesL)) {
-      iCovV <- covNamesL[[iCovN]];
+   ## determine which covNames are present in the supplied gr object
+   ## to be tolerant of missing data
+   has_coverage <- covNames %in% colnames(GenomicRanges::values(gr));
+   some_null <- attr(gr, "some_null");
+   if (!all(has_coverage)) {
+      jamba::printDebug("covName:", covName);
+      jamba::printDebug("covNames:", covNames);
+      jamba::printDebug("head(gr):");
+      print(head(gr));
       if (verbose) {
-         printDebug("combineGRcoverage(): ",
-            "iCovN:", iCovN);
-         printDebug("combineGRcoverage(): ",
-            "iCovV:", iCovV);
+         print(data.frame(covName=covName,
+            covNames=covNames,
+            has_coverage=has_coverage));
       }
-      iCovX <- Reduce("+",
-         lapply(iCovV, function(i){
-            GenomicRanges::values(gr)[[i]] * scaleFactors[i]
-         }));
-      if (verbose) {
-         printDebug("combineGRcoverage(): ",
-            "iCovN:",
-            iCovN);
-      }
-      GenomicRanges::values(gr)[[iCovN]] <- iCovX;
+      some_null <- TRUE;
+      ## re-order
+      covName <- covName[has_coverage];
+      covNames <- covNames[has_coverage];
+      scaleFactors <- scaleFactors[has_coverage];
    }
-   gr <- gr[,!colnames(GenomicRanges::values(gr)) %in% covNames];
+   #if (length(covName) == 0) {
+   #   stop("combineGRcoverage() found no covNames present in colnames(values(gr)).");
+   #}
+   if (length(covName) > 0) {
+      if (verbose) {
+         jamba::printDebug("combineGRcoverage(): ",
+            "scaleFactors: ",
+            paste0(names(scaleFactors),
+               ":",
+               format(digits=2, trim=TRUE, scaleFactors)),
+            sep=", ");
+      }
+
+      ## define strands if not supplied
+      if (length(strands) == 0) {
+         strands <- factor(sapply(seq_along(covNames), function(i){
+            iCov <- covNames[[i]];
+            ifelse(any(any(GenomicRanges::values(gr)[[iCov]] * scaleFactors[i] < 0) &
+                  all(GenomicRanges::values(gr)[[iCov]] * scaleFactors[i] <= 0)),
+               "-",
+               "+")
+         }), levels=c("+", "-"));
+      }
+      ## ensure strands is a factor with proper order "+" then "-"
+      if (!"factor" %in% class(strands)) {
+         strands <- factor(strands,
+            levels=jamba::provigrep(c("[+]|pos|plus", "[-]|neg|minus", "."),
+               unique(strands)));
+      }
+      covNamesL <- split(covNames, paste0(covName, strands));
+      covNameL <- split(covName, paste0(covName, strands));
+      for (iCovN in names(covNamesL)) {
+         iCovV <- covNamesL[[iCovN]];
+         if (verbose) {
+            jamba::printDebug("combineGRcoverage(): ",
+               "iCovN:", iCovN);
+            jamba::printDebug("combineGRcoverage(): ",
+               "   iCovV:", iCovV);
+         }
+         iCovX <- Reduce("+",
+            lapply(iCovV, function(i){
+               GenomicRanges::values(gr)[[i]] * scaleFactors[i]
+            }));
+         if (verbose) {
+            jamba::printDebug("combineGRcoverage(): ",
+               "iCovN:",
+               iCovN);
+         }
+         GenomicRanges::values(gr)[[iCovN]] <- iCovX;
+      }
+   }
+   ## Remove the original coverage data columns from the output
+   keep_gr_colnames <- setdiff(colnames(GenomicRanges::values(gr)),
+      covNames);
+   gr <- gr[,keep_gr_colnames];
    attr(gr, "covNames") <- names(covNamesL);
-   attr(gr, "covName") <- cPasteUnique(covNameL);
+   attr(gr, "covName") <- jamba::cPasteU(covNameL);
+   attr(gr, "some_null") <- some_null;
    return(gr);
 }
 
@@ -1408,7 +1466,6 @@ prepareSashimi <- function
  feature_type_colname="feature_type",
  exon_label_type=c("none", "repel", "mark"),
  junc_label_type=c("repel", "mark", "none"),
- #return_data=c("ggCov", "ggJunc", "ggSashimi", "covDF", "juncDF", "ref2c", "all"),
  return_data=c("df", "ref2c"),
  include_strand=c("both", "+", "-"),
  junc_color=alpha2col("goldenrod3", 0.7),
@@ -1437,8 +1494,6 @@ prepareSashimi <- function
    include_strand <- match.arg(include_strand);
    coord_method <- match.arg(coord_method);
    retVals <- list();
-   #if (length(return_data) > 1 || "all" %in% return_data) {
-   #}
 
    ## Validate filesDF
    if (length(filesDF) == 0 ||
@@ -1470,7 +1525,7 @@ prepareSashimi <- function
    if (length(ref2c) == 0) {
       if (compressGR) {
          if (verbose) {
-            printDebug("prepareSashimi(): ",
+            jamba::printDebug("prepareSashimi(): ",
                "running make_ref2compressed.");
          }
          ref2c <- make_ref2compressed(gr=gr,
@@ -1484,6 +1539,7 @@ prepareSashimi <- function
    if (any(c("all", "ref2c") %in% return_data)) {
       retVals$ref2c <- ref2c;
    }
+   retVals$some_null <- FALSE;
 
    ############################################
    ## Get coverage data
@@ -1510,7 +1566,7 @@ prepareSashimi <- function
    names(bwScaleFactors) <- names(bwUrls);
    if (length(bwScaleFactors) > 0) {
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "bwScaleFactors:",
             paste0(basename(names(bwScaleFactors)),
                ":",
@@ -1519,12 +1575,12 @@ prepareSashimi <- function
       }
    }
    if (verbose) {
-      printDebug("prepareSashimi(): ",
+      jamba::printDebug("prepareSashimi(): ",
          "bwUrls:");
       if (length(bwUrls) > 0) {
          print(data.frame(bwUrls));
       } else {
-         printDebug("No coverage files", fgText="red");
+         jamba::printDebug("No coverage files", fgText="red");
       }
       #printDebug("GRanges:");
       #print(gr);
@@ -1535,7 +1591,7 @@ prepareSashimi <- function
    if (length(covGR) > 0) {
       ## Input is pre-processed coverage data
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "Preparing coverage from covGR");
       }
       if (do_shiny_progress) {
@@ -1572,6 +1628,11 @@ prepareSashimi <- function
          ## Obtain the new set of covNames
          covNames <- attr(covGR2, "covNames");
          covName <- attr(covGR2, "covName");
+         ## some_null is TRUE when any underlying coverage file failed to return coverage
+         some_null <- attr(covGR2, "some_null");
+         if (length(some_null) && some_null) {
+            retVals$some_null <- some_null;
+         }
 
          ## Create polygon data.frame
          covDF <- exoncov2polygon(covGR2,
@@ -1616,7 +1677,7 @@ prepareSashimi <- function
    ##
    if (length(bwUrls) > 0) {
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "Preparing coverage from bigWig filesDF");
       }
       if (do_shiny_progress) {
@@ -1638,9 +1699,10 @@ prepareSashimi <- function
          ...);
       ## Combine coverage per strand
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "Combining coverage by sample_id");
       }
+
       covGR2 <- combineGRcoverage(covGR,
          covName=bwSamples,
          scaleFactors=bwScaleFactors,
@@ -1654,10 +1716,15 @@ prepareSashimi <- function
          retVals$covGR <- covGR;
          retVals$covGR2 <- covGR2;
       }
+      ## some_null is TRUE when any underlying coverage file failed to return coverage
+      some_null <- attr(covGR2, "some_null");
+      if (length(some_null) && some_null) {
+         retVals$some_null <- some_null;
+      }
 
       ## Create polygon data.frame
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "Calling exoncov2polygon()");
       }
       covDF <- exoncov2polygon(covGR2,
@@ -1685,7 +1752,7 @@ prepareSashimi <- function
          levels=unique(sample_id)
       );
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "head(covDF$sample_id):");
          print(head(covDF$sample_id));
       }
@@ -1720,7 +1787,7 @@ prepareSashimi <- function
          stop("juncGR must have 'sample_id' in colnames(values(juncGR)).");
       }
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "Preparing junctions from juncGR");
       }
       if (do_shiny_progress) {
@@ -1734,7 +1801,7 @@ prepareSashimi <- function
       } else {
          ## Create junction summary data.frame
          if (verbose) {
-            printDebug("prepareSashimi(): ",
+            jamba::printDebug("prepareSashimi(): ",
                "running spliceGR2junctionDF for juncGR()");
          }
          juncDF1 <- spliceGR2junctionDF(spliceGRgene=juncGR,
@@ -1774,7 +1841,7 @@ prepareSashimi <- function
    juncScaleFactors <- rmNA(naValue=1,
       nameVector(juncFilesDF[,c("scale_factor", "sample_id")]));
    if (verbose && length(juncScaleFactors) > 0) {
-      printDebug("prepareSashimi(): ",
+      jamba::printDebug("prepareSashimi(): ",
          "juncScaleFactors: ",
          paste0(names(juncScaleFactors),
             ":",
@@ -1782,12 +1849,12 @@ prepareSashimi <- function
          sep=", ");
    }
    if (verbose) {
-      printDebug("prepareSashimi(): ",
+      jamba::printDebug("prepareSashimi(): ",
          "juncUrls:");
       if (length(juncUrls) > 0) {
          print(data.frame(juncUrls));
       } else {
-         printDebug("No junction files", fgText="red");
+         jamba::printDebug("No junction files", fgText="red");
       }
    }
    if (length(juncUrls) > 0) {
@@ -1799,7 +1866,7 @@ prepareSashimi <- function
          shiny::incProgress(2/4,
             detail=paste0("Importing junctions for ", gene));
       }
-      juncBedGR <- GRangesList(lapply(nameVectorN(juncUrls), function(iBedName){
+      juncBedList <- lapply(nameVectorN(juncUrls), function(iBedName){
          iBed <- juncUrls[[iBedName]];
          iBedNum <- match(iBedName, jamba::makeNames(names(juncUrls)));
          iBedPct <- (iBedNum - 1) / length(juncUrls);
@@ -1815,7 +1882,7 @@ prepareSashimi <- function
             }
          }
          if (verbose) {
-            printDebug("prepareSashimi(): ",
+            jamba::printDebug("prepareSashimi(): ",
                "progress:", format(digits=2, 2/4 + iBedPct/4),
                "Importing bed:",
                iBed,
@@ -1838,7 +1905,7 @@ prepareSashimi <- function
                   scale_factor=1,
                   #scale_factor=juncScaleFactors[iBedName],
                   gr=gr);
-               printDebug("prepareSashimi():",
+               jamba::printDebug("prepareSashimi():",
                   "import_juncs_m_cached: ",
                   import_juncs_m_cached);
             }
@@ -1864,46 +1931,52 @@ prepareSashimi <- function
             values(bed1)$score <- values(bed1)$score * juncScaleFactors[iBedName];
          }
          bed1;
-      }))@unlistData;
-      ## Create junction summary data.frame
-      if (verbose) {
-         printDebug("prepareSashimi(): ",
-            "running spliceGR2junctionDF for juncBedGR()");
-      }
-      if (do_shiny_progress) {
-         shiny::setProgress(3/4,
-            detail=paste0("Combining junction data for ", gene));
-      }
-      juncDF1f <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
-         exonsGR=gr,
-         sampleColname="sample_id");
-      if (length(juncDF1) > 0) {
+      });
+      juncBedList <- juncBedList[lengths(juncBedList) > 0];
+      if (length(juncBedList) == 0) {
+         juncDF1 <- NULL;
+      } else {
+         juncBedGR <- GRangesList(juncBedList)@unlistData;
+         ## Create junction summary data.frame
          if (verbose) {
-            printDebug("prepareSashimi(): ",
-               "Appending BED-derived junctions to supplied juncGR-derived data.");
+            jamba::printDebug("prepareSashimi(): ",
+               "running spliceGR2junctionDF for juncBedGR()");
          }
-         juncDF1 <- rbind(juncDF1, juncDF1f);
-      } else {
-         juncDF1 <- juncDF1f;
-      }
-      if (length(juncDF1) == 0 || nrow(juncDF1) == 0) {
-         juncDF1 <- NULL;
-      }
-      ## Subset junctions by minimum score
-      if (length(minJunctionScore) > 0 &&
-            minJunctionScore > 0 &&
-            length(juncDF1) > 0) {
-         juncDF1 <- subset(juncDF1, abs(score) >= minJunctionScore);
-      }
-      if (length(juncDF1) == 0 || nrow(juncDF1) == 0) {
-         juncDF1 <- NULL;
-      } else {
-         ## Enforce ordered factor levels for sample_id
-         ## which also forces empty factor levels if applicable
-         juncDF1$sample_id <- factor(
-            as.character(juncDF1$sample_id),
-            levels=unique(sample_id)
-         );
+         if (do_shiny_progress) {
+            shiny::setProgress(3/4,
+               detail=paste0("Combining junction data for ", gene));
+         }
+         juncDF1f <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
+            exonsGR=gr,
+            sampleColname="sample_id");
+         if (length(juncDF1) > 0) {
+            if (verbose) {
+               jamba::printDebug("prepareSashimi(): ",
+                  "Appending BED-derived junctions to supplied juncGR-derived data.");
+            }
+            juncDF1 <- rbind(juncDF1, juncDF1f);
+         } else {
+            juncDF1 <- juncDF1f;
+         }
+         if (length(juncDF1) == 0 || nrow(juncDF1) == 0) {
+            juncDF1 <- NULL;
+         }
+         ## Subset junctions by minimum score
+         if (length(minJunctionScore) > 0 &&
+               minJunctionScore > 0 &&
+               length(juncDF1) > 0) {
+            juncDF1 <- subset(juncDF1, abs(score) >= minJunctionScore);
+         }
+         if (length(juncDF1) == 0 || nrow(juncDF1) == 0) {
+            juncDF1 <- NULL;
+         } else {
+            ## Enforce ordered factor levels for sample_id
+            ## which also forces empty factor levels if applicable
+            juncDF1$sample_id <- factor(
+               as.character(juncDF1$sample_id),
+               levels=unique(sample_id)
+            );
+         }
       }
    }
    if (exists("juncDF1") &&
@@ -1920,7 +1993,7 @@ prepareSashimi <- function
          baseline <- 0;
       }
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "calling grl2df() on juncGR");
          #print(head(juncGR));
          #print(head(GenomicRanges::split(juncGR,
@@ -1949,7 +2022,7 @@ prepareSashimi <- function
             to="sample_id");
       }
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "dim(juncDF):", dim(juncDF));
       }
       juncDF <- juncDF[,!colnames(juncDF) %in% c("grl_name"),drop=FALSE];
@@ -2090,7 +2163,7 @@ prepareSashimi <- function
       cjDF <- cjL[[1]];
    } else {
       if (verbose) {
-         printDebug("prepareSashimi(): ",
+         jamba::printDebug("prepareSashimi(): ",
             "Merging ",
             length(cjL),
             " data.frames into df.");
@@ -2156,7 +2229,7 @@ internal_junc_score <- function
    ## Purpose is to sum scores for junctions which overlap
    ## junction ends inside the junction boundary.
    if (verbose) {
-      printDebug("internal_junc_score(): ",
+      jamba::printDebug("internal_junc_score(): ",
          "Defining flank ends of each junction.");
    }
    ## If there is no sampleColname column, ignore
@@ -2184,13 +2257,13 @@ internal_junc_score <- function
       groupBy=juncGroup,
       shrinkFunc=sum);
    if (verbose) {
-      printDebug("internal_junc_score(): ",
+      jamba::printDebug("internal_junc_score(): ",
          "dim(juncEndsRed):", dim(juncEndsRed));
    }
    juncEndsRefGR <- juncEndsGR[match(juncEndsRed$groupBy, juncGroup)];
    GenomicRanges::values(juncEndsRefGR)[[scoreColname]] <- juncEndsRed$x;
    if (verbose) {
-      printDebug("internal_junc_score(): ",
+      jamba::printDebug("internal_junc_score(): ",
          "length(juncEndsRefGR):", length(juncEndsRefGR));
    }
 
@@ -2198,7 +2271,7 @@ internal_junc_score <- function
    fo1df <- data.frame(q=S4Vectors::queryHits(fo1),
       s=S4Vectors::subjectHits(fo1));
    if (verbose) {
-      printDebug("internal_junc_score(): ",
+      jamba::printDebug("internal_junc_score(): ",
          "dim(fo1df):", dim(fo1df));
    }
    if (nrow(fo1df) == 0) {
@@ -2218,7 +2291,7 @@ internal_junc_score <- function
       fo1dfuse <- subset(fo1df,
          qSample == sSample);
       if (verbose) {
-         printDebug("internal_junc_score(): ",
+         jamba::printDebug("internal_junc_score(): ",
             "dim(fo1dfuse):", dim(fo1dfuse));
       }
       if (nrow(fo1dfuse) == 0) {
@@ -2288,35 +2361,69 @@ import_juncs_from_bed <- function
    if (use_memoise) {
       import_m <- memoise::memoise(rtracklayer::import.bed,
          cache=memoise::cache_filesystem(memoise_junction_path));
+      import_has_cache <- memoise::has_cache(import_m)(iBed);
       if (verbose) {
-         import_has_cache <- memoise::has_cache(import_m)(iBed);
-         printDebug("import_juncs_from_bed():",
+         jamba::printDebug("import_juncs_from_bed():",
             "import_has_cache:", import_has_cache);
       }
-      bed1 <- import_m(iBed);
+      bed1 <- tryCatch({
+         import_m(iBed);
+      }, error=function(e){
+         warnText <- paste0("getGRcoverageFromBw():",
+            "import_juncs_from_bed() error:",
+            "file not accessible:'",
+            iBed,
+            "', returning NULL.");
+         warning(warnText);
+         NULL;
+      })
       if (length(bed1) == 0) {
-         printDebug("Repairing junction cache.", fgText="seagreen1");
-         import_has_cache <- memoise::has_cache(import_m)(iBed);
-         if (import_has_cache) {
+         jamba::printDebug("import_juncs_from_bed(): ",
+            "Repairing junction cache.",
+            fgText=c("darkorange","seagreen3"));
+         if (compareVersion(as.character(packageVersion("memoise")), "1.1.0.900") >= 0) {
+            #import_has_cache <- memoise::has_cache(import_m)(iBed);
             memoise::drop_cache(import_m)(iBed);
+            bed1 <- import_m(iBed);
+            bed1 <- tryCatch({
+               import_m(iBed);
+            }, error=function(e){
+               NULL;
+            })
+         } else {
+            bed1 <- tryCatch({
+               if (length(gr) > 0) {
+                  rtracklayer::import(iBed,
+                     which=range(gr));
+               } else {
+                  rtracklayer::import(iBed);
+               }
+            }, error=function(e){
+               NULL;
+            });
          }
-         bed1 <- import_m(iBed);
       }
       if (length(bed1) > 0 && length(gr) > 0) {
          bed1 <- subsetByOverlaps(bed1,
             ranges=range(gr));
       } else {
-         printDebug("Failed to Repair junction cache.", fgText="red");
+         jamba::printDebug("import_juncs_from_bed(): ",
+            "Failed to Repair junction cache.",
+            fgText=c("darkorange","red"));
          bed1 <- NULL;
          return(bed1);
       }
    } else {
-      if (length(gr) > 0) {
-         bed1 <- rtracklayer::import(iBed,
-            which=range(gr));
-      } else {
-         bed1 <- rtracklayer::import(iBed);
-      }
+      bed1 <- tryCatch({
+         if (length(gr) > 0) {
+            rtracklayer::import(iBed,
+               which=range(gr));
+         } else {
+            rtracklayer::import(iBed);
+         }
+      }, error=function(e){
+         NULL;
+      })
    }
    if (length(bed1) == 0) {
       return(bed1);

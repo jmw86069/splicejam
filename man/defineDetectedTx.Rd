@@ -13,7 +13,7 @@ defineDetectedTx(
   tx2geneDF = NULL,
   cutoffTxPctMax = 10,
   cutoffTxExpr = 5,
-  cutoffTxTPMExpr = 2,
+  cutoffTxTPMExpr = 0.1,
   txColname = "transcript_id",
   geneColname = "gene_name",
   zeroAsNA = TRUE,

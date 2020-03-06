@@ -348,7 +348,7 @@ sashimiAppServer <- function
          message="Preparing Sashimi data.",
          value=0,
          {
-            if (verbose) {
+            if (1 == 1 || verbose) {
                gene_has_cache <- memoise::has_cache(prepareSashimi_m)(
                   gene=gene,
                   flatExonsByGene=flatExonsByGene1,
@@ -377,7 +377,65 @@ sashimiAppServer <- function
                print(sdim(sashimi_data));
             }
          }
-      );
+      )
+      ## Check for missing data
+      some_null <- sashimi_data$some_null;
+      if (length(some_null) && some_null) {
+         if (verbose) {
+            printDebug("sashimi_data some_null:", some_null);
+         }
+         withProgress(
+            message="Repeating Sashimi steps",
+            value=0,
+            {
+               ## Some underlying data was NULL, therefore try to repair
+               if (compareVersion(as.character(packageVersion("memoise")), "1.1.0.900") >= 0) {
+                  ## memoise 1.1.0.900 has new function memoise::drop_cache()
+                  if (1 == 1 || verbose) {
+                     printDebug("Dropping memoise cache, then re-creating with memoise.");
+                  }
+                  memoise::drop_cache(prepareSashimi_m)(
+                     gene=gene,
+                     flatExonsByGene=flatExonsByGene1,
+                     minJunctionScore=min_junction_reads,
+                     sample_id=sample_id,
+                     filesDF=filesDF,
+                     include_strand=include_strand,
+                     verbose=verbose,
+                     use_memoise=use_memoise,
+                     do_shiny_progress=TRUE);
+                  ## Re-run prepareSashimi using memoise so it will
+                  ## create a new cache file
+                  sashimi_data <- prepareSashimi_m(
+                     gene=gene,
+                     flatExonsByGene=flatExonsByGene1,
+                     minJunctionScore=min_junction_reads,
+                     sample_id=sample_id,
+                     filesDF=filesDF,
+                     include_strand=include_strand,
+                     verbose=verbose,
+                     use_memoise=use_memoise,
+                     do_shiny_progress=TRUE);
+               } else {
+                  ## Re-run prepareSashimi without using memoise
+                  if (1 == 1 || verbose) {
+                     printDebug("Invalid memoise cache file, re-running prepareSashimi() without memoise.",
+                        fgText="red");
+                  }
+                  sashimi_data <- prepareSashimi(
+                     gene=gene,
+                     flatExonsByGene=flatExonsByGene1,
+                     minJunctionScore=min_junction_reads,
+                     sample_id=sample_id,
+                     filesDF=filesDF,
+                     include_strand=include_strand,
+                     verbose=verbose,
+                     use_memoise=use_memoise,
+                     do_shiny_progress=TRUE);
+               }
+            }
+         );
+      }
       sashimi_data;
    });
 

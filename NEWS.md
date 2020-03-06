@@ -1,3 +1,76 @@
+# splicejam version 0.0.59.900
+
+## changes to existing functions
+
+* `defineDetectedTx()` default argument value `cutoffTxTPMExpr=0.1`
+which was previously `cutoffTxTPMExpr=2`. It appears that this
+threshold is somewhat dependent upon the input data, and that
+`2` was too stringent for the majority of datasets testes since the
+Farris et al publication. Therefore, a more suitable default
+value is less restrictive of low-TPM abundance values.
+This change also makes the count-based threshold the dominant
+filter for technical detection above background noise, which
+makes some sense because count noise is somewhat more of a
+hard boundary.
+
+## bug fixes / changes to R-shiny sashimi plots
+
+Overall, the changes allow some coverage data to be "missing",
+though it will generally try twice to retrieve coverage. When
+coverage is "missing" it is rendered empty, with no other
+error or message. This change may not be ideal, if the coverage
+URL is mis-typed for example, but it beneficial during a network
+outage.
+
+* `sashimiAppServer()` was updated to repeat the call to
+`prepareSashimi()` when the returned object contained
+a list element `some_null=TRUE`, which indicates that one
+or more underlying elements of the data was returned
+as `NULL`, indicating a failure. In this case, `prepareSashimi()`
+is called in a way that does not re-use the existing cache.
+Note that `prepareSashimi()` calls other functions, each
+of which caches data. If those functions return `NULL`,
+they also assign attribute `attr(x, "some_null") <- NULL`,
+which helps cascade this failure up the chain to calling
+functions.
+* `import_juncs_from_bed()` was updated to use `tryCatch()` to
+catch errors when the requested file cannot be retrieved. When
+memoise cache is being used, it will try to clear the cache then
+try again, or will try again without using memoise.
+* `getGRcoverageFromBw()` was updated to enhance the
+memoise cache repair logic: If coverage is zero-length,
+it tries again. Zero-length coverage can happen from
+a zero-length memoise cache file, or when the
+`rtracklayer::import()` function returns zero-length coverage.
+That tends to happen when the file is not accessible, network
+is down, or the path is invalid, etc. Nonetheless, memoise
+will happily store a zero-size cache file (!) with no
+clear way to remove or ignore it. So we try to call
+`memoise::drop_cache()` which only exists in memoise version
+`1.1.0.9000`, currently on Github with no expected CRAN release
+timeline. If we cannot remove the cache file, we try to get
+coverage without using memoise. The overall summary:
+
+   * If coverage is empty, try remove the empty memoise cache file.
+   * If we removed the empty memoise cache file, we try again to retrieve
+   coverage using memoise. The new memoise cache file will either
+   be empty (if the source failed again), or non-empty (the second attempt
+   was successful). If the file is non-empty, the repair worked,
+   and future calls should use the memoise cache file without problem.
+   * If it could not remove the empty memoise cache file, it tries to
+   retrieve coverage again without using memoise. In this case, the
+   empty memoise file still exists, which means all future calls will
+   not use the cache file.
+
+* `combineGRcoverage()` was modified to be tolerant to missing
+coverage data. Typically when coverage is missing, the data
+returned from `getGRcoverageFromBw()` returns a vector of `0`
+values, however sometimes there is no data returned for a single
+URL, perhaps due to network outage. Nonetheless, `combineGRcoverage()`
+will now ignore any samples that are not present in the colnames
+of the `GRanges` object supplied.
+
+
 # splicejam version 0.0.58.900
 
 ## Ongoing issues with file caching and R-shiny efficiencies
