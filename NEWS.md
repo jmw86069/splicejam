@@ -1,3 +1,12 @@
+# splicejam version 0.0.60.900
+
+## changes to existing functions
+
+* `groups2contrasts()` updated a bug that was not maintaining
+factor order in two-way contrasts. Slightly enhanced logic
+used in argument `removePairs` so that it works with single
+factor contrasts (where that factor does not change.)
+
 # splicejam version 0.0.59.900
 
 ## changes to existing functions

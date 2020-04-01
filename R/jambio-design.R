@@ -61,6 +61,8 @@
 #'    order of factor contrasts when there are multiple experimental
 #'    factors. It can be helpful to force a secondary factor to be
 #'    compared before a primary factor especially in two-way contrasts.
+#'    Note that `factorOrder` refers to the columns (factors) and not
+#'    the factor levels (not column values).
 #' @param omitGrep character grep pattern used to exclude secondary
 #'    factors from contrasts, mainly used internally by this function.
 #' @param maxDepth integer value, the maximum number of factor "depth"
@@ -76,7 +78,11 @@
 #'    set of design (`iDesign`), contrast (`iContrasts`) matrices,
 #'    in addition to the `contrastNames` data.frame.
 #' @param removePairs list of pairwise vectors of factors which should
-#'    not be compared, or NULL to include all comparisons.
+#'    not be compared, or NULL to include all comparisons. The values in
+#'    each vector should be factor levels that should not be compared.
+#'    When the vector contains only one value, it removes contrasts
+#'    where that factor is not changed, which is relevant when there
+#'    are two or more factors.
 #' @param makeUnique logical indicating whether to make output
 #'    contrasts unique.
 #' @param addContrastNamesDF data.frame or NULL, optionally used to append
@@ -112,28 +118,45 @@
 #' # you can adjust the order of factor levels per comparison
 #' groups2contrasts(as.character(iGroups))$contrastName
 #'
+#' # make "WT" the first control term
 #' groups2contrasts(as.character(iGroups), preControlTerms=c("WT"), factorOrder=2:1)$contrastName
+#'
+#' # prevent comparisons of WT to WT, or KO to KO
+#' groups2contrasts(as.character(iGroups),
+#'    removePairs=list(c("WT"), c("KO")))
+#'
+#' # input as a data.frame with ordered factor levels
+#' iFactors <- data.frame(Genotype=factor(c("WT","WT","KO","KO"),
+#'    levels=c("WT","KO")),
+#'    Treatment=factor(c("Treated","Control"),
+#'       levels=c("Control","Treated")))
+#' iFactors;
+#' groups2contrasts(iFactors)
+#'
+#' # Again remove WT-WT and KO-KO contrasts
+#' groups2contrasts(iFactors,
+#'    removePairs=list(c("WT"), c("KO")))
 #'
 #' @export
 groups2contrasts <- function
 (iFactors,
- groupColumns=NULL,
- iSamples=NULL,
- iDesign=NULL,
- factorOrder=NULL,
- omitGrep="[-,]",
- maxDepth=2,
- currentDepth=1,
- factorSep="_",
- contrastSep="-",
- renameFirstDepth=TRUE,
- returnDesign=FALSE,
- removePairs=NULL,
- makeUnique=TRUE,
- addContrastNamesDF=NULL,
- preControlTerms=NULL,
- verbose=FALSE,
- ...)
+   groupColumns=NULL,
+   iSamples=NULL,
+   iDesign=NULL,
+   factorOrder=NULL,
+   omitGrep="[-,]",
+   maxDepth=2,
+   currentDepth=1,
+   factorSep="_",
+   contrastSep="-",
+   renameFirstDepth=TRUE,
+   returnDesign=FALSE,
+   removePairs=NULL,
+   makeUnique=TRUE,
+   addContrastNamesDF=NULL,
+   preControlTerms=NULL,
+   verbose=FALSE,
+   ...)
 {
    ## Purpose is to take a data.frame, whose rows are groups,
    ## and whose columns are factors with factor levels as column values,
@@ -189,12 +212,10 @@ groups2contrasts <- function
 
    ## Handle removePairs by expanding to both orientations of contrast
    if (!is.null(removePairs)) {
-      removePairsM <- jamba::rbindList(removePairs);
-      removePairsFull <- c(
-         jamba::pasteByRow(
-            removePairsM[,seq_len(ncol(removePairsM)),drop=FALSE], sep=","),
-         jamba::pasteByRow(
-            removePairsM[,rev(seq_len(ncol(removePairsM))),drop=FALSE], sep=","));
+      if (!is.list(removePairs)) {
+         stop("removePairs must be a list of 1- or 2-member character vectors");
+      }
+      removePairsFull <- jamba::cPasteS(removePairs)
       if (verbose >= 2) {
          jamba::printDebug("groups2contrasts(): ",
             "removePairsFull:");
@@ -614,14 +635,20 @@ groups2contrasts <- function
             jamba::printDebug("groups2contrasts(): ",
                "   Checking for removePairs in column:", iCol);
          }
-         if (any(iContrastNames[,iCol] %in% removePairsFull)) {
+         iColVals <- jamba::cPasteS(strsplit(iContrastNames[[iCol]], ","));
+         if (any(iColVals %in% removePairsFull)) {
+            iWhich1 <- which(iColVals %in% removePairsFull);
+            iWhich <- which(!iColVals %in% removePairsFull);
             if (verbose) {
-               jamba::printDebug("      removedPair:\n",
-                  head(intersect(iContrastNames[,iCol], removePairsFull), 10),
+               jamba::printDebug("      removedPair with values:\n",
+                  unique(iColVals[iWhich1]),
                   fgText=c("yellow", "purple"), sep="\n");
             }
-            iContrastNames <- iContrastNames[which(!iContrastNames[,iCol] %in% removePairsFull),,drop=FALSE];
+            iContrastNames <- iContrastNames[iWhich,,drop=FALSE];
          }
+      }
+      if (nrow(iContrastNames) == 0) {
+         stop("No contrasts remain after filtering removePairs.");
       }
    }
 
@@ -634,9 +661,15 @@ groups2contrasts <- function
       if (verbose) {
          jamba::printDebug("groups2contrasts(): ",
             "   Defining interactions contrasts.");
-         print(head(iContrastNames[,iContrastGroupsUse,drop=FALSE]));
+         print(head(iContrastNames[,iContrastGroupsUse,drop=FALSE], 100));
       }
-      iContrastNamesInt <- groups2contrasts(iContrastNames[,iContrastGroupsUse,drop=FALSE],
+      iContrastNamesUse <- iContrastNames[,iContrastGroupsUse,drop=FALSE];
+      for (i in iContrastGroupsUse) {
+         j <- provigrep(c("^[^,]+$", "."), iContrastNamesUse[[i]]);
+         iContrastNamesUse[[i]] <- factor(iContrastNamesUse[[i]],
+            levels=unique(j));
+      }
+      iContrastNamesInt <- groups2contrasts(iContrastNamesUse,
          omitGrep=omitGrep,
          currentDepth=currentDepth+1,
          maxDepth=maxDepth,
@@ -657,12 +690,12 @@ groups2contrasts <- function
       }
       ## If length==0 then there are no valid interaction contrasts
       if (length(iContrastNamesInt) > 0 &&
-         igrepHas("[(]", rownames(iContrastNamesInt[[1]]))) {
+            igrepHas("[(]", rownames(iContrastNamesInt[[1]]))) {
          return(iContrastNamesInt);
       }
       if (length(iContrastNamesInt) > 0 &&
-         ncol(iContrastNamesInt) > 1 &&
-         any(is.na(iContrastNamesInt[,1]))) {
+            ncol(iContrastNamesInt) > 1 &&
+            any(is.na(iContrastNamesInt[,1]))) {
          iContrastNamesInt <- iContrastNamesInt[!is.na(iContrastNamesInt[,1]),,drop=FALSE];
       }
       if (length(iContrastNamesInt) == 0 || ncol(iContrastNamesInt) > 1) {

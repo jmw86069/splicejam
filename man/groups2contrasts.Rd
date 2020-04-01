@@ -43,7 +43,9 @@ defining sample-to-group mapping.}
 \item{factorOrder}{integer vector, optionally used to define the
 order of factor contrasts when there are multiple experimental
 factors. It can be helpful to force a secondary factor to be
-compared before a primary factor especially in two-way contrasts.}
+compared before a primary factor especially in two-way contrasts.
+Note that \code{factorOrder} refers to the columns (factors) and not
+the factor levels (not column values).}
 
 \item{omitGrep}{character grep pattern used to exclude secondary
 factors from contrasts, mainly used internally by this function.}
@@ -66,7 +68,11 @@ set of design (\code{iDesign}), contrast (\code{iContrasts}) matrices,
 in addition to the \code{contrastNames} data.frame.}
 
 \item{removePairs}{list of pairwise vectors of factors which should
-not be compared, or NULL to include all comparisons.}
+not be compared, or NULL to include all comparisons. The values in
+each vector should be factor levels that should not be compared.
+When the vector contains only one value, it removes contrasts
+where that factor is not changed, which is relevant when there
+are two or more factors.}
 
 \item{makeUnique}{logical indicating whether to make output
 contrasts unique.}
@@ -151,7 +157,24 @@ iDesignL$iDesign \%*\%  iDesignL$iContrasts;
 # you can adjust the order of factor levels per comparison
 groups2contrasts(as.character(iGroups))$contrastName
 
+# make "WT" the first control term
 groups2contrasts(as.character(iGroups), preControlTerms=c("WT"), factorOrder=2:1)$contrastName
+
+# prevent comparisons of WT to WT, or KO to KO
+groups2contrasts(as.character(iGroups),
+   removePairs=list(c("WT"), c("KO")))
+
+# input as a data.frame with ordered factor levels
+iFactors <- data.frame(Genotype=factor(c("WT","WT","KO","KO"),
+   levels=c("WT","KO")),
+   Treatment=factor(c("Treated","Control"),
+      levels=c("Control","Treated")))
+iFactors;
+groups2contrasts(iFactors)
+
+# Again remove WT-WT and KO-KO contrasts
+groups2contrasts(iFactors,
+   removePairs=list(c("WT"), c("KO")))
 
 }
 \seealso{
