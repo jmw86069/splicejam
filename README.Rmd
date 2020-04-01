@@ -116,10 +116,10 @@ GitHub, see [https://github.com/jmw86069/jampack](https://github.com/jmw86069/ja
 
 ## How to install
 
-Install using the R package `devtools` and this command:
+Install using the R package `remotes` and this command:
 
 ```
-devtools::install_github("jmw86069/splicejam")
+remotes::install_github("jmw86069/splicejam")
 ```
 
 ## About sashimi plots

@@ -957,7 +957,7 @@ defineDetectedTx <- function
    txExprGrpAll <- shrinkMatrix(2^iMatrixTxGrp-1,
       groupBy=tx2geneDF[iRows,geneColname],
       shrinkFunc=function(i){
-         round(i)
+         round(i*10)/10
       },
       returnClass="matrix");
    rownames(txExprGrpAll) <- txExprGrpTx[,1];
@@ -974,7 +974,7 @@ defineDetectedTx <- function
       txTPMExprGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
          groupBy=tx2geneDF[iRows,geneColname],
          shrinkFunc=function(i){
-            round(i)
+            round(i*10)/10
          },
          returnClass="matrix");
       rownames(txTPMExprGrpAll) <- txExprGrpTx[,1];

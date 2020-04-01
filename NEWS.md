@@ -6,6 +6,9 @@
 factor order in two-way contrasts. Slightly enhanced logic
 used in argument `removePairs` so that it works with single
 factor contrasts (where that factor does not change.)
+* `defineDetectedTx()` now uses decimal values for the mean
+count and mean abundance group values, rounded to the
+0.1 decimal place.
 
 # splicejam version 0.0.59.900
 
