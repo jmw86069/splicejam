@@ -1,3 +1,39 @@
+# splicejam version 0.0.61.900
+
+## changes to existing functions
+
+Overall the changes below are intended to help set up
+custom R-shiny apps, with specific default settings different
+than the Farris et al defaults.
+
+* `sashimiAppConstants()` was updated to enhance the logic flow,
+and to print more verbose and hopefully more helpful output
+during the process.
+* `sashimiAppConstants()` uses `data.table::fread()` and
+`data.table::fwrite()`. Fixed inconsistency in row.names and
+col.names.
+* `sashimiAppServer()` was updated to clarify some verbose output,
+and define default gene more robustly.
+* `launchSashimiApp()`, `sashimiAppServer()`, `sashimiAppUI()` now
+respect `"gene"` from the environment to use as the first gene
+loaded, instead of using `"Gria1"` which is intended only for
+the Farris et al data.
+* `launchSashimiApp()` now properly handles user-configured
+`options` such as width, server, port, and other R-shiny app
+options.
+
+In future we may create a few Gencode R packages that contain
+the basic data pre-assembled. It takes a few minutes to set up
+a new Gencode, including downloading the gtf.gz file, but this
+process only needs to happen once.
+
+* `txdb` -- Bioconductor does not (as of April 2020) provide
+txdb packages for Gencode; they provide them for UCSC knownGenes.
+* `tx2geneDF` -- gene-to-transcript relationship
+* `flatExonsByGene`, `flatExonsByTx`, derived from `cdsByTx`
+and `exonsByTx` so the UTR and CDS regions can be properly
+displayed.
+
 # splicejam version 0.0.60.900
 
 ## changes to existing functions

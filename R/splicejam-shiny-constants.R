@@ -118,14 +118,17 @@ sashimiAppConstants <- function
  detectedTx=NULL,
  detectedGenes=NULL,
  flatExonsByGene=NULL,
- flatExonsByTx=NULL)
+ flatExonsByTx=NULL,
+ verbose=FALSE)
 {
    ## Define filesDF here
    # dots <- list(...);
    if (assign_global) {
       sashimi_env <- globalenv();
+      env_name <- "globalenv";
    } else {
       sashimi_env <- new.env();
+      env_name <- "new.env";
    }
    ## Quietly load an otherwise loud package dependency
    suppressPackageStartupMessages(require(GenomicFeatures));
@@ -139,7 +142,7 @@ sashimiAppConstants <- function
       if (!inherits(aboutExtra, c("shiny.tag", "shiny.tag.list"))) {
          aboutExtra <- htmltools::tags$p(aboutExtra);
       }
-      printDebug("Using existing ",
+      jamba::printDebug("Using existing ",
          "'aboutExtra'",
          " as provided.")
       assign("aboutExtra",
@@ -159,6 +162,11 @@ sashimiAppConstants <- function
       "flatExonsByTx");
    for (i in params) {
       if (length(get(i)) == 0 && exists(i, envir=globalenv(), inherits=FALSE)) {
+         if (verbose) {
+            jamba::printDebug("sashimiAppConstants(): ",
+               c("Assigning value from globalenv variable '", i, "'"),
+               sep="");
+         }
          ival <- get(i,
             envir=globalenv(),
             inherits=FALSE);
@@ -169,12 +177,22 @@ sashimiAppConstants <- function
          assign(i,
             value=ival,
             envir=sashimi_env);
+      } else if (length(get(i)) > 0) {
+         if (verbose) {
+            jamba::printDebug("sashimiAppConstants(): ",
+               c("Assigning argument to environment for '", i, "'"),
+               sep="");
+         }
+         assign(i,
+            value=ival,
+            envir=sashimi_env);
       }
    }
    if (length(filesDF) == 0 ||
          nrow(filesDF) == 0) {
       if (empty_uses_farrisdata && suppressPackageStartupMessages(require(farrisdata))) {
-         printDebug("Using filesDF from ",
+         jamba::printDebug("sashimiAppConstants(): ",
+            "Using filesDF from ",
             "farrisdata::farris_sashimi_files_df");
          data(farris_sashimi_files_df);
          filesDF <- farris_sashimi_files_df;
@@ -183,13 +201,15 @@ sashimiAppConstants <- function
             envir=sashimi_env);
       } else {
          empty_uses_farrisdata <- FALSE;
+         stop("filesDF must be provided, or set empty_uses_farrisdata=TRUE to use Farris et al. data.");
       }
    }
    if (length(aboutExtra) == 0 &&
          jamba::igrepHas("farris", filesDF$url) &&
          empty_uses_farrisdata) {
       if (length(aboutExtra) == 0) {
-         printDebug("Using farrisdata ",
+         jamba::printDebug("sashimiAppConstants(): ",
+            "Using farrisdata ",
             "'aboutExtra'",
             " text.");
          aboutExtra <- htmltools::tags$p("Data is provided by the ",
@@ -225,23 +245,37 @@ sashimiAppConstants <- function
       }
    }
    if (length(color_sub) == 0 && nrow(filesDF) > 0) {
-      color_sub <- colorjam::group2colors(filesDF$sample_id);
+      color_sub <- colorjam::group2colors(unique(filesDF$sample_id));
+      if (verbose) {
+         jamba::printDebug("sashimiAppConstants(): ",
+            "Defined new color_sub for unique sample_id: ",
+            names(color_sub),
+            sep=crayon::reset(","),
+            fgText=list("darkorange", "dodgerblue", NA),
+            bgText=list(NA, NA, color_sub));
+      }
    }
    assign("color_sub",
-      value=farrisdata::colorSub,
+      value=color_sub,
       envir=sashimi_env);
 
    ## Define flat exons by gene
    ## One-time setup cost when using GTF input
    if (length(tx2geneDF) == 0 || length(exonsByTx) == 0) {
-      if (length(gtf) == 0 && length(txdb) == 0 && empty_uses_farrisdata) {
-         # use default GTF file if not defined
-         gtf <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz";
-         printDebug("Defining default gtf file:",
-            gtf,
-            " from which ",
-            c("tx2geneDF, exonsByTx, and cdsByTx"),
-            " will be derived.");
+      if (length(gtf) == 0 && length(txdb) == 0) {
+         if (empty_uses_farrisdata) {
+            # use default GTF file if not defined
+            gtf <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz";
+            jamba::printDebug("sashimiAppConstants(): ",
+               "Defining default gtf file: '",
+               gtf,
+               "' from which ",
+               c("tx2geneDF", " exonsByTx", " and cdsByTx"),
+               " will be derived.");
+         } else {
+            stop(paste0("The 'gtf' or 'txdb' argument are required ",
+               "when either 'tx2geneDF' or 'exonsByTx' are not provided."));
+         }
       }
       if (length(gtf) == 0 && length(txdb) == 0) {
          stop(paste0("The 'gtf' or 'txdb' argument are required ",
@@ -250,8 +284,9 @@ sashimiAppConstants <- function
       if (length(gtf) > 0) {
          gtfBase <- basename(gtf);
          if (!file.exists(gtfBase)) {
-            printDebug("Downloading gtf:", gtf,
-               " to:", gtfBase);
+            jamba::printDebug("sashimiAppConstants(): ",
+               "Downloading gtf: '", gtf,
+               "' to: '", gtfBase, "'");
             curl::curl_download(url=gtf,
                destfile=gtfBase);
          }
@@ -261,171 +296,230 @@ sashimiAppConstants <- function
                gtfBase,
                ignore.case=TRUE);
             if (!file.exists(tx2geneFile)) {
-               printDebug("Deriving tx2geneDF from gtf:",
+               jamba::printDebug("sashimiAppConstants(): ",
+                  "Deriving tx2geneDF from gtf: '",
                   gtfBase,
-                  " then storing:",
-                  tx2geneFile);
+                  "' then storing: '",
+                  tx2geneFile, "'");
                tx2geneDF <- makeTx2geneFromGtf(GTF=gtfBase,
                   verbose=FALSE);
-               write.table(file=tx2geneFile,
-                  x=tx2geneDF,
+               data.table::fwrite(x=tx2geneDF,
+                  file=tx2geneFile,
                   sep="\t",
                   quote=FALSE,
                   na="",
+                  row.names=FALSE,
                   col.names=TRUE);
             } else {
-               printDebug("Reloading stored tx2geneDF:",
-                  tx2geneFile);
-               tx2geneDF <- read.table(file=tx2geneFile,
-                  sep="\t",
-                  header=TRUE,
-                  quote="\"",
-                  comment.char="");
+               jamba::printDebug("sashimiAppConstants(): ",
+                  "Reloading stored tx2geneDF: '",
+                  tx2geneFile, "'");
+               tx2geneDF <- data.frame(check.names=FALSE,
+                  stringsAsFactors=FALSE,
+                  data.table::fread(file=tx2geneFile,
+                     sep="\t",
+                     header=TRUE));
             }
+            # Assign in the appropriate environment
+            assign("tx2geneDF",
+               value=tx2geneDF,
+               envir=sashimi_env);
          } else {
-            printDebug("Using tx2geneDF from environment.");
+            jamba::printDebug("sashimiAppConstants(): ",
+               "Using tx2geneDF as supplied.");
          }
       }
       if (length(tx2geneDF) == 0) {
          stop("The 'tx2geneDF' argument is required when 'gtf' is not supplied.");
       }
-      # Assign in the parent environment
-      assign("tx2geneDF",
-         value=tx2geneDF,
-         envir=sashimi_env);
+
       ## Now make TxDb in order to derive exonsByTx and cdsByTx
       #if (length(exonsByTx) == 0 || length(cdsByTx) == 0) {
       if (length(exonsByTx) == 0) {
-         localDb <- gsub("[.](gff|gff3|gtf).*$",
-            ".txdb",
-            gtfBase,
-            ignore.case=TRUE);
-         if (!file.exists(localDb)) {
-            printDebug("Deriving txdb from gtf:",
-               gtfBase,
-               " to store as:",
-               localDb);
-            txdb <- GenomicFeatures::makeTxDbFromGFF(gtfBase);
-            AnnotationDbi::saveDb(x=txdb, file=localDb);
+         if (length(txdb) > 0) {
+            jamba::printDebug("sashimiAppConstants(): ",
+               "Using supplied txdb.");
          } else {
-            printDebug("Reloading txdb:", localDb);
-            txdb <- AnnotationDbi::loadDb(file=localDb);
+            localDb <- gsub("[.](gff|gff3|gtf).*$",
+               ".txdb",
+               gtfBase,
+               ignore.case=TRUE);
+            if (!file.exists(localDb)) {
+               jamba::printDebug("sashimiAppConstants(): ",
+                  "Deriving txdb from gtf: '",
+                  gtfBase,
+                  "' to store as: '",
+                  localDb, "'");
+               txdb <- GenomicFeatures::makeTxDbFromGFF(gtfBase);
+               AnnotationDbi::saveDb(x=txdb, file=localDb);
+            } else {
+               jamba::printDebug("sashimiAppConstants(): ",
+                  "Reloading txdb from: '", localDb, "'");
+               txdb <- AnnotationDbi::loadDb(file=localDb);
+            }
+            if (!DBI::dbIsValid(AnnotationDbi::dbconn(txdb))) {
+               jamba::printDebug("sashimiAppConstants(): ",
+                  "Refreshing db connection: '", localDb, "'");
+               txdb <- AnnotationDbi::loadDb(file=localDb);
+            }
+            # Assign in the parent environment
+            assign("txdb",
+               value=txdb,
+               envir=sashimi_env);
          }
-         if (!DBI::dbIsValid(AnnotationDbi::dbconn(txdb))) {
-            printDebug("Refreshing db connection:", localDb);
-            txdb <- AnnotationDbi::loadDb(file=localDb);
-         }
-         # Assign in the parent environment
-         assign("txdb",
-            value=txdb,
-            envir=sashimi_env);
 
          # First obtain exons by transcript
-         printDebug("Deriving exonsByTx from txdb");
+         jamba::printDebug("sashimiAppConstants(): ",
+            c("Deriving ","exonsByTx"," from txdb"), sep="");
          suppressPackageStartupMessages(require(GenomicFeatures));
          if (use_memoise) {
-            exonsBy_m <- memoise::memoise(exonsBy,
+            exonsBy_m <- memoise::memoise(GenomicFeatures::exonsBy,
                cache=memoise::cache_filesystem("exonsBy_memoise"));
             exonsBy_m_cached <- memoise::has_cache(exonsBy_m)(
                txdb,
                by="tx",
                use.names=TRUE);
-            printDebug("exonsBy_m_cached:",
+            jamba::printDebug("exonsBy_m_cached:",
                exonsBy_m_cached);
          } else {
-            exonsBy_m <- exonsBy;
+            exonsBy_m <- GenomicFeatures::exonsBy;
          }
          exonsByTx <- exonsBy_m(
             txdb,
             by="tx",
             use.names=TRUE);
-         values(exonsByTx@unlistData)$feature_type <- "exon";
-         values(exonsByTx@unlistData)$subclass <- "exon";
+         GenomicRanges::values(exonsByTx@unlistData)$feature_type <- "exon";
+         GenomicRanges::values(exonsByTx@unlistData)$subclass <- "exon";
+         # Assign in the parent environment
+         assign("exonsByTx",
+            value=exonsByTx,
+            envir=sashimi_env);
       } else {
-         if (!"feature_type" %in% names(values(exonsByTx@unlistData))) {
-            values(exonsByTx@unlistData)$feature_type <- "exon";
-         }
-         if (!"subclass" %in% names(values(exonsByTx@unlistData))) {
-            values(exonsByTx@unlistData)$subclass <- "exon";
+         if (!all(c("feature_type","subclass") %in% names(GenomicRanges::values(exonsByTx@unlistData)))) {
+            if (!"feature_type" %in% names(GenomicRanges::values(exonsByTx@unlistData))) {
+               GenomicRanges::values(exonsByTx@unlistData)$feature_type <- "exon";
+            }
+            if (!"subclass" %in% names(GenomicRanges::values(exonsByTx@unlistData))) {
+               GenomicRanges::values(exonsByTx@unlistData)$subclass <- "exon";
+            }
+            # Assign in the parent environment
+            assign("exonsByTx",
+               value=exonsByTx,
+               envir=sashimi_env);
          }
       }
-      # Assign in the parent environment
-      assign("exonsByTx",
-         value=exonsByTx,
-         envir=sashimi_env);
 
       if (length(cdsByTx) == 0 && exists("txdb")) {
-         printDebug("Deriving cdsByTx from txdb");
+         jamba::printDebug("sashimiAppConstants(): ",
+            "Deriving cdsByTx from txdb.");
          suppressPackageStartupMessages(require(GenomicFeatures));
          if (use_memoise) {
-            cdsBy_m <- memoise::memoise(cdsBy,
+            cdsBy_m <- memoise::memoise(GenomicFeatures::cdsBy,
                cache=memoise::cache_filesystem("cdsBy_memoise"));
             cdsBy_m_cached <- memoise::has_cache(cdsBy_m)(
                txdb,
                by="tx",
                use.names=TRUE);
-            printDebug("cdsBy_m_cached:",
+            jamba::printDebug("cdsBy_m_cached:",
                cdsBy_m_cached);
          } else {
-            cdsBy_m <- cdsBy;
+            cdsBy_m <- GenomicFeatures::cdsBy;
          }
 
          cdsByTx <- cdsBy_m(
             txdb,
             by="tx",
             use.names=TRUE);
-         values(cdsByTx@unlistData)$feature_type <- "cds";
-         values(cdsByTx@unlistData)$subclass <- "cds";
+         GenomicRanges::values(cdsByTx@unlistData)$feature_type <- "cds";
+         GenomicRanges::values(cdsByTx@unlistData)$subclass <- "cds";
+         # Assign in the parent environment
+         assign("cdsByTx",
+            value=cdsByTx,
+            envir=sashimi_env);
       } else {
-         if (!"feature_type" %in% names(values(cdsByTx@unlistData))) {
-            values(cdsByTx@unlistData)$feature_type <- "exon";
-         }
-         if (!"subclass" %in% names(values(cdsByTx@unlistData))) {
-            values(cdsByTx@unlistData)$subclass <- "exon";
+         if (!all(c("feature_type","subclass") %in% names(GenomicRanges::values(cdsByTx@unlistData)))) {
+            if (!"feature_type" %in% names(GenomicRanges::values(cdsByTx@unlistData))) {
+               GenomicRanges::values(cdsByTx@unlistData)$feature_type <- "exon";
+            }
+            if (!"subclass" %in% names(values(cdsByTx@unlistData))) {
+               GenomicRanges::values(cdsByTx@unlistData)$subclass <- "exon";
+            }
+            # Assign in the parent environment
+            assign("cdsByTx",
+               value=cdsByTx,
+               envir=sashimi_env);
          }
       }
-      # Assign in the parent environment
-      assign("cdsByTx",
-         value=cdsByTx,
-         envir=sashimi_env);
    }
 
    ## Define detectedTx
-   if (!exists("detectedTx") || length(detectedTx) == 0) {
+   if (length(detectedTx) == 0) {
       if (empty_uses_farrisdata && suppressPackageStartupMessages(require(farrisdata))) {
          data(farrisTxSE);
-         printDebug("Using detectedTx from farrisTxSE");
+         jamba::printDebug("sashimiAppConstants(): ",
+            c("Using detectedTx from '", "farrisTxSE", "'"),
+            sep="");
          detectedTx <- subset(SummarizedExperiment::rowData(farrisTxSE),
             TxDetectedByTPM)$transcript_id;
-      }
-      if (!all(detectedTx %in% tx2geneDF$transcript_id)) {
-         printDebug("Using detectedTx <- unique(tx2geneDF$transcript_id)");
+      } else {
          detectedTx <- unique(tx2geneDF$transcript_id);
+         jamba::printDebug("sashimiAppConstants(): ",
+            c("Defined ",
+               jamba::formatInt(length(detectedTx)),
+               " detectedTx using '",
+               "tx2geneDF$transcript_id",
+               "' since no detectedTx were supplied."),
+            sep="");
       }
-   } else {
-      detectedTx <- unique(tx2geneDF$transcript_id);
+      assign("detectedTx",
+         value=detectedTx,
+         envir=sashimi_env);
    }
-   # Assign in the parent environment
-   assign("detectedTx",
-      value=detectedTx,
-      envir=sashimi_env);
+   if (!all(detectedTx %in% tx2geneDF$transcript_id)) {
+      detlen <- length(unique(detectedTx));
+      detectedTx <- intersect(detectedTx,
+         tx2geneDF$transcript_id);
+      if (length(detectedTx) == 0) {
+         detectedTx <- unique(tx2geneDF$transcript_id);
+         jamba::printDebug("sashimiAppConstants(): ",
+            c("Defined ",
+               jamba::formatInt(length(detectedTx)),
+               " detectedTx using '",
+               "tx2geneDF$transcript_id",
+               "' since no supplied ", "detectedTx", " were present."),
+            sep="");
+      } else {
+         jamba::printDebug("sashimiAppConstants(): ",
+            c("Subsetting '", "detectedTx", "' from ",
+               jamba::formatInt(detlen),
+               " to ",
+               jamba::formatInt(length(detectedTx)),
+               " based upon '", "tx2geneDF$transcript_id", "'"),
+            sep="");
+      }
+      assign("detectedTx",
+         value=detectedTx,
+         envir=sashimi_env);
+   }
 
    ## Infer available genes
    if (length(detectedGenes) == 0) {
-      printDebug("Inferring detectedGenes from ",
-         format(big.mark=",", length(detectedTx)),
-         " detectedTx entries.");
-      #printDebug("head(tx2geneDF, 3):");
-      #print(head(tx2geneDF, 3));
       detectedGenes <- jamba::mixedSort(
          unique(
             subset(tx2geneDF,
                transcript_id %in% detectedTx)$gene_name));
+      jamba::printDebug("sashimiAppConstants(): ",
+         c("Inferred ",
+         jamba::formatInt(length(detectedGenes)),
+         " detectedGenes from ",
+         jamba::formatInt(length(detectedTx)),
+         " detectedTx."),
+         sep="");
+      # Assign in the parent environment
+      assign("detectedGenes",
+         value=detectedGenes,
+         envir=sashimi_env);
    }
-   # Assign in the parent environment
-   assign("detectedGenes",
-      value=detectedGenes,
-      envir=sashimi_env);
 
    ## Define flatExonsByGene
    ## define memoised function
@@ -437,7 +531,8 @@ sashimiAppConstants <- function
    }
 
    if (length(flatExonsByGene) == 0) {
-      printDebug("Deriving flatExonsByGene from:",
+      jamba::printDebug("sashimiAppConstants(): ",
+         "Deriving flatExonsByGene using: ",
          c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
       if (use_memoise) {
          flattenExonsByGene_m_cached <- memoise::has_cache(flattenExonsBy_m)(
@@ -447,7 +542,8 @@ sashimiAppConstants <- function
             by="gene",
             tx2geneDF=tx2geneDF,
             verbose=FALSE);
-         printDebug("flattenExonsByGene_m_cached:",
+         jamba::printDebug("sashimiAppConstants(): ",
+            "flattenExonsByGene_m_cached:",
             flattenExonsByGene_m_cached);
       }
       flatExonsByGene <- flattenExonsBy_m(
@@ -457,15 +553,16 @@ sashimiAppConstants <- function
          by="gene",
          tx2geneDF=tx2geneDF,
          verbose=FALSE);
+      # Assign in the parent environment
+      assign("flatExonsByGene",
+         value=flatExonsByGene,
+         envir=sashimi_env);
    }
-   # Assign in the parent environment
-   assign("flatExonsByGene",
-      value=flatExonsByGene,
-      envir=sashimi_env);
 
    ## Define flatExonsByTx
    if (length(flatExonsByTx) == 0) {
-      printDebug("Deriving flatExonsByTx from:",
+      jamba::printDebug("sashimiAppConstants(): ",
+         "Derived flatExonsByTx using: ",
          c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
       if (use_memoise) {
          flattenExonsByTx_m_cached <- memoise::has_cache(flattenExonsBy_m)(
@@ -475,7 +572,8 @@ sashimiAppConstants <- function
             tx2geneDF=tx2geneDF,
             by="tx",
             verbose=FALSE);
-         printDebug("flattenExonsByTx_m_cached:",
+         jamba::printDebug("sashimiAppConstants(): ",
+            "flattenExonsByTx_m_cached:",
             flattenExonsByTx_m_cached);
       }
       flatExonsByTx <- flattenExonsBy_m(
@@ -485,11 +583,11 @@ sashimiAppConstants <- function
          tx2geneDF=tx2geneDF,
          by="tx",
          verbose=FALSE)
+      # Assign in the parent environment
+      assign("flatExonsByTx",
+         value=flatExonsByTx,
+         envir=sashimi_env);
    }
-   # Assign in the parent environment
-   assign("flatExonsByTx",
-      value=flatExonsByTx,
-      envir=sashimi_env);
 
    if (!exists("verbose")) {
       verbose <- FALSE;
@@ -783,6 +881,38 @@ sashimiAppConstants <- function
       envir=sashimi_env);
    assign("nbsp3",
       value=nbsp3,
+      envir=sashimi_env);
+
+   ## Handle default gene
+   get_default_gene <- function() {
+      gene_choices <- tryCatch({
+         get_gene_choices();
+      }, error=function(e){
+         detectedGenes;
+      })
+      default_gene <- head(
+         jamba::provigrep(c("Gria1",
+            "Ntrk2",
+            "Actb",
+            "Gapd",
+            "^[A-Z][a-z]{3}", "."),
+            gene_choices),
+         1);
+      if (exists("gene")) {
+         new_default_gene <- intersect(get("gene"),
+            gene_choices);
+         if (length(new_default_gene) > 0) {
+            default_gene <- head(new_default_gene, 1);
+         }
+      }
+      jamba::printDebug("sashimiAppServer(): ",
+         "default_gene:",
+         default_gene);
+      return(default_gene);
+   }
+   default_gene <- get_default_gene();
+   assign("default_gene",
+      value=default_gene,
       envir=sashimi_env);
 
    invisible(sashimi_env);

@@ -110,7 +110,7 @@ makeTx2geneFromGtf <- function
       }
       gtfDF <- data.table::fread(cmd=paste0("gzcat ", GTF),
          sep="\t",
-         autostart=20,
+         header=FALSE,
          nrows=nrows,
          data.table=FALSE);
    } else {
@@ -120,7 +120,7 @@ makeTx2geneFromGtf <- function
       }
       gtfDF <- data.table::fread(GTF,
          sep="\t",
-         autostart=20,
+         header=FALSE,
          nrows=nrows,
          data.table=FALSE);
    }

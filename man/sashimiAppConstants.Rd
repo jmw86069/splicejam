@@ -20,7 +20,8 @@ sashimiAppConstants(
   detectedTx = NULL,
   detectedGenes = NULL,
   flatExonsByGene = NULL,
-  flatExonsByTx = NULL
+  flatExonsByTx = NULL,
+  verbose = FALSE
 )
 }
 \arguments{

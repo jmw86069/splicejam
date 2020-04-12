@@ -10,40 +10,45 @@
 #' defined by the function `sashimiAppConstants()`, which
 #' documents each R object required and how it is used.
 #'
-#' Typically, the first time running `launchSashimiApp()`
+#' The most straightforward way to run a new Sashimi R-shiny
+#' app is to define `filesDF` and `gtf` in the global environment.
+#' The `gtf` is a path or URL to a GTF file (which can be gzipped).
+#' This GTF file will be used to derive all related annotation
+#' data.
+#'
+#' * `txdb` -- TranscriptDb from which other objects are derived
+#' * `tx2geneDF` -- `data.frame` with transcript-to-gene relationship
+#' * `detectedTx` -- if not already defined, all transcripts are
+#' used. *Much better to use only a subset of detected transcripts.*
+#' * `detectedGenes` -- inferred from `detectedTx`, using `tx2geneDF`.
+#' * `flatExonsByGene`, `flatExonsByTx` -- these objects will combine
+#' CDS exons and non-CDS exons to represent CDS and UTR regions.
+#'
+#' Note that if `detectedTx` is not defined, it will use all transcripts
+#' at this stage, which can be substantially slower than using only
+#' the subset of "observed/detected" transcripts.
+#'
+#' The first time running `launchSashimiApp()`
 #' will populate several R objects in the global environment,
-#' and they will be re-used during subsequent calls to
-#' this function. These R objects are intended to be
-#' available to review, for possible troubleshooting
-#' operations, or to update the data as needed.
+#' and these objects will be re-used during subsequent calls to
+#' this function. To make changes in the content, these objects
+#' can be edited or deleted so the object is created again.
+#' For example, if `detectedTx` is edited, the object
+#' `detectedGenes` should be removed so `detectedGenes`
+#' will be created again during the next call to `launchSashimiApp()`.
 #'
-#' For example, the `data.frame` object `filesDF` contains
-#' a colname `"scale_factor"` used to help normalize the
-#' visible height on the y-axis of individual entries.
-#' The `"scale_factor"` values can be edited, then the
-#' `launchSashimiApp()` function will use the existing
-#' data with the new `"scale_factor"` values.
+#' The `filesDF` object should be a `data.frame` with colnames
+#' `"sample_id"`, `"type"` (with values either `"bw"` or `"junction"`),
+#' and `"url"` (a URL or file path to each file.) If coverage
+#' or junctions are available in separate files, use the same
+#' `sample_id` value for each file. Files with the same `sample_id`
+#' value are combined using the sum, after multiplying each file
+#' by a value in the optional `"scale_factor"` column.
 #'
-#' More about using R environments:
-#'
-#' One comment about the environment. The `sashimiAppConstants()`
-#' function uses the `exists()` function to check for existing
-#' objects, and the `<<-` operator, which updates
-#' R objects, both these methods search up the parent
-#' environment chain to find a matching object name.
-#'
-#' For most cases, the global environment is used, which
-#' can be convenient for creating and updating R objects
-#' for use outside the R-shiny sashimi app. However, to
-#' avoid populating objects in the global environment,
-#' variables can be passed through the `dots` argument `...`
-#' when calling `launchSashimiApp()`.
-#'
-#' For example `launchSashimiApp(filesDF=farris_sashimi_files_df)`
-#' will define a local variable `filesDF` in the context
-#' of `launchSashimiApp()`. The `exists()` function will recognize
-#' this object and use it as-is. Any updates to `filesDF` using
-#' `<<-` will update the object in the local function environment.
+#' This function calls `sashimiAppConstants()` which does the
+#' heavy work of defining or deriving all necessary data objects,
+#' then assigns the result to the relevant environment. The default
+#' environment is `globalenv()` (also known as `.GlobalEnv`).
 #'
 #' @family splicejam R-shiny functions
 #'
@@ -81,6 +86,6 @@ launchSashimiApp <- function
    shiny::shinyApp(ui=sashimiAppUI,
       server=sashimiAppServer,
       onStart=sashimiAppConstants,
-      options=list(width=1200)
+      options=options
    );
 }

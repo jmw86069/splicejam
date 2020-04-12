@@ -46,31 +46,62 @@ sashimiAppServer <- function
       }
       return(gene_choices);
    });
+
+   get_default_gene <- function() {
+      gene_choices <- tryCatch({
+         get_gene_choices();
+      }, error=function(e){
+         detectedGenes;
+      })
+      default_gene <- head(
+         jamba::provigrep(c("Gria1",
+            "Ntrk2",
+            "Actb",
+            "Gapd",
+            "^[A-Z][a-z]{3}", "."),
+            gene_choices),
+         1);
+      if (exists("gene")) {
+         new_default_gene <- intersect(get("gene"),
+            gene_choices);
+         if (length(new_default_gene) > 0) {
+            default_gene <- head(new_default_gene, 1);
+         }
+      }
+      jamba::printDebug("sashimiAppServer(): ",
+         "default_gene:",
+         default_gene);
+      return(default_gene);
+   }
    observe({
       search_genelist <- input$search_genelist;
       gene_choices <- get_gene_choices();
+      default_gene <- get_default_gene();
       if (verbose) {
-         printDebug("updateSelectizeInput gene:",
-            gene);
+         jamba::printDebug("sashimiAppServer(): ",
+            "updateSelectizeInput default_gene:",
+            default_gene);
       }
       updateSelectizeInput(session,
          "gene",
          choices=gene_choices,
-         selected=head(
-            jamba::provigrep(c("Gria1", "Ntrk2", "^[A-Z][a-z]{3}", "."),
-               detectedGenes), 1),
+         selected=default_gene,
          server=TRUE);
    });
 
    ## server-side selectize gene list
-   printDebug("length(detectedGenes):", length(detectedGenes));
+   jamba::printDebug("sashimiAppServer(): ",
+      "length(detectedGenes):",
+      jamba::formatInt(length(detectedGenes)));
+   default_gene <- get_default_gene();
    updateSelectizeInput(session,
       "gene",
       choices=detectedGenes,
+      selected=default_gene,
       #choices=get_gene_choices(),
-      selected=head(
-         jamba::provigrep(c("Gria1", "Ntrk2", "^[A-Z][a-z]{3}", "."),
-            detectedGenes), 1),
+      #selected=head(
+      #   jamba::provigrep(c("Gria1", "Ntrk2", "^[A-Z][a-z]{3}", "."),
+      #      detectedGenes), 1),
       server=TRUE);
 
    output$gene_coords_label <- renderText({"Genome coordinate range"});
@@ -78,7 +109,8 @@ sashimiAppServer <- function
    # Define verbose flag
    if (!exists("verbose")) {
       verbose <- FALSE;
-      printDebug("verbose:", verbose);
+      jamba::printDebug("sashimiAppServer(): ",
+         "verbose:", verbose);
    }
 
    # use debounce to slow down rendering a plot while changing parameters
@@ -167,13 +199,17 @@ sashimiAppServer <- function
    observe({
       gene <- input$gene;
       if (verbose) {
-         printDebug("updateInputSlider gene:",
+         jamba::printDebug("sashimiAppServer(): ",
+            "observe input$gene");
+         jamba::printDebug("sashimiAppServer(): ",
+            "updateInputSlider gene:",
             gene);
       }
       if (length(gene) > 0 && nchar(gene) > 0) {
          ## Handle "All Genes" where it is not present in flatExonsByGene
          flatExonsByGene1 <- get_flat_gene_exons();
-         printDebug("update gene slider bar, gene:", gene,
+         jamba::printDebug("sashimiAppServer(): ",
+            "update gene slider bar, gene:", gene,
             ", length(flatExonsByGene1):", length(flatExonsByGene1),
             ", length(flatExonsByGene1[[gene]]):", length(flatExonsByGene1[[gene]]));
          chr_range <- as.data.frame(range(flatExonsByGene1[[gene]]))[,c("start", "end")];
@@ -224,7 +260,9 @@ sashimiAppServer <- function
       if (length(gene) > 0 && nchar(gene) > 0) {
          ## Handle "All Genes" where it is not present in flatExonsByGene
          if (!gene %in% names(flatExonsByGene)) {
-            printDebug("Creating flat exons for gene:", gene);
+            jamba::printDebug("sashimiAppServer(): ",
+               "Creating flat exons for gene:",
+               gene);
             flatExonsByGene1 <- flattenExonsBy(genes=gene,
                by="gene",
                exonsByTx=exonsByTx,
@@ -246,7 +284,9 @@ sashimiAppServer <- function
       if (length(gene) > 0 && nchar(gene) > 0) {
          ## Handle "All Genes" where it is not present in flatExonsByGene
          if (!gene %in% names(flatExonsByGene)) {
-            printDebug("Creating flat exons for gene:", gene);
+            jamba::printDebug("sashimiAppServer(): ",
+               "Creating flat exons for gene:",
+               gene);
             flatExonsByGene1 <- flattenExonsBy(genes=gene,
                by="gene",
                exonsByTx=exonsByTx,
@@ -275,7 +315,9 @@ sashimiAppServer <- function
             subset(flatExonsByGene1[[gene]], gene_nameExon %in% exon_range)
          ))[,c("start", "end")]);
          if (verbose) {
-            printDebug("gene_coords inferred from input$exon_range:", gene_coords);
+            jamba::printDebug("sashimiAppServer(): ",
+               "gene_coords inferred from input$exon_range:",
+               gene_coords);
          }
       } else {
          gene_coords <- isolate(input$gene_coords);
@@ -286,7 +328,9 @@ sashimiAppServer <- function
             ))[,c("start", "end")]);
          }
          if (verbose) {
-            printDebug("gene_coords from input$gene_coords:", gene_coords);
+            jamba::printDebug("sashimiAppServer(): ",
+               "gene_coords from input$gene_coords:",
+               gene_coords);
          }
       }
       gene_coords;
@@ -306,8 +350,11 @@ sashimiAppServer <- function
          sample_id <- sample_order;
       }
       if (verbose) {
-         printDebug("get_sample_id():",
-            "sample_id:", sample_id);
+         jamba::printDebug("sashimiAppServer(): ",
+            c("get_sample_id('",
+               sample_id,
+               "')"),
+            sep="");
       }
       sample_id;
    });
@@ -335,8 +382,12 @@ sashimiAppServer <- function
       ## Define sample_id from sample selection
       sample_id <- get_sample_id();
       if (verbose) {
-         printDebug("Using sample_id:", sample_id,
-            ", gene:", gene);
+         jamba::printDebug("sashimiAppServer(): ",
+            "Using sample_id:",
+            sample_id);
+         jamba::printDebug("sashimiAppServer(): ",
+            "Using gene:",
+            gene);
       }
 
       min_junction_reads <- isolate(input$min_junction_reads);
@@ -359,8 +410,11 @@ sashimiAppServer <- function
                   verbose=verbose,
                   use_memoise=use_memoise,
                   do_shiny_progress=TRUE);
-               printDebug("gene:", gene,
-                  ", gene_has_cache:", gene_has_cache);
+               jamba::printDebug("sashimiAppServer(): ",
+                  "gene:",
+                  gene,
+                  ", gene_has_cache:",
+                  gene_has_cache);
             }
             sashimi_data <- prepareSashimi_m(
                gene=gene,
@@ -373,8 +427,9 @@ sashimiAppServer <- function
                use_memoise=use_memoise,
                do_shiny_progress=TRUE);
             if (verbose) {
-               printDebug("sdim(sashimi_data):");
-               print(sdim(sashimi_data));
+               jamba::printDebug("sashimiAppServer(): ",
+                  "sdim(sashimi_data):");
+               print(jamba::sdim(sashimi_data));
             }
          }
       )
@@ -382,7 +437,9 @@ sashimiAppServer <- function
       some_null <- sashimi_data$some_null;
       if (length(some_null) && some_null) {
          if (verbose) {
-            printDebug("sashimi_data some_null:", some_null);
+            jamba::printDebug("sashimiAppServer(): ",
+               "sashimi_data some_null:",
+               some_null);
          }
          withProgress(
             message="Repeating Sashimi steps",
@@ -392,7 +449,8 @@ sashimiAppServer <- function
                if (compareVersion(as.character(packageVersion("memoise")), "1.1.0.900") >= 0) {
                   ## memoise 1.1.0.900 has new function memoise::drop_cache()
                   if (1 == 1 || verbose) {
-                     printDebug("Dropping memoise cache, then re-creating with memoise.");
+                     jamba::printDebug("sashimiAppServer(): ",
+                        "Dropping memoise cache, then re-creating with memoise.");
                   }
                   memoise::drop_cache(prepareSashimi_m)(
                      gene=gene,
@@ -419,7 +477,8 @@ sashimiAppServer <- function
                } else {
                   ## Re-run prepareSashimi without using memoise
                   if (1 == 1 || verbose) {
-                     printDebug("Invalid memoise cache file, re-running prepareSashimi() without memoise.",
+                     jamba::printDebug("sashimiAppServer(): ",
+                        "Invalid memoise cache file, re-running prepareSashimi() without memoise.",
                         fgText="red");
                   }
                   sashimi_data <- prepareSashimi(
@@ -456,7 +515,8 @@ sashimiAppServer <- function
       #sashimi_data <- sashimi_data;
       if (length(sashimi_data) == 0) {
          ## Todo: make empty plot a minimum height in pixels
-         printDebug("Rendering blank panel for ",
+         jamba::printDebug("sashimiAppServer(): ",
+            "Rendering blank panel for ",
             "sashimiplot_output");
          tagList(
             renderPlot(
@@ -491,7 +551,8 @@ sashimiAppServer <- function
          if (length(layout_ncol) > 0 && layout_ncol > 1) {
             # change from facet_grid to facet_wrap()
             if (verbose) {
-               printDebug("Applying facet_wrap() with ncol:",
+               jamba::printDebug("sashimiAppServer(): ",
+                  "Applying facet_wrap() with ncol:",
                   layout_ncol);
             }
             gg_sashimi <- gg_sashimi +
@@ -503,7 +564,8 @@ sashimiAppServer <- function
          ## Optionally prepare gene-exon model
          if (show_gene_model_d()) {
             if (verbose) {
-               printDebug("Getting gene model with label_coords:",
+               jamba::printDebug("sashimiAppServer(): ",
+                  "Getting gene model with label_coords:",
                   get_gene_coords());
             }
             if (show_tx_model_d() && length(flatExonsByTx) > 0) {
@@ -559,7 +621,8 @@ sashimiAppServer <- function
          base_size <- base_font_size * (panel_height^font_exp)/(250^font_exp);
          plot_height <- panel_height * (num_samples + show_gene_model_d());
          if (verbose) {
-            printDebug("num_samples:", num_samples,
+            jamba::printDebug("sashimiAppServer(): ",
+               "num_samples:", num_samples,
                ", panel_height:", panel_height,
                ", base_size:", format(digits=1, base_size),
                ", base_font_size:", base_font_size,
@@ -568,7 +631,7 @@ sashimiAppServer <- function
          }
          if (do_plotly_d()) {
             if (verbose) {
-               printDebug("sashimiAppServer(): ",
+               jamba::printDebug("sashimiAppServer(): ",
                   "Preparing plotly output.");
             }
             if (show_gene_model_d()) {
@@ -642,7 +705,7 @@ sashimiAppServer <- function
             plotly_out;
          } else {
             if (verbose) {
-               printDebug("sashimiAppServer(): ",
+               jamba::printDebug("sashimiAppServer(): ",
                   "Preparing ggplot output.");
             }
             ## Non-plotly static plot output

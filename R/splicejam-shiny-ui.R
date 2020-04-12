@@ -79,8 +79,10 @@ sashimiAppUI <- function
                      selectizeInput(
                         label="Select Gene",
                         inputId="gene",
-                        selected="Gria1",
-                        choices=c("Gria1", "Ntrk2"),
+                        #selected="Gria1",
+                        #choices=c("Gria1", "Ntrk2"),
+                        selected=default_gene,
+                        choices=detectedGenes,
                         options=list(maxOptions=100),
                         multiple=FALSE
                      )
