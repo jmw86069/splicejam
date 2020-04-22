@@ -1,4 +1,74 @@
-## TODO for splicejam
+# TODO for splicejam
+
+## 21apr2020 todo items
+
+* It looks like junction stacking on negative strand is applied
+to the wrong edge of each junction (left-right instead of right-left).
+* Allow the gene-transcript panel to be adjusted taller.
+
+   * By default, gene panel height should be auto-adjusted based
+   upon the number of transcripts shown.
+   * Ideally the panel height should be adjusted based upon label height.
+
+* Enable more default settings such as number of columns, panel height,
+font sizes, etc. The app should be fully customizable upon startup,
+so that new users get the intended default experience.
+
+   * Available:
+   
+      * min_junction_reads - minimum junction read threshold
+      * use_exon_names - one of `c("coordinates", "exon names")`
+      * exon_range_selected - two gene_nameExon values
+      * exon_range_choices_default - exon labels available for default gene
+      * layout_ncol - number of columns in layout
+      * include_strand - one of `c("+","-","both")` strands to display
+      * share_y_axis - one of `c(TRUE, FALSE)` whether to use shared y-axis range
+      
+   * Todo:
+   
+      * panel height
+      * show gene model
+      * show transcripts
+      * detected only
+      * font size,
+      * exon font size
+      * interactive plot
+      * minimum arc height? new option
+
+* Consider minimum junction threshold based upon % coverage range
+instead of absolute number. Not urgent, can be manually adjusted.
+* Consider option to label gene exons by major exon number (exon1, exon2, etc.)
+not using the disjoint exon numbers (exon1a, exon1b, exon2a, exon2b, etc.)
+* `detectedTxInfo()`
+
+   * option to return only detected results.
+   * change labels to be user-friendly
+   
+* new function to convert `detectedTxInfo()` into ComplexHeatmap:
+
+   * box around cells which meet the "detected" thresholds overall (cell_fun)
+   * color cells by percent max expression per sample (default), option to use count, TPM
+   * label cells: pseudo-counts (percent max expr, TPM abundance); 67.9 (13%, 1.2 TPM)
+   * option to display "detected" or "all" Tx
+
+* Consider optional per-panel label to supplement/replace the text
+label used by ggplot2 facet wrap. Label could be positioned topright,
+topleft, bottomright, bottomleft, or auto.
+* Two-column displays are not visually synchronized with the gene
+view, consider making a two-column gene view?
+* When using plotly interactive plots with two columns, consider
+syncing the two columns when zooming in one side, so the other column
+is also zoomed into the same region.
+* Consider adding two-column output selection to the main page.
+* When viewing very large genes in plotly interactive mode, it
+can take ages to render (after the ggplot object is already created,
+it appears the slow step is creating all the plotly-specific javascript
+to render every coordinate position, even though the region is zoomed
+out.) Needs some optimization step to reduce the number of actual
+x-axis points being displayed. SMARCA4 is an example gene, spans 150k
+bases, yet every exon pixel is stored as a coordinate for plotly.
+Consider reducing the resolution of x-axis points being rendered by
+plotly somehow.
 
 ## Bug fixes
 

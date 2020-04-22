@@ -89,6 +89,9 @@ longer junction widths. The intention is to reduce visible overlaps.
 The input data is expected to have annotations similar to
 those provided by \code{closestExonToJunctions()}, specifically
 the columns \code{"nameFrom"} and \code{"nameTo"}, see examples below.
+When the input data does not contain columns \code{"nameFrom"} and
+and \code{"nameTo"}, the junctions are by default stacked by
+coordinates.
 }
 \examples{
 library(GenomicRanges);
@@ -104,11 +107,11 @@ grExons <- GRanges(seqnames=rep("chr1", 4),
 names(grExons) <- jamba::makeNames(rep("exon", length(grExons)),
    suffix="");
 
-grJunc <- GRanges(seqnames=rep("chr1", 5),
-   ranges=IRanges::IRanges(start=c(200, 200, 400, 400, 750),
-      end=c(300, 500, 500, 900, 900)),
-   strand=rep("+", 5),
-   score=c(200, 50, 160, 40, 210));
+grJunc <- GRanges(seqnames=rep("chr1", 6),
+   ranges=IRanges::IRanges(start=c(200, 200, 400, 400, 750, 750),
+      end=c(300, 500, 500, 900, 900, 1200)),
+   strand=rep("+", 6),
+   score=c(200, 50, 160, 40, 210, 10));
 names(grJunc) <- jamba::makeNames(rep("junc", length(grJunc)));
 
 # quick plot showing exons and junctions using rectangles
@@ -124,7 +127,7 @@ ggplot(grl2df(grl), aes(x=x, y=y, group=id, fill=feature_type)) +
    ggtitle("Schematic of exons and junctions GRanges");
 
 # add annotation for closest known exon
-grJunc <- closestExonToJunctions(grJunc, grExons)$spliceGRgene;
+grJunc <- closestExonToJunctions(grJunc, grExons, spliceBuffer=5)$spliceGRgene;
 
 # The un-stacked junctions
 grlJunc2df1 <- grl2df(grJunc,
@@ -159,6 +162,8 @@ ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name)) +
 ## Last example showing how two samples are kept separate
 grJunc_samples <- c(grJunc, grJunc);
 values(grJunc_samples)[,"sample_id"] <- rep(c("SampleA","SampleB"), each=5);
+values(grJunc_samples)$score <- sample(values(grJunc_samples)$score);
+names(grJunc_samples) <- jamba::makeNames(names(grJunc_samples));
 grlJunc2df_samples <- grl2df(grJunc_samples,
    scoreArcMinimum=20,
    shape="junction");
@@ -196,6 +201,7 @@ Other jam GRanges functions:
 \code{\link{getGRcoverageFromBw}()},
 \code{\link{getGRgaps}()},
 \code{\link{grl2df}()},
+\code{\link{jam_isDisjoint}()},
 \code{\link{make_ref2compressed}()},
 \code{\link{sortGRL}()},
 \code{\link{spliceGR2junctionDF}()}

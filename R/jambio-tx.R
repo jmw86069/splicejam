@@ -684,9 +684,23 @@ tx2ale <- function
 #' \describe{
 #'    \item{txExprGrpTx}{Numeric matrix representing the expression
 #'       counts per transcript, grouped by `"gene_name"`.}
-#'    \item{txPctMaxGrpAll}{Numeric matrix representing the
+#'    \item{txPctMaxTxGrpAll}{Numeric matrix representing the
 #'       percent expression of each transcript isoform per gene, as
-#'       compared to the highest expression of isoforms for that gene.}
+#'       compared to the highest expression of isoforms for that gene,
+#'       using `iMatrixTxGrp` data.
+#'       (New to verion 0.0.61.900.)}
+#'    \item{txPctMaxTxTPMGrpAll}{Numeric matrix representing the
+#'       percent expression of each transcript isoform per gene, as
+#'       compared to the highest expression of isoforms for that gene,
+#'       using `iMatrixTxTPMGrp` data. This data is returned only
+#'       if `iMatrixTxTPM` or `iMatrixTxTPMGrp` were supplied.
+#'        (New to verion 0.0.61.900.)}
+#'    \item{txPctMaxGrpAll}{Numeric matrix representing the
+#'       percent max expression used for filtering, after applying
+#'       `applyTxPctTo`: `"counts"` uses `txPctMaxTxGrpAll`;
+#'       `"TPM"` uses `txPctMaxTxTPMGrpAll`; `"both"` uses the higher
+#'       of `txPctMaxTxGrpAll` and `txPctMaxTxTPMGrpAll`; `"either"`
+#'       uses the lower of `txPctMaxTxGrpAll` and `txPctMaxTxTPMGrpAll`.}
 #'    \item{txExprGrpAll}{Numeric matrix of sample group counts,
 #'       exponentiated and rounded to integer values.}
 #'    \item{txTPMExprGrpAll}{Numeric matrix of sample group TPM values,
@@ -747,6 +761,14 @@ tx2ale <- function
 #'    sometimes allocate all expression to one or another transcript
 #'    isoform when two isoforms are nearly identical. Also use
 #'    `TRUE` when a value of zero represents the absense of data.
+#' @param applyTxPctTo `character` string indicating how to apply the
+#'    `cutoffTcPctMax` threshold. This argument is only used when
+#'    both `iMatrixTx` and `iMatrixTxTPM` are supplied, as follows:
+#'    `"TPM"`: uses only `iMatrixTxTPM` data; `"counts"` uses only
+#'    `iMatrixTx` data; `"both"` requires both `iMatrixTx` and
+#'    `iMatrixTxTPM` data meet the threshold; `"either"` requires
+#'    that one or both of `iMatrixTx` and `iMatrixTxTPM` meet the
+#'    threshold.
 #' @param useMedian logical indicating whether to use group median
 #'    values instead of group mean values.
 #' @param verbose logical indicating whether to print verbose output.
@@ -767,6 +789,7 @@ defineDetectedTx <- function
  txColname="transcript_id",
  geneColname="gene_name",
  zeroAsNA=TRUE,
+ applyTxPctTo=c("TPM", "counts", "both", "either"),
  useMedian=FALSE,
  verbose=FALSE,
  ...)
@@ -882,19 +905,38 @@ defineDetectedTx <- function
    }
    ## Process group mean TPM
    ## Convert any remaining NA to zero
-   if (any(is.na(iMatrixTxTPMGrp))) {
-      iMatrixTxTPMGrp[is.na(iMatrixTxTPMGrp)] <- 0;
-   }
-   ## Optionally apply log2(1+x) transformation
-   if (max(iMatrixTxTPMGrp, na.rm=TRUE) >= 50) {
-      if (verbose) {
-         printDebug("defineDetectedTx(): ",
-            "Applying log2(1+x) transform to:",
-            "iMatrixTxTPMGrp");
+   if (length(iMatrixTxTPMGrp) > 0) {
+      if (any(is.na(iMatrixTxTPMGrp))) {
+         iMatrixTxTPMGrp[is.na(iMatrixTxTPMGrp)] <- 0;
       }
-      iMatrixTxTPMGrp <- jamba::noiseFloor(log2(1+iMatrixTxTPMGrp),
-         minimum=0,
-         adjustNA=TRUE);
+      ## Optionally apply log2(1+x) transformation
+      if (max(iMatrixTxTPMGrp, na.rm=TRUE) >= 50) {
+         if (verbose) {
+            printDebug("defineDetectedTx(): ",
+               "Applying log2(1+x) transform to:",
+               "iMatrixTxTPMGrp");
+         }
+         iMatrixTxTPMGrp <- jamba::noiseFloor(log2(1+iMatrixTxTPMGrp),
+            minimum=0,
+            adjustNA=TRUE);
+      }
+   }
+
+   ## applyTxPctTo
+   if (length(iMatrixTxTPMGrp) == 0) {
+      if (length(iMatrixTxGrp) == 0) {
+         stop("Neither iMatrixTxGrp nor iMatrixTxTPMGrp are available for this analysis.");
+      }
+      applyTxPctTo <- "counts";
+   } else {
+      if (length(iMatrixTxGrp) == 0) {
+         applyTxPctTo <- "TPM";
+      }
+   }
+   if (verbose) {
+      jamba::printDebug("defineDetectedTx(): ",
+         "applyTxPctTo:",
+         applyTxPctTo);
    }
 
    ######################################################################
@@ -919,31 +961,41 @@ defineDetectedTx <- function
    if (length(iMatrixTxTPMGrp) > 0) {
       if (verbose) {
          printDebug("defineDetectedTx(): ",
-            "Calculating percent max isoform expression by TPM.");
+            "Calculating percent max isoform expression by TPM, rounded to integer.");
       }
-      txPctMaxGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
+      txPctMaxTxTPMGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
          groupBy=tx2geneDF[iRows,geneColname],
          shrinkFunc=function(i){
             round(i/max(c(1, max(i)))*100)
          },
          returnClass="matrix");
-      attr(txPctMaxGrpAll, "TxMeasurement") <- "TPM";
-      rownames(txPctMaxGrpAll) <- txExprGrpTx[,1];
-      #retVals$iMatrixTxTPMGrp <- iMatrixTxTPMGrp;
-   } else {
+      attr(txPctMaxTxTPMGrpAll, "TxMeasurement") <- "TPM";
+      rownames(txPctMaxTxTPMGrpAll) <- txExprGrpTx[,1];
+      retVals$txPctMaxTxTPMGrpAll <- txPctMaxTxTPMGrpAll;
+   }
+   if (length(iMatrixTxGrp) > 0) {
       if (verbose) {
          printDebug("defineDetectedTx(): ",
-            "Calculating percent max isoform expression by counts.");
+            "Calculating percent max isoform expression by counts, rounded to integer.");
       }
-      txPctMaxGrpAll <- shrinkMatrix((2^iMatrixTxGrp-1),
+      txPctMaxTxGrpAll <- shrinkMatrix((2^iMatrixTxGrp-1),
          groupBy=tx2geneDF[iRows,geneColname],
          shrinkFunc=function(i){
             round(i/max(c(1, max(i, na.rm=TRUE)), na.rm=TRUE)*100);
          },
          returnClass="matrix");
-      attr(txPctMaxGrpAll, "TxMeasurement") <- "counts";
-      rownames(txPctMaxGrpAll) <- txExprGrpTx[,1];
-      #retVals$iMatrixTxGrp <- iMatrixTxGrp;
+      attr(txPctMaxTxGrpAll, "TxMeasurement") <- "counts";
+      rownames(txPctMaxTxGrpAll) <- txExprGrpTx[,1];
+      retVals$txPctMaxTxGrpAll <- txPctMaxTxGrpAll;
+   }
+   if (applyTxPctTo %in% "TPM") {
+      txPctMaxGrpAll <- txPctMaxTxTPMGrpAll;
+   } else if (applyTxPctTo %in% "counts") {
+      txPctMaxGrpAll <- txPctMaxTxGrpAll;
+   } else if (applyTxPctTo %in% "either") {
+      txPctMaxGrpAll <- pmax(txPctMaxTxGrpAll, txPctMaxTxTPMGrpAll);
+   } else if (applyTxPctTo %in% "both") {
+      txPctMaxGrpAll <- pmin(txPctMaxTxGrpAll, txPctMaxTxTPMGrpAll);
    }
    retVals$txPctMaxGrpAll <- txPctMaxGrpAll;
 
@@ -952,7 +1004,7 @@ defineDetectedTx <- function
    ## Exponentiated expression counts per isoform per gene
    if (verbose) {
       printDebug("defineDetectedTx(): ",
-         "Creating exponentiated expression counts, rounded to integers.");
+         "Creating exponentiated expression counts, rounded to 0.1");
    }
    txExprGrpAll <- shrinkMatrix(2^iMatrixTxGrp-1,
       groupBy=tx2geneDF[iRows,geneColname],
@@ -1406,17 +1458,35 @@ geomean <- function
 #' This function provides a simple summary of the results of
 #' `defineDetectedTx()`, typically for a given gene of interest.
 #'
+#' By default, either `Gene` or `Tx` must be supplied, however
+#' to return data for all genes, use either `detectedOnly=TRUE`
+#' to return data only for detected transcripts, or
+#' `detectedOnly=FALSE` to return all data including transcripts
+#' that are not determined to be detected.
+#'
 #' @return list of `data.frame` objects, each containing one
 #'    summary table of data used to support whether each transcript
 #'    were called "detected."
 #'
-#' @param detectedTxL list output from `defineDetectedTx()`
-#' @param Gene optional character vector of one or more genes
+#' @param detectedTxL `list` output from `defineDetectedTx()`
+#' @param Gene optional `character` vector of one or more genes
 #'    of interest, used to find transcript_id entries in the
 #'    `detectedTxL` input data. If not supplied, `Tx` is expected.
-#' @param Tx optional character vector used to subset summary data,
+#' @param Tx optional `character` vector used to subset summary data,
 #'    usually intended to keep rows in a specific order for a
 #'    given set of transcripts.
+#' @param Groups optional `character` vector used to subset the
+#'    groups (colnames) returned for each `data.frame`.
+#' @param detectedOnly `NULL` or `logical` indicating whether
+#'    to restrict `Tx` to detected transcripts, defined by
+#'    `detectedTxL$detectedTx`. When:
+#'
+#'     * `detectedOnly=NULL` then `Tx` is used as-is.
+#'     * `detectedOnly=TRUE` and `Tx=NULL` then `Tx` uses all detected transcripts from `detectedTxL$detectedTx`.
+#'     * `detectedOnly=TRUE` and `Tx` is supplied, it is restricted to detected transcripts from `detectedTxL$detectedTx`.
+#'     * `detectedOnly=FALSE` and `Tx=NULL` then `Tx` uses all transcripts.
+#'     * `detectedOnly=FALSE` and `Tx` is supplied, it is used as-is.
+#'
 #' @param ... additional arguments are ignored.
 #'
 #' @family jam RNA-seq functions
@@ -1426,6 +1496,8 @@ detectedTxInfo <- function
 (detectedTxL,
  Gene=NULL,
  Tx=NULL,
+ Groups=NULL,
+ detectedOnly=NULL,
  ...)
 {
    ## Purpose is to summarize detectedTx supporting data for a gene
@@ -1433,22 +1505,51 @@ detectedTxInfo <- function
    ##
    ## detectedTxInfoByGene(detectedTxTPML, "Actb")
    ## detectedTxInfo(detectedTxTPML, Tx=i1)
+   if (length(detectedOnly) > 0) {
+      if (detectedOnly) {
+         if (length(Tx) == 0) {
+            Tx <- detectedTxL$detectedTx;
+         } else {
+            Tx <- intersect(Tx, detectedTxL$detectedTx);
+         }
+      } else {
+         if (length(Tx) == 0) {
+            Tx <- detectedTxL$txExprGrpTx[,1];
+         } else {
+            Tx <- intersect(Tx, detectedTxL$txExprGrpTx[,1]);
+         }
+      }
+   }
    if (length(Gene) == 0 && length(Tx) == 0) {
-      stop("detectedTxInfoByGene() requires Gene or TX to be supplied.");
+      stop("detectedTxInfoByGene() requires Gene or Tx to be supplied.");
    }
 
    if (length(Gene) == 0) {
-      iTx <- detectedTxL$txExprGrpTx[detectedTxL$txExprGrpTx[,1] %in% Tx,1];
-      iGene <- rownames(detectedTxL$txExprGrpTx)[detectedTxL$txExprGrpTx[,1] %in% Tx];
+      iKeepTx <- jamba::rmNA(match(Tx, detectedTxL$txExprGrpTx[,1]));
+      iTx <- detectedTxL$txExprGrpTx[iKeepTx,1];
+      iGene <- rownames(detectedTxL$txExprGrpTx)[iKeepTx];
    } else {
-      iTx <- detectedTxL$txExprGrpTx[rownames(detectedTxL$txExprGrpTx) %in% Gene,1];
-      iGene <- rownames(detectedTxL$txExprGrpTx)[rownames(detectedTxL$txExprGrpTx) %in% Gene];
+      iKeepGene <- which(rownames(detectedTxL$txExprGrpTx) %in% Gene);
+      if (length(Tx) == 0) {
+         Tx <- detectedTxL$txExprGrpTx[iKeepGene,1];
+      }
+      iKeepTx <- jamba::rmNA(match(Tx, detectedTxL$txExprGrpTx[iKeepGene,1]));
+      iTx <- detectedTxL$txExprGrpTx[iKeepGene,1][iKeepTx];
+      iGene <- rownames(detectedTxL$txExprGrpTx)[iKeepGene][iKeepTx];
+   }
+   if (length(Groups) == 0) {
+      Groups <- colnames(detectedTxL$txFilterM);
+   } else {
+      Groups <- intersect(Groups, colnames(detectedTxL$txFilterM));
+      if (length(Groups) == 0) {
+         stop("Groups were not present in colnames(detectedTxL$txFilterM)");
+      }
    }
 
    txDatNames <- setdiff(vigrep("^tx", names(detectedTxL)), "txExprGrpTx");
    lapply(jamba::nameVector(txDatNames), function(i){
       i1 <- match(iTx, rownames(detectedTxL[[i]]));
-      iM <- detectedTxL[[i]][i1,,drop=FALSE];
+      iM <- detectedTxL[[i]][i1,Groups,drop=FALSE];
       colnames(iM) <- gsub("^x[.]", "", colnames(iM));
       iMetric <- gsub("^tx|GrpAll$|M$", "", i);
       iDF <- data.frame(check.names=FALSE,
@@ -2681,17 +2782,24 @@ assignGRLexonNames <- function
          class(GRL));
    }
    GRLstrandL <- unique(GenomicRanges::strand(GRL));
-   if (filterTwoStrand && any(S4Vectors::elementNROWS(GRLstrandL) > 1)) {
-      if (verbose) {
-         printDebug("assignGRLexonNames(): ",
-            "removing some multi-stranded exon entries.");
+   if (filterTwoStrand) {
+      if (any(S4Vectors::elementNROWS(GRLstrandL) > 1)) {
+         if (verbose) {
+            printDebug("assignGRLexonNames(): ",
+               "removing some multi-stranded exon entries.");
+         }
+         iRemove <- which(S4Vectors::elementNROWS(GRLstrandL) > 1);
+         GRL <- GRL[-iRemove];
+      } else {
+         if (verbose) {
+            printDebug("assignGRLexonNames(): ",
+               "No multi-stranded exon entries.");
+         }
       }
-      iRemove <- which(S4Vectors::elementNROWS(GRLstrandL) > 1);
-      GRL <- GRL[-iRemove];
    } else {
       if (verbose) {
          printDebug("assignGRLexonNames(): ",
-            "No multi-stranded exon entries.");
+            "Entries were not tested for multi-stranded exons.");
       }
    }
 
@@ -2701,8 +2809,11 @@ assignGRLexonNames <- function
          printDebug("assignGRLexonNames(): ",
             "Checking disjoint ranges.");
       }
-      GRLdis <- GenomicRanges::disjoin(GRL);
-      if (!all(S4Vectors::elementNROWS(GRLdis) == S4Vectors::elementNROWS(GRL))) {
+      input_width <- sum(sum(width(GRL)));
+      reduced_width <- sum(sum(width(reduce(GRL))));
+      #GRLdis <- GenomicRanges::disjoin(GRL);
+      #if (!all(S4Vectors::elementNROWS(GRLdis) == S4Vectors::elementNROWS(GRL))) {
+      if (!jam_isDisjoint(GRL)) {
          if (checkDisjoin %in% "stop") {
             stop("assignGRLexonNames() detected overlapping GRanges, stopping.");
          } else {
@@ -2740,9 +2851,11 @@ assignGRLexonNames <- function
          "geneSymbolColname values:",
          head(GenomicRanges::values(GRLred@unlistData)[,geneSymbolColname], 10));
    }
-   GRLredStrand <- unlist(unique(strand(GRLred)));
-   GRLredStrandP <- which(GRLredStrand %in% "+");
-   GRLredStrandN <- which(GRLredStrand %in% "-");
+   GRLredStrand <- jamba::cPasteS(unique(strand(GRLred)));
+   GRLredStrandP <- grep("[+]", GRLredStrand);
+   GRLredStrandN <- ungrep("[+]", GRLredStrand);
+   #GRLredStrandP <- which(GRLredStrand %in% "+");
+   ## Any features mixed strand are numbered by positive strand
 
    ## Stranded exon numbering
    GenomicRanges::values(GRLred@unlistData)[,exonNameColname] <- "";
@@ -2793,9 +2906,9 @@ assignGRLexonNames <- function
       printDebug("assignGRLexonNames(): ",
          "Completed annotateGRLfromGRL().");
    }
-   GRLnewStrand <- unlist(unique(strand(GRLnew)));
-   GRLnewStrandP <- which(GRLnewStrand %in% "+");
-   GRLnewStrandN <- which(GRLnewStrand %in% "-");
+   GRLnewStrand <- cPasteS(unique(strand(GRLnew)));
+   GRLnewStrandP <- grep("[+]", GRLnewStrand);
+   GRLnewStrandN <- ungrep("[+]", GRLnewStrand);
    GRLnewStrandNn <- names(GRLnew[GRLnewStrandN]@unlistData);
    subFeatureNumberStyle <- "letters";
    subFeatureSuffix <- "";
@@ -2823,6 +2936,38 @@ assignGRLexonNames <- function
 
    return(GRLnew);
 
+}
+
+#' Test whether GRanges are disjoint (non-overlapping)
+#'
+#' Test whether GRanges are disjoint (non-overlapping)
+#'
+#' This function is a simple alternative to `GenomicRanges::isDisjoint()`
+#' that is intended to produce identical output while being markedly
+#' more efficient.
+#'
+#' @family jam GRanges functions
+#'
+#' @return `logical` indicating whether the input `x` contains
+#'    disjoint ranges. When input `x` is a `GRangesList` then this
+#'    function tests `GRanges` elements independently for overlaps,
+#'    and returns `TRUE` only if all `GRanges` elements are disjoint.
+#'    If any `GRanges` elements are not disjoint, this function
+#'    returns `FALSE`.
+#'
+#' @param x `GRanges` or `GRangesList` object
+#'
+#' @export
+jam_isDisjoint <- function
+(x)
+{
+   input_width <- sum(sum(width(x)));
+   reduced_width <- sum(sum(width(reduce(x))));
+   if (reduced_width < input_width) {
+      return(FALSE);
+   } else {
+      return(TRUE);
+   }
 }
 
 #' Prepare ALE data for violin plots
@@ -3659,52 +3804,95 @@ getGRLgaps <- function
 #' This function takes as input:
 #'
 #'  * `exonsByTx` as a `GRangesList` object
-#' of transcript exons named by the `transcript_id`,
-#' * `tx2geneDF` a `data.frame` with transcript-gene cross-reference,
+#' of transcript exons named by the `transcript_id`
+#' * `tx2geneDF` a `data.frame` with transcript-gene cross-reference
 #' * `detectedTx` an optional character vector of `transcript_id`
 #' values, used to subset the overall transcripts
 #' * `cdsByTx` an optional `GRangesList` object, similar to `exonsByTx`
 #' except that it only contains the CDS portion of exons
 #'
-#' This function groups exons together by gene, producing a flattened,
-#' disjoint (non-overlapping) set of exons, where exons are subdivided
-#' when there are multiple boundaries.
+#' When `by="gene"` this function groups exons from one or more
+#' transcript isoforms together by gene, to produce a single
+#' non-overlapping set of exons that describe each gene. When `cdsByTx`
+#' is provided, the output is useful in showing which regions of
+#' an exon is coding (CDS), and which regions are non-coding.
+#' When `exon_method="disjoin"` the output also maintains any
+#' internal exon boundaries wherever multiple exons overlap.
 #'
-#' Finally, it labels each exon using a defined naming scheme:
+#' When `by="tx"` this function is primarily used to combine
+#' `exonsByTx` with optional `cdsByTx` in order to sub-divide
+#' exons into regions which are coding (CDS) and non-coding.
 #'
-#' * Each contiguous exon is numbered in order, starting at `1` for the
-#' first stranded exon for the gene, for example `exon1`, `exon2`,
-#' `exon3`.
-#' * When an exon is sub-divided, each section is labeled with
-#' an alphabetic suffix to indicate the order within that exon,
-#' for example `exon1a`, `exon1b`, `exon1c`.
+#' The use of `detectedTx` has appeared to be very helpful in
+#' reducing the overall complexity of the flattened gene-exon
+#' models, specifically reducing the number of low-quality
+#' predicted transcripts that are represented.
+#'
+#' Finally, this function calls `assignGRLexonNames()` to label
+#' exons using a defined naming scheme:
+#'
+#' * Contiguous exons are numbered in order, starting at `1` and
+#' increasing in the coding direction (strand-specific.) For
+#' example exons will be numbered: `exon1`, `exon2`, `exon3`.
+#' * Exons which are sub-divided, are indicated with an lowercase
+#' character letter, for example: `exon1a`, `exon1b`, `exon1c`.
 #'
 #' A text schematic is shown below:
 #'
-#' `|=======|======|......|=======|.....|=======|=======|=======|`
+#' \preformatted{
+#' |=======|======|......|=======|.....|=======|=======|=======|
 #'
-#' `|.exon1a|exon1b|......|.exon2.|.....|.exon3a|.exon3b|.exon3c|`
+#' |_exon1a|exon1b|......|_exon2_|.....|_exon3a|_exon3b|_exon3c|
+#' }
 #'
 #' Where
 #'
 #' * `|====|` represents an exon,
 #' * `|====|====|` represents one contiguous exon with two
 #' sub-divided parts, and
-#' * `.....` represents an intron.
+#' * `|.....|` represents an intron.
 #'
 #' It is recommended but not required to supply `detectedTx`,
 #' since it can greatly reduce the total number of transcripts.
-#' This step has two benefits: It can greatly simplify the
-#' resulting exon model based upon observed data, and it
-#' has the by-product of removing potentially erroneous
-#' transcripts which often has no supporting observed data.
+#' This step has two benefits:
+#'
+#' 1. Supplying `detectedTx` can greatly simplify the
+#' resulting gene-exon models.
+#' 2. Supplying `detectedTx` has the by-product of
+#' removing potentially erroneous transcripts from the
+#' source annotation, while also producing a finished result
+#' that is driven by observed data.
+#'
+#' Potential problems with supplying `detectedTx`, and
+#' suggested work-around:
+#'
+#' 1. If the `detectedTx` is incorrect, it may not include all
+#' genes defined in `tx2geneDF`. In principle, this effect is
+#' beneficial, by not producing flat gene-exon models for
+#' genes with no observed data.
+#'
+#'    * Workaround: Note that `launchSashimiApp()` has
+#'    the option to query `"All genes"`.
+#'    * An alternative workaround is to run `flattenExonsBy()`
+#'    without supplying `detectedTx`, but providing `gene` so
+#'    this method only produces flat gene-exons for the genes
+#'    of interest.
+#'
+#' 2. The sashimi plot may represent exon coverage as if it were
+#' an intron, thus compressing the width of that coverage inside
+#' an intron context. However, the coverage will be displayed,
+#' giving a visual indicator that it may need to be reviewed
+#' in more detail.
 #'
 #' @family jam RNA-seq functions
 #' @family GRanges functions
 #'
-#' @return GRangesList named by gene when `by="gene"` or transcript when
-#'    `by="tx"`, containing non-overlapping GRanges with exon names
-#'    as described above.
+#' @return `GRangesList` with names dependent upon argument `by`:
+#'    when `by="gene"` names are derived from values in `geneColname`;
+#'    when `by="tx"` names are derived from values in `txColname`.
+#'    Each entry in the `GRangesList` will contain a series of
+#'    non-overlapping `GRanges` each representing an exon. The exon
+#'    names are described above.
 #'
 #' @param exonsByTx GRangesList named by transcript, containing one or
 #'    more GRanges representing exons. This data is often produced
@@ -3735,6 +3923,22 @@ getGRLgaps <- function
 #'    exons that only include CDS regions. This data is often produced
 #'    from `TxDb` data using `GenomicFeatures::cdsBy(...,by="gene")`.
 #'    Note this input is only used when `by="gene"`.
+#' @param filterTwoStrand `logical` indicating whether genes on multiple
+#'    strands are removed during `assignGRLexonNames()` which assigns
+#'    ordered exon numbers for each unique gene. Setting this to `FALSE`
+#'    may cause exon numbers to be incorrect, but it will retain all
+#'    genes. When this argument is `TRUE` any genes present on multiple
+#'    strands are removed.
+#' @param exon_method `character` string indicating the method to use
+#'    when combining transcript exons by gene: `"disjoin"` maintains
+#'    the internal boundaries for overlapping exons, so overlapping
+#'    exons of different width will be sub-divided; `"reduce"`
+#'    combines overlapping exons into one larger exon that is not
+#'    sub-divided. The `"reduce"` method is substantially faster,
+#'    but loses the ability to match a specific exon region to its
+#'    source transcript isoform(s). Note that when `cdsByExon` is
+#'    also supplied, exons will be sub-divided at the point where
+#'    an exon goes from CDS-overlapping, to non-coding.
 #' @param verbose logical indicating whether to print verbose output.
 #'
 #' @export
@@ -3748,6 +3952,8 @@ flattenExonsBy <- function
  geneColname="gene_name",
  cdsByTx=NULL,
  cdsByGene=NULL,
+ filterTwoStrand=FALSE,
+ exon_method=c("disjoin", "reduce"),
  verbose=FALSE)
 {
    ##
@@ -3761,6 +3967,7 @@ flattenExonsBy <- function
       stop("colnames(tx2geneDF) must contain txColname and geneColname.");
    }
    by <- match.arg(by);
+   exon_method <- match.arg(exon_method);
    if (length(detectedTx) > 0) {
       iTxs <- intersect(
          c(names(exonsByTx),
@@ -3828,17 +4035,29 @@ flattenExonsBy <- function
 
    ## Disjoin exons within each gene GRL
    if ("gene" %in% by) {
-      if (verbose) {
-         printDebug("flattenExonsBy(): ",
-            "Preparing disjoint gene exons.");
+      if ("disjoin" %in% exon_method) {
+         if (verbose) {
+            printDebug("flattenExonsBy(): ",
+               "Preparing disjoint gene exons.");
+         }
+         iGeneExonsDisGRL <- GenomicRanges::disjoin(exonsByGene);
+         if (verbose) {
+            printDebug("flattenExonsBy(): ",
+               "Completed disjoint gene exons.");
+         }
+      } else if ("reduce" %in% exon_method) {
+         if (verbose) {
+            printDebug("flattenExonsBy(): ",
+               "Preparing reduced gene exons.");
+         }
+         iGeneExonsDisGRL <- GenomicRanges::reduce(exonsByGene);
+         if (verbose) {
+            printDebug("flattenExonsBy(): ",
+               "Completed reduced gene exons.");
+         }
       }
-      iGeneExonsDisGRL <- GenomicRanges::disjoin(exonsByGene);
    } else {
       iGeneExonsDisGRL <- exonsByGene;
-   }
-   if (verbose) {
-      printDebug("flattenExonsBy(): ",
-         "Completed disjoint gene exons.");
    }
    ## Add gene annotation to each entry
    if ("gene" %in% by) {
@@ -3966,17 +4185,24 @@ flattenExonsBy <- function
 
    ## Assign exon names and numbers
    if (verbose) {
-      printDebug("flattenExonsBy(): ",
-         "Assigning exon labels to disjoint gene exons.");
+      if ("disjoin" %in% exon_method) {
+         printDebug("flattenExonsBy(): ",
+            "Assigning exon labels to disjoint gene exons.");
+      } else if ("reduce" %in% exon_method) {
+         printDebug("flattenExonsBy(): ",
+            "Assigning exon labels to reduced gene exons.");
+      }
    }
    if ("gene" %in% by) {
       iGeneExonsDisGRL <- assignGRLexonNames(iGeneExonsDisGRL,
          geneSymbolColname=geneColname,
-         verbose=FALSE);
+         filterTwoStrand=filterTwoStrand,
+         verbose=verbose);
       GenomicRanges::values(iGeneExonsDisGRL)[,geneColname] <- names(iGeneExonsDisGRL);
    } else {
       iGeneExonsDisGRL <- assignGRLexonNames(iGeneExonsDisGRL,
          geneSymbolColname=txColname,
+         filterTwoStrand=filterTwoStrand,
          verbose=FALSE);
       GenomicRanges::values(iGeneExonsDisGRL)[,txColname] <- names(iGeneExonsDisGRL);
       GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
@@ -4265,6 +4491,13 @@ addGRLgaps <- function
 #' @param reportActualCoords logical indicating whether to report
 #'    genomic coordinates or transcriptome coordinates. (Work in
 #'    progress.)
+#' @param spliceBuffer optional `integer` indicating the maximum distance
+#'    from an exon in order for an exon to be assigned to the exon.
+#'    When `spliceBuffer=NULL` the distance is ignored in value
+#'    columns `c("nameFrom","nameTo")`. When `spliceBuffer` is supplied,
+#'    and junction is greater than this distance, the value columns
+#'    `c("nameFrom","nameTo")` will indicate the exon name appended
+#'    to the distance.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
@@ -4275,6 +4508,7 @@ closestExonToJunctions <- function
  flipNegativeStrand=TRUE,
  sampleColname="sample_id",
  reportActualCoords=FALSE,
+ spliceBuffer=NULL,
  verbose=FALSE,
  ...)
 {
@@ -4304,8 +4538,10 @@ closestExonToJunctions <- function
    updateColnames <- c("distFrom", "distTo", "nameFrom", "nameTo",
       "genesDiffer", "genesMatch", "tooFarFrom", "tooFarTo", "tooFar");
    if (any(updateColnames %in% colnames(GenomicRanges::values(spliceGRgene)))) {
+      keepColnames <- setdiff(colnames(values(spliceGRgene)),
+         updateColnames);
       GenomicRanges::values(spliceGRgene) <-
-         GenomicRanges::values(spliceGRgene)[,setdiff(colnames(spliceGRgene), updateColnames),drop=FALSE];
+         GenomicRanges::values(spliceGRgene)[,keepColnames,drop=FALSE];
    }
 
    ## Distance from splice start to exon end
@@ -4462,6 +4698,30 @@ closestExonToJunctions <- function
       if (any(negStrand)) {
          GenomicRanges::values(spliceGRgene)[negStrand,switchCols1] <-
             GenomicRanges::values(spliceGRgene)[negStrand,switchCols2];
+      }
+   }
+
+   ## Optionally append distance to the name when spliceBuffer is supplied
+   if (length(spliceBuffer) > 0) {
+      ext_from <- (abs(values(spliceGRgene)$distFrom) > spliceBuffer);
+      ext_to <- (abs(values(spliceGRgene)$distTo) > spliceBuffer);
+      ext_fromto <- (ext_from | ext_to);
+      if (any(ext_from)) {
+         values(spliceGRgene)[ext_from,"nameFrom"] <- paste0(
+            values(spliceGRgene)$nameFrom[ext_from],
+            ".",
+            values(spliceGRgene)$distFrom[ext_from])
+      }
+      if (any(ext_to)) {
+         values(spliceGRgene)[ext_to,"nameTo"] <- paste0(
+            values(spliceGRgene)$nameTo[ext_to],
+            ".",
+            values(spliceGRgene)$distTo[ext_to])
+      }
+      if (any(ext_fromto)) {
+         values(spliceGRgene)[ext_fromto | ext_to,"nameFromTo"] <- paste(
+            values(spliceGRgene)$nameFrom[ext_fromto],
+            values(spliceGRgene)$nameTo[ext_fromto]);
       }
    }
 

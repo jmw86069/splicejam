@@ -184,7 +184,7 @@ sashimiAppConstants <- function
                sep="");
          }
          assign(i,
-            value=ival,
+            value=get(i),
             envir=sashimi_env);
       }
    }

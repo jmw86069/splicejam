@@ -17,6 +17,7 @@ defineDetectedTx(
   txColname = "transcript_id",
   geneColname = "gene_name",
   zeroAsNA = TRUE,
+  applyTxPctTo = c("TPM", "counts", "both", "either"),
   useMedian = FALSE,
   verbose = FALSE,
   ...
@@ -83,6 +84,15 @@ sometimes allocate all expression to one or another transcript
 isoform when two isoforms are nearly identical. Also use
 \code{TRUE} when a value of zero represents the absense of data.}
 
+\item{applyTxPctTo}{\code{character} string indicating how to apply the
+\code{cutoffTcPctMax} threshold. This argument is only used when
+both \code{iMatrixTx} and \code{iMatrixTxTPM} are supplied, as follows:
+\code{"TPM"}: uses only \code{iMatrixTxTPM} data; \code{"counts"} uses only
+\code{iMatrixTx} data; \code{"both"} requires both \code{iMatrixTx} and
+\code{iMatrixTxTPM} data meet the threshold; \code{"either"} requires
+that one or both of \code{iMatrixTx} and \code{iMatrixTxTPM} meet the
+threshold.}
+
 \item{useMedian}{logical indicating whether to use group median
 values instead of group mean values.}
 
@@ -93,9 +103,23 @@ List with the following elements:
 \describe{
 \item{txExprGrpTx}{Numeric matrix representing the expression
 counts per transcript, grouped by \code{"gene_name"}.}
-\item{txPctMaxGrpAll}{Numeric matrix representing the
+\item{txPctMaxTxGrpAll}{Numeric matrix representing the
 percent expression of each transcript isoform per gene, as
-compared to the highest expression of isoforms for that gene.}
+compared to the highest expression of isoforms for that gene,
+using \code{iMatrixTxGrp} data.
+(New to verion 0.0.61.900.)}
+\item{txPctMaxTxTPMGrpAll}{Numeric matrix representing the
+percent expression of each transcript isoform per gene, as
+compared to the highest expression of isoforms for that gene,
+using \code{iMatrixTxTPMGrp} data. This data is returned only
+if \code{iMatrixTxTPM} or \code{iMatrixTxTPMGrp} were supplied.
+(New to verion 0.0.61.900.)}
+\item{txPctMaxGrpAll}{Numeric matrix representing the
+percent max expression used for filtering, after applying
+\code{applyTxPctTo}: \code{"counts"} uses \code{txPctMaxTxGrpAll};
+\code{"TPM"} uses \code{txPctMaxTxTPMGrpAll}; \code{"both"} uses the higher
+of \code{txPctMaxTxGrpAll} and \code{txPctMaxTxTPMGrpAll}; \code{"either"}
+uses the lower of \code{txPctMaxTxGrpAll} and \code{txPctMaxTxTPMGrpAll}.}
 \item{txExprGrpAll}{Numeric matrix of sample group counts,
 exponentiated and rounded to integer values.}
 \item{txTPMExprGrpAll}{Numeric matrix of sample group TPM values,

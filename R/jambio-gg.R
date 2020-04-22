@@ -858,6 +858,9 @@ gene2gg <- function
 #' The input data is expected to have annotations similar to
 #' those provided by `closestExonToJunctions()`, specifically
 #' the columns `"nameFrom"` and `"nameTo"`, see examples below.
+#' When the input data does not contain columns `"nameFrom"` and
+#' and `"nameTo"`, the junctions are by default stacked by
+#' coordinates.
 #'
 #' @family jam plot functions
 #' @family jam GRanges functions
@@ -924,11 +927,11 @@ gene2gg <- function
 #' names(grExons) <- jamba::makeNames(rep("exon", length(grExons)),
 #'    suffix="");
 #'
-#' grJunc <- GRanges(seqnames=rep("chr1", 5),
-#'    ranges=IRanges::IRanges(start=c(200, 200, 400, 400, 750),
-#'       end=c(300, 500, 500, 900, 900)),
-#'    strand=rep("+", 5),
-#'    score=c(200, 50, 160, 40, 210));
+#' grJunc <- GRanges(seqnames=rep("chr1", 6),
+#'    ranges=IRanges::IRanges(start=c(200, 200, 400, 400, 750, 750),
+#'       end=c(300, 500, 500, 900, 900, 1200)),
+#'    strand=rep("+", 6),
+#'    score=c(200, 50, 160, 40, 210, 10));
 #' names(grJunc) <- jamba::makeNames(rep("junc", length(grJunc)));
 #'
 #' # quick plot showing exons and junctions using rectangles
@@ -944,7 +947,7 @@ gene2gg <- function
 #'    ggtitle("Schematic of exons and junctions GRanges");
 #'
 #' # add annotation for closest known exon
-#' grJunc <- closestExonToJunctions(grJunc, grExons)$spliceGRgene;
+#' grJunc <- closestExonToJunctions(grJunc, grExons, spliceBuffer=5)$spliceGRgene;
 #'
 #' # The un-stacked junctions
 #' grlJunc2df1 <- grl2df(grJunc,
@@ -978,7 +981,9 @@ gene2gg <- function
 #'
 #' ## Last example showing how two samples are kept separate
 #' grJunc_samples <- c(grJunc, grJunc);
-#' values(grJunc_samples)[,"sample_id"] <- rep(c("SampleA","SampleB"), each=5);
+#' values(grJunc_samples)[,"sample_id"] <- rep(c("SampleA","SampleB"),
+#'    each=length(grJunc));
+#' names(grJunc_samples) <- jamba::makeNames(values(grJunc_samples)[,"sample_id"]);
 #' grlJunc2df_samples <- grl2df(grJunc_samples,
 #'    scoreArcMinimum=20,
 #'    shape="junction");

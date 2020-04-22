@@ -33,6 +33,66 @@ sashimiAppUI <- function
    nbsp <- HTML("&nbsp;");
    nbsp3 <- HTML("&nbsp;&nbsp;&nbsp;");
 
+   jam_get <- function
+   (name, default, envir, verbose=FALSE, ...)
+   {
+      dotlist <- list(...);
+      if (name %in% names(dotlist)) {
+         if (verbose) {
+            jamba::printDebug("jam_get(): ",
+               "retrieved ", name, " from '", "...", "'");
+         }
+         return(dotlist[[name]]);
+      }
+      if (length(envir) > 0) {
+         if (is.list(envir)) {
+            for (ienv in envir) {
+               if (exists(name, envir=ienv)) {
+                  if (verbose) {
+                     jamba::printDebug("jam_get(): ",
+                        "retrieved ", name, " from '", "envir", "'");
+                  }
+                  return(get(name, envir=ienv));
+               }
+            }
+         } else {
+            if (exists(name, envir=envir)) {
+               if (verbose) {
+                  jamba::printDebug("jam_get(): ",
+                     "retrieved ", name, " from '", "envir", "'");
+               }
+               return(get(name, envir=envir));
+            }
+         }
+      }
+      if (exists(name)) {
+         if (verbose) {
+            jamba::printDebug("jam_get(): ",
+               "retrieved ", name, " from '", "get()", "'");
+         }
+         return(get(name));
+      }
+      return(default);
+   }
+
+   min_junction_reads <- jam_get("min_junction_reads", 100, verbose=TRUE, ...);
+   exon_range_selected <- jam_get("exon_range", c("exon1", "exon3"), verbose=TRUE, ...);
+   exon_range_choices_default <- provigrep(unique(gsub("_exon.*$", "_exon", exon_range_selected)),
+      values(flatExonsByGene@unlistData)$gene_nameExon);
+   exon_range_choices <- jam_get("exon_range_choices", exon_range_choices_default, verbose=TRUE, ...);
+   layout_ncol <- jam_get("layout_ncol", 1, verbose=TRUE, ...);
+   include_strand <- jam_get("layout_ncol", "both", verbose=TRUE, ...);
+   use_exon_names <- jam_get("use_exon_names", "coordinates", verbose=TRUE, ...);
+   share_y_axis <- jam_get("share_y_axis", TRUE, verbose=TRUE, ...);
+   if (any(c("TRUE", "1", "true", "yes") %in% share_y_axis)) {
+      share_y_axis <- TRUE;
+   } else {
+      share_y_axis <- FALSE;
+   }
+   if (!any(c("coordinates", "exon names") %in% use_exon_names)) {
+      use_exon_names <- "coordinates";
+   }
+
    # sidebar
    sidebar <- dashboardSidebar(
       sidebarMenu(
@@ -119,7 +179,7 @@ sashimiAppUI <- function
                         inputId="use_exon_names",
                         status="primary",
                         choices=c("coordinates", "exon names"),
-                        selected="coordinates",
+                        selected=use_exon_names,
                         checkIcon = list(
                            yes=icon("ok", lib="glyphicon")
                         ),
@@ -134,7 +194,7 @@ sashimiAppUI <- function
                         inputId="include_strand",
                         label="Show coverage by strand",
                         choices=c("+", "-", "both"),
-                        selected="both",
+                        selected=include_strand,
                         status="primary",
                         checkIcon=list(
                            yes=icon("ok", lib="glyphicon"))
@@ -146,7 +206,7 @@ sashimiAppUI <- function
                      numericInput(
                         inputId="min_junction_reads",
                         label="Minimum junction reads",
-                        value=100,
+                        value=min_junction_reads,
                         width="90%",
                         step=1,
                         min=1,
@@ -165,8 +225,9 @@ sashimiAppUI <- function
                      label="Gene exon range",
                      grid=TRUE,
                      force_edges=TRUE,
-                     choices=c("exon1", "exon2", "exon3"),
-                     selected=c("exon1", "exon3")
+                     choices=exon_range_choices,
+                     selected=exon_range_selected
+                     #selected=c("exon1", "exon3")
                   )
                ),
                conditionalPanel(
@@ -285,7 +346,7 @@ sashimiAppUI <- function
                   tags$b("Axis Settings:"),
                   shinyWidgets::prettyCheckbox(
                      inputId="share_y_axis",
-                     value=TRUE,
+                     value=share_y_axis,
                      icon=icon("check"),
                      status="success",
                      label="Shared y-axis range"
@@ -386,7 +447,7 @@ sashimiAppUI <- function
                      numericInput(
                         inputId="layout_ncol",
                         label="Number of columns for panel layout",
-                        value=1,
+                        value=layout_ncol,
                         width="90%",
                         step=1,
                         min=1,

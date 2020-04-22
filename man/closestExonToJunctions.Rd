@@ -10,6 +10,7 @@ closestExonToJunctions(
   flipNegativeStrand = TRUE,
   sampleColname = "sample_id",
   reportActualCoords = FALSE,
+  spliceBuffer = NULL,
   verbose = FALSE,
   ...
 )
@@ -30,6 +31,14 @@ be kept separate.}
 \item{reportActualCoords}{logical indicating whether to report
 genomic coordinates or transcriptome coordinates. (Work in
 progress.)}
+
+\item{spliceBuffer}{optional \code{integer} indicating the maximum distance
+from an exon in order for an exon to be assigned to the exon.
+When \code{spliceBuffer=NULL} the distance is ignored in value
+columns \code{c("nameFrom","nameTo")}. When \code{spliceBuffer} is supplied,
+and junction is greater than this distance, the value columns
+\code{c("nameFrom","nameTo")} will indicate the exon name appended
+to the distance.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 
@@ -74,6 +83,7 @@ Other jam GRanges functions:
 \code{\link{getGRcoverageFromBw}()},
 \code{\link{getGRgaps}()},
 \code{\link{grl2df}()},
+\code{\link{jam_isDisjoint}()},
 \code{\link{make_ref2compressed}()},
 \code{\link{sortGRL}()},
 \code{\link{spliceGR2junctionDF}()},

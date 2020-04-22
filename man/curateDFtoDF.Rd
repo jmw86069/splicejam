@@ -70,44 +70,27 @@ necessary to apply the proper substitution patterns in the
 order required. New columns created during the curation may also
 be used in later curation steps.
 
-Example curation.yaml YAML format:
+Example curation.yaml YAML format. Take note that there is
+required leading space in the format.
 
+\preformatted{
 From_ColnameA:
-To_ColnameC:
-\itemize{
-\item 
-\itemize{
-\item patternA
-\item replacementA
-}
-\item 
-\itemize{
-\item patternB
-\item replacementB
-To_ColnameD:
-}
-\item 
-\itemize{
-\item patternC
-\item replacementC
-}
-\item 
-\itemize{
-\item patternD
-\item replacementD
+  To_ColnameC:
+  - - patternA
+    - replacementA
+  - - patternB
+    - replacementB
+  To_ColnameD:
+  - - patternC
+    - replacementC
+  - - patternD
+    - replacementD
 From_ColnameB:
-To_ColnameE:
-}
-\item 
-\itemize{
-\item patternE
-\item replacementE
-}
-\item 
-\itemize{
-\item patternF
-\item replacementF
-}
+  To_ColnameE:
+  - - patternE
+    - replacementE
+  - - patternF
+    - replacementF
 }
 
 When the rule creates a colname already present in colnames(x),
@@ -115,14 +98,11 @@ then only values specifically matched by the substitution patterns
 are modified. For example, this technique can be used to modify
 the group assignment of a Sample_ID:
 
+\preformatted{
 Sample_ID:
-Group:
-\itemize{
-\item 
-\itemize{
-\item Sample1234
-\item WildType
-}
+  Group:
+  - - Sample1234
+    - WildType
 }
 
 The rules above will match \code{"Sample1234"} in the \code{"Sample_ID"} column

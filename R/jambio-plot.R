@@ -2216,6 +2216,10 @@ prepareSashimi <- function
 #'    junction-spanning sequence reads.
 #' @param scoreColname,sampleColname colnames in `values(juncGR)`
 #'    which define the junction score, and the `"sample_id"`.
+#' @param minScore optional `numeric` value indicating the minimum
+#'    score to use, which can be useful for example if there is
+#'    no matching `scoreColname`. Note that values are matched using
+#'    absolute value, but the original sign is maintained.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
@@ -2223,6 +2227,7 @@ internal_junc_score <- function
 (juncGR,
  scoreColname="score",
  sampleColname="sample_id",
+ minScore=0,
  verbose=FALSE,
    ...)
 {
@@ -2231,6 +2236,40 @@ internal_junc_score <- function
    if (verbose) {
       jamba::printDebug("internal_junc_score(): ",
          "Defining flank ends of each junction.");
+      jamba::printDebug("internal_junc_score(): ",
+         "sampleColname:",
+         sampleColname);
+      jamba::printDebug("internal_junc_score(): ",
+         "scoreColname:",
+         scoreColname);
+   }
+   if (!scoreColname %in% colnames(values(juncGR))) {
+      if (length(minScore) > 0) {
+         if (verbose) {
+            jamba::printDebug("internal_junc_score(): ",
+               "Defined temporary score column '",
+               scoreColname,
+               "' with minScore=",
+               minScore);
+         }
+         values(juncGR)[[scoreColname]] <- rep(minScore,
+            length.out=length(juncGR));
+      } else {
+         stop(paste0("The score column ",
+            scoreColname,
+            "' was not found, and no minScore was provided."));
+      }
+   }
+   if (length(minScore) > 0) {
+      if (any(abs(values(juncGR)[[scoreColname]]) < abs(minScore))) {
+         values(juncGR)[[scoreColname]] <- jamba::noiseFloor(abs(values(juncGR)[[scoreColname]]),
+            minimum=abs(minScore)) * sign(values(juncGR)[[scoreColname]] + 1e-99);
+         if (verbose) {
+            jamba::printDebug("internal_junc_score(): ",
+               "Applied minScore:",
+               minScore);
+         }
+      }
    }
    ## If there is no sampleColname column, ignore
    if (length(sampleColname) > 0 &&

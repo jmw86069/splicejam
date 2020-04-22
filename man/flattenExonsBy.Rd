@@ -14,6 +14,8 @@ flattenExonsBy(
   geneColname = "gene_name",
   cdsByTx = NULL,
   cdsByGene = NULL,
+  filterTwoStrand = FALSE,
+  exon_method = c("disjoin", "reduce"),
   verbose = FALSE
 )
 }
@@ -56,12 +58,33 @@ exons that only include CDS regions. This data is often produced
 from \code{TxDb} data using \code{GenomicFeatures::cdsBy(...,by="gene")}.
 Note this input is only used when \code{by="gene"}.}
 
+\item{filterTwoStrand}{\code{logical} indicating whether genes on multiple
+strands are removed during \code{assignGRLexonNames()} which assigns
+ordered exon numbers for each unique gene. Setting this to \code{FALSE}
+may cause exon numbers to be incorrect, but it will retain all
+genes. When this argument is \code{TRUE} any genes present on multiple
+strands are removed.}
+
+\item{exon_method}{\code{character} string indicating the method to use
+when combining transcript exons by gene: \code{"disjoin"} maintains
+the internal boundaries for overlapping exons, so overlapping
+exons of different width will be sub-divided; \code{"reduce"}
+combines overlapping exons into one larger exon that is not
+sub-divided. The \code{"reduce"} method is substantially faster,
+but loses the ability to match a specific exon region to its
+source transcript isoform(s). Note that when \code{cdsByExon} is
+also supplied, exons will be sub-divided at the point where
+an exon goes from CDS-overlapping, to non-coding.}
+
 \item{verbose}{logical indicating whether to print verbose output.}
 }
 \value{
-GRangesList named by gene when \code{by="gene"} or transcript when
-\code{by="tx"}, containing non-overlapping GRanges with exon names
-as described above.
+\code{GRangesList} with names dependent upon argument \code{by}:
+when \code{by="gene"} names are derived from values in \code{geneColname};
+when \code{by="tx"} names are derived from values in \code{txColname}.
+Each entry in the \code{GRangesList} will contain a series of
+non-overlapping \code{GRanges} each representing an exon. The exon
+names are described above.
 }
 \description{
 Flatten exons by gene or transcript
@@ -70,48 +93,90 @@ Flatten exons by gene or transcript
 This function takes as input:
 \itemize{
 \item \code{exonsByTx} as a \code{GRangesList} object
-of transcript exons named by the \code{transcript_id},
-\item \code{tx2geneDF} a \code{data.frame} with transcript-gene cross-reference,
+of transcript exons named by the \code{transcript_id}
+\item \code{tx2geneDF} a \code{data.frame} with transcript-gene cross-reference
 \item \code{detectedTx} an optional character vector of \code{transcript_id}
 values, used to subset the overall transcripts
 \item \code{cdsByTx} an optional \code{GRangesList} object, similar to \code{exonsByTx}
 except that it only contains the CDS portion of exons
 }
 
-This function groups exons together by gene, producing a flattened,
-disjoint (non-overlapping) set of exons, where exons are subdivided
-when there are multiple boundaries.
+When \code{by="gene"} this function groups exons from one or more
+transcript isoforms together by gene, to produce a single
+non-overlapping set of exons that describe each gene. When \code{cdsByTx}
+is provided, the output is useful in showing which regions of
+an exon is coding (CDS), and which regions are non-coding.
+When \code{exon_method="disjoin"} the output also maintains any
+internal exon boundaries wherever multiple exons overlap.
 
-Finally, it labels each exon using a defined naming scheme:
+When \code{by="tx"} this function is primarily used to combine
+\code{exonsByTx} with optional \code{cdsByTx} in order to sub-divide
+exons into regions which are coding (CDS) and non-coding.
+
+The use of \code{detectedTx} has appeared to be very helpful in
+reducing the overall complexity of the flattened gene-exon
+models, specifically reducing the number of low-quality
+predicted transcripts that are represented.
+
+Finally, this function calls \code{assignGRLexonNames()} to label
+exons using a defined naming scheme:
 \itemize{
-\item Each contiguous exon is numbered in order, starting at \code{1} for the
-first stranded exon for the gene, for example \code{exon1}, \code{exon2},
-\code{exon3}.
-\item When an exon is sub-divided, each section is labeled with
-an alphabetic suffix to indicate the order within that exon,
-for example \code{exon1a}, \code{exon1b}, \code{exon1c}.
+\item Contiguous exons are numbered in order, starting at \code{1} and
+increasing in the coding direction (strand-specific.) For
+example exons will be numbered: \code{exon1}, \code{exon2}, \code{exon3}.
+\item Exons which are sub-divided, are indicated with an lowercase
+character letter, for example: \code{exon1a}, \code{exon1b}, \code{exon1c}.
 }
 
 A text schematic is shown below:
 
-\verb{|=======|======|......|=======|.....|=======|=======|=======|}
+\preformatted{
+|=======|======|......|=======|.....|=======|=======|=======|
 
-\verb{|.exon1a|exon1b|......|.exon2.|.....|.exon3a|.exon3b|.exon3c|}
+|_exon1a|exon1b|......|_exon2_|.....|_exon3a|_exon3b|_exon3c|
+}
 
 Where
 \itemize{
 \item \verb{|====|} represents an exon,
 \item \verb{|====|====|} represents one contiguous exon with two
 sub-divided parts, and
-\item \code{.....} represents an intron.
+\item \verb{|.....|} represents an intron.
 }
 
 It is recommended but not required to supply \code{detectedTx},
 since it can greatly reduce the total number of transcripts.
-This step has two benefits: It can greatly simplify the
-resulting exon model based upon observed data, and it
-has the by-product of removing potentially erroneous
-transcripts which often has no supporting observed data.
+This step has two benefits:
+\enumerate{
+\item Supplying \code{detectedTx} can greatly simplify the
+resulting gene-exon models.
+\item Supplying \code{detectedTx} has the by-product of
+removing potentially erroneous transcripts from the
+source annotation, while also producing a finished result
+that is driven by observed data.
+}
+
+Potential problems with supplying \code{detectedTx}, and
+suggested work-around:
+\enumerate{
+\item If the \code{detectedTx} is incorrect, it may not include all
+genes defined in \code{tx2geneDF}. In principle, this effect is
+beneficial, by not producing flat gene-exon models for
+genes with no observed data.
+\itemize{
+\item Workaround: Note that \code{launchSashimiApp()} has
+the option to query \code{"All genes"}.
+\item An alternative workaround is to run \code{flattenExonsBy()}
+without supplying \code{detectedTx}, but providing \code{gene} so
+this method only produces flat gene-exons for the genes
+of interest.
+}
+\item The sashimi plot may represent exon coverage as if it were
+an intron, thus compressing the width of that coverage inside
+an intron context. However, the coverage will be displayed,
+giving a visual indicator that it may need to be reviewed
+in more detail.
+}
 }
 \seealso{
 Other jam RNA-seq functions: 

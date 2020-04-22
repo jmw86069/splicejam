@@ -8,6 +8,7 @@ internal_junc_score(
   juncGR,
   scoreColname = "score",
   sampleColname = "sample_id",
+  minScore = 0,
   verbose = FALSE,
   ...
 )
@@ -19,6 +20,11 @@ junction-spanning sequence reads.}
 
 \item{scoreColname, sampleColname}{colnames in \code{values(juncGR)}
 which define the junction score, and the \code{"sample_id"}.}
+
+\item{minScore}{optional \code{numeric} value indicating the minimum
+score to use, which can be useful for example if there is
+no matching \code{scoreColname}. Note that values are matched using
+absolute value, but the original sign is maintained.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 

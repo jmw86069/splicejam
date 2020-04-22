@@ -92,51 +92,30 @@ loaded into a list with this type of setup:
 
 The generic YAML format is as follows:
 
+\preformatted{
 NewColname_1:
-\itemize{
-\item 
-\itemize{
-\item patternA
-\item replacementA
-}
-\item 
-\itemize{
-\item patternB
-\item replacementB
+- - patternA
+  - replacementA
+- - patternB
+  - replacementB
 NewColname_2:
-}
-\item 
-\itemize{
-\item patternC
-\item replacementC
-}
+- - patternC
+  - replacementC
 }
 
 A specific example:
 
+\preformatted{
 Treatment:
-\itemize{
-\item 
-\itemize{
-\item LPS
-\item LPS
-}
-\item 
-\itemize{
-\item Control|cntrl|ctrl
-\item Control
+- - LPS
+  - LPS
+- - Control|cntrl|ctrl
+  - Control
 Genotype:
-}
-\item 
-\itemize{
-\item WT|wildtype
-\item WT
-}
-\item 
-\itemize{
-\item KO|knockout|knock
-\item KO
-}
+- - WT|wildtype
+  - WT
+- - KO|knockout|knock
+  - KO
 }
 }
 \examples{

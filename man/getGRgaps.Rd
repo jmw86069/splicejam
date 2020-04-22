@@ -39,6 +39,7 @@ Other jam GRanges functions:
 \code{\link{getGRLgaps}()},
 \code{\link{getGRcoverageFromBw}()},
 \code{\link{grl2df}()},
+\code{\link{jam_isDisjoint}()},
 \code{\link{make_ref2compressed}()},
 \code{\link{sortGRL}()},
 \code{\link{spliceGR2junctionDF}()},

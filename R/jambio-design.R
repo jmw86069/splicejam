@@ -974,6 +974,7 @@ strsplitOrdered <- function
 #'
 #' The generic YAML format is as follows:
 #'
+#' \preformatted{
 #' NewColname_1:
 #' - - patternA
 #'   - replacementA
@@ -982,9 +983,11 @@ strsplitOrdered <- function
 #' NewColname_2:
 #' - - patternC
 #'   - replacementC
+#' }
 #'
 #' A specific example:
 #'
+#' \preformatted{
 #' Treatment:
 #' - - LPS
 #'   - LPS
@@ -995,6 +998,7 @@ strsplitOrdered <- function
 #'   - WT
 #' - - KO|knockout|knock
 #'   - KO
+#' }
 #'
 #' @param x character vector as input
 #' @param curationL list containing curation rules, as described above, or
@@ -1250,8 +1254,10 @@ curateVtoDF <- function
 #' order required. New columns created during the curation may also
 #' be used in later curation steps.
 #'
-#' Example curation.yaml YAML format:
+#' Example curation.yaml YAML format. Take note that there is
+#' required leading space in the format.
 #'
+#' \preformatted{
 #' From_ColnameA:
 #'   To_ColnameC:
 #'   - - patternA
@@ -1269,16 +1275,19 @@ curateVtoDF <- function
 #'     - replacementE
 #'   - - patternF
 #'     - replacementF
+#' }
 #'
 #' When the rule creates a colname already present in colnames(x),
 #' then only values specifically matched by the substitution patterns
 #' are modified. For example, this technique can be used to modify
 #' the group assignment of a Sample_ID:
 #'
+#' \preformatted{
 #' Sample_ID:
 #'   Group:
 #'   - - Sample1234
 #'     - WildType
+#' }
 #'
 #' The rules above will match `"Sample1234"` in the `"Sample_ID"` column
 #' of x, and assign `"WildType"` to the `"Group"` column only for

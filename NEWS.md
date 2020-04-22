@@ -1,8 +1,62 @@
 # splicejam version 0.0.61.900
 
+## Bug fixes
+
+* `grl2df()` was not properly stacking junctions in sashimi plots,
+the problem was caused by `closestExonToJunctions()` which annotates
+junctions by the nearest compatible exon boundary, with no regard to
+distance from the exon. The `stackJunctions()` function simply
+stacks based upon `"nameFrom"` and `"nameTo"`, so junctions that
+land between exons were being stacked together with junctions that
+properly align those exons. Now `closestExonToJunctions()` has
+optional argument `spliceBuffer`, when supplied a distance, exons
+beyond that distance are annotated by `exonName.distance`. Novel
+junctions will stack only when they share the same distance from
+an annotated exon.
+
+## new functions
+
+* `jam_isDisjoint()` is a rapid alternative to
+`GenomicRanges::isDisjoint()`, that tests `GRanges`
+or `GRangesList` for disjoint (non-overlapping) ranges.
+In one test with large `GRangesList`, the duration was
+reduced from 100+ seconds to 0.5 seconds.
+
 ## changes to existing functions
 
-Overall the changes below are intended to help set up
+* Updated help documentation for `assignGRLexonNames()`.
+* Added `\preformatted` tags to help docs for `curateVtoDF()`
+and `curateDFtoDF()`, otherwise the examples are not properly
+formatted with whitespace.
+* `internal_junc_score()` new argument `minScore=0` will return
+this minimum score, especially useful if for some reason the
+input data contains no valid score colname. Otherwise the `minScore`
+is applied to the absolute value of the score, keeping the
+original sign. (Zero becomes positive.)
+* `detectedTxInfo()` was updated to handle being supplied both
+`Gene` and `Tx` values, and a new optional argument `Groups`
+to allow returning a subset of group colnames.
+* `defineDetectedTx()` new argument `applyTxPctTo` defines which
+expression data to use (count data or TPM abundance data) for the
+percent max calculation. The purpose of this new argument
+is to specify whether to apply the percent max threshold to TPM,
+counts, or a combination of the two:
+
+   * `"TPM"` uses only TPM data for percent max thresholding
+   * `"counts"` uses only count data
+   * `"either"` uses the higher percentage from TPM and count
+   * `"both"` uses the lower percentage from TPM and count
+   
+As a result, the output is also expanded to include list elements:
+
+   * `"txPctMaxTxGrpAll"`
+   * `"txPctMaxTxTPMGrpAll"`, in addition to
+   * `"txPctMaxGrpAll"` still represents the data used for filtering,
+   modified relative to `applyTxPctTo`.
+
+## changes to R-shiny functions
+
+Several changes were intended to help set up
 custom R-shiny apps, with specific default settings different
 than the Farris et al defaults.
 
@@ -18,21 +72,70 @@ and define default gene more robustly.
 respect `"gene"` from the environment to use as the first gene
 loaded, instead of using `"Gria1"` which is intended only for
 the Farris et al data.
-* `launchSashimiApp()` now properly handles user-configured
+* `launchSashimiApp()` now properly handles server-configured
 `options` such as width, server, port, and other R-shiny app
-options.
+options. Most important are server and port, which allows the
+R-shiny app to be run manually on ports above 8000 if necessary.
+* `launchSashimiApp()` now properly initializes with variables
+from the active R environment. More variables will be converted,
+along with robust error checking. For now, these variables are
+available:
 
-In future we may create a few Gencode R packages that contain
-the basic data pre-assembled. It takes a few minutes to set up
-a new Gencode, including downloading the gtf.gz file, but this
-process only needs to happen once.
+   * `gene` which defines the first gene displayed
+   * `sample_id` which defined the set of sample_id values to display
+   * `min_junction_reads` - minimum junction read threshold
+   * `use_exon_names` - one of `c("coordinates", "exon names")`
+   * `exon_range_selected` - two gene_nameExon values
+   * `exon_range_choices_default` - exon labels available for default gene
+   * `layout_ncol` - number of columns in layout
+   * `include_strand` - one of `c("+","-","both")` strands to display
+   * `share_y_axis` - one of `c(TRUE, FALSE)` whether to use shared y-axis range
+   
+* `assignGRLexonNames()` was updated to be more tolerant of "problematic
+GTF file" data, specifically to allow optionally keeping genes
+that are found on multiple strands, which previously were removed
+by default. The idea of keeping a multi-strand gene is not
+ideal when thinking about sashimi plots, but can be useful when
+considering gene exons, especially when genome assembly may also
+be unfinished. Tools such as featureCounts will generate counts across
+all exons for a gene, regardless of strand and chromosome, so the output
+from `assignGRLexonNames()` will be compatible. The argument
+`filterTwoStrand=FALSE` will keep features present on multiple
+strands (or chromosomes.)
+* `assignGRLexonNames()` now calls new function `jam_isDisjoint()`
+to test for disjoin features. For a large test `GRangesList` object,
+the duration was reduced from 60 seconds to 0.5 second.
+* `flattenExonsBy()` was also updated with new argument `filterTwoStrand`
+which is passed to `assignGRLexonNames()` after exons have been
+flattened. Use `filterTwoStrand=FALSE` to keep all gene features even
+when they are present on multiple strands or chromosomes.
+* `flattenExonsBy()` new argument `exon_method` which has two options:
 
-* `txdb` -- Bioconductor does not (as of April 2020) provide
-txdb packages for Gencode; they provide them for UCSC knownGenes.
-* `tx2geneDF` -- gene-to-transcript relationship
-* `flatExonsByGene`, `flatExonsByTx`, derived from `cdsByTx`
-and `exonsByTx` so the UTR and CDS regions can be properly
-displayed.
+   * `exon_method="disjoin"` is the default, which combines transcript
+   exons per gene and maintains distinct boundaries, in case an
+   exon is longer in one isoform than another, it is subdivided into
+   something like `c("GENE_exon1a", "GENE_exon1b")`.
+   * `exon_method="reduce"` is a new alternative, it uses
+   `GenomicRanges::reduce()` to combine exons across transcripts, and
+   therefore ignores any subdivision of exons. In the same example above
+   it would produce only `"GENE_exon1"`. The main benefit from this
+   option is that it is markedly faster for genome-wide data preparation,
+   where `"disjoin"` may take 2 to 5 minutes, `"reduce"` may only take
+   several seconds.
+
+## Future R packages for Gencode data
+
+Setting up a new sashimi plot is not crystal clear, and most
+preparatory steps can be done once and never again (for each
+version of Gencode.) Ideally, install an R package that contains:
+
+* exonsByTx
+* cdsByTx
+* flatExonsByGene (all genes?)
+* flatExonsByTx (all transcripts?)
+* tx2geneDF
+(with fix for mis-matched transcript_id between GTF and FASTA from Gencode)
+* `txdb` (optional, but not provided by Bioconductor currently)
 
 # splicejam version 0.0.60.900
 

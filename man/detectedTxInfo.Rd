@@ -4,18 +4,37 @@
 \alias{detectedTxInfo}
 \title{Summarize detected transcript results}
 \usage{
-detectedTxInfo(detectedTxL, Gene = NULL, Tx = NULL, ...)
+detectedTxInfo(
+  detectedTxL,
+  Gene = NULL,
+  Tx = NULL,
+  Groups = NULL,
+  detectedOnly = NULL,
+  ...
+)
 }
 \arguments{
-\item{detectedTxL}{list output from \code{defineDetectedTx()}}
+\item{detectedTxL}{\code{list} output from \code{defineDetectedTx()}}
 
-\item{Gene}{optional character vector of one or more genes
+\item{Gene}{optional \code{character} vector of one or more genes
 of interest, used to find transcript_id entries in the
 \code{detectedTxL} input data. If not supplied, \code{Tx} is expected.}
 
-\item{Tx}{optional character vector used to subset summary data,
+\item{Tx}{optional \code{character} vector used to subset summary data,
 usually intended to keep rows in a specific order for a
 given set of transcripts.}
+
+\item{Groups}{optional \code{character} vector used to subset the
+groups (colnames) returned for each \code{data.frame}.}
+
+\item{detectedOnly}{\code{NULL} or \code{logical} indicating whether
+to restrict \code{Tx} to detected transcripts, defined by
+\code{detectedTxL$detectedTx}. When:\preformatted{* `detectedOnly=NULL` then `Tx` is used as-is.
+* `detectedOnly=TRUE` and `Tx=NULL` then `Tx` uses all detected transcripts from `detectedTxL$detectedTx`.
+* `detectedOnly=TRUE` and `Tx` is supplied, it is restricted to detected transcripts from `detectedTxL$detectedTx`.
+* `detectedOnly=FALSE` and `Tx=NULL` then `Tx` uses all transcripts.
+* `detectedOnly=FALSE` and `Tx` is supplied, it is used as-is.
+}}
 
 \item{...}{additional arguments are ignored.}
 }
@@ -30,6 +49,12 @@ Summarize detected transcript results
 \details{
 This function provides a simple summary of the results of
 \code{defineDetectedTx()}, typically for a given gene of interest.
+
+By default, either \code{Gene} or \code{Tx} must be supplied, however
+to return data for all genes, use either \code{detectedOnly=TRUE}
+to return data only for detected transcripts, or
+\code{detectedOnly=FALSE} to return all data including transcripts
+that are not determined to be detected.
 }
 \seealso{
 Other jam RNA-seq functions: 
