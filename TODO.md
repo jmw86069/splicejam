@@ -1,5 +1,59 @@
 # TODO for splicejam
 
+## 23apr2020 todo items
+
+* Consider adding transcript selection to the left menu items
+* Workflow:
+
+   * Idea is to allow manually selecting subset or superset of
+   transcripts to include in the flatExonsByGene, partly to 
+   allow removing transcripts that mess up the overall gene model,
+   partly to allow showing a highlighted subset of transcripts
+   for example for diffSplice/DEXseq splice hits. Sometimes a
+   gene has 8 detected isoforms, but the predominant change
+   involves only 2 or 3 of those isoforms. Would be great to
+   be able to create the ideal subset.
+   * (Note this workflow is already possible with manual
+   steps outside the R-shiny app, but who wants to do that?)
+
+* Allow expanding the x-axis genomic region being displayed, beyond
+the gene body. Note this step requires defining the compression
+to use for upstream region -- for example should it be 10:1
+compressed in visual space?
+* Note the genomic coordinates are not being displayed below
+certain genes (human GAS5) -- why not? It might be because
+this gene has one contiguous exon due to some noisy unspliced
+isoforms. The coordinate labeling function might be trying to
+use only the outside coordinate. Could adjust that function to
+use either the edge, or if two labels are separated by more then
+5% the total exon width, display that label.
+
+   * Genomic axis label logic for compressed GRanges coordinates:
+   Start by labeling outer edge of each exon, then internal exon
+   boundaries. Add each label if it will be at least 5% distant
+   from another label, based upon the total exon width, and total
+   number of gaps.
+   * Review new ggplot2 axis labeling rules and whether we can rely
+   upon ggplot2 to hide axis labels that would otherwise overlap.
+
+* Allow manually setting one common y-axis range. Currently only
+possible to adjust the y-axis by using interactive plotly, which
+loses some important junction labeling.
+* Allow displaying any gene-exon model that sits inside the viewing
+range, in case there is an interesting internal feature such as a miRNA.
+This enhancement is the predecessor for supplying a genomic region
+and having the sashimi plot generated in that region regardless of
+genes involved. Note that junction strandedness will need to be
+more fluid -- currently the junction strand is fixed consistent with
+the target gene, mostly because STAR junction strandedness is
+sometimes mis-annotated (i.e. 100% coverage on "+" strand, but one
+junction might be labeled "-" strand.)
+* Pie in the sky idea: some way to save per-gene settings, like
+coordinate range, axis ranges, etc. So when someone goes to "Gria1"
+they get the best default Gria1 view they can get. When they go to
+"Smarca4" they get the best default Smarca4 view they can get.
+
+
 ## 21apr2020 todo items
 
 * It looks like junction stacking on negative strand is applied

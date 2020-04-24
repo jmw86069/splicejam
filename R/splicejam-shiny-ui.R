@@ -74,6 +74,14 @@ sashimiAppUI <- function
       }
       return(default);
    }
+   jam_as_logical <- function(x) {
+      if (any(c("TRUE", "1", "true", "yes") %in% x)) {
+         x <- TRUE;
+      } else {
+         x <- FALSE;
+      }
+      return(x);
+   }
 
    min_junction_reads <- jam_get("min_junction_reads", 100, verbose=TRUE, ...);
    exon_range_selected <- jam_get("exon_range", c("exon1", "exon3"), verbose=TRUE, ...);
@@ -83,15 +91,19 @@ sashimiAppUI <- function
    layout_ncol <- jam_get("layout_ncol", 1, verbose=TRUE, ...);
    include_strand <- jam_get("layout_ncol", "both", verbose=TRUE, ...);
    use_exon_names <- jam_get("use_exon_names", "coordinates", verbose=TRUE, ...);
-   share_y_axis <- jam_get("share_y_axis", TRUE, verbose=TRUE, ...);
-   if (any(c("TRUE", "1", "true", "yes") %in% share_y_axis)) {
-      share_y_axis <- TRUE;
-   } else {
-      share_y_axis <- FALSE;
-   }
+   share_y_axis <- jam_as_logical(jam_get("share_y_axis", TRUE, verbose=TRUE, ...));
    if (!any(c("coordinates", "exon names") %in% use_exon_names)) {
       use_exon_names <- "coordinates";
    }
+   show_gene_model <- jam_as_logical(
+      jam_get("show_gene_model", TRUE, verbose=TRUE, ...));
+   show_tx_model <- jam_as_logical(
+      jam_get("show_tx_model", TRUE, verbose=TRUE, ...));
+   if (show_tx_model) {
+      show_gene_model <- TRUE;
+   }
+   show_detected_tx <- jam_as_logical(
+      jam_get("show_detected_tx", TRUE, verbose=TRUE, ...));
 
    # sidebar
    sidebar <- dashboardSidebar(
@@ -354,7 +366,7 @@ sashimiAppUI <- function
                   tags$b("Exon Models:"),
                   shinyWidgets::prettyCheckbox(
                      inputId="show_gene_model",
-                     value=TRUE,
+                     value=show_gene_model,
                      icon=icon("check"),
                      status="warning",
                      label="Show gene model"
@@ -365,7 +377,7 @@ sashimiAppUI <- function
                      shinyWidgets::prettyCheckbox(
                         inputId="show_tx_model",
                         inline=TRUE,
-                        value=FALSE,
+                        value=show_tx_model,
                         icon=icon("check"),
                         status="warning",
                         label="Show transcripts"
@@ -377,7 +389,7 @@ sashimiAppUI <- function
                         shinyWidgets::prettyCheckbox(
                            inputId="show_detected_tx",
                            inline=TRUE,
-                           value=TRUE,
+                           value=show_detected_tx,
                            icon=icon("check"),
                            status="warning",
                            label="Detected only"
