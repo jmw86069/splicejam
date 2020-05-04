@@ -24,6 +24,11 @@ reduced from 100+ seconds to 0.5 seconds.
 
 ## changes to existing functions
 
+* `makeTx2geneFromGtf()` was optimized again, substantially
+reducing the time and memory required. The rownames returned
+are also defined by values in colname `"transcript_id"` if
+it or similar colname exists, passed through `jamba::makeNames()`
+to ensure they are unique.
 * Updated help documentation for `assignGRLexonNames()`.
 * Added `\preformatted` tags to help docs for `curateVtoDF()`
 and `curateDFtoDF()`, otherwise the examples are not properly

@@ -125,14 +125,27 @@ makeTx2geneFromGtf <- function
          data.table=FALSE);
    }
    ## Subset to clear some memory
+   colnames(gtfDF) <- makeNames(rep("V", ncol(gtfDF)), suffix="");
    gtfDF <- subset(gtfDF,
       gtfDF[[3]] %in% c(geneFeatureType,
          txFeatureType));
 
+   ## Make data unique by chromosome,name,source,annotation
+   ## data in other columns is not relevant here
+   ## this step reduces 90% rows in many files
+   dupe_rows <- duplicated(gtfDF[,c(1,2,3,9),drop=FALSE]);
+   gtfDF <- gtfDF[!dupe_rows,,drop=FALSE];
+
    ## Determine which rows are gene and transcript
+   ## TODO: recognize when geneRows,txRows are identical
+   ## then process them all in only one step
    geneRows <- (gtfDF[[3]] %in% geneFeatureType);
    txRows <- (gtfDF[[3]] %in% txFeatureType);
-
+   txAttrNames <- unique(c(txAttrNames,
+      geneAttrNames));
+   if (all(txRows == geneRows)) {
+      geneAttrNames <- NULL;
+   }
 
    ## gene attributes
    geneM <- do.call(cbind, lapply(nameVector(geneAttrNames),
@@ -142,11 +155,21 @@ makeTx2geneFromGtf <- function
                "gene attributes:",
                attrName);
          }
-         attrGrep <- paste0('^.*', attrName, ' ["]([^"]+)["].*$');
-         if (jamba::igrepHas(attrGrep, gtfDF[geneRows,][[9]])) {
+         ## new grep enforces boundary condition
+         attrGrep <- paste0('(^.+;[ ]*|^)', attrName, ' ["]([^"]+)["].*$');
+
+         ## only test up to the first 2000 rows
+         if (jamba::igrepHas(attrGrep, head(gtfDF[geneRows,9], 2000))) {
             attrValues <- gsub(attrGrep,
-               "\\1",
+               "\\2",
                gtfDF[geneRows,,drop=FALSE][[9]]);
+            attr_unchanged <- (attrValues == gtfDF[geneRows,9]);
+            if (any(attr_unchanged)) {
+               jamba::printDebug("makeTx2geneFromGtf() :",
+                  "Some attrValues were empty for attrName:",
+                  attrName);
+               attrValues[attr_unchanged] <- "";
+            }
          } else {
             if (verbose) {
                jamba::printDebug("makeTx2geneFromGtf(): ",
@@ -155,21 +178,31 @@ makeTx2geneFromGtf <- function
             }
             attrValues <- NULL;
          }
+         attrValues;
       }));
+   geneM <- unique(geneM);
 
    ## transcript attributes
-   txM <- do.call(cbind, lapply(nameVector(c(txAttrNames,geneAttrNames)),
+   txM <- do.call(cbind, lapply(nameVector(txAttrNames),
       function(attrName){
          if (verbose) {
             jamba::printDebug("makeTx2geneFromGtf(): ",
                "tx attributes:",
                attrName);
          }
-         attrGrep <- paste0('^.*', attrName, ' ["]([^"]+)["].*$');
+         ## new grep enforces boundary condition
+         attrGrep <- paste0('(^.+;[ ]*|^)', attrName, ' ["]([^"]+)["].*$');
          if (jamba::igrepHas(attrGrep, gtfDF[txRows,][[9]])) {
             attrValues <- gsub(attrGrep,
-               "\\1",
+               "\\2",
                gtfDF[txRows,,drop=FALSE][[9]]);
+            attr_unchanged <- (attrValues == gtfDF[geneRows,9]);
+            if (any(attr_unchanged)) {
+               jamba::printDebug("makeTx2geneFromGtf() :",
+                  "Some attrValues were empty for attrName:",
+                  attrName);
+               attrValues[attr_unchanged] <- "";
+            }
          } else {
             if (verbose) {
                jamba::printDebug("makeTx2geneFromGtf(): ",
@@ -178,15 +211,26 @@ makeTx2geneFromGtf <- function
             }
             attrValues <- NULL;
          }
+         attrValues;
       }));
-   if (verbose) {
-      jamba::printDebug("makeTx2geneFromGtf() :",
-         "Merging gene and transcript annotations.");
+   if (length(geneM) > 0) {
+      if (verbose) {
+         jamba::printDebug("makeTx2geneFromGtf() :",
+            "Merging gene and transcript annotations.");
+      }
+      txM <- jamba::mergeAllXY(geneM, txM);
    }
-   return(merge(geneM,
-      txM,
-      all.x=TRUE,
-      all.y=TRUE));
+   txid_colname <- head(jamba::provigrep(
+      c("transcript[_. ]*id", "tx[_. ]*id",
+         "transcript[_. ]*name", "tx[_. ]*name"),
+      colnames(txM)), 1);
+   if (length(txid_colname) == 1) {
+      rownames(txM) <- jamba::makeNames(txM[,txid_colname],
+         ...);
+   }
+   return(data.frame(check.names=FALSE,
+      stringsAsFactors=FALSE,
+      txM));
 }
 
 #' tx2ale: detect alternative last exons (ALE) from transcript data

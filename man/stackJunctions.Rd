@@ -161,9 +161,9 @@ ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name)) +
 
 ## Last example showing how two samples are kept separate
 grJunc_samples <- c(grJunc, grJunc);
-values(grJunc_samples)[,"sample_id"] <- rep(c("SampleA","SampleB"), each=5);
-values(grJunc_samples)$score <- sample(values(grJunc_samples)$score);
-names(grJunc_samples) <- jamba::makeNames(names(grJunc_samples));
+values(grJunc_samples)[,"sample_id"] <- rep(c("SampleA","SampleB"),
+   each=length(grJunc));
+names(grJunc_samples) <- jamba::makeNames(values(grJunc_samples)[,"sample_id"]);
 grlJunc2df_samples <- grl2df(grJunc_samples,
    scoreArcMinimum=20,
    shape="junction");
