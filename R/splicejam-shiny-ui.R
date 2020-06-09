@@ -83,11 +83,34 @@ sashimiAppUI <- function
       return(x);
    }
 
-   min_junction_reads <- jam_get("min_junction_reads", 100, verbose=TRUE, ...);
-   exon_range_selected <- jam_get("exon_range", c("exon1", "exon3"), verbose=TRUE, ...);
-   exon_range_choices_default <- provigrep(unique(gsub("_exon.*$", "_exon", exon_range_selected)),
-      values(flatExonsByGene@unlistData)$gene_nameExon);
-   exon_range_choices <- jam_get("exon_range_choices", exon_range_choices_default, verbose=TRUE, ...);
+   min_junction_reads <- jam_get("min_junction_reads",
+      100,
+      verbose=TRUE,
+      ...);
+   exon_range_choices_default <- jamba::mixedSort(
+      jamba::vigrep("_exon",
+      #jamba::provigrep(unique(gsub("exon.*$", "exon", exon_range_selected)),
+            values(flatExonsByGene@unlistData)$gene_nameExon));
+   if (exists("gene") && length(gene) == 1 && nchar(gene) > 0) {
+      exon_range_choices_default <- jamba::mixedSort(
+         jamba::vigrep(paste0(gene, "_"),
+            exon_range_choices_default));
+   }
+   exon_range_choices <- jam_get("exon_range_choices",
+      exon_range_choices_default,
+      verbose=TRUE,
+      ...);
+   exon_range_selected_default <- c(
+      head(exon_range_choices, 1),
+      tail(exon_range_choices, 1));
+   exon_range_selected <- jam_get("exon_range",
+      exon_range_selected_default,
+      verbose=TRUE,
+      ...);
+
+   #cat(jamba::cPaste(c("exon_range_choices:", exon_range_choices), sep="\n"),
+   #   file="debug_output.txt");
+
    layout_ncol <- jam_get("layout_ncol", 1, verbose=TRUE, ...);
    include_strand <- jam_get("layout_ncol", "both", verbose=TRUE, ...);
    use_exon_names <- jam_get("use_exon_names", "coordinates", verbose=TRUE, ...);
@@ -232,7 +255,7 @@ sashimiAppUI <- function
                ),
                conditionalPanel(
                   condition="input.use_exon_names == 'exon names'",
-                  sliderTextInput(
+                  shinyWidgets::sliderTextInput(
                      inputId="exon_range",
                      label="Gene exon range",
                      grid=TRUE,

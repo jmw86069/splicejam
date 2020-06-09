@@ -38,7 +38,7 @@ sashimiAppServer <- function
    ## Update gene_choices
    get_gene_choices <- reactive({
       search_genelist <- input$search_genelist;
-      if (length(search_genelist) > 0 && igrepHas("detected", search_genelist)) {
+      if (length(search_genelist) > 0 && jamba::igrepHas("detected", search_genelist)) {
          gene_choices <- detectedGenes;
       } else {
          gene_choices <- jamba::mixedSort(unique(
@@ -52,7 +52,10 @@ sashimiAppServer <- function
          get_gene_choices();
       }, error=function(e){
          detectedGenes;
-      })
+      });
+      jamba::printDebug("sashimiAppServer(): ",
+         "length(gene_choices):",
+         jamba::formatInt(length(gene_choices)));
       default_gene <- head(
          jamba::provigrep(c("Gria1",
             "Ntrk2",
@@ -61,6 +64,9 @@ sashimiAppServer <- function
             "^[A-Z][a-z]{3}", "."),
             gene_choices),
          1);
+      jamba::printDebug("sashimiAppServer(): ",
+         c("default_gene:",
+            default_gene), sep="");
       if (exists("gene")) {
          new_default_gene <- intersect(get("gene"),
             gene_choices);
@@ -69,8 +75,8 @@ sashimiAppServer <- function
          }
       }
       jamba::printDebug("sashimiAppServer(): ",
-         "default_gene:",
-         default_gene);
+         c("default_gene:",
+            default_gene), sep="");
       return(default_gene);
    }
    observe({
@@ -222,6 +228,9 @@ sashimiAppServer <- function
          if ("gene_nameExon" %in% colnames(values(flatExonsByGene1[[gene]]))) {
             exon_names <- jamba::mixedSort(
                values(flatExonsByGene1[[gene]])$gene_nameExon);
+            jamba::printDebug("sashimiAppServer(): ",
+               "exon_names:",
+               exon_names);
          } else {
             exon_names <- NULL;
          }
@@ -243,7 +252,9 @@ sashimiAppServer <- function
             updateSliderTextInput(session,
                "exon_range",
                choices=exon_names,
-               selected=c(head(exon_names, 1), tail(exon_names, 1))
+               selected=c(
+                  head(exon_names, 1),
+                  tail(exon_names, 1))
             );
          }
       }

@@ -1298,7 +1298,10 @@ combineGRcoverage <- function
    keep_gr_colnames <- setdiff(colnames(GenomicRanges::values(gr)),
       covNames);
    gr <- gr[,keep_gr_colnames];
-   attr(gr, "covNames") <- names(covNamesL);
+
+   if (exists("covNamesL")) {
+      attr(gr, "covNames") <- names(covNamesL);
+   }
    attr(gr, "covName") <- jamba::cPasteU(covNameL);
    attr(gr, "some_null") <- some_null;
    return(gr);

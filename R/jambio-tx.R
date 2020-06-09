@@ -97,7 +97,7 @@ makeTx2geneFromGtf <- function
       stop(paste0("makeTx2geneFromGtf() requires the jamba package."));
    }
    if (verbose) {
-      printDebug("makeTx2geneFromGtf() :",
+      jamba::printDebug("makeTx2geneFromGtf() :",
          "reading GTF file:",
          GTF);
    }
@@ -435,13 +435,13 @@ tx2ale <- function
          igrepHas("GRangesList", class(threeUtrGRL))) {
       ## use threeUtrGRL as-is
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Using threeUtrGRL as-is.");
       }
    } else if (length(txdb) > 0) {
       ## use txdb
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Creating threeUtrGRL from txdb.");
       }
       threeUtrGRL <- GenomicFeatures::threeUTRsByTranscript(txdb,
@@ -450,7 +450,7 @@ tx2ale <- function
    } else if (length(gtf) > 0) {
       ## use GTF file
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Creating txdb from gtf.");
       }
       #{startTimer();
@@ -459,7 +459,7 @@ tx2ale <- function
       #stopTimer();}
       ## Extract 3'UTR
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Creating txdb from gtf.");
       }
       threeUtrGRL <- GenomicFeatures::threeUTRsByTranscript(txdb,
@@ -474,7 +474,7 @@ tx2ale <- function
          stop("gencode2ale() requires either a GTF file or tx2geneDF data.frame");
       }
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Creating tx2geneDF from gtf file.");
       }
       tx2geneDF <- makeTx2geneFromGtf(GTF=gtf);
@@ -487,7 +487,7 @@ tx2ale <- function
    if (length(detectedTx) == 0) {
       detectedTx <- names(threeUtrGRL);
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "No detectedTx supplied, keeping all ",
             formatInt(length(detectedTx)),
             " transcripts.");
@@ -496,7 +496,7 @@ tx2ale <- function
       detectedTx <- intersect(detectedTx,
          names(threeUtrGRL));
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Keeping ",
             formatInt(length(detectedTx)),
             " transcripts found in detectedTx.");
@@ -511,7 +511,7 @@ tx2ale <- function
    ## Convert 3'UTR exons to ranges
    if (aleMethod %in% "range") {
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Using ",
             "full 3'UTR range",
             " to determine ALEs.");
@@ -519,7 +519,7 @@ tx2ale <- function
       threeUtrGRLdetRange <- range(threeUtrGRLdet);
    } else if (aleMethod %in% "first") {
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Using ",
             "first 3'UTR stranded exon",
             " to determine ALEs.");
@@ -540,7 +540,7 @@ tx2ale <- function
    ####################################################
    ## Re-aggregate by gene
    if (verbose) {
-      printDebug("gencode2ale(): ",
+      jamba::printDebug("gencode2ale(): ",
          "Splitting ranges by gene.");
    }
    threeUtrGRLdetGeneGRL <- GenomicRanges::split(
@@ -548,7 +548,7 @@ tx2ale <- function
       f=GenomicRanges::values(threeUtrGRLdetRange@unlistData)[,"gene_name"]);
    ## Reduce (melt) 3'UTR ranges, combining overlapping ranges per gene
    if (verbose) {
-      printDebug("gencode2ale(): ",
+      jamba::printDebug("gencode2ale(): ",
          "Reducing ranges.");
    }
    threeUtrGRLdetGeneGRLred <- GenomicRanges::reduce(threeUtrGRLdetGeneGRL);
@@ -556,7 +556,7 @@ tx2ale <- function
    ####################################################
    ## Annotate transcripts to the reduced 3'UTR ranges
    if (verbose) {
-      printDebug("gencode2ale(): ",
+      jamba::printDebug("gencode2ale(): ",
          "Annotating reduced ranges with transcript_id per gene.");
    }
    threeUtrGRLdetGeneGRLred2 <- annotateGRLfromGRL(
@@ -567,9 +567,9 @@ tx2ale <- function
    ####################################################
    ## Assign ALE numbers in stranded order for each gene
    if (verbose) {
-      printDebug("gencode2ale(): ",
+      jamba::printDebug("gencode2ale(): ",
          "Assigning stranded numbers to the ranges.");
-      printDebug("head(threeUtrGRLdetGeneGRLred2):");
+      jamba::printDebug("head(threeUtrGRLdetGeneGRLred2):");
       print(head(threeUtrGRLdetGeneGRLred2));
    }
    threeUtrGRLdetGeneGRLred2 <- assignGRLexonNames(
@@ -579,7 +579,7 @@ tx2ale <- function
       suffix="_ale",
       verbose=verbose);
    if (verbose) {
-      printDebug("gencode2ale(): ",
+      jamba::printDebug("gencode2ale(): ",
          "Assigned stranded numbers to the ranges.");
    }
    names(threeUtrGRLdetGeneGRLred2@unlistData) <-
@@ -592,7 +592,7 @@ tx2ale <- function
    GencodeALEmin2 <- threeUtrGRLdetGeneGRLred2[
       S4Vectors::elementNROWS(threeUtrGRLdetGeneGRLred2) > 1];
    if (verbose) {
-      printDebug("gencode2ale(): ",
+      jamba::printDebug("gencode2ale(): ",
          "Filtered ",
          formatInt(length(threeUtrGRLdetGeneGRLred2)),
          " genes to ",
@@ -606,7 +606,7 @@ tx2ale <- function
    ####################################################
    ## Create a tx-to-ALE xref using multi-ALE genes
    if (verbose) {
-      printDebug("gencode2ale(): ",
+      jamba::printDebug("gencode2ale(): ",
          "Creating transcript-to-ALE xref for multi-range genes.");
    }
    ale2txL <- strsplit(jamba::nameVector(
@@ -622,7 +622,7 @@ tx2ale <- function
       ## Note: data is exponentiated before taking the sum,
       ## then is log2-transformed
       if (verbose) {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Aggregating transcript abundances by ranges.");
       }
       if (all(names(tx2ale) %in% rownames(iMatrix))) {
@@ -633,7 +633,7 @@ tx2ale <- function
                   shrinkFunc=function(x){sum(x, na.rm=TRUE)},
                   returnClass="matrix"));
       } else {
-         printDebug("gencode2ale(): ",
+         jamba::printDebug("gencode2ale(): ",
             "Warning: ",
             "names(tx2ale) were not present in all rownames(iMatrix).",
             fgText=c("orange","red"));
@@ -870,7 +870,7 @@ defineDetectedTx <- function
       ## Optionally apply log2(1+x) transformation
       if (max(iMatrixTx, na.rm=TRUE) >= 50) {
          if (verbose) {
-            printDebug("defineDetectedTx(): ",
+            jamba::printDebug("defineDetectedTx(): ",
                "Applying log2(1+x) transform to:",
                "iMatrixTx");
          }
@@ -881,14 +881,14 @@ defineDetectedTx <- function
       ## Optionally convert zero to NA
       if (length(zeroAsNA) > 0 && zeroAsNA && any(iMatrixTx <= 0)) {
          if (verbose) {
-            printDebug("defineDetectedTx(): ",
+            jamba::printDebug("defineDetectedTx(): ",
                "Converting Tx zero to NA prior to group mean calculations");
          }
          iMatrixTx[iMatrixTx <= 0] <- NA;
       }
       ## Calculate group mean values
       if (verbose) {
-         printDebug("defineDetectedTx(): ",
+         jamba::printDebug("defineDetectedTx(): ",
             "Calculating iMatrixTxGrp.");
       }
       iMatrixTxGrp <- jamba::rowGroupMeans(iMatrixTx,
@@ -903,7 +903,7 @@ defineDetectedTx <- function
    ## Optionally apply log2(1+x) transformation
    if (max(iMatrixTxGrp, na.rm=TRUE) >= 50) {
       if (verbose) {
-         printDebug("defineDetectedTx(): ",
+         jamba::printDebug("defineDetectedTx(): ",
             "Applying log2(1+x) transform to:",
             "iMatrixTxGrp");
       }
@@ -921,7 +921,7 @@ defineDetectedTx <- function
          ## Optionally apply log2(1+x) transformation
          if (max(iMatrixTxTPM, na.rm=TRUE) >= 50) {
             if (verbose) {
-               printDebug("defineDetectedTx(): ",
+               jamba::printDebug("defineDetectedTx(): ",
                   "Applying log2(1+x) transform to:",
                   "iMatrixTxTPM");
             }
@@ -932,14 +932,14 @@ defineDetectedTx <- function
          ## Optionally convert zero to NA
          if (length(zeroAsNA) > 0 && zeroAsNA && any(iMatrixTxTPM <= 0)) {
             if (verbose) {
-               printDebug("defineDetectedTx(): ",
+               jamba::printDebug("defineDetectedTx(): ",
                   "Converting TxTPM zero to NA prior to group mean calculations");
             }
             iMatrixTxTPM[iMatrixTxTPM <= 0] <- NA;
          }
          ## Calculate group mean values
          if (verbose) {
-            printDebug("defineDetectedTx(): ",
+            jamba::printDebug("defineDetectedTx(): ",
                "Calculating iMatrixTxTPMGrp.");
          }
          iMatrixTxTPMGrp <- rowGroupMeans(iMatrixTxTPM,
@@ -956,7 +956,7 @@ defineDetectedTx <- function
       ## Optionally apply log2(1+x) transformation
       if (max(iMatrixTxTPMGrp, na.rm=TRUE) >= 50) {
          if (verbose) {
-            printDebug("defineDetectedTx(): ",
+            jamba::printDebug("defineDetectedTx(): ",
                "Applying log2(1+x) transform to:",
                "iMatrixTxTPMGrp");
          }
@@ -989,7 +989,7 @@ defineDetectedTx <- function
    ## otherwise has rownames based upon gene and not transcript.
    iRows <- match(rownames(iMatrixTxGrp), tx2geneDF[,txColname]);
    if (verbose) {
-      printDebug("defineDetectedTx(): ",
+      jamba::printDebug("defineDetectedTx(): ",
          "shrinkMatrix Tx names.");
    }
    txExprGrpTx <- shrinkMatrix(rownames(iMatrixTxGrp),
@@ -1004,7 +1004,7 @@ defineDetectedTx <- function
    ## Percent max isoform expression per isoform per gene
    if (length(iMatrixTxTPMGrp) > 0) {
       if (verbose) {
-         printDebug("defineDetectedTx(): ",
+         jamba::printDebug("defineDetectedTx(): ",
             "Calculating percent max isoform expression by TPM, rounded to integer.");
       }
       txPctMaxTxTPMGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
@@ -1019,7 +1019,7 @@ defineDetectedTx <- function
    }
    if (length(iMatrixTxGrp) > 0) {
       if (verbose) {
-         printDebug("defineDetectedTx(): ",
+         jamba::printDebug("defineDetectedTx(): ",
             "Calculating percent max isoform expression by counts, rounded to integer.");
       }
       txPctMaxTxGrpAll <- shrinkMatrix((2^iMatrixTxGrp-1),
@@ -1047,7 +1047,7 @@ defineDetectedTx <- function
    ######################################################################
    ## Exponentiated expression counts per isoform per gene
    if (verbose) {
-      printDebug("defineDetectedTx(): ",
+      jamba::printDebug("defineDetectedTx(): ",
          "Creating exponentiated expression counts, rounded to 0.1");
    }
    txExprGrpAll <- shrinkMatrix(2^iMatrixTxGrp-1,
@@ -1064,7 +1064,7 @@ defineDetectedTx <- function
    ## Exponentiated expression TPM per isoform per gene
    if (length(iMatrixTxTPMGrp) > 0) {
       if (verbose) {
-         printDebug("defineDetectedTx(): ",
+         jamba::printDebug("defineDetectedTx(): ",
             "Creating exponentiated expression TPM.");
       }
       txTPMExprGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
@@ -1086,7 +1086,7 @@ defineDetectedTx <- function
    ## but if it occurs in any sample group the Tx is "detected"
    if (length(iMatrixTxTPMGrp) > 0) {
       if (verbose) {
-         printDebug("defineDetectedTx(): ",
+         jamba::printDebug("defineDetectedTx(): ",
             "Applying filters for percentMaxIsoformTPM, Expr counts, Expr TPM.");
       }
       txFilterM <- (
@@ -1096,7 +1096,7 @@ defineDetectedTx <- function
       )*1;
    } else {
       if (verbose) {
-         printDebug("defineDetectedTx(): ",
+         jamba::printDebug("defineDetectedTx(): ",
             "Applying filters for percentMaxIsoform, Expr counts.");
       }
       txFilterM <- (
@@ -2093,7 +2093,7 @@ annotateGRfromGR <- function
 
    ## Run findOverlaps()
    if (verbose) {
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "Running findOverlaps(GR1, GR2)");
    }
    if (is.null(grOL)) {
@@ -2104,9 +2104,9 @@ annotateGRfromGR <- function
          ignore.strand=ignore.strand);
    }
    if (verbose) {
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "Completed findOverlaps(GR1, GR2)");
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "length(grOL):",
          length(grOL));
    }
@@ -2126,19 +2126,19 @@ annotateGRfromGR <- function
    grOLq <- grOLmUse[,"queryHits"];
    grOLs <- grOLmUse[,"subjectHits"];
    if (verbose) {
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "   grOLq1:", head(grOLq1, 10));
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "   grOLs1:", head(grOLs1, 10));
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "   grOLq:", head(grOLq, 10));
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "   grOLs:", head(grOLs, 10));
    }
 
    ## Shrink the values
    if (verbose) {
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "Running shrinkMatrix on ",
          formatInt(sum(grOLtable > 1)),
          " entries out of ",
@@ -2181,7 +2181,7 @@ annotateGRfromGR <- function
          numCols <- setdiff(numCols, moveNumCols);
          stringCols <- c(stringCols, moveNumCols);
          if (verbose) {
-            printDebug("annotateGRfromGR(): ",
+            jamba::printDebug("annotateGRfromGR(): ",
                "Moving ",
                cPaste(moveNumCols),
                " from numCols to stringCols.");
@@ -2217,10 +2217,10 @@ annotateGRfromGR <- function
       }
    }
    if (verbose) {
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "numCols:   ",
          numCols);
-      printDebug("annotateGRfromGR(): ",
+      jamba::printDebug("annotateGRfromGR(): ",
          "stringCols:",
          stringCols);
    }
@@ -2229,17 +2229,17 @@ annotateGRfromGR <- function
    ## Shrink numeric columns
    if (length(numCols) > 0) {
       if (verbose) {
-         printDebug("annotateGRfromGR(): ",
+         jamba::printDebug("annotateGRfromGR(): ",
             "Shrinking num columns.");
       }
       if (nrow(grOLm1) > 0) {
          if (verbose) {
-            printDebug("annotateGRfromGR(): ",
+            jamba::printDebug("annotateGRfromGR(): ",
                "   grOLm1>0");
          }
          numShrunk1 <- lapply(nameVector(numCols), function(iCol){
             if (verbose) {
-               printDebug("annotateGRfromGR(): ",
+               jamba::printDebug("annotateGRfromGR(): ",
                   "   ",
                   iCol);
             }
@@ -2248,13 +2248,13 @@ annotateGRfromGR <- function
       }
       numShrunk <- lapply(nameVector(numCols), function(iCol){
          if (verbose) {
-            printDebug("annotateGRfromGR(): ",
+            jamba::printDebug("annotateGRfromGR(): ",
                "   ",
                iCol);
-            printDebug("annotateGRfromGR(): ",
+            jamba::printDebug("annotateGRfromGR(): ",
                "   groupBy:",
                head(names(GR1)[grOLq]));
-            printDebug("annotateGRfromGR(): ",
+            jamba::printDebug("annotateGRfromGR(): ",
                "   grOLq:",
                head(grOLq));
          }
@@ -2269,13 +2269,13 @@ annotateGRfromGR <- function
    ## Shrink string columns
    if (length(stringCols) > 0) {
       if (verbose) {
-         printDebug("annotateGRfromGR(): ",
+         jamba::printDebug("annotateGRfromGR(): ",
             "Shrinking string columns:",
             stringCols);
-         printDebug("annotateGRfromGR(): ",
+         jamba::printDebug("annotateGRfromGR(): ",
             "nrow(grOLm1):",
             nrow(grOLm1));
-         printDebug("annotateGRfromGR(): ",
+         jamba::printDebug("annotateGRfromGR(): ",
             "nrow(grOLmUse):",
             nrow(grOLmUse));
       }
@@ -2286,7 +2286,7 @@ annotateGRfromGR <- function
          ## the string shrink function below
          stringShrunk1 <- lapply(nameVector(stringCols), function(iCol){
             if (verbose) {
-               printDebug("annotateGRfromGR(): ",
+               jamba::printDebug("annotateGRfromGR(): ",
                   "   ",
                   iCol);
             }
@@ -2296,7 +2296,7 @@ annotateGRfromGR <- function
       if (nrow(grOLmUse) > 0) {
          stringShrunk <- lapply(nameVector(stringCols), function(iCol){
             if (verbose) {
-               printDebug("annotateGRfromGR(): ",
+               jamba::printDebug("annotateGRfromGR(): ",
                   "   ",
                   iCol);
             }
@@ -2349,11 +2349,11 @@ annotateGRfromGR <- function
    numShrunkDF <- NULL;
    if (length(numCols) > 0) {
       if (verbose) {
-         printDebug("annotateGRfromGR(): ",
+         jamba::printDebug("annotateGRfromGR(): ",
             "length(numShrunk):",
             length(numShrunk));
          if (length(numShrunk) > 0) {
-            printDebug("annotateGRfromGR(): ",
+            jamba::printDebug("annotateGRfromGR(): ",
                "class(numShrunk):",
                class(numShrunk));
             print(head(numShrunk, 3));
@@ -2364,7 +2364,7 @@ annotateGRfromGR <- function
             stringsAsFactors=FALSE,
             do.call(cbind, numShrunk));
          if (verbose) {
-            printDebug("annotateGRfromGR(): ",
+            jamba::printDebug("annotateGRfromGR(): ",
                "   nrow(numShrunkDF):",
                formatInt(nrow(numShrunkDF)),
                " (before)");
@@ -2391,7 +2391,7 @@ annotateGRfromGR <- function
       }
       if (nrow(grOLm1) > 0) {
          if (verbose) {
-            printDebug("annotateGRfromGR(): ",
+            jamba::printDebug("annotateGRfromGR(): ",
                "Appending multi- and single-entry ",
                "string",
                " data.frames");
@@ -2410,7 +2410,7 @@ annotateGRfromGR <- function
       }
       if (length(numCols) > 0 && !is.null(stringShrunkDF)) {
          if (verbose) {
-            printDebug("annotateGRfromGR(): ",
+            jamba::printDebug("annotateGRfromGR(): ",
                "Combining ",
                "string",
                " and ",
@@ -2449,7 +2449,7 @@ annotateGRfromGR <- function
    ## Now append each column, meanwhile fix some issues with ,-delimiters
    for (iCol in colnames(grOL1)) {
       if (verbose) {
-         printDebug("annotateGRfromGR(): ",
+         jamba::printDebug("annotateGRfromGR(): ",
             "Appending column to GRanges:",
             iCol);
       }
@@ -2606,7 +2606,7 @@ annotateGRLfromGRL <- function
    }
    annoNames2 <- setdiff(colnames(GenomicRanges::values(GRL2@unlistData)), annoName2);
    if (verbose) {
-      printDebug("annotateGRLfromGRL(): ",
+      jamba::printDebug("annotateGRLfromGRL(): ",
          "annoNames2:",
          annoNames2);
    }
@@ -2821,7 +2821,7 @@ assignGRLexonNames <- function
    ## First verify that incoming data is valid per assumptions
    ## that exons for a transcript would all appear only on one strand
    if (verbose) {
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "class(GRL):",
          class(GRL));
    }
@@ -2829,20 +2829,20 @@ assignGRLexonNames <- function
    if (filterTwoStrand) {
       if (any(S4Vectors::elementNROWS(GRLstrandL) > 1)) {
          if (verbose) {
-            printDebug("assignGRLexonNames(): ",
+            jamba::printDebug("assignGRLexonNames(): ",
                "removing some multi-stranded exon entries.");
          }
          iRemove <- which(S4Vectors::elementNROWS(GRLstrandL) > 1);
          GRL <- GRL[-iRemove];
       } else {
          if (verbose) {
-            printDebug("assignGRLexonNames(): ",
+            jamba::printDebug("assignGRLexonNames(): ",
                "No multi-stranded exon entries.");
          }
       }
    } else {
       if (verbose) {
-         printDebug("assignGRLexonNames(): ",
+         jamba::printDebug("assignGRLexonNames(): ",
             "Entries were not tested for multi-stranded exons.");
       }
    }
@@ -2850,7 +2850,7 @@ assignGRLexonNames <- function
    ## check disjoint GRanges
    if (checkDisjoin %in% c("warn","stop")) {
       if (verbose) {
-         printDebug("assignGRLexonNames(): ",
+         jamba::printDebug("assignGRLexonNames(): ",
             "Checking disjoint ranges.");
       }
       input_width <- sum(sum(width(GRL)));
@@ -2861,7 +2861,7 @@ assignGRLexonNames <- function
          if (checkDisjoin %in% "stop") {
             stop("assignGRLexonNames() detected overlapping GRanges, stopping.");
          } else {
-            printDebug("assignGRLexonNames(): ",
+            jamba::printDebug("assignGRLexonNames(): ",
                "detected overlapping GRanges, continuing.",
                fgText=c("red","orange"));
          }
@@ -2870,7 +2870,7 @@ assignGRLexonNames <- function
 
    ## Reduce entries
    if (verbose) {
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "Reducing ranges.");
    }
    GRLred <- GenomicRanges::reduce(GRL);
@@ -2897,20 +2897,21 @@ assignGRLexonNames <- function
    }
    GRLredStrand <- jamba::cPasteS(unique(strand(GRLred)));
    GRLredStrandP <- grep("[+]", GRLredStrand);
-   GRLredStrandN <- ungrep("[+]", GRLredStrand);
+   GRLredStrandN <- setdiff(seq_along(GRLredStrand),
+      GRLredStrandP);
    #GRLredStrandP <- which(GRLredStrand %in% "+");
    ## Any features mixed strand are numbered by positive strand
 
    ## Stranded exon numbering
    GenomicRanges::values(GRLred@unlistData)[,exonNameColname] <- "";
    if (verbose) {
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "head(GRLred):");
       print(head(GRLred));
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "head(GRLredStrandP):");
       print(head(GRLredStrandP));
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "head(GRLredStrandN):");
       print(head(GRLredStrandN));
    }
@@ -2927,7 +2928,7 @@ assignGRLexonNames <- function
          renameOnes=TRUE));
    }
    if (verbose) {
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "exonNameColname values:",
          head(GenomicRanges::values(GRLred@unlistData)[,exonNameColname], 10));
    }
@@ -2936,10 +2937,10 @@ assignGRLexonNames <- function
    GRLcolnames <- unvigrep(paste0(exonNameColname, "(_v[0-9]|)$"),
       colnames(GenomicRanges::values(GRL@unlistData)));
    if (verbose) {
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "head(GRL[,GRLcolnames]):");
       print(head(GRL[,GRLcolnames]));
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "head(GRLred[,exonNameColname]):");
       print(head(GRLred[,exonNameColname]));
    }
@@ -2947,12 +2948,13 @@ assignGRLexonNames <- function
       GRL2=GRLred[,exonNameColname],
       verbose=verbose);
    if (verbose) {
-      printDebug("assignGRLexonNames(): ",
+      jamba::printDebug("assignGRLexonNames(): ",
          "Completed annotateGRLfromGRL().");
    }
    GRLnewStrand <- cPasteS(unique(strand(GRLnew)));
    GRLnewStrandP <- grep("[+]", GRLnewStrand);
-   GRLnewStrandN <- ungrep("[+]", GRLnewStrand);
+   GRLnewStrandN <- setdiff(seq_along(GRLnewStrand),
+      GRLnewStrandP);
    GRLnewStrandNn <- names(GRLnew[GRLnewStrandN]@unlistData);
    subFeatureNumberStyle <- "letters";
    subFeatureSuffix <- "";
@@ -3133,7 +3135,7 @@ ale2violin <- function
    ## - the max ale value is below threshold
    ## - two UTRs only, removing genes with only 1 or with 3+
    if (verbose) {
-      printDebug("ale2violin(): ",
+      jamba::printDebug("ale2violin(): ",
          "filtering ALE maxGroupMean>=", maxGroupMeanALE,
          " and removeAboveAleNum:", removeAboveAleNum);
    }
@@ -3156,7 +3158,7 @@ ale2violin <- function
    #minimum=maxGroupMeanALE);
 
    if (verbose) {
-      printDebug("ale2violin(): ",
+      jamba::printDebug("ale2violin(): ",
          "keeping ", formatInt(sum(iDiffAleWideMGMkeep)),
          " out of ", formatInt(length(iDiffAleWideMGMkeep)),
          " rows.");
@@ -3261,7 +3263,7 @@ ale2violin <- function
    retVals$iDiffAleTall2ctr <- iDiffAleTall2ctr;
    if (make_ggplots) {
       if (verbose) {
-         printDebug("ale2violin(): ",
+         jamba::printDebug("ale2violin(): ",
             "Preparing violin including all groups.");
       }
       ggAle1 <- ggplot(iDiffAleTall2ctr,
@@ -3294,7 +3296,7 @@ ale2violin <- function
    ## Violin plot where each gene line is drawn using mean per CB and DE
    if (make_ggplots) {
       if (verbose) {
-         printDebug("ale2violin(): ",
+         jamba::printDebug("ale2violin(): ",
             "Preparing violin using mean region values.");
       }
       ggAle2 <- ggplot(iDiffAleTall2ctrFacet,
@@ -3519,7 +3521,7 @@ runDiffSplice <- function
    ## determine which genes have multiple transcripts
    if (length(detectedTx) == 0) {
       if (verbose) {
-         printDebug("runDiffSplice(): ",
+         jamba::printDebug("runDiffSplice(): ",
             "Using all rownames(iMatrixTx) as ",
             "detectedTx");
       }
@@ -3543,13 +3545,13 @@ runDiffSplice <- function
    retVals$detectedTxUse <- detectedTxUse;
 
    if (verbose) {
-      printDebug("runDiffSplice(): ",
+      jamba::printDebug("runDiffSplice(): ",
          "Started with ",
          formatInt(length(detectedTx)),
          " entries representing ",
          formatInt(iTxGeneCt),
          " genes.");
-      printDebug("runDiffSplice(): ",
+      jamba::printDebug("runDiffSplice(): ",
          "  Ended with ",
          formatInt(length(detectedTxUse)),
          " entries representing ",
@@ -3581,14 +3583,14 @@ runDiffSplice <- function
    ## Optionally run voom prior to the initial model fit
    if (useVoom) {
       if (verbose) {
-         printDebug("runDiffSplice(): ",
+         jamba::printDebug("runDiffSplice(): ",
             "Running voom().");
       }
       v <- voom(iMatrixTxES,
          design=iDesign,
          plot=FALSE);
       if (verbose) {
-         printDebug("runDiffSplice(): ",
+         jamba::printDebug("runDiffSplice(): ",
             "Running lmFit().");
       }
       #fit <- lmFit(v,
@@ -3600,7 +3602,7 @@ runDiffSplice <- function
    } else {
       exprs(iMatrixTxES) <- log2(1+exprs(iMatrixTxES));
       if (verbose) {
-         printDebug("runDiffSplice(): ",
+         jamba::printDebug("runDiffSplice(): ",
             "Running lmFit().");
       }
       fit <- lmFit(iMatrixTxES,
@@ -3613,7 +3615,7 @@ runDiffSplice <- function
    ########################################################
    ## Fit contrasts
    if (verbose) {
-      printDebug("runDiffSplice(): ",
+      jamba::printDebug("runDiffSplice(): ",
          "Running contrasts.fit().");
    }
    fit2 <- contrasts.fit(fit,
@@ -3623,7 +3625,7 @@ runDiffSplice <- function
    ########################################################
    ## Run diffSplice()
    if (verbose) {
-      printDebug("runDiffSplice(): ",
+      jamba::printDebug("runDiffSplice(): ",
          "Running diffSplice().");
    }
    splice <- diffSplice(fit2,
@@ -3633,7 +3635,7 @@ runDiffSplice <- function
 
    ## Clean up each contrast into a data.frame
    if (verbose) {
-      printDebug("runDiffSplice(): ",
+      jamba::printDebug("runDiffSplice(): ",
          "Preparing statsDFs.");
    }
    iCoefs <- colnames(coefficients(splice));
@@ -3655,7 +3657,7 @@ runDiffSplice <- function
          #test="t",#"simes","F"
          n=Inf);
       if (verbose) {
-         printDebug("runDiffSplice(): ",
+         jamba::printDebug("runDiffSplice(): ",
             "head(spliceDF):");
          print(head(spliceDF));
       }
@@ -3813,7 +3815,7 @@ getGRLgaps <- function
 
    ## Use gaps() method directly
    if (verbose) {
-      printDebug("getGRLgaps(): ",
+      jamba::printDebug("getGRLgaps(): ",
          "Began gaps logic.");
    }
    IRL <- as(grl, "IRangesList");
@@ -4044,7 +4046,7 @@ flattenExonsBy <- function
       cdsByTx <- cdsByTx[names(cdsByTx) %in% tx2geneDF[[txColname]]];
    }
    if (verbose) {
-      printDebug("flattenExonsBy(): ",
+      jamba::printDebug("flattenExonsBy(): ",
          "Flattening ", length(iTxs), " transcripts from ",
          length(unique(tx2geneDF[[geneColname]])),
          " unique genes.");
@@ -4060,7 +4062,7 @@ flattenExonsBy <- function
 
    ## split exons by gene
    if (verbose) {
-      printDebug("flattenExonsBy(): ",
+      jamba::printDebug("flattenExonsBy(): ",
          "Splitting tx exons by gene.");
    }
    if ("gene" %in% by) {
@@ -4081,22 +4083,22 @@ flattenExonsBy <- function
    if ("gene" %in% by) {
       if ("disjoin" %in% exon_method) {
          if (verbose) {
-            printDebug("flattenExonsBy(): ",
+            jamba::printDebug("flattenExonsBy(): ",
                "Preparing disjoint gene exons.");
          }
          iGeneExonsDisGRL <- GenomicRanges::disjoin(exonsByGene);
          if (verbose) {
-            printDebug("flattenExonsBy(): ",
+            jamba::printDebug("flattenExonsBy(): ",
                "Completed disjoint gene exons.");
          }
       } else if ("reduce" %in% exon_method) {
          if (verbose) {
-            printDebug("flattenExonsBy(): ",
+            jamba::printDebug("flattenExonsBy(): ",
                "Preparing reduced gene exons.");
          }
          iGeneExonsDisGRL <- GenomicRanges::reduce(exonsByGene);
          if (verbose) {
-            printDebug("flattenExonsBy(): ",
+            jamba::printDebug("flattenExonsBy(): ",
                "Completed reduced gene exons.");
          }
       }
@@ -4120,7 +4122,7 @@ flattenExonsBy <- function
    ## Optionally subdivide by CDS boundary if supplied
    if (length(cdsByTx) > 0) {
       if (verbose) {
-         printDebug("flattenExonsBy(): ",
+         jamba::printDebug("flattenExonsBy(): ",
             "Creating cdsByGene from cdsByTx.");
       }
       cdsByTx <- cdsByTx[names(cdsByTx) %in% iTxs];
@@ -4143,7 +4145,7 @@ flattenExonsBy <- function
             );
          }
          if (verbose) {
-            printDebug("flattenExonsBy(): ",
+            jamba::printDebug("flattenExonsBy(): ",
                "length(cdsByGene):",
                length(cdsByGene));
          }
@@ -4151,7 +4153,7 @@ flattenExonsBy <- function
    }
    if (length(cdsByGene) > 0 && any(names(iGeneExonsDisGRL) %in% names(cdsByGene))) {
       if (verbose) {
-         printDebug("flattenExonsBy(): ",
+         jamba::printDebug("flattenExonsBy(): ",
             "Adding CDS exon boundary information.");
       }
       cdsByGene <- cdsByGene[names(cdsByGene) %in% names(iGeneExonsDisGRL)];
@@ -4183,7 +4185,7 @@ flattenExonsBy <- function
          #   elementNROWS(exonsByGeneSubCds)
          #);
          if (verbose) {
-            printDebug("flattenExonsBy(): ",
+            jamba::printDebug("flattenExonsBy(): ",
                "split()");
          }
          exonsByGeneCds <- GenomicRanges::split(
@@ -4192,17 +4194,17 @@ flattenExonsBy <- function
                c(GenomicRanges::values(exonsByGeneSub@unlistData)[,txColname],
                   GenomicRanges::values(exonsByGeneSubCds@unlistData)[,txColname]));
          if (verbose) {
-            printDebug("flattenExonsBy(): ",
+            jamba::printDebug("flattenExonsBy(): ",
                "disjoin()");
          }
          exonsByGeneCds <- GenomicRanges::disjoin(exonsByGeneCds);
          if (verbose) {
-            printDebug("flattenExonsBy(): ",
+            jamba::printDebug("flattenExonsBy(): ",
                "Sorting.");
          }
          exonsByGeneCds <- GenomicRanges::sort(exonsByGeneCds);
          if (verbose) {
-            printDebug("flattenExonsBy(): ",
+            jamba::printDebug("flattenExonsBy(): ",
                "Adding txColname,geneColname to disjoint tx exons.");
          }
          GenomicRanges::values(exonsByGeneCds@unlistData)[,txColname] <- rep(
@@ -4216,7 +4218,7 @@ flattenExonsBy <- function
          );
       }
       if (verbose) {
-         printDebug("flattenExonsBy(): ",
+         jamba::printDebug("flattenExonsBy(): ",
             "Running annotateGRLfromGRL on CDS disjoint exons.");
       }
       exonsByGeneCds <- annotateGRLfromGRL(exonsByGeneCds,
@@ -4230,10 +4232,10 @@ flattenExonsBy <- function
    ## Assign exon names and numbers
    if (verbose) {
       if ("disjoin" %in% exon_method) {
-         printDebug("flattenExonsBy(): ",
+         jamba::printDebug("flattenExonsBy(): ",
             "Assigning exon labels to disjoint gene exons.");
       } else if ("reduce" %in% exon_method) {
-         printDebug("flattenExonsBy(): ",
+         jamba::printDebug("flattenExonsBy(): ",
             "Assigning exon labels to reduced gene exons.");
       }
    }
@@ -4480,7 +4482,7 @@ addGRLgaps <- function
       }
    }
    if (verbose) {
-      printDebug("addGRLgaps(): ",
+      jamba::printDebug("addGRLgaps(): ",
          "calling getGRLgaps().");
    }
    grlGaps <- getGRLgaps(grl,
@@ -4591,7 +4593,7 @@ closestExonToJunctions <- function
    ## Distance from splice start to exon end
    ## ignore.strand=TRUE on resize makes the method search the left side of a splice site with the right side of an exon.
    if (verbose) {
-      printDebug("closestExonToJunctions(): ",
+      jamba::printDebug("closestExonToJunctions(): ",
          "Finding closest exons for splice starts.");
    }
    spliceStartExonEndD1 <- as.data.frame(
@@ -4608,7 +4610,7 @@ closestExonToJunctions <- function
 
    ## Calculate stranded distance
    if (verbose) {
-      printDebug("closestExonToJunctions(): ",
+      jamba::printDebug("closestExonToJunctions(): ",
          "Calculating stranded distance.");
       print(spliceStartExonEndD1);
    }
@@ -4638,7 +4640,7 @@ closestExonToJunctions <- function
    ## Distance from splice end to exon start
    ## ignore.strand=TRUE on resize makes the method search the right side of a splice site with the left side of an exon.
    if (verbose) {
-      printDebug("closestExonToJunctions(): ",
+      jamba::printDebug("closestExonToJunctions(): ",
          "Finding closest exons for splice ends.");
    }
    spliceEndExonStartD1 <- as.data.frame(
@@ -4655,7 +4657,7 @@ closestExonToJunctions <- function
 
    ## Calculate stranded distance
    if (verbose) {
-      printDebug("closestExonToJunctions(): ",
+      jamba::printDebug("closestExonToJunctions(): ",
          "Calculating stranded distance.");
    }
    spliceEndExonStartDactual1 <- (
@@ -4709,7 +4711,7 @@ closestExonToJunctions <- function
    ## TODO: report the actual coordinate boundary being matched
    if (reportActualCoords) {
       if (verbose) {
-         printDebug("closestExonToJunctions(): ",
+         jamba::printDebug("closestExonToJunctions(): ",
             "Reporting actual coords.");
       }
       GenomicRanges::values(spliceGRgene)[spliceStartExonEndD1[,"queryHits"],"coordFrom"] <-
@@ -4724,17 +4726,17 @@ closestExonToJunctions <- function
    ## Optionally flip negative strand "from" and "to" entries
    if (flipNegativeStrand) {
       if (verbose) {
-         printDebug("closestExonToJunctions(): ",
+         jamba::printDebug("closestExonToJunctions(): ",
             "Flipping negative strand.");
       }
       fromToCols <- paste0(rep(c("dist", "name", "coord", "tooFar"), each=2), c("From", "To"));
       switchCols1 <- intersect(fromToCols, colnames(GenomicRanges::values(spliceGRgene)));
       switchCols2 <- as.vector(matrix(nrow=2, switchCols1)[2:1,])
       if (verbose) {
-         printDebug("closestExonToJunctions(): ",
+         jamba::printDebug("closestExonToJunctions(): ",
             "switchCols1:",
             switchCols1);
-         printDebug("closestExonToJunctions(): ",
+         jamba::printDebug("closestExonToJunctions(): ",
             "switchCols2:",
             switchCols2);
       }
@@ -4891,7 +4893,7 @@ spliceGR2junctionDF <- function
    numGenesMatch <- sum(GenomicRanges::values(spliceGRgene)[,"genesMatch"]);
    numGenesDiffer <- (length(spliceGRgene) - numGenesMatch);
    if (verbose && numGenesMatch > 0) {
-      printDebug("spliceGR2junctionDF(): ",
+      jamba::printDebug("spliceGR2junctionDF(): ",
          formatInt(numGenesMatch),
          " entries out of ",
          formatInt(length(spliceGRgene)),
@@ -4913,7 +4915,7 @@ spliceGR2junctionDF <- function
    GenomicRanges::values(spliceGRgene)[,"tooFar"] <- tooFar;
    numTooFar <- sum(GenomicRanges::values(spliceGRgene)[,"tooFar"]);
    if (verbose && numTooFar > 0) {
-      printDebug("spliceGR2junctionDF(): ",
+      jamba::printDebug("spliceGR2junctionDF(): ",
          formatInt(numTooFar),
          " entries were farther from the nearest exon than spliceBuffer:",
          spliceBuffer);
@@ -4929,7 +4931,7 @@ spliceGR2junctionDF <- function
    ## other.
    if (renameTooFar && numTooFar > 0) {
       if (verbose) {
-         printDebug("spliceGR2junctionDF(): ",
+         jamba::printDebug("spliceGR2junctionDF(): ",
             "Renaming exon sites by distance for entries outside spliceBuffer.");
       }
       if (any(tooFarFrom)) {
@@ -4967,7 +4969,7 @@ spliceGR2junctionDF <- function
    ## and where the exons are both from the same gene.
    if (useOnlyValidEntries) {
       if (verbose) {
-         printDebug("spliceGR2junctionDF(): ",
+         jamba::printDebug("spliceGR2junctionDF(): ",
             "Only entries whose genes match, and which are within spliceBuffer, will be used for the junction count matrix.");
       }
       toUse <- which(GenomicRanges::values(spliceGRgene)[,"genesMatch"] &
@@ -4977,14 +4979,14 @@ spliceGR2junctionDF <- function
       ## TODO: allow for un-named entries to have a temporary name for the purpose of
       ## returning the values.
       if (verbose) {
-         printDebug("spliceGR2junctionDF(): ",
+         jamba::printDebug("spliceGR2junctionDF(): ",
             "All entries having any nearest gene will be used, without regard to matching genes or distance from exon.");
       }
       toUse <- which(!is.na(GenomicRanges::values(spliceGRgene)[,"nameFrom"]) &
             !is.na(GenomicRanges::values(spliceGRgene)[,"nameTo"]));
    }
    if (verbose) {
-      printDebug("spliceGR2junctionDF(): ",
+      jamba::printDebug("spliceGR2junctionDF(): ",
          "Using ", ifelse(length(toUse) == length(spliceGRgene), "all ", ""),
          formatInt(length(toUse)),
          " entries out of ",
@@ -4992,7 +4994,7 @@ spliceGR2junctionDF <- function
          " to create a data.frame of junction counts by exon.");
    }
    if (verbose && length(toUse) != length(spliceGRgene)) {
-      printDebug("spliceGR2junctionDF(): ",
+      jamba::printDebug("spliceGR2junctionDF(): ",
          "Note: ",
          formatInt(length(spliceGRgene) - length(toUse)),
          " entries did not meet the criteria.");
@@ -5012,7 +5014,7 @@ spliceGR2junctionDF <- function
       sep=":!:");
 
    if (verbose) {
-      printDebug("spliceGR2junctionDF(): ",
+      jamba::printDebug("spliceGR2junctionDF(): ",
          "Shrinking matrix to combine counts spanning the same junctions.");
    }
    spliceCountsDFshrunk <- renameColumn(
@@ -5035,7 +5037,7 @@ spliceGR2junctionDF <- function
 
    ## Now add the start and end coordinates, so the results can be plotted
    if (verbose) {
-      printDebug("spliceGR2junctionDF(): ",
+      jamba::printDebug("spliceGR2junctionDF(): ",
          "Adding ref, strand, start, end.");
    }
    matchFromTo <- match(spliceCountsDFshrunk[,"nameFromToSample"],
