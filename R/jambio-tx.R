@@ -97,14 +97,14 @@ makeTx2geneFromGtf <- function
       stop(paste0("makeTx2geneFromGtf() requires the jamba package."));
    }
    if (verbose) {
-      jamba::printDebug("makeTx2geneFromGtf() :",
+      jamba::printDebug("makeTx2geneFromGtf(): ",
          "reading GTF file:",
          GTF);
    }
    if (igrepHas("[.]gz$", GTF) &&
       !suppressPackageStartupMessages(require(R.utils))) {
       if (verbose) {
-         jamba::printDebug("makeTx2geneFromGtf() :",
+         jamba::printDebug("makeTx2geneFromGtf(): ",
             "using commandline call to gzcat to decompress gtf.gz. ",
             "Install the 'R.utils' package to avoid this step.");
       }
@@ -115,7 +115,7 @@ makeTx2geneFromGtf <- function
          data.table=FALSE);
    } else {
       if (verbose) {
-         jamba::printDebug("makeTx2geneFromGtf() :",
+         jamba::printDebug("makeTx2geneFromGtf(): ",
             "using native data.table::fread().");
       }
       gtfDF <- data.table::fread(GTF,
@@ -151,7 +151,7 @@ makeTx2geneFromGtf <- function
    geneM <- do.call(cbind, lapply(nameVector(geneAttrNames),
       function(attrName){
          if (verbose) {
-            jamba::printDebug("makeTx2geneFromGtf() :",
+            jamba::printDebug("makeTx2geneFromGtf(): ",
                "gene attributes:",
                attrName);
          }
@@ -165,7 +165,7 @@ makeTx2geneFromGtf <- function
                gtfDF[geneRows,,drop=FALSE][[9]]);
             attr_unchanged <- (attrValues == gtfDF[geneRows,9]);
             if (any(attr_unchanged)) {
-               jamba::printDebug("makeTx2geneFromGtf() :",
+               jamba::printDebug("makeTx2geneFromGtf(): ",
                   "Some attrValues were empty for attrName:",
                   attrName);
                attrValues[attr_unchanged] <- "";
@@ -180,7 +180,9 @@ makeTx2geneFromGtf <- function
          }
          attrValues;
       }));
-   geneM <- unique(geneM);
+   geneM <- unique(data.frame(check.names=FALSE,
+      stringsAsFactors=FALSE,
+      geneM));
 
    ## transcript attributes
    txM <- do.call(cbind, lapply(nameVector(txAttrNames),
@@ -198,7 +200,7 @@ makeTx2geneFromGtf <- function
                gtfDF[txRows,,drop=FALSE][[9]]);
             attr_unchanged <- (attrValues == gtfDF[geneRows,9]);
             if (any(attr_unchanged)) {
-               jamba::printDebug("makeTx2geneFromGtf() :",
+               jamba::printDebug("makeTx2geneFromGtf(): ",
                   "Some attrValues were empty for attrName:",
                   attrName);
                attrValues[attr_unchanged] <- "";
@@ -212,25 +214,31 @@ makeTx2geneFromGtf <- function
             attrValues <- NULL;
          }
          attrValues;
-      }));
+      })
+   );
+   txM <- unique(data.frame(check.names=FALSE,
+      stringsAsFactors=FALSE,
+      txM));
+
    if (length(geneM) > 0) {
       if (verbose) {
-         jamba::printDebug("makeTx2geneFromGtf() :",
+         jamba::printDebug("makeTx2geneFromGtf(): ",
             "Merging gene and transcript annotations.");
       }
       txM <- jamba::mergeAllXY(geneM, txM);
    }
    txid_colname <- head(jamba::provigrep(
-      c("transcript[_. ]*id", "tx[_. ]*id",
-         "transcript[_. ]*name", "tx[_. ]*name"),
+      c("^transcript[_. ]*id",
+         "^tx[_. ]*id",
+         "^transcript[_. ]*name",
+         "^tx[_. ]*name",
+         txAttrNames),
       colnames(txM)), 1);
    if (length(txid_colname) == 1) {
       rownames(txM) <- jamba::makeNames(txM[,txid_colname],
          ...);
    }
-   return(data.frame(check.names=FALSE,
-      stringsAsFactors=FALSE,
-      txM));
+   return(txM);
 }
 
 #' tx2ale: detect alternative last exons (ALE) from transcript data
@@ -2082,10 +2090,10 @@ annotateGRfromGR <- function
 
    ## First make sure the GRanges objects both have names
    if (is.null(names(GR1)) || any(table(names(GR1)) > 1)) {
-      names(GR1) <- paste0("GR1_", padInteger(seq_along(GR1)));
+      names(GR1) <- paste0("GR1_", jamba::padInteger(seq_along(GR1)));
    }
    if (is.null(names(GR2)) || any(names(GR2) %in% c(NA, "")) || any(table(names(GR2)) > 1)) {
-      names(GR2) <- paste0("GR2_", padInteger(seq_along(GR2)));
+      names(GR2) <- paste0("GR2_", jamba::padInteger(seq_along(GR2)));
    }
 
    ## Added type argument, to allow specific types of overlaps
@@ -2118,11 +2126,11 @@ annotateGRfromGR <- function
 
    ## Test for query entries with only one overlap in the subject
    grOLtable <- table(S4Vectors::from(grOL));
-   grOLm1 <- grOLm[grOLm[,1] %in% which(grOLtable == 1),,drop=FALSE];
+   grOLm1 <- grOLm[grOLm[,1] %in% names(which(grOLtable == 1)),,drop=FALSE];
    grOLq1 <- grOLm1[,"queryHits"];
    grOLs1 <- grOLm1[,"subjectHits"];
 
-   grOLmUse <- grOLm[!grOLm[,1] %in% which(grOLtable == 1),,drop=FALSE];
+   grOLmUse <- grOLm[!grOLm[,1] %in% names(which(grOLtable == 1)),,drop=FALSE];
    grOLq <- grOLmUse[,"queryHits"];
    grOLs <- grOLmUse[,"subjectHits"];
    if (verbose) {

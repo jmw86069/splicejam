@@ -713,7 +713,7 @@ sashimiAppServer <- function
                "plotly",
                height=plot_height
             );
-            plotly_out;
+            return(plotly_out);
          } else {
             if (verbose) {
                jamba::printDebug("sashimiAppServer(): ",
@@ -722,6 +722,7 @@ sashimiAppServer <- function
             ## Non-plotly static plot output
             if (length(get_gene_coords()) > 0) {
                if (show_gene_model_d()) {
+                  ## With gene-transcript-exon model
                   tagList(renderPlot(
                      height=plot_height,
                      suppressMessages(
@@ -744,6 +745,7 @@ sashimiAppServer <- function
                      )
                   ));
                } else {
+                  ## No gene-transcript-exon model
                   tagList(renderPlot(
                      height=plot_height,
                      suppressMessages(
@@ -755,6 +757,8 @@ sashimiAppServer <- function
                   ));
                }
             } else {
+               ## Fallback when get_gene_coords() is empty
+               ## sometimes happens at startup, unclear when/why
                tagList(renderPlot(
                   height=plot_height,
                   gg_sashimi +

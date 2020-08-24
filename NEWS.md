@@ -1,7 +1,17 @@
+# splicejam version 0.0.62.900
+
+## enhancements
+
+* `makeTx2geneFromGtf()` was updated to prevent edge cases in parsing
+GTF files, conversion to `data.frame` with `stringsAsFactors=FALSE`
+just to make sure, for R versions lower than `4.0`.
+
 # splicejam version 0.0.61.900
 
 ## Bug fixes
 
+* `annotateGRfromGR()` was optimized for edge cases where there were
+a low number of multi-overlaps and large number of single-overlaps.
 * `grl2df()` was not properly stacking junctions in sashimi plots,
 the problem was caused by `closestExonToJunctions()` which annotates
 junctions by the nearest compatible exon boundary, with no regard to
