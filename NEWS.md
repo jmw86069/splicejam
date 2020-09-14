@@ -6,6 +6,19 @@
 GTF files, conversion to `data.frame` with `stringsAsFactors=FALSE`
 just to make sure, for R versions lower than `4.0`.
 
+## changes to existing behavior
+
+* `defineDetectedTx()` was updated with slight change to the percent
+max isoform expression. The previous calculation used the higher of
+max expression or `1` in the percent maximum, to prevent divide by zero.
+However, it assumed expression should be `1` or higher, making the
+resulting percentages lower than 100% max for genes whose isoforms
+all had values less than `1`. Originally this was a feature,
+since genes with expression less than `1` were not beneficial, however
+when using TPM values it is useful to allow values less than `1`.
+New arguments: `floorTPM` and `floorCounts` allow custom minimum
+values, the defaults are 0.001.
+
 # splicejam version 0.0.61.900
 
 ## Bug fixes

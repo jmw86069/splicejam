@@ -823,6 +823,9 @@ tx2ale <- function
 #'    threshold.
 #' @param useMedian logical indicating whether to use group median
 #'    values instead of group mean values.
+#' @param floorTPM,floorCounts `numeric` value indicating the floor
+#'    value to use when isoform TPM or counts are below `1`, used
+#'    to prevent divide-by-zero when all isoforms are `0`.
 #' @param verbose logical indicating whether to print verbose output.
 #'
 #' @family jam RNA-seq functions
@@ -843,6 +846,8 @@ defineDetectedTx <- function
  zeroAsNA=TRUE,
  applyTxPctTo=c("TPM", "counts", "both", "either"),
  useMedian=FALSE,
+ floorTPM=0.001,
+ floorCounts=0.001,
  verbose=FALSE,
  ...)
 {
@@ -866,6 +871,7 @@ defineDetectedTx <- function
    ##   necessary.
 
    retVals <- list();
+   applyTxPctTo <- match.arg(applyTxPctTo);
 
    ## group mean values for counts
    if (length(iMatrixTxGrp) == 0) {
@@ -1018,7 +1024,7 @@ defineDetectedTx <- function
       txPctMaxTxTPMGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
          groupBy=tx2geneDF[iRows,geneColname],
          shrinkFunc=function(i){
-            round(i/max(c(1, max(i)))*100)
+            round(i/max(c(floorTPM, max(i)))*100)
          },
          returnClass="matrix");
       attr(txPctMaxTxTPMGrpAll, "TxMeasurement") <- "TPM";
@@ -1033,20 +1039,20 @@ defineDetectedTx <- function
       txPctMaxTxGrpAll <- shrinkMatrix((2^iMatrixTxGrp-1),
          groupBy=tx2geneDF[iRows,geneColname],
          shrinkFunc=function(i){
-            round(i/max(c(1, max(i, na.rm=TRUE)), na.rm=TRUE)*100);
+            round(i/max(c(floorCounts, max(i, na.rm=TRUE)), na.rm=TRUE)*100);
          },
          returnClass="matrix");
       attr(txPctMaxTxGrpAll, "TxMeasurement") <- "counts";
       rownames(txPctMaxTxGrpAll) <- txExprGrpTx[,1];
       retVals$txPctMaxTxGrpAll <- txPctMaxTxGrpAll;
    }
-   if (applyTxPctTo %in% "TPM") {
+   if ("TPM" %in% applyTxPctTo) {
       txPctMaxGrpAll <- txPctMaxTxTPMGrpAll;
-   } else if (applyTxPctTo %in% "counts") {
+   } else if ("counts" %in% applyTxPctTo) {
       txPctMaxGrpAll <- txPctMaxTxGrpAll;
-   } else if (applyTxPctTo %in% "either") {
+   } else if ("either" %in% applyTxPctTo) {
       txPctMaxGrpAll <- pmax(txPctMaxTxGrpAll, txPctMaxTxTPMGrpAll);
-   } else if (applyTxPctTo %in% "both") {
+   } else if ("both" %in% applyTxPctTo) {
       txPctMaxGrpAll <- pmin(txPctMaxTxGrpAll, txPctMaxTxTPMGrpAll);
    }
    retVals$txPctMaxGrpAll <- txPctMaxGrpAll;
@@ -1061,7 +1067,7 @@ defineDetectedTx <- function
    txExprGrpAll <- shrinkMatrix(2^iMatrixTxGrp-1,
       groupBy=tx2geneDF[iRows,geneColname],
       shrinkFunc=function(i){
-         round(i*10)/10
+         round(i*100)/100
       },
       returnClass="matrix");
    rownames(txExprGrpAll) <- txExprGrpTx[,1];
@@ -1078,7 +1084,7 @@ defineDetectedTx <- function
       txTPMExprGrpAll <- shrinkMatrix(2^iMatrixTxTPMGrp-1,
          groupBy=tx2geneDF[iRows,geneColname],
          shrinkFunc=function(i){
-            round(i*10)/10
+            round(i*100)/100
          },
          returnClass="matrix");
       rownames(txTPMExprGrpAll) <- txExprGrpTx[,1];

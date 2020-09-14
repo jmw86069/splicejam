@@ -19,6 +19,8 @@ defineDetectedTx(
   zeroAsNA = TRUE,
   applyTxPctTo = c("TPM", "counts", "both", "either"),
   useMedian = FALSE,
+  floorTPM = 0.001,
+  floorCounts = 0.001,
   verbose = FALSE,
   ...
 )
@@ -95,6 +97,10 @@ threshold.}
 
 \item{useMedian}{logical indicating whether to use group median
 values instead of group mean values.}
+
+\item{floorTPM, floorCounts}{\code{numeric} value indicating the floor
+value to use when isoform TPM or counts are below \code{1}, used
+to prevent divide-by-zero when all isoforms are \code{0}.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
 }
