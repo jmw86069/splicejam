@@ -52,8 +52,11 @@ ggWide3c <- ggWide3 +
 print(ggWide3c);
 
 # you can add junctions to exons in one plot
-gg3 +
-   ggforce::geom_diagonal_wide(data=junc_df,
+junc_wide_c_df <-grl2df(test_junc_wide_gr,
+   shape="junction",
+   ref2c=ref2c);
+ggWide3c +
+   ggforce::geom_diagonal_wide(data=junc_wide_c_df,
       inherit.aes=FALSE,
       show.legend=FALSE,
       fill="orange",

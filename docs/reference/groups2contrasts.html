@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Define experimental contrasts from sample groups — groups2contrasts" />
 <meta property="og:description" content="Define experimental contrasts from sample groups" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
       </span>
     </div>
 
@@ -105,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jmw86069/splicejam">
+  <a href="http://github.com/jmw86069/splicejam/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -124,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Define experimental contrasts from sample groups</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-design.R'><code>R/jambio-design.R</code></a></small>
+    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/jambio-design.R'><code>R/jambio-design.R</code></a></small>
     <div class="hidden name"><code>groups2contrasts.Rd</code></div>
     </div>
 
@@ -132,26 +135,26 @@
     <p>Define experimental contrasts from sample groups</p>
     </div>
 
-    <pre class="usage"><span class='fu'>groups2contrasts</span>(
-  <span class='no'>iFactors</span>,
-  <span class='kw'>groupColumns</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>iSamples</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>iDesign</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>factorOrder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>omitGrep</span> <span class='kw'>=</span> <span class='st'>"[-,]"</span>,
-  <span class='kw'>maxDepth</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>currentDepth</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>factorSep</span> <span class='kw'>=</span> <span class='st'>"_"</span>,
-  <span class='kw'>contrastSep</span> <span class='kw'>=</span> <span class='st'>"-"</span>,
-  <span class='kw'>renameFirstDepth</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>returnDesign</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>removePairs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>makeUnique</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>addContrastNamesDF</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>preControlTerms</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>groups2contrasts</span><span class='op'>(</span>
+  <span class='va'>iFactors</span>,
+  groupColumns <span class='op'>=</span> <span class='cn'>NULL</span>,
+  iSamples <span class='op'>=</span> <span class='cn'>NULL</span>,
+  iDesign <span class='op'>=</span> <span class='cn'>NULL</span>,
+  factorOrder <span class='op'>=</span> <span class='cn'>NULL</span>,
+  omitGrep <span class='op'>=</span> <span class='st'>"[-,]"</span>,
+  maxDepth <span class='op'>=</span> <span class='fl'>2</span>,
+  currentDepth <span class='op'>=</span> <span class='fl'>1</span>,
+  factorSep <span class='op'>=</span> <span class='st'>"_"</span>,
+  contrastSep <span class='op'>=</span> <span class='st'>"-"</span>,
+  renameFirstDepth <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  returnDesign <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  removePairs <span class='op'>=</span> <span class='cn'>NULL</span>,
+  makeUnique <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  addContrastNamesDF <span class='op'>=</span> <span class='cn'>NULL</span>,
+  preControlTerms <span class='op'>=</span> <span class='cn'>NULL</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -183,7 +186,9 @@ defining sample-to-group mapping.</p></td>
       <td><p>integer vector, optionally used to define the
 order of factor contrasts when there are multiple experimental
 factors. It can be helpful to force a secondary factor to be
-compared before a primary factor especially in two-way contrasts.</p></td>
+compared before a primary factor especially in two-way contrasts.
+Note that <code>factorOrder</code> refers to the columns (factors) and not
+the factor levels (not column values).</p></td>
     </tr>
     <tr>
       <th>omitGrep</th>
@@ -220,7 +225,11 @@ in addition to the <code>contrastNames</code> data.frame.</p></td>
     <tr>
       <th>removePairs</th>
       <td><p>list of pairwise vectors of factors which should
-not be compared, or NULL to include all comparisons.</p></td>
+not be compared, or NULL to include all comparisons. The values in
+each vector should be factor levels that should not be compared.
+When the vector contains only one value, it removes contrasts
+where that factor is not changed, which is relevant when there
+are two or more factors.</p></td>
     </tr>
     <tr>
       <th>makeUnique</th>
@@ -282,7 +291,7 @@ see the Examples for more detail.</p>
 <p><code><a href='https://rdrr.io/pkg/jamba/man/rbindList.html'>jamba::rbindList(strsplit(iFactors, "_"))</a></code></p>
 <p>Lastly, if the input is a named vector, or a <code>data.frame</code>
 with rownames,</p>
-<p>This function will change any <code><a href='https://rdrr.io/r/base/Arithmetic.html'>"-"</a></code> in a factor name to
+<p>This function will change any <code>"-"</code> in a factor name to
 <code>"."</code> prior to detecting valid contrasts. Note that
 <code>groups2contrasts()</code> does not call <code><a href='https://rdrr.io/r/base/make.names.html'>base::make.names()</a></code>
 because that function too aggressively converts characters
@@ -310,19 +319,21 @@ by <code><a href='https://rdrr.io/r/base/make.names.html'>base::make.names()</a>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># first define a vector of sample groups</span>
-<span class='no'>iGroups</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/jamba/man/nameVector.html'>nameVector</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"WT"</span>, <span class='st'>"KO"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>6</span>),
-   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Control"</span>, <span class='st'>"Treated"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>),
-   <span class='kw'>sep</span><span class='kw'>=</span><span class='st'>"_"</span>));
-<span class='no'>iGroups</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span>(<span class='no'>iGroups</span>, <span class='kw'>levels</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span>(<span class='no'>iGroups</span>));
-<span class='no'>iGroups</span>;</div><div class='output co'>#&gt; WT_Control_v1 WT_Control_v2 WT_Control_v3 WT_Treated_v1 WT_Treated_v2 
+<span class='va'>iGroups</span> <span class='op'>&lt;-</span> <span class='fu'>jamba</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/jamba/man/nameVector.html'>nameVector</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"WT"</span>, <span class='st'>"KO"</span><span class='op'>)</span>, each<span class='op'>=</span><span class='fl'>6</span><span class='op'>)</span>,
+   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Control"</span>, <span class='st'>"Treated"</span><span class='op'>)</span>, each<span class='op'>=</span><span class='fl'>3</span><span class='op'>)</span>,
+   sep<span class='op'>=</span><span class='st'>"_"</span><span class='op'>)</span><span class='op'>)</span>;
+<span class='va'>iGroups</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='va'>iGroups</span>, levels<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='op'>(</span><span class='va'>iGroups</span><span class='op'>)</span><span class='op'>)</span>;
+<span class='va'>iGroups</span>;
+</div><div class='output co'>#&gt; WT_Control_v1 WT_Control_v2 WT_Control_v3 WT_Treated_v1 WT_Treated_v2 
 #&gt;    WT_Control    WT_Control    WT_Control    WT_Treated    WT_Treated 
 #&gt; WT_Treated_v3 KO_Control_v1 KO_Control_v2 KO_Control_v3 KO_Treated_v1 
 #&gt;    WT_Treated    KO_Control    KO_Control    KO_Control    KO_Treated 
 #&gt; KO_Treated_v2 KO_Treated_v3 
 #&gt;    KO_Treated    KO_Treated 
 #&gt; Levels: WT_Control WT_Treated KO_Control KO_Treated</div><div class='input'>
-<span class='no'>iDesignL</span> <span class='kw'>&lt;-</span> <span class='fu'>groups2contrasts</span>(<span class='no'>iGroups</span>, <span class='kw'>returnDesign</span><span class='kw'>=</span><span class='fl'>TRUE</span>);
-<span class='no'>iDesignL</span>$<span class='no'>iDesign</span>;</div><div class='output co'>#&gt;               WT_Control WT_Treated KO_Control KO_Treated
+<span class='va'>iDesignL</span> <span class='op'>&lt;-</span> <span class='fu'>groups2contrasts</span><span class='op'>(</span><span class='va'>iGroups</span>, returnDesign<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>;
+</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘limma’ was built under R version 3.6.2</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘arules’ was built under R version 3.6.2</span></div><div class='input'><span class='va'>iDesignL</span><span class='op'>$</span><span class='va'>iDesign</span>;
+</div><div class='output co'>#&gt;               WT_Control WT_Treated KO_Control KO_Treated
 #&gt; WT_Control_v1          1          0          0          0
 #&gt; WT_Control_v2          1          0          0          0
 #&gt; WT_Control_v3          1          0          0          0
@@ -334,7 +345,8 @@ by <code><a href='https://rdrr.io/r/base/make.names.html'>base::make.names()</a>
 #&gt; KO_Control_v3          0          0          1          0
 #&gt; KO_Treated_v1          0          0          0          1
 #&gt; KO_Treated_v2          0          0          0          1
-#&gt; KO_Treated_v3          0          0          0          1</div><div class='input'><span class='no'>iDesignL</span>$<span class='no'>iContrasts</span>;</div><div class='output co'>#&gt;             Contrasts
+#&gt; KO_Treated_v3          0          0          0          1</div><div class='input'><span class='va'>iDesignL</span><span class='op'>$</span><span class='va'>iContrasts</span>;
+</div><div class='output co'>#&gt;             Contrasts
 #&gt; Levels       KO_Control-WT_Control KO_Treated-WT_Treated WT_Treated-WT_Control
 #&gt;   WT_Control                    -1                     0                    -1
 #&gt;   WT_Treated                     0                    -1                     1
@@ -353,7 +365,8 @@ by <code><a href='https://rdrr.io/r/base/make.names.html'>base::make.names()</a>
 #&gt;   KO_Control                                              -1
 #&gt;   KO_Treated                                               1</div><div class='input'>
 <span class='co'># now you can visualize the samples used in each contrast</span>
-<span class='no'>iDesignL</span>$<span class='no'>iDesign</span> <span class='kw'>%*%</span>  <span class='no'>iDesignL</span>$<span class='no'>iContrasts</span>;</div><div class='output co'>#&gt;                Contrasts
+<span class='va'>iDesignL</span><span class='op'>$</span><span class='va'>iDesign</span> <span class='op'>%*%</span>  <span class='va'>iDesignL</span><span class='op'>$</span><span class='va'>iContrasts</span>;
+</div><div class='output co'>#&gt;                Contrasts
 #&gt;                 KO_Control-WT_Control KO_Treated-WT_Treated
 #&gt;   WT_Control_v1                    -1                     0
 #&gt;   WT_Control_v2                    -1                     0
@@ -396,30 +409,87 @@ by <code><a href='https://rdrr.io/r/base/make.names.html'>base::make.names()</a>
 #&gt;   KO_Treated_v2                                               1
 #&gt;   KO_Treated_v3                                               1</div><div class='input'>
 <span class='co'># you can adjust the order of factor levels per comparison</span>
-<span class='fu'>groups2contrasts</span>(<span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span>(<span class='no'>iGroups</span>))$<span class='no'>contrastName</span></div><div class='output co'>#&gt; [1] KO_Control-WT_Control                          
+<span class='fu'>groups2contrasts</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span><span class='op'>(</span><span class='va'>iGroups</span><span class='op'>)</span><span class='op'>)</span><span class='op'>$</span><span class='va'>contrastName</span>
+</div><div class='output co'>#&gt; [1] KO_Control-WT_Control                          
 #&gt; [2] KO_Treated-WT_Treated                          
 #&gt; [3] WT_Treated-WT_Control                          
 #&gt; [4] KO_Treated-KO_Control                          
 #&gt; [5] (KO_Treated-KO_Control)-(WT_Treated-WT_Control)
 #&gt; 6 Levels: KO_Control-WT_Control ... (KO_Treated-WT_Treated)-(KO_Control-WT_Control)</div><div class='input'>
-<span class='fu'>groups2contrasts</span>(<span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span>(<span class='no'>iGroups</span>), <span class='kw'>preControlTerms</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"WT"</span>), <span class='kw'>factorOrder</span><span class='kw'>=</span><span class='fl'>2</span>:<span class='fl'>1</span>)$<span class='no'>contrastName</span></div><div class='output co'>#&gt; [1] WT_Treated-WT_Control                          
+<span class='co'># make "WT" the first control term</span>
+<span class='fu'>groups2contrasts</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span><span class='op'>(</span><span class='va'>iGroups</span><span class='op'>)</span>, preControlTerms<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"WT"</span><span class='op'>)</span>, factorOrder<span class='op'>=</span><span class='fl'>2</span><span class='op'>:</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>$</span><span class='va'>contrastName</span>
+</div><div class='output co'>#&gt; [1] WT_Treated-WT_Control                          
 #&gt; [2] KO_Treated-KO_Control                          
 #&gt; [3] KO_Control-WT_Control                          
 #&gt; [4] KO_Treated-WT_Treated                          
 #&gt; [5] (KO_Treated-WT_Treated)-(KO_Control-WT_Control)
 #&gt; 6 Levels: WT_Treated-WT_Control ... (KO_Treated-KO_Control)-(WT_Treated-WT_Control)</div><div class='input'>
+<span class='co'># prevent comparisons of WT to WT, or KO to KO</span>
+<span class='fu'>groups2contrasts</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span><span class='op'>(</span><span class='va'>iGroups</span><span class='op'>)</span>,
+   removePairs<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"WT"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"KO"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                                                 factor_v1       factor_v2
+#&gt; KO_Control-WT_Control                               KO,WT         Control
+#&gt; KO_Treated-WT_Treated                               KO,WT         Treated
+#&gt; (KO_Treated-WT_Treated)-(KO_Control-WT_Control)     KO,WT Treated,Control
+#&gt;                                                                                    contrastName
+#&gt; KO_Control-WT_Control                                                     KO_Control-WT_Control
+#&gt; KO_Treated-WT_Treated                                                     KO_Treated-WT_Treated
+#&gt; (KO_Treated-WT_Treated)-(KO_Control-WT_Control) (KO_Treated-WT_Treated)-(KO_Control-WT_Control)
+#&gt;                                                                            contrastString
+#&gt; KO_Control-WT_Control                                   factor_v1:KO,WT;factor_v2:Control
+#&gt; KO_Treated-WT_Treated                                   factor_v1:KO,WT;factor_v2:Treated
+#&gt; (KO_Treated-WT_Treated)-(KO_Control-WT_Control) factor_v1:KO,WT;factor_v2:Treated,Control</div><div class='input'>
+<span class='co'># input as a data.frame with ordered factor levels</span>
+<span class='va'>iFactors</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Genotype<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"WT"</span>,<span class='st'>"WT"</span>,<span class='st'>"KO"</span>,<span class='st'>"KO"</span><span class='op'>)</span>,
+   levels<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"WT"</span>,<span class='st'>"KO"</span><span class='op'>)</span><span class='op'>)</span>,
+   Treatment<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Treated"</span>,<span class='st'>"Control"</span><span class='op'>)</span>,
+      levels<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Control"</span>,<span class='st'>"Treated"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>iFactors</span>;
+</div><div class='output co'>#&gt;   Genotype Treatment
+#&gt; 1       WT   Treated
+#&gt; 2       WT   Control
+#&gt; 3       KO   Treated
+#&gt; 4       KO   Control</div><div class='input'><span class='fu'>groups2contrasts</span><span class='op'>(</span><span class='va'>iFactors</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                                                 Genotype       Treatment
+#&gt; KO_Control-WT_Control                              KO,WT         Control
+#&gt; KO_Treated-WT_Treated                              KO,WT         Treated
+#&gt; WT_Treated-WT_Control                                 WT Treated,Control
+#&gt; KO_Treated-KO_Control                                 KO Treated,Control
+#&gt; (KO_Treated-KO_Control)-(WT_Treated-WT_Control)    KO,WT Treated,Control
+#&gt;                                                                                    contrastName
+#&gt; KO_Control-WT_Control                                                     KO_Control-WT_Control
+#&gt; KO_Treated-WT_Treated                                                     KO_Treated-WT_Treated
+#&gt; WT_Treated-WT_Control                                                     WT_Treated-WT_Control
+#&gt; KO_Treated-KO_Control                                                     KO_Treated-KO_Control
+#&gt; (KO_Treated-KO_Control)-(WT_Treated-WT_Control) (KO_Treated-KO_Control)-(WT_Treated-WT_Control)
+#&gt;                                                                           contrastString
+#&gt; KO_Control-WT_Control                                   Genotype:KO,WT;Treatment:Control
+#&gt; KO_Treated-WT_Treated                                   Genotype:KO,WT;Treatment:Treated
+#&gt; WT_Treated-WT_Control                              Genotype:WT;Treatment:Treated,Control
+#&gt; KO_Treated-KO_Control                              Genotype:KO;Treatment:Treated,Control
+#&gt; (KO_Treated-KO_Control)-(WT_Treated-WT_Control) Genotype:KO,WT;Treatment:Treated,Control</div><div class='input'>
+
+<span class='co'># Again remove WT-WT and KO-KO contrasts</span>
+<span class='fu'>groups2contrasts</span><span class='op'>(</span><span class='va'>iFactors</span>,
+   removePairs<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"WT"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"KO"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                                                 Genotype       Treatment
+#&gt; KO_Control-WT_Control                              KO,WT         Control
+#&gt; KO_Treated-WT_Treated                              KO,WT         Treated
+#&gt; (KO_Treated-WT_Treated)-(KO_Control-WT_Control)    KO,WT Treated,Control
+#&gt;                                                                                    contrastName
+#&gt; KO_Control-WT_Control                                                     KO_Control-WT_Control
+#&gt; KO_Treated-WT_Treated                                                     KO_Treated-WT_Treated
+#&gt; (KO_Treated-WT_Treated)-(KO_Control-WT_Control) (KO_Treated-WT_Treated)-(KO_Control-WT_Control)
+#&gt;                                                                           contrastString
+#&gt; KO_Control-WT_Control                                   Genotype:KO,WT;Treatment:Control
+#&gt; KO_Treated-WT_Treated                                   Genotype:KO,WT;Treatment:Treated
+#&gt; (KO_Treated-WT_Treated)-(KO_Control-WT_Control) Genotype:KO,WT;Treatment:Treated,Control</div><div class='input'>
 </div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -430,7 +500,7 @@ by <code><a href='https://rdrr.io/r/base/make.names.html'>base::make.names()</a>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

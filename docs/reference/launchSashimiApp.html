@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Launch Sashimi R-shiny application — launchSashimiApp" />
 <meta property="og:description" content="Launch Sashimi R-shiny application" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
       </span>
     </div>
 
@@ -105,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jmw86069/splicejam">
+  <a href="http://github.com/jmw86069/splicejam/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -124,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Launch Sashimi R-shiny application</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/splicejam-shiny.R'><code>R/splicejam-shiny.R</code></a></small>
+    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/splicejam-shiny.R'><code>R/splicejam-shiny.R</code></a></small>
     <div class="hidden name"><code>launchSashimiApp.Rd</code></div>
     </div>
 
@@ -132,14 +135,14 @@
     <p>Launch Sashimi R-shiny application</p>
     </div>
 
-    <pre class="usage"><span class='fu'>launchSashimiApp</span>(<span class='no'>...</span>, <span class='kw'>options</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>1200</span>))</pre>
+    <pre class="usage"><span class='fu'>launchSashimiApp</span><span class='op'>(</span><span class='va'>...</span>, options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>width <span class='op'>=</span> <span class='fl'>1200</span><span class='op'>)</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>...</th>
-      <td><p>additional arguments are passed to <code><a href='https://rdrr.io/pkg/shiny/man/shinyApp.html'>shiny::shinyApp()</a></code>.</p></td>
+      <td><p>additional arguments are passed to <code><a href='https://shiny.rstudio.com/reference/shiny/latest/shinyApp.html'>shiny::shinyApp()</a></code>.</p></td>
     </tr>
     </table>
 
@@ -150,35 +153,42 @@ R-shiny app.</p>
 <p>The R objects required to prepare sashimi plots are
 defined by the function <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code>, which
 documents each R object required and how it is used.</p>
-<p>Typically, the first time running <code>launchSashimiApp()</code>
+<p>The most straightforward way to run a new Sashimi R-shiny
+app is to define <code>filesDF</code> and <code>gtf</code> in the global environment.
+The <code>gtf</code> is a path or URL to a GTF file (which can be gzipped).
+This GTF file will be used to derive all related annotation
+data.</p><ul>
+<li><p><code>txdb</code> -- TranscriptDb from which other objects are derived</p></li>
+<li><p><code>tx2geneDF</code> -- <code>data.frame</code> with transcript-to-gene relationship</p></li>
+<li><p><code>detectedTx</code> -- if not already defined, all transcripts are
+used. <em>Much better to use only a subset of detected transcripts.</em></p></li>
+<li><p><code>detectedGenes</code> -- inferred from <code>detectedTx</code>, using <code>tx2geneDF</code>.</p></li>
+<li><p><code>flatExonsByGene</code>, <code>flatExonsByTx</code> -- these objects will combine
+CDS exons and non-CDS exons to represent CDS and UTR regions.</p></li>
+</ul>
+
+<p>Note that if <code>detectedTx</code> is not defined, it will use all transcripts
+at this stage, which can be substantially slower than using only
+the subset of "observed/detected" transcripts.</p>
+<p>The first time running <code>launchSashimiApp()</code>
 will populate several R objects in the global environment,
-and they will be re-used during subsequent calls to
-this function. These R objects are intended to be
-available to review, for possible troubleshooting
-operations, or to update the data as needed.</p>
-<p>For example, the <code>data.frame</code> object <code>filesDF</code> contains
-a colname <code>"scale_factor"</code> used to help normalize the
-visible height on the y-axis of individual entries.
-The <code>"scale_factor"</code> values can be edited, then the
-<code>launchSashimiApp()</code> function will use the existing
-data with the new <code>"scale_factor"</code> values.</p>
-<p>More about using R environments:</p>
-<p>One comment about the environment. The <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code>
-function uses the <code><a href='https://rdrr.io/r/base/exists.html'>exists()</a></code> function to check for existing
-objects, and the <code>&lt;&lt;-</code> operator, which updates
-R objects, both these methods search up the parent
-environment chain to find a matching object name.</p>
-<p>For most cases, the global environment is used, which
-can be convenient for creating and updating R objects
-for use outside the R-shiny sashimi app. However, to
-avoid populating objects in the global environment,
-variables can be passed through the <code>dots</code> argument <code>...</code>
-when calling <code>launchSashimiApp()</code>.</p>
-<p>For example <code>launchSashimiApp(filesDF=farris_sashimi_files_df)</code>
-will define a local variable <code>filesDF</code> in the context
-of <code>launchSashimiApp()</code>. The <code><a href='https://rdrr.io/r/base/exists.html'>exists()</a></code> function will recognize
-this object and use it as-is. Any updates to <code>filesDF</code> using
-<code>&lt;&lt;-</code> will update the object in the local function environment.</p>
+and these objects will be re-used during subsequent calls to
+this function. To make changes in the content, these objects
+can be edited or deleted so the object is created again.
+For example, if <code>detectedTx</code> is edited, the object
+<code>detectedGenes</code> should be removed so <code>detectedGenes</code>
+will be created again during the next call to <code>launchSashimiApp()</code>.</p>
+<p>The <code>filesDF</code> object should be a <code>data.frame</code> with colnames
+<code>"sample_id"</code>, <code>"type"</code> (with values either <code>"bw"</code> or <code>"junction"</code>),
+and <code>"url"</code> (a URL or file path to each file.) If coverage
+or junctions are available in separate files, use the same
+<code>sample_id</code> value for each file. Files with the same <code>sample_id</code>
+value are combined using the sum, after multiplying each file
+by a value in the optional <code>"scale_factor"</code> column.</p>
+<p>This function calls <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code> which does the
+heavy work of defining or deriving all necessary data objects,
+then assigns the result to the relevant environment. The default
+environment is <code><a href='https://rdrr.io/r/base/environment.html'>globalenv()</a></code> (also known as <code>.GlobalEnv</code>).</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other splicejam R-shiny functions: 
@@ -187,20 +197,15 @@ this object and use it as-is. Any updates to <code>filesDF</code> using
 <code><a href='sashimiAppUI.html'>sashimiAppUI</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'># Note: disabled for web page examples
-# launchSashimiApp();
+    <pre class="examples"><div class='input'><span class='co'># Note: disabled for web page examples</span>
+<span class='co'># launchSashimiApp();</span>
 
 </div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -211,7 +216,7 @@ this object and use it as-is. Any updates to <code>filesDF</code> using
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

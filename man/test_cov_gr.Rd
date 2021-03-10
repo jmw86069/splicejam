@@ -43,6 +43,7 @@ gg3 <- ggplot(exondf,
 print(gg3);
 
 # you can add junctions to exons in one plot
+junc_df <- grl2df(test_junc_gr, shape="junction")
 gg3 +
    ggforce::geom_diagonal_wide(data=junc_df,
       inherit.aes=FALSE,

@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Annotate GRanges using another GRanges object — annotateGRfromGR" />
 <meta property="og:description" content="Annotate GRanges using another GRanges object" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
       </span>
     </div>
 
@@ -105,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jmw86069/splicejam">
+  <a href="http://github.com/jmw86069/splicejam/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -124,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Annotate GRanges using another GRanges object</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
+    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
     <div class="hidden name"><code>annotateGRfromGR.Rd</code></div>
     </div>
 
@@ -132,22 +135,22 @@
     <p>Annotate GRanges using another GRanges object</p>
     </div>
 
-    <pre class="usage"><span class='fu'>annotateGRfromGR</span>(
-  <span class='no'>GR1</span>,
-  <span class='no'>GR2</span>,
-  <span class='kw'>grOL</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>numAsStrings</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>stringShrinkFunc</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>...</span>) {     <span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/jamba/man/cPasteUnique.html'>cPasteUnique</a></span>(<span class='no'>...</span>, <span class='kw'>doSort</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>) },
-  <span class='kw'>numShrinkFunc</span> <span class='kw'>=</span> <span class='no'>sum</span>,
-  <span class='kw'>addStringCols</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"any"</span>, <span class='st'>"start"</span>, <span class='st'>"end"</span>, <span class='st'>"within"</span>, <span class='st'>"equal"</span>),
-  <span class='kw'>ignore.strand</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>select</span> <span class='kw'>=</span> <span class='st'>"all"</span>,
-  <span class='kw'>sep</span> <span class='kw'>=</span> <span class='st'>","</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>DEBUG</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>annotateGRfromGR</span><span class='op'>(</span>
+  <span class='va'>GR1</span>,
+  <span class='va'>GR2</span>,
+  grOL <span class='op'>=</span> <span class='cn'>NULL</span>,
+  numAsStrings <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  stringShrinkFunc <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span> <span class='op'>{</span>     <span class='fu'>jamba</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/jamba/man/cPasteUnique.html'>cPasteUnique</a></span><span class='op'>(</span><span class='va'>...</span>, doSort <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> <span class='op'>}</span>,
+  numShrinkFunc <span class='op'>=</span> <span class='va'>sum</span>,
+  addStringCols <span class='op'>=</span> <span class='cn'>NULL</span>,
+  type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"any"</span>, <span class='st'>"start"</span>, <span class='st'>"end"</span>, <span class='st'>"within"</span>, <span class='st'>"equal"</span><span class='op'>)</span>,
+  ignore.strand <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  select <span class='op'>=</span> <span class='st'>"all"</span>,
+  sep <span class='op'>=</span> <span class='st'>","</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  DEBUG <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -284,25 +287,27 @@ is yet to be ported to the Jam package suite.</p>
 <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw</a>()</code>,
 <code><a href='getGRgaps.html'>getGRgaps</a>()</code>,
 <code><a href='grl2df.html'>grl2df</a>()</code>,
+<code><a href='jam_isDisjoint.html'>jam_isDisjoint</a>()</code>,
 <code><a href='make_ref2compressed.html'>make_ref2compressed</a>()</code>,
 <code><a href='sortGRL.html'>sortGRL</a>()</code>,
 <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a>()</code>,
 <code><a href='stackJunctions.html'>stackJunctions</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>gr12</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></span>(
-   <span class='kw'>seqnames</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chr1"</span>, <span class='st'>"chr2"</span>, <span class='st'>"chr1"</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>3</span>)),
-   <span class='kw'>ranges</span><span class='kw'>=</span><span class='kw pkg'>IRanges</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html'>IRanges</a></span>(
-      <span class='kw'>start</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>100</span>, <span class='fl'>200</span>, <span class='fl'>400</span>, <span class='fl'>500</span>, <span class='fl'>300</span>, <span class='fl'>100</span>, <span class='fl'>200</span>, <span class='fl'>400</span>, <span class='fl'>600</span>),
-      <span class='kw'>width</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>100</span>,<span class='fl'>150</span>,<span class='fl'>50</span>, <span class='fl'>50</span>,<span class='fl'>50</span>,<span class='fl'>100</span>, <span class='fl'>50</span>,<span class='fl'>200</span>,<span class='fl'>50</span>)
-   ),
-   <span class='kw'>strand</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"+"</span>, <span class='st'>"-"</span>, <span class='st'>"+"</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>3</span>)),
-   <span class='kw'>gene_name</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"GeneA"</span>, <span class='st'>"GeneB"</span>, <span class='st'>"GeneC"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>)
-)
-<span class='no'>gr1</span> <span class='kw'>&lt;-</span> <span class='no'>gr12</span>[,<span class='fl'>0</span>];
+    <pre class="examples"><div class='input'><span class='va'>gr12</span> <span class='op'>&lt;-</span> <span class='fu'>GenomicRanges</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></span><span class='op'>(</span>
+   seqnames<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"chr1"</span>, <span class='st'>"chr2"</span>, <span class='st'>"chr1"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span>,
+   ranges<span class='op'>=</span><span class='fu'>IRanges</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html'>IRanges</a></span><span class='op'>(</span>
+      start<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>100</span>, <span class='fl'>200</span>, <span class='fl'>400</span>, <span class='fl'>500</span>, <span class='fl'>300</span>, <span class='fl'>100</span>, <span class='fl'>200</span>, <span class='fl'>400</span>, <span class='fl'>600</span><span class='op'>)</span>,
+      width<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>100</span>,<span class='fl'>150</span>,<span class='fl'>50</span>, <span class='fl'>50</span>,<span class='fl'>50</span>,<span class='fl'>100</span>, <span class='fl'>50</span>,<span class='fl'>200</span>,<span class='fl'>50</span><span class='op'>)</span>
+   <span class='op'>)</span>,
+   strand<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"+"</span>, <span class='st'>"-"</span>, <span class='st'>"+"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span>,
+   gene_name<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"GeneA"</span>, <span class='st'>"GeneB"</span>, <span class='st'>"GeneC"</span><span class='op'>)</span>, each<span class='op'>=</span><span class='fl'>3</span><span class='op'>)</span>
+<span class='op'>)</span>
+<span class='va'>gr1</span> <span class='op'>&lt;-</span> <span class='va'>gr12</span><span class='op'>[</span>,<span class='fl'>0</span><span class='op'>]</span>;
 
 <span class='co'># Say for example you have a GRanges object with no annotation</span>
-<span class='no'>gr1</span>;</div><div class='output co'>#&gt; GRanges object with 9 ranges and 0 metadata columns:
+<span class='va'>gr1</span>;
+</div><div class='output co'>#&gt; GRanges object with 9 ranges and 0 metadata columns:
 #&gt;       seqnames    ranges strand
 #&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt;
 #&gt;   [1]     chr1   100-199      +
@@ -317,7 +322,8 @@ is yet to be ported to the Jam package suite.</p>
 #&gt;   -------
 #&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
 <span class='co'># And had another GRanges object with annotations</span>
-<span class='no'>gr12</span>;</div><div class='output co'>#&gt; GRanges object with 9 ranges and 1 metadata column:
+<span class='va'>gr12</span>;
+</div><div class='output co'>#&gt; GRanges object with 9 ranges and 1 metadata column:
 #&gt;       seqnames    ranges strand |   gene_name
 #&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
 #&gt;   [1]     chr1   100-199      + |       GeneA
@@ -332,7 +338,8 @@ is yet to be ported to the Jam package suite.</p>
 #&gt;   -------
 #&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
 <span class='co'># To add annotations</span>
-<span class='fu'>annotateGRfromGR</span>(<span class='no'>gr1</span>, <span class='no'>gr12</span>);</div><div class='output co'>#&gt; GRanges object with 9 ranges and 1 metadata column:
+<span class='fu'>annotateGRfromGR</span><span class='op'>(</span><span class='va'>gr1</span>, <span class='va'>gr12</span><span class='op'>)</span>;
+</div><div class='output co'>#&gt; GRanges object with 9 ranges and 1 metadata column:
 #&gt;         seqnames    ranges strand |   gene_name
 #&gt;            &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
 #&gt;   GR1_1     chr1   100-199      + |       GeneA
@@ -351,101 +358,116 @@ is yet to be ported to the Jam package suite.</p>
 
 <span class='co'># If you want to keep annotations distinct,</span>
 <span class='co'># use annotateGRLfromGRL()</span>
-<span class='no'>grl1</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr12</span>[,<span class='fl'>0</span>],
-   <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>values</span>(<span class='no'>gr12</span>)$<span class='no'>gene_name</span>);
-<span class='no'>grl2</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>split</span>(<span class='no'>gr12</span>,
-   <span class='kw pkg'>GenomicRanges</span><span class='kw ns'>::</span><span class='fu'>values</span>(<span class='no'>gr12</span>)$<span class='no'>gene_name</span>);
+<span class='va'>grl1</span> <span class='op'>&lt;-</span> <span class='fu'>GenomicRanges</span><span class='fu'>::</span><span class='fu'>split</span><span class='op'>(</span><span class='va'>gr12</span><span class='op'>[</span>,<span class='fl'>0</span><span class='op'>]</span>,
+   <span class='fu'>GenomicRanges</span><span class='fu'>::</span><span class='fu'>values</span><span class='op'>(</span><span class='va'>gr12</span><span class='op'>)</span><span class='op'>$</span><span class='va'>gene_name</span><span class='op'>)</span>;
+<span class='va'>grl2</span> <span class='op'>&lt;-</span> <span class='fu'>GenomicRanges</span><span class='fu'>::</span><span class='fu'>split</span><span class='op'>(</span><span class='va'>gr12</span>,
+   <span class='fu'>GenomicRanges</span><span class='fu'>::</span><span class='fu'>values</span><span class='op'>(</span><span class='va'>gr12</span><span class='op'>)</span><span class='op'>$</span><span class='va'>gene_name</span><span class='op'>)</span>;
 
 <span class='co'># The first object is a GRangesList with no annotations</span>
-<span class='no'>grl1</span>;</div><div class='output co'>#&gt; GRangesList object of length 3:
-#&gt; $GeneA 
+<span class='va'>grl1</span>;
+</div><div class='output co'>#&gt; GRangesList object of length 3:
+#&gt; $GeneA
 #&gt; GRanges object with 3 ranges and 0 metadata columns:
 #&gt;       seqnames    ranges strand
 #&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt;
 #&gt;   [1]     chr1   100-199      +
 #&gt;   [2]     chr1   200-349      +
 #&gt;   [3]     chr1   400-449      +
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths
 #&gt; 
-#&gt; $GeneB 
+#&gt; $GeneB
 #&gt; GRanges object with 3 ranges and 0 metadata columns:
-#&gt;       seqnames  ranges strand
-#&gt;   [1]     chr2 500-549      -
-#&gt;   [2]     chr2 300-349      -
-#&gt;   [3]     chr2 100-199      -
+#&gt;       seqnames    ranges strand
+#&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt;
+#&gt;   [1]     chr2   500-549      -
+#&gt;   [2]     chr2   300-349      -
+#&gt;   [3]     chr2   100-199      -
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths
 #&gt; 
-#&gt; $GeneC 
+#&gt; $GeneC
 #&gt; GRanges object with 3 ranges and 0 metadata columns:
-#&gt;       seqnames  ranges strand
-#&gt;   [1]     chr1 200-249      +
-#&gt;   [2]     chr1 400-599      +
-#&gt;   [3]     chr1 600-649      +
-#&gt; 
-#&gt; -------
-#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
+#&gt;       seqnames    ranges strand
+#&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt;
+#&gt;   [1]     chr1   200-249      +
+#&gt;   [2]     chr1   400-599      +
+#&gt;   [3]     chr1   600-649      +
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths
+#&gt; </div><div class='input'>
 <span class='co'># The second object is a GRangesList with annotation,</span>
 <span class='co'># assumed to be in the same order</span>
-<span class='no'>grl2</span>;</div><div class='output co'>#&gt; GRangesList object of length 3:
-#&gt; $GeneA 
+<span class='va'>grl2</span>;
+</div><div class='output co'>#&gt; GRangesList object of length 3:
+#&gt; $GeneA
 #&gt; GRanges object with 3 ranges and 1 metadata column:
 #&gt;       seqnames    ranges strand |   gene_name
 #&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
 #&gt;   [1]     chr1   100-199      + |       GeneA
 #&gt;   [2]     chr1   200-349      + |       GeneA
 #&gt;   [3]     chr1   400-449      + |       GeneA
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths
 #&gt; 
-#&gt; $GeneB 
+#&gt; $GeneB
 #&gt; GRanges object with 3 ranges and 1 metadata column:
-#&gt;       seqnames  ranges strand | gene_name
-#&gt;   [1]     chr2 500-549      - |     GeneB
-#&gt;   [2]     chr2 300-349      - |     GeneB
-#&gt;   [3]     chr2 100-199      - |     GeneB
+#&gt;       seqnames    ranges strand |   gene_name
+#&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
+#&gt;   [1]     chr2   500-549      - |       GeneB
+#&gt;   [2]     chr2   300-349      - |       GeneB
+#&gt;   [3]     chr2   100-199      - |       GeneB
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths
 #&gt; 
-#&gt; $GeneC 
+#&gt; $GeneC
 #&gt; GRanges object with 3 ranges and 1 metadata column:
-#&gt;       seqnames  ranges strand | gene_name
-#&gt;   [1]     chr1 200-249      + |     GeneC
-#&gt;   [2]     chr1 400-599      + |     GeneC
-#&gt;   [3]     chr1 600-649      + |     GeneC
-#&gt; 
-#&gt; -------
-#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
-<span class='fu'><a href='annotateGRLfromGRL.html'>annotateGRLfromGRL</a></span>(<span class='no'>grl1</span>, <span class='no'>grl2</span>);</div><div class='output co'>#&gt; GRangesList object of length 3:
-#&gt; $GeneA 
+#&gt;       seqnames    ranges strand |   gene_name
+#&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
+#&gt;   [1]     chr1   200-249      + |       GeneC
+#&gt;   [2]     chr1   400-599      + |       GeneC
+#&gt;   [3]     chr1   600-649      + |       GeneC
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths
+#&gt; </div><div class='input'>
+<span class='fu'><a href='annotateGRLfromGRL.html'>annotateGRLfromGRL</a></span><span class='op'>(</span><span class='va'>grl1</span>, <span class='va'>grl2</span><span class='op'>)</span>;
+</div><div class='output co'>#&gt; GRangesList object of length 3:
+#&gt; $GeneA
 #&gt; GRanges object with 3 ranges and 1 metadata column:
 #&gt;           seqnames    ranges strand |           X
 #&gt;              &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
 #&gt;   grl1_v1     chr1   100-199      + |       GeneA
 #&gt;   grl1_v2     chr1   200-349      + |       GeneA
 #&gt;   grl1_v3     chr1   400-449      + |       GeneA
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths
 #&gt; 
-#&gt; $GeneB 
+#&gt; $GeneB
 #&gt; GRanges object with 3 ranges and 1 metadata column:
-#&gt;           seqnames  ranges strand |     X
-#&gt;   grl1_v4     chr2 500-549      - | GeneB
-#&gt;   grl1_v5     chr2 300-349      - | GeneB
-#&gt;   grl1_v6     chr2 100-199      - | GeneB
+#&gt;           seqnames    ranges strand |           X
+#&gt;              &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
+#&gt;   grl1_v4     chr2   500-549      - |       GeneB
+#&gt;   grl1_v5     chr2   300-349      - |       GeneB
+#&gt;   grl1_v6     chr2   100-199      - |       GeneB
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths
 #&gt; 
-#&gt; $GeneC 
+#&gt; $GeneC
 #&gt; GRanges object with 3 ranges and 1 metadata column:
-#&gt;           seqnames  ranges strand |     X
-#&gt;   grl1_v7     chr1 200-249      + | GeneC
-#&gt;   grl1_v8     chr1 400-599      + | GeneC
-#&gt;   grl1_v9     chr1 600-649      + | GeneC
-#&gt; 
-#&gt; -------
-#&gt; seqinfo: 2 sequences from an unspecified genome; no seqlengths</div><div class='input'>
+#&gt;           seqnames    ranges strand |           X
+#&gt;              &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;
+#&gt;   grl1_v7     chr1   200-249      + |       GeneC
+#&gt;   grl1_v8     chr1   400-599      + |       GeneC
+#&gt;   grl1_v9     chr1   600-649      + |       GeneC
+#&gt;   -------
+#&gt;   seqinfo: 2 sequences from an unspecified genome; no seqlengths
+#&gt; </div><div class='input'>
 </div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -456,7 +478,7 @@ is yet to be ported to the Jam package suite.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

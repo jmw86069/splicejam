@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Flatten exons by gene or transcript — flattenExonsBy" />
 <meta property="og:description" content="Flatten exons by gene or transcript" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
       </span>
     </div>
 
@@ -105,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jmw86069/splicejam">
+  <a href="http://github.com/jmw86069/splicejam/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -124,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Flatten exons by gene or transcript</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
+    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
     <div class="hidden name"><code>flattenExonsBy.Rd</code></div>
     </div>
 
@@ -132,18 +135,20 @@
     <p>Flatten exons by gene or transcript</p>
     </div>
 
-    <pre class="usage"><span class='fu'>flattenExonsBy</span>(
-  <span class='no'>exonsByTx</span>,
-  <span class='no'>tx2geneDF</span>,
-  <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"gene"</span>, <span class='st'>"tx"</span>),
-  <span class='kw'>detectedTx</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>genes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>txColname</span> <span class='kw'>=</span> <span class='st'>"transcript_id"</span>,
-  <span class='kw'>geneColname</span> <span class='kw'>=</span> <span class='st'>"gene_name"</span>,
-  <span class='kw'>cdsByTx</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cdsByGene</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>flattenExonsBy</span><span class='op'>(</span>
+  <span class='va'>exonsByTx</span>,
+  <span class='va'>tx2geneDF</span>,
+  by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"gene"</span>, <span class='st'>"tx"</span><span class='op'>)</span>,
+  detectedTx <span class='op'>=</span> <span class='cn'>NULL</span>,
+  genes <span class='op'>=</span> <span class='cn'>NULL</span>,
+  txColname <span class='op'>=</span> <span class='st'>"transcript_id"</span>,
+  geneColname <span class='op'>=</span> <span class='st'>"gene_name"</span>,
+  cdsByTx <span class='op'>=</span> <span class='cn'>NULL</span>,
+  cdsByGene <span class='op'>=</span> <span class='cn'>NULL</span>,
+  filterTwoStrand <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  exon_method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"disjoin"</span>, <span class='st'>"reduce"</span><span class='op'>)</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -205,6 +210,28 @@ from <code>TxDb</code> data using <code><a href='https://rdrr.io/pkg/GenomicFeat
 Note this input is only used when <code>by="gene"</code>.</p></td>
     </tr>
     <tr>
+      <th>filterTwoStrand</th>
+      <td><p><code>logical</code> indicating whether genes on multiple
+strands are removed during <code><a href='assignGRLexonNames.html'>assignGRLexonNames()</a></code> which assigns
+ordered exon numbers for each unique gene. Setting this to <code>FALSE</code>
+may cause exon numbers to be incorrect, but it will retain all
+genes. When this argument is <code>TRUE</code> any genes present on multiple
+strands are removed.</p></td>
+    </tr>
+    <tr>
+      <th>exon_method</th>
+      <td><p><code>character</code> string indicating the method to use
+when combining transcript exons by gene: <code>"disjoin"</code> maintains
+the internal boundaries for overlapping exons, so overlapping
+exons of different width will be sub-divided; <code>"reduce"</code>
+combines overlapping exons into one larger exon that is not
+sub-divided. The <code>"reduce"</code> method is substantially faster,
+but loses the ability to match a specific exon region to its
+source transcript isoform(s). Note that when <code>cdsByExon</code> is
+also supplied, exons will be sub-divided at the point where
+an exon goes from CDS-overlapping, to non-coding.</p></td>
+    </tr>
+    <tr>
       <th>verbose</th>
       <td><p>logical indicating whether to print verbose output.</p></td>
     </tr>
@@ -212,49 +239,92 @@ Note this input is only used when <code>by="gene"</code>.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>GRangesList named by gene when <code>by="gene"</code> or transcript when
-<code>by="tx"</code>, containing non-overlapping GRanges with exon names
-as described above.</p>
+    <p><code>GRangesList</code> with names dependent upon argument <code>by</code>:
+when <code>by="gene"</code> names are derived from values in <code>geneColname</code>;
+when <code>by="tx"</code> names are derived from values in <code>txColname</code>.
+Each entry in the <code>GRangesList</code> will contain a series of
+non-overlapping <code>GRanges</code> each representing an exon. The exon
+names are described above.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function takes as input:</p><ul>
 <li><p><code>exonsByTx</code> as a <code>GRangesList</code> object
-of transcript exons named by the <code>transcript_id</code>,</p></li>
-<li><p><code>tx2geneDF</code> a <code>data.frame</code> with transcript-gene cross-reference,</p></li>
+of transcript exons named by the <code>transcript_id</code></p></li>
+<li><p><code>tx2geneDF</code> a <code>data.frame</code> with transcript-gene cross-reference</p></li>
 <li><p><code>detectedTx</code> an optional character vector of <code>transcript_id</code>
 values, used to subset the overall transcripts</p></li>
 <li><p><code>cdsByTx</code> an optional <code>GRangesList</code> object, similar to <code>exonsByTx</code>
 except that it only contains the CDS portion of exons</p></li>
 </ul>
 
-<p>This function groups exons together by gene, producing a flattened,
-disjoint (non-overlapping) set of exons, where exons are subdivided
-when there are multiple boundaries.</p>
-<p>Finally, it labels each exon using a defined naming scheme:</p><ul>
-<li><p>Each contiguous exon is numbered in order, starting at <code>1</code> for the
-first stranded exon for the gene, for example <code>exon1</code>, <code>exon2</code>,
-<code>exon3</code>.</p></li>
-<li><p>When an exon is sub-divided, each section is labeled with
-an alphabetic suffix to indicate the order within that exon,
-for example <code>exon1a</code>, <code>exon1b</code>, <code>exon1c</code>.</p></li>
+<p>When <code>by="gene"</code> this function groups exons from one or more
+transcript isoforms together by gene, to produce a single
+non-overlapping set of exons that describe each gene. When <code>cdsByTx</code>
+is provided, the output is useful in showing which regions of
+an exon is coding (CDS), and which regions are non-coding.
+When <code>exon_method="disjoin"</code> the output also maintains any
+internal exon boundaries wherever multiple exons overlap.</p>
+<p>When <code>by="tx"</code> this function is primarily used to combine
+<code>exonsByTx</code> with optional <code>cdsByTx</code> in order to sub-divide
+exons into regions which are coding (CDS) and non-coding.</p>
+<p>The use of <code>detectedTx</code> has appeared to be very helpful in
+reducing the overall complexity of the flattened gene-exon
+models, specifically reducing the number of low-quality
+predicted transcripts that are represented.</p>
+<p>Finally, this function calls <code><a href='assignGRLexonNames.html'>assignGRLexonNames()</a></code> to label
+exons using a defined naming scheme:</p><ul>
+<li><p>Contiguous exons are numbered in order, starting at <code>1</code> and
+increasing in the coding direction (strand-specific.) For
+example exons will be numbered: <code>exon1</code>, <code>exon2</code>, <code>exon3</code>.</p></li>
+<li><p>Exons which are sub-divided, are indicated with an lowercase
+character letter, for example: <code>exon1a</code>, <code>exon1b</code>, <code>exon1c</code>.</p></li>
 </ul>
 
 <p>A text schematic is shown below:</p>
-<p><code>|=======|======|......|=======|.....|=======|=======|=======|</code></p>
-<p><code>|.exon1a|exon1b|......|.exon2.|.....|.exon3a|.exon3b|.exon3c|</code></p>
+<pre>
+|=======|======|......|=======|.....|=======|=======|=======|
+
+|_exon1a|exon1b|......|_exon2_|.....|_exon3a|_exon3b|_exon3c|
+</pre>
+
 <p>Where</p><ul>
 <li><p><code>|====|</code> represents an exon,</p></li>
 <li><p><code>|====|====|</code> represents one contiguous exon with two
 sub-divided parts, and</p></li>
-<li><p><code>.....</code> represents an intron.</p></li>
+<li><p><code>|.....|</code> represents an intron.</p></li>
 </ul>
 
 <p>It is recommended but not required to supply <code>detectedTx</code>,
 since it can greatly reduce the total number of transcripts.
-This step has two benefits: It can greatly simplify the
-resulting exon model based upon observed data, and it
-has the by-product of removing potentially erroneous
-transcripts which often has no supporting observed data.</p>
+This step has two benefits:</p><ol>
+<li><p>Supplying <code>detectedTx</code> can greatly simplify the
+resulting gene-exon models.</p></li>
+<li><p>Supplying <code>detectedTx</code> has the by-product of
+removing potentially erroneous transcripts from the
+source annotation, while also producing a finished result
+that is driven by observed data.</p></li>
+</ol>
+
+<p>Potential problems with supplying <code>detectedTx</code>, and
+suggested work-around:</p><ol>
+<li><p>If the <code>detectedTx</code> is incorrect, it may not include all
+genes defined in <code>tx2geneDF</code>. In principle, this effect is
+beneficial, by not producing flat gene-exon models for
+genes with no observed data.</p><ul>
+<li><p>Workaround: Note that <code><a href='launchSashimiApp.html'>launchSashimiApp()</a></code> has
+the option to query <code>"All genes"</code>.</p></li>
+<li><p>An alternative workaround is to run <code>flattenExonsBy()</code>
+without supplying <code>detectedTx</code>, but providing <code>gene</code> so
+this method only produces flat gene-exons for the genes
+of interest.</p></li>
+</ul></li>
+<li><p>The sashimi plot may represent exon coverage as if it were
+an intron, thus compressing the width of that coverage inside
+an intron context. However, the coverage will be displayed,
+giving a visual indicator that it may need to be reviewed
+in more detail.</p></li>
+</ol>
+
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other jam RNA-seq functions: 
@@ -272,15 +342,10 @@ transcripts which often has no supporting observed data.</p>
 <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a>()</code></p></div>
 
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -291,7 +356,7 @@ transcripts which often has no supporting observed data.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

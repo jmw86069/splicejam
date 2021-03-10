@@ -651,10 +651,15 @@ gene2gg <- function
    if (length(grl1) == 0 && length(grl1a) == 0) {
       return(NULL);
    }
-   if ("first" %in% gene_order) {
-      grl1a1 <- GRangesList(c(
-         rev(grl1),
-         grl1a));
+   if (length(grl1) == 0) {
+      grl1a1 <- grl1a;
+   } else if (length(grl1a) == 0) {
+      grl1a1 <- rev(grl1)
+   } else if ("first" %in% gene_order) {
+      grl1a1 <- GRangesList(
+         jamba::rmNULL(
+            c(rev(grl1),
+               grl1a)));
    } else {
       grl1a1 <- GRangesList(c(
          grl1a,

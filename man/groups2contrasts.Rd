@@ -172,6 +172,7 @@ iFactors <- data.frame(Genotype=factor(c("WT","WT","KO","KO"),
 iFactors;
 groups2contrasts(iFactors)
 
+
 # Again remove WT-WT and KO-KO contrasts
 groups2contrasts(iFactors,
    removePairs=list(c("WT"), c("KO")))

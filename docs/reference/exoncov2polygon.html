@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Convert exon coverage to polygons — exoncov2polygon" />
 <meta property="og:description" content="Convert exon coverage to polygons" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
       </span>
     </div>
 
@@ -105,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jmw86069/splicejam">
+  <a href="http://github.com/jmw86069/splicejam/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -124,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Convert exon coverage to polygons</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-plot.R'><code>R/jambio-plot.R</code></a></small>
+    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/jambio-plot.R'><code>R/jambio-plot.R</code></a></small>
     <div class="hidden name"><code>exoncov2polygon.Rd</code></div>
     </div>
 
@@ -132,19 +135,19 @@
     <p>Convert exon coverage to polygons</p>
     </div>
 
-    <pre class="usage"><span class='fu'>exoncov2polygon</span>(
-  <span class='no'>gr</span>,
-  <span class='kw'>covNames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>sample_id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>baseline</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>gapWidth</span> <span class='kw'>=</span> <span class='fl'>250</span>,
-  <span class='kw'>doPlot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>coord_style</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"fortify"</span>, <span class='st'>"base"</span>, <span class='st'>"list"</span>, <span class='st'>"all"</span>),
-  <span class='kw'>ref2c</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>compress_introns</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>exoncov2polygon</span><span class='op'>(</span>
+  <span class='va'>gr</span>,
+  covNames <span class='op'>=</span> <span class='cn'>NULL</span>,
+  sample_id <span class='op'>=</span> <span class='cn'>NULL</span>,
+  baseline <span class='op'>=</span> <span class='cn'>NULL</span>,
+  gapWidth <span class='op'>=</span> <span class='fl'>250</span>,
+  doPlot <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  coord_style <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"fortify"</span>, <span class='st'>"base"</span>, <span class='st'>"list"</span>, <span class='st'>"all"</span><span class='op'>)</span>,
+  ref2c <span class='op'>=</span> <span class='cn'>NULL</span>,
+  compress_introns <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -217,7 +220,7 @@ make certain features visually easier to distinguish.</p>
 <p>This function also calls <code><a href='simplifyXY.html'>simplifyXY()</a></code> which reduces the
 stored polygon detail for regions whose coordinates are compressed
 on the x-axis, taking roughly the max value for each point.</p>
-<p>The default output is roughly similar to <code>broom::tidy()</code> in
+<p>The default output is roughly similar to <code><a href='https://rdrr.io/pkg/generics/man/tidy.html'>broom::tidy()</a></code> in
 that it converts a custom R object into a tidy data.frame
 suitable for use by ggplot2 and other tidy workflows.</p>
 <p>The function <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw()</a></code> takes a set of bigWig files
@@ -240,6 +243,7 @@ which is the intended input for <code>exoncov2polygon()</code>.</p>
 <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw</a>()</code>,
 <code><a href='getGRgaps.html'>getGRgaps</a>()</code>,
 <code><a href='grl2df.html'>grl2df</a>()</code>,
+<code><a href='jam_isDisjoint.html'>jam_isDisjoint</a>()</code>,
 <code><a href='make_ref2compressed.html'>make_ref2compressed</a>()</code>,
 <code><a href='sortGRL.html'>sortGRL</a>()</code>,
 <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a>()</code>,
@@ -266,31 +270,27 @@ which is the intended input for <code>exoncov2polygon()</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># use some test data</span>
-<span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>GenomicRanges</span>));
-<span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>ggplot2</span>));
-
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>test_cov_gr</span>);
+<span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>GenomicRanges</span><span class='op'>)</span><span class='op'>)</span>;
+<span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span><span class='op'>)</span>;
+</div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘ggplot2’ was built under R version 3.6.2</span></div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>test_cov_gr</span><span class='op'>)</span>;
 <span class='co'># prepare polygon coordinates</span>
-<span class='no'>exondf</span> <span class='kw'>&lt;-</span> <span class='fu'>exoncov2polygon</span>(<span class='no'>test_cov_gr</span>, <span class='kw'>covNames</span><span class='kw'>=</span><span class='st'>"sample_A"</span>);
+<span class='va'>exondf</span> <span class='op'>&lt;-</span> <span class='fu'>exoncov2polygon</span><span class='op'>(</span><span class='va'>test_cov_gr</span>, covNames<span class='op'>=</span><span class='st'>"sample_A"</span><span class='op'>)</span>;
 <span class='co'># create a ggplot</span>
-<span class='no'>gg3</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='no'>exondf</span>,
-      <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>x</span><span class='kw'>=</span><span class='no'>x</span>, <span class='kw'>y</span><span class='kw'>=</span><span class='no'>y</span>, <span class='kw'>group</span><span class='kw'>=</span><span class='no'>gr</span>, <span class='kw'>fill</span><span class='kw'>=</span><span class='no'>gr</span>, <span class='kw'>color</span><span class='kw'>=</span><span class='no'>gr</span>)) +
-   <span class='kw pkg'>ggforce</span><span class='kw ns'>::</span><span class='fu'><a href='https://ggforce.data-imaginist.com/reference/geom_shape.html'>geom_shape</a></span>(<span class='kw'>alpha</span><span class='kw'>=</span><span class='fl'>0.8</span>) +
-   <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/colorjam/man/theme_jam.html'>theme_jam</a></span>() +
-   <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/colorjam/man/scale_fill_jam.html'>scale_fill_jam</a></span>() +
-   <span class='kw pkg'>colorjam</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/colorjam/man/scale_color_jam.html'>scale_color_jam</a></span>();
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>gg3</span>);</div><div class='img'><img src='exoncov2polygon-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='va'>gg3</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>exondf</span>,
+      <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x<span class='op'>=</span><span class='va'>x</span>, y<span class='op'>=</span><span class='va'>y</span>, group<span class='op'>=</span><span class='va'>gr</span>, fill<span class='op'>=</span><span class='va'>gr</span>, color<span class='op'>=</span><span class='va'>gr</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
+   <span class='fu'>ggforce</span><span class='fu'>::</span><span class='fu'><a href='https://ggforce.data-imaginist.com/reference/geom_shape.html'>geom_shape</a></span><span class='op'>(</span>alpha<span class='op'>=</span><span class='fl'>0.8</span><span class='op'>)</span> <span class='op'>+</span>
+   <span class='fu'>colorjam</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/colorjam/man/theme_jam.html'>theme_jam</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+   <span class='fu'>colorjam</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/colorjam/man/scale_fill_jam.html'>scale_fill_jam</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+   <span class='fu'>colorjam</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/colorjam/man/scale_color_jam.html'>scale_color_jam</a></span><span class='op'>(</span><span class='op'>)</span>;
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>gg3</span><span class='op'>)</span>;
+</div><div class='img'><img src='exoncov2polygon-1.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -301,7 +301,7 @@ which is the intended input for <code>exoncov2polygon()</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

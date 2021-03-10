@@ -57,6 +57,8 @@ print(ggWide1);
 
 # The exons are required to define compressed ranges
 # Note: DO NOT USE THESE STEPS
+# this plot shows the distortion of arcs by compressed x-axis
+# and we will fix it in the next example
 data(test_exon_wide_gr);
 ref2c <- make_ref2compressed(test_exon_wide_gr,
    nBreaks=10);

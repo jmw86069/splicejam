@@ -1,3 +1,19 @@
+# splicejam version 0.0.63.900
+
+## bug fixes
+
+* Fixed jampack #1 bug with `splicejam::gene2gg()` when only
+`flatExonsByGene` is supplied without `flatExonsByTx` the
+`GRangesList` coersion no longer allows one object to be
+`NULL`. Workaround is to ignore the missing object which
+keeps everything as `GRangesList` without needing coersion.
+* Fixed bug in `assignGRLexonNames()` that appears to be caused
+by a new Bioconductor data type `FactorList`, which requires
+explicit conversion to `list` for this function to work
+as expected.
+* Cleaned up some errors in function examples, most just needed
+to have the examples re-evaluated to clear the cached error.
+
 # splicejam version 0.0.62.900
 
 ## enhancements

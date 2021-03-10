@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Create an interactive 3-D BGA plotly visualization — bgaPlotly3d" />
 <meta property="og:description" content="Create an interactive 3-D BGA plotly visualization" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
       </span>
     </div>
 
@@ -105,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jmw86069/splicejam">
+  <a href="http://github.com/jmw86069/splicejam/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -124,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Create an interactive 3-D BGA plotly visualization</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/splicejam-plots.R'><code>R/splicejam-plots.R</code></a></small>
+    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/splicejam-plots.R'><code>R/splicejam-plots.R</code></a></small>
     <div class="hidden name"><code>bgaPlotly3d.Rd</code></div>
     </div>
 
@@ -132,48 +135,48 @@
     <p>Create an interactive 3-D BGA plotly visualization</p>
     </div>
 
-    <pre class="usage"><span class='fu'>bgaPlotly3d</span>(
-  <span class='no'>bgaInfo</span>,
-  <span class='kw'>axes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>3</span>),
-  <span class='kw'>superGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>superGroupAlpha</span> <span class='kw'>=</span> <span class='fl'>0.3</span>,
-  <span class='kw'>superGroupLwd</span> <span class='kw'>=</span> <span class='fl'>25</span>,
-  <span class='kw'>arrowSmoothFactor</span> <span class='kw'>=</span> <span class='fl'>8</span>,
-  <span class='kw'>colorSub</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>drawVectors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"none"</span>, <span class='st'>"centroids"</span>, <span class='st'>"genes"</span>),
-  <span class='kw'>highlightGenes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>drawSampleLabels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>ellipseType</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ellipsoid"</span>, <span class='st'>"alphahull"</span>, <span class='st'>"none"</span>),
-  <span class='kw'>ellipseOpacity</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
-  <span class='kw'>useScaledCoords</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>geneColor</span> <span class='kw'>=</span> <span class='st'>"#555555"</span>,
-  <span class='kw'>geneScaleFactor</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>geneLwd</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>geneAlpha</span> <span class='kw'>=</span> <span class='fl'>0.7</span>,
-  <span class='kw'>geneLabels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>maxGenes</span> <span class='kw'>=</span> <span class='fl'>50</span>,
-  <span class='kw'>centroidLwd</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-  <span class='kw'>centroidAlpha</span> <span class='kw'>=</span> <span class='fl'>0.3</span>,
-  <span class='kw'>textposition_centroid</span> <span class='kw'>=</span> <span class='st'>"top center"</span>,
-  <span class='kw'>textposition_sample</span> <span class='kw'>=</span> <span class='st'>"middle right"</span>,
-  <span class='kw'>sceneX</span> <span class='kw'>=</span> -<span class='fl'>1.25</span>,
-  <span class='kw'>sceneY</span> <span class='kw'>=</span> <span class='fl'>1.25</span>,
-  <span class='kw'>sceneZ</span> <span class='kw'>=</span> <span class='fl'>1.25</span>,
-  <span class='kw'>main</span> <span class='kw'>=</span> <span class='st'>""</span>,
-  <span class='kw'>plot_bgcolor</span> <span class='kw'>=</span> <span class='st'>"#eeeeee"</span>,
-  <span class='kw'>paper_bgcolor</span> <span class='kw'>=</span> <span class='st'>"#dddddd"</span>,
-  <span class='kw'>sampleGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>debug</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>bgaPlotly3d</span><span class='op'>(</span>
+  <span class='va'>bgaInfo</span>,
+  axes <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>3</span><span class='op'>)</span>,
+  superGroups <span class='op'>=</span> <span class='cn'>NULL</span>,
+  superGroupAlpha <span class='op'>=</span> <span class='fl'>0.3</span>,
+  superGroupLwd <span class='op'>=</span> <span class='fl'>25</span>,
+  arrowSmoothFactor <span class='op'>=</span> <span class='fl'>8</span>,
+  colorSub <span class='op'>=</span> <span class='cn'>NULL</span>,
+  drawVectors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"none"</span>, <span class='st'>"centroids"</span>, <span class='st'>"genes"</span><span class='op'>)</span>,
+  highlightGenes <span class='op'>=</span> <span class='cn'>NULL</span>,
+  drawSampleLabels <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  ellipseType <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ellipsoid"</span>, <span class='st'>"alphahull"</span>, <span class='st'>"none"</span><span class='op'>)</span>,
+  ellipseOpacity <span class='op'>=</span> <span class='fl'>0.2</span>,
+  useScaledCoords <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  geneColor <span class='op'>=</span> <span class='st'>"#555555"</span>,
+  geneScaleFactor <span class='op'>=</span> <span class='fl'>1</span>,
+  geneLwd <span class='op'>=</span> <span class='fl'>2</span>,
+  geneAlpha <span class='op'>=</span> <span class='fl'>0.7</span>,
+  geneLabels <span class='op'>=</span> <span class='cn'>NULL</span>,
+  maxGenes <span class='op'>=</span> <span class='fl'>50</span>,
+  centroidLwd <span class='op'>=</span> <span class='fl'>15</span>,
+  centroidAlpha <span class='op'>=</span> <span class='fl'>0.3</span>,
+  textposition_centroid <span class='op'>=</span> <span class='st'>"top center"</span>,
+  textposition_sample <span class='op'>=</span> <span class='st'>"middle right"</span>,
+  sceneX <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1.25</span>,
+  sceneY <span class='op'>=</span> <span class='fl'>1.25</span>,
+  sceneZ <span class='op'>=</span> <span class='fl'>1.25</span>,
+  main <span class='op'>=</span> <span class='st'>""</span>,
+  plot_bgcolor <span class='op'>=</span> <span class='st'>"#eeeeee"</span>,
+  paper_bgcolor <span class='op'>=</span> <span class='st'>"#dddddd"</span>,
+  sampleGroups <span class='op'>=</span> <span class='cn'>NULL</span>,
+  debug <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>bgaInfo</th>
-      <td><p>object of class <code>"bga"</code> as created by <code>made4::bga()</code>.</p></td>
+      <td><p>object of class <code>"bga"</code> as created by <code><a href='https://rdrr.io/pkg/made4/man/bga.html'>made4::bga()</a></code>.</p></td>
     </tr>
     <tr>
       <th>axes</th>
@@ -305,10 +308,10 @@ visualization.</p></td>
       <td><p>vector of character or factor values. The
 names are expected to contain values in
 <code><a href='https://rdrr.io/r/base/colnames.html'>rownames(bgaInfo$ord$ord$tab)</a></code>, which are also the colnames
-of the data matrix used in <code>made4::bga()</code>. The values in
+of the data matrix used in <code><a href='https://rdrr.io/pkg/made4/man/bga.html'>made4::bga()</a></code>. The values in
 <code>sampleGroups</code> are used to re-group samples, which effectively
 calculates new sample group centroids used in this
-visualization. It is intended to be used when the <code>made4::bga()</code>
+visualization. It is intended to be used when the <code><a href='https://rdrr.io/pkg/made4/man/bga.html'>made4::bga()</a></code>
 is used without grouping, for example when each sample replicate
 is defined as its own group.</p></td>
     </tr>
@@ -337,7 +340,7 @@ background components.</p></td>
 a 3-D BGA plot.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function takes the output from <code>made4::bga()</code> (class <code>"bga"</code>)
+    <p>This function takes the output from <code><a href='https://rdrr.io/pkg/made4/man/bga.html'>made4::bga()</a></code> (class <code>"bga"</code>)
 and creates a 3D plotly visualization which shows the samples,
 sample centroids, and optionally a subset of genes in the same
 BGA component space.</p>
@@ -348,7 +351,7 @@ fewer than four groups, a 3-D plot cannot be produced.</p>
 <p>When analyzing data with fewer than four groups, it is sometimes
 helpful to cluster samples individually. This approach is roughly
 equivalent to performing PCA or COA directly, but is sometimes
-convenient in being consistent with calling <code>made4::bga()</code>, as
+convenient in being consistent with calling <code><a href='https://rdrr.io/pkg/made4/man/bga.html'>made4::bga()</a></code>, as
 it also applies the same scaling method used in <code>made4:bga()</code>
 prior to calling PCA or COA. In that case, the groups can still
 be displayed by <code>bgaPlotly3d()</code> by defining the <code>sampleGroups</code>
@@ -382,15 +385,10 @@ either by factor levels, or by the order returned by
 <code><a href='spline3d.html'>spline3d</a>()</code></p></div>
 
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -401,7 +399,7 @@ either by factor levels, or by the order returned by
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

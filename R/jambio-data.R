@@ -37,7 +37,7 @@
 #' test_junc_gr;
 #'
 #' # To plot junctions, use grl2df(..., shape="junction")
-#' junc_df <-grl2df(test_junc_gr, shape="junction")
+#' junc_df <- grl2df(test_junc_gr, shape="junction")
 #' gg1 <- ggplot(junc_df, aes(x=x, y=y, group=id, fill=gr_name)) +
 #'    ggforce::geom_diagonal_wide(alpha=0.7) +
 #'    colorjam::theme_jam() +
@@ -98,6 +98,8 @@
 #'
 #' # The exons are required to define compressed ranges
 #' # Note: DO NOT USE THESE STEPS
+#' # this plot shows the distortion of arcs by compressed x-axis
+#' # and we will fix it in the next example
 #' data(test_exon_wide_gr);
 #' ref2c <- make_ref2compressed(test_exon_wide_gr,
 #'    nBreaks=10);
@@ -249,6 +251,7 @@
 #' print(gg3);
 #'
 #' # you can add junctions to exons in one plot
+#' junc_df <- grl2df(test_junc_gr, shape="junction")
 #' gg3 +
 #'    ggforce::geom_diagonal_wide(data=junc_df,
 #'       inherit.aes=FALSE,
@@ -304,8 +307,11 @@
 #' print(ggWide3c);
 #'
 #' # you can add junctions to exons in one plot
-#' gg3 +
-#'    ggforce::geom_diagonal_wide(data=junc_df,
+#' junc_wide_c_df <-grl2df(test_junc_wide_gr,
+#'    shape="junction",
+#'    ref2c=ref2c);
+#' ggWide3c +
+#'    ggforce::geom_diagonal_wide(data=junc_wide_c_df,
 #'       inherit.aes=FALSE,
 #'       show.legend=FALSE,
 #'       fill="orange",

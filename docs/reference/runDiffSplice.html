@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Perform differential isoform analysis using diffSplice — runDiffSplice" />
 <meta property="og:description" content="Perform differential isoform analysis using diffSplice" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
       </span>
     </div>
 
@@ -105,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jmw86069/splicejam">
+  <a href="http://github.com/jmw86069/splicejam/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -124,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Perform differential isoform analysis using diffSplice</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
+    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/jambio-tx.R'><code>R/jambio-tx.R</code></a></small>
     <div class="hidden name"><code>runDiffSplice.Rd</code></div>
     </div>
 
@@ -132,23 +135,23 @@
     <p>Perform differential isoform analysis using diffSplice</p>
     </div>
 
-    <pre class="usage"><span class='fu'>runDiffSplice</span>(
-  <span class='no'>iMatrixTx</span>,
-  <span class='kw'>detectedTx</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span>(<span class='no'>iMatrixTx</span>),
-  <span class='no'>tx2geneDF</span>,
-  <span class='kw'>txColname</span> <span class='kw'>=</span> <span class='st'>"transcript_id"</span>,
-  <span class='kw'>geneColname</span> <span class='kw'>=</span> <span class='st'>"gene_name"</span>,
-  <span class='no'>iDesign</span>,
-  <span class='no'>iContrasts</span>,
-  <span class='kw'>cutoffFDR</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-  <span class='kw'>cutoffFold</span> <span class='kw'>=</span> <span class='fl'>1.5</span>,
-  <span class='kw'>collapseByGene</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>spliceTest</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"t"</span>, <span class='st'>"simes"</span>, <span class='st'>"F"</span>),
-  <span class='kw'>sep</span> <span class='kw'>=</span> <span class='st'>" "</span>,
-  <span class='kw'>useVoom</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>runDiffSplice</span><span class='op'>(</span>
+  <span class='va'>iMatrixTx</span>,
+  detectedTx <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span><span class='op'>(</span><span class='va'>iMatrixTx</span><span class='op'>)</span>,
+  <span class='va'>tx2geneDF</span>,
+  txColname <span class='op'>=</span> <span class='st'>"transcript_id"</span>,
+  geneColname <span class='op'>=</span> <span class='st'>"gene_name"</span>,
+  <span class='va'>iDesign</span>,
+  <span class='va'>iContrasts</span>,
+  cutoffFDR <span class='op'>=</span> <span class='fl'>0.05</span>,
+  cutoffFold <span class='op'>=</span> <span class='fl'>1.5</span>,
+  collapseByGene <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  spliceTest <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"t"</span>, <span class='st'>"simes"</span>, <span class='st'>"F"</span><span class='op'>)</span>,
+  sep <span class='op'>=</span> <span class='st'>" "</span>,
+  useVoom <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -275,7 +278,7 @@ use.</p>
 <li><p><code>detectedTx</code> (optional) subset of <code><a href='https://rdrr.io/r/base/colnames.html'>rownames(iMatrixTx)</a></code>, sometimes
 determined by <code><a href='defineDetectedTx.html'>defineDetectedTx()</a></code>.</p></li>
 <li><p><code>tx2geneDF</code> data.frame with "transcript_id" and "gene_name" columns.
-This data.frame is often the same one used with <code>tximport::tximport()</code>
+This data.frame is often the same one used with <code><a href='https://rdrr.io/pkg/tximport/man/tximport.html'>tximport::tximport()</a></code>
 when importing transcriptome data to the gene level.</p></li>
 <li><p><code>iDesign</code>,<code>iContrasts</code> design and contrast matrix, as created by
 <code><a href='groups2contrasts.html'>groups2contrasts()</a></code>.</p></li>
@@ -338,28 +341,30 @@ tools for RNA-seq read counts.
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># example for defining iDesign</span>
 <span class='co'># first define a vector of sample groups</span>
-<span class='no'>iGroups</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>jamba</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/jamba/man/nameVector.html'>nameVector</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"WT"</span>, <span class='st'>"KO"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>6</span>),
-   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Control"</span>, <span class='st'>"Treated"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>),
-   <span class='kw'>sep</span><span class='kw'>=</span><span class='st'>"_"</span>));
-<span class='no'>iGroups</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span>(<span class='no'>iGroups</span>, <span class='kw'>levels</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span>(<span class='no'>iGroups</span>));
-<span class='no'>iGroups</span>;</div><div class='output co'>#&gt; WT_Control_v1 WT_Control_v2 WT_Control_v3 WT_Treated_v1 WT_Treated_v2 
+<span class='va'>iGroups</span> <span class='op'>&lt;-</span> <span class='fu'>jamba</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/jamba/man/nameVector.html'>nameVector</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"WT"</span>, <span class='st'>"KO"</span><span class='op'>)</span>, each<span class='op'>=</span><span class='fl'>6</span><span class='op'>)</span>,
+   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Control"</span>, <span class='st'>"Treated"</span><span class='op'>)</span>, each<span class='op'>=</span><span class='fl'>3</span><span class='op'>)</span>,
+   sep<span class='op'>=</span><span class='st'>"_"</span><span class='op'>)</span><span class='op'>)</span>;
+<span class='va'>iGroups</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='va'>iGroups</span>, levels<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='op'>(</span><span class='va'>iGroups</span><span class='op'>)</span><span class='op'>)</span>;
+<span class='va'>iGroups</span>;
+</div><div class='output co'>#&gt; WT_Control_v1 WT_Control_v2 WT_Control_v3 WT_Treated_v1 WT_Treated_v2 
 #&gt;    WT_Control    WT_Control    WT_Control    WT_Treated    WT_Treated 
 #&gt; WT_Treated_v3 KO_Control_v1 KO_Control_v2 KO_Control_v3 KO_Treated_v1 
 #&gt;    WT_Treated    KO_Control    KO_Control    KO_Control    KO_Treated 
 #&gt; KO_Treated_v2 KO_Treated_v3 
 #&gt;    KO_Treated    KO_Treated 
 #&gt; Levels: WT_Control WT_Treated KO_Control KO_Treated</div><div class='input'><span class='co'># next define sample identifiers</span>
-<span class='no'>iSamples</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>iGroups</span>);
+<span class='va'>iSamples</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>iGroups</span><span class='op'>)</span>;
 
 <span class='co'># given a vector of groups, make iDesign</span>
-<span class='no'>iDesign</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>stats</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/stats/model.matrix.html'>model.matrix</a></span>(~<span class='fl'>0</span>+<span class='no'>iGroups</span>);
+<span class='va'>iDesign</span> <span class='op'>&lt;-</span> <span class='fu'>stats</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/r/stats/model.matrix.html'>model.matrix</a></span><span class='op'>(</span><span class='op'>~</span><span class='fl'>0</span><span class='op'>+</span><span class='va'>iGroups</span><span class='op'>)</span>;
 
 <span class='co'># It is good practice to rename colnames(iDesign) and rownames(iDesign),</span>
 <span class='co'># that is, for the love of all that is good, use colnames and rownames</span>
 <span class='co'># that help confirm that these matrices are consistent.</span>
-<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>iDesign</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span>(<span class='no'>iGroups</span>);
-<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span>(<span class='no'>iDesign</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>iGroups</span>);
-<span class='no'>iDesign</span>;</div><div class='output co'>#&gt;               WT_Control WT_Treated KO_Control KO_Treated
+<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>iDesign</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span><span class='va'>iGroups</span><span class='op'>)</span>;
+<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span><span class='op'>(</span><span class='va'>iDesign</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>iGroups</span><span class='op'>)</span>;
+<span class='va'>iDesign</span>;
+</div><div class='output co'>#&gt;               WT_Control WT_Treated KO_Control KO_Treated
 #&gt; WT_Control_v1          1          0          0          0
 #&gt; WT_Control_v2          1          0          0          0
 #&gt; WT_Control_v3          1          0          0          0
@@ -381,11 +386,12 @@ tools for RNA-seq read counts.
 <span class='co'># define contrasts</span>
 <span class='co'># the example below includes a two-way contrast, which is a test</span>
 <span class='co'># of the pairwise fold changes</span>
-<span class='no'>iContrasts</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>limma</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/limma/man/makeContrasts.html'>makeContrasts</a></span>(<span class='kw'>contrasts</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(
+<span class='va'>iContrasts</span> <span class='op'>&lt;-</span> <span class='fu'>limma</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/limma/man/makeContrasts.html'>makeContrasts</a></span><span class='op'>(</span>contrasts<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>
    <span class='st'>"WT_Treated-WT_Control"</span>, <span class='st'>"KO_Treated-KO_Control"</span>,
-   <span class='st'>"(KO_Treated-KO_Control)-(WT_Treated-WT_Control)"</span>),
-   <span class='kw'>levels</span><span class='kw'>=</span><span class='no'>iDesign</span>);
-<span class='no'>iContrasts</span>;</div><div class='output co'>#&gt;             Contrasts
+   <span class='st'>"(KO_Treated-KO_Control)-(WT_Treated-WT_Control)"</span><span class='op'>)</span>,
+   levels<span class='op'>=</span><span class='va'>iDesign</span><span class='op'>)</span>;
+<span class='va'>iContrasts</span>;
+</div><div class='output co'>#&gt;             Contrasts
 #&gt; Levels       WT_Treated-WT_Control KO_Treated-KO_Control
 #&gt;   WT_Control                    -1                     0
 #&gt;   WT_Treated                     1                     0
@@ -402,7 +408,8 @@ tools for RNA-seq read counts.
 <span class='co'># - colnames(iDesign) == the actual group names</span>
 <span class='co'># - all(colnames(iDesign) == rownames(iContrasts))</span>
 <span class='co'># you can see which samples are included in each test with crossproduct:</span>
-<span class='no'>iDesign</span> <span class='kw'>%*%</span> <span class='no'>iContrasts</span>;</div><div class='output co'>#&gt;                Contrasts
+<span class='va'>iDesign</span> <span class='op'>%*%</span> <span class='va'>iContrasts</span>;
+</div><div class='output co'>#&gt;                Contrasts
 #&gt;                 WT_Treated-WT_Control KO_Treated-KO_Control
 #&gt;   WT_Control_v1                    -1                     0
 #&gt;   WT_Control_v2                    -1                     0
@@ -431,21 +438,16 @@ tools for RNA-seq read counts.
 #&gt;   KO_Treated_v2                                               1
 #&gt;   KO_Treated_v3                                               1</div><div class='input'>
 <span class='co'>## Another efficient way to define iDesign and iContrasts:</span>
-<span class='no'>iDC</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>splicejam</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/splicejam/man/groups2contrasts.html'>groups2contrasts</a></span>(<span class='no'>iGroups</span>, <span class='kw'>returnDesign</span><span class='kw'>=</span><span class='fl'>TRUE</span>);
-<span class='no'>iDesign</span> <span class='kw'>&lt;-</span> <span class='no'>iDC</span>$<span class='no'>iDesign</span>;
-<span class='no'>iContrasts</span> <span class='kw'>&lt;-</span> <span class='no'>iDC</span>$<span class='no'>iContrasts</span>;</div></pre>
-  </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#references">References</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+<span class='va'>iDC</span> <span class='op'>&lt;-</span> <span class='fu'>splicejam</span><span class='fu'>::</span><span class='fu'><a href='groups2contrasts.html'>groups2contrasts</a></span><span class='op'>(</span><span class='va'>iGroups</span>, returnDesign<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>;
+<span class='va'>iDesign</span> <span class='op'>&lt;-</span> <span class='va'>iDC</span><span class='op'>$</span><span class='va'>iDesign</span>;
+<span class='va'>iContrasts</span> <span class='op'>&lt;-</span> <span class='va'>iDC</span><span class='op'>$</span><span class='va'>iContrasts</span>;
 
+</div></pre>
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -456,7 +458,7 @@ tools for RNA-seq read counts.
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

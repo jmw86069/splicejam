@@ -6,19 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Splicejam basic RNAseq workflow • splicejam</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Splicejam basic RNAseq workflow">
-<meta property="og:description" content="">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="splicejam">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/jmw86069/splicejam">
+  <a href="http://github.com/jmw86069/splicejam/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -82,15 +82,15 @@
 
       
 
-      </header><div class="row">
+      </header><script src="basic-rnaseq-workflow_files/header-attrs-2.1/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Splicejam basic RNAseq workflow</h1>
+      <h1 data-toc-skip>Splicejam basic RNAseq workflow</h1>
                         <h4 class="author">James M. Ward</h4>
             
-            <h4 class="date">2020-02-25</h4>
+            <h4 class="date">2021-03-09</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/jmw86069/splicejam/blob/master/vignettes/basic-rnaseq-workflow.Rmd"><code>vignettes/basic-rnaseq-workflow.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="http://github.com/jmw86069/splicejam/blob/master/vignettes/basic-rnaseq-workflow.Rmd"><code>vignettes/basic-rnaseq-workflow.Rmd</code></a></small>
       <div class="hidden name"><code>basic-rnaseq-workflow.Rmd</code></div>
 
     </div>
@@ -102,90 +102,93 @@
 <h2 class="hasAnchor">
 <a href="#r-setup" class="anchor"></a>R setup</h2>
 <p>First, set up the R environment with basic packages loaded.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(splicejam));
-<span class="co">#&gt; Warning: replacing previous import 'GenomicRanges::shift' by 'data.table::shift'</span>
-<span class="co">#&gt; when loading 'splicejam'</span>
-<span class="co">#&gt; Warning: replacing previous import 'data.table::last' by 'dplyr::last' when</span>
-<span class="co">#&gt; loading 'splicejam'</span>
-<span class="co">#&gt; Warning: replacing previous import 'GenomicRanges::union' by 'dplyr::union' when</span>
-<span class="co">#&gt; loading 'splicejam'</span>
-<span class="co">#&gt; Warning: replacing previous import 'GenomicRanges::intersect' by</span>
-<span class="co">#&gt; 'dplyr::intersect' when loading 'splicejam'</span>
-<span class="co">#&gt; Warning: replacing previous import 'GenomicRanges::setdiff' by 'dplyr::setdiff'</span>
-<span class="co">#&gt; when loading 'splicejam'</span>
-<span class="co">#&gt; Warning: replacing previous import 'data.table::first' by 'dplyr::first' when</span>
-<span class="co">#&gt; loading 'splicejam'</span>
-<span class="co">#&gt; Warning: replacing previous import 'data.table::between' by 'dplyr::between'</span>
-<span class="co">#&gt; when loading 'splicejam'</span>
-<span class="co">#&gt; Warning: replacing previous import 'ggplot2::last_plot' by 'plotly::last_plot'</span>
-<span class="co">#&gt; when loading 'splicejam'</span>
-<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(colorjam));
-<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(jamba));
-<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(jamma));</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://github.com/jmw86069/splicejam">splicejam</a></span><span class="op">)</span><span class="op">)</span>;
+<span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://github.com/jmw86069/colorjam">colorjam</a></span><span class="op">)</span><span class="op">)</span>;
+<span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://github.com/jmw86069/jamba">jamba</a></span><span class="op">)</span><span class="op">)</span>;
+<span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://github.com/jmw86069/jamma">jamma</a></span><span class="op">)</span><span class="op">)</span>;</pre></div>
 </div>
 <div id="salmon-quant-sf-gz-files" class="section level2">
 <h2 class="hasAnchor">
 <a href="#salmon-quant-sf-gz-files" class="anchor"></a>Salmon “quant.sf.gz” files</h2>
 <p>This example begins with Salmon quantification files from the <code>tximportData</code> package (if available).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(tximportData))) {
-   dir &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="dt">package=</span><span class="st">"tximportData"</span>);
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va">tximportData</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package<span class="op">=</span><span class="st">"tximportData"</span><span class="op">)</span>;
    
    <span class="co"># read sample annotations as a data.frame</span>
-   samples &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"samples.txt"</span>), <span class="dt">header=</span><span class="ot">TRUE</span>);
-   samples;
+   <span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"samples.txt"</span><span class="op">)</span>, header<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>;
+   <span class="va">samples</span>;
    
    <span class="co"># define Salmon import files</span>
-   files &lt;-<span class="st"> </span>jamba<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/nameVector.html">nameVector</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"salmon"</span>, samples<span class="op">$</span>run, <span class="st">"quant.sf.gz"</span>),
-      samples<span class="op">$</span>run);
-   <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(files);
-}
-<span class="co">#&gt; Warning in library(package, lib.loc = lib.loc, character.only = TRUE,</span>
-<span class="co">#&gt; logical.return = TRUE, : there is no package called 'tximportData'</span></code></pre></div>
+   <span class="va">files</span> <span class="op">&lt;-</span> <span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/nameVector.html">nameVector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"salmon"</span>, <span class="va">samples</span><span class="op">$</span><span class="va">run</span>, <span class="st">"quant.sf.gz"</span><span class="op">)</span>,
+      <span class="va">samples</span><span class="op">$</span><span class="va">run</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">files</span><span class="op">)</span>;
+<span class="op">}</span>
+<span class="co">#&gt;                                                                                           files</span>
+<span class="co">#&gt; ERR188297 /Users/wardjm/Library/R/3.6/library/tximportData/extdata/salmon/ERR188297/quant.sf.gz</span>
+<span class="co">#&gt; ERR188088 /Users/wardjm/Library/R/3.6/library/tximportData/extdata/salmon/ERR188088/quant.sf.gz</span>
+<span class="co">#&gt; ERR188329 /Users/wardjm/Library/R/3.6/library/tximportData/extdata/salmon/ERR188329/quant.sf.gz</span>
+<span class="co">#&gt; ERR188288 /Users/wardjm/Library/R/3.6/library/tximportData/extdata/salmon/ERR188288/quant.sf.gz</span>
+<span class="co">#&gt; ERR188021 /Users/wardjm/Library/R/3.6/library/tximportData/extdata/salmon/ERR188021/quant.sf.gz</span>
+<span class="co">#&gt; ERR188356 /Users/wardjm/Library/R/3.6/library/tximportData/extdata/salmon/ERR188356/quant.sf.gz</span></pre></div>
 </div>
 <div id="transcript-to-gene-from-gtf" class="section level2">
 <h2 class="hasAnchor">
 <a href="#transcript-to-gene-from-gtf" class="anchor"></a>Transcript-to-gene from GTF</h2>
-<p>The transcript-to-gene association will be stored in a data.frame <code>tx2geneDF</code>, in this case using <code><a href="../reference/makeTx2geneFromGtf.html">splicejam::makeTx2geneFromGtf()</a></code>. For other ways of creating a <code>tx2gene</code> data.frame, see the vignette from the <code>tximport::tximport</code> package.</p>
+<p>The transcript-to-gene association will be stored in a data.frame <code>tx2geneDF</code>, in this case using <code><a href="../reference/makeTx2geneFromGtf.html">splicejam::makeTx2geneFromGtf()</a></code>. For other ways of creating a <code>tx2gene</code> data.frame, see the vignette from the <code><a href="https://rdrr.io/pkg/tximport/man/tximport.html">tximport::tximport</a></code> package.</p>
 <p>For the purpose of this example, the GTF file is used from the <code>tximportData</code> package (if available).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(tximportData))) {
-   gtfFile &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(
-      <span class="kw"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span>(<span class="dt">pattern=</span><span class="st">"gtf.gz"</span>,
-         <span class="dt">path=</span><span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata/salmon_dm"</span>, <span class="dt">package=</span><span class="st">"tximportData"</span>),
-         <span class="dt">full.names=</span><span class="ot">TRUE</span>),
-      <span class="dv">1</span>);
-   gtfFile;
-   tx2geneDF &lt;-<span class="st"> </span><span class="kw"><a href="../reference/makeTx2geneFromGtf.html">makeTx2geneFromGtf</a></span>(<span class="dt">GTF=</span>gtfFile);
-   txColname &lt;-<span class="st"> "transcript_id"</span>;
-   geneColname &lt;-<span class="st"> "gene_name"</span>;
-   <span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(tx2geneDF));
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va">tximportData</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="va">gtfFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span><span class="op">(</span>pattern<span class="op">=</span><span class="st">"gtf.gz"</span>,
+         path<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"extdata/salmon_dm"</span>, package<span class="op">=</span><span class="st">"tximportData"</span><span class="op">)</span>,
+         full.names<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
+      <span class="fl">1</span><span class="op">)</span>;
+   <span class="va">gtfFile</span>;
+   <span class="va">tx2geneDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeTx2geneFromGtf.html">makeTx2geneFromGtf</a></span><span class="op">(</span>GTF<span class="op">=</span><span class="va">gtfFile</span><span class="op">)</span>;
+   <span class="va">txColname</span> <span class="op">&lt;-</span> <span class="st">"transcript_id"</span>;
+   <span class="va">geneColname</span> <span class="op">&lt;-</span> <span class="st">"gene_name"</span>;
+   <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">tx2geneDF</span><span class="op">)</span><span class="op">)</span>;
    
-   ## Alternatively, we load a prepared file from tximportData
-   tx2geneDF &lt;-<span class="st"> </span>data.table<span class="op">::</span><span class="kw">fread</span>(
-      <span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"tx2gene.gencode.v27.csv"</span>),
-      <span class="dt">sep=</span><span class="st">","</span>,
-      <span class="dt">data.table=</span><span class="ot">FALSE</span>);
-   txColname &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(tx2geneDF)[<span class="dv">1</span>];
-   geneColname &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(tx2geneDF)[<span class="dv">2</span>];
-}
-<span class="co">#&gt; Warning in library(package, lib.loc = lib.loc, character.only = TRUE,</span>
-<span class="co">#&gt; logical.return = TRUE, : there is no package called 'tximportData'</span></code></pre></div>
+   <span class="co">## Alternatively, we load a prepared file from tximportData</span>
+   <span class="va">tx2geneDF</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html">fread</a></span><span class="op">(</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"tx2gene.gencode.v27.csv"</span><span class="op">)</span>,
+      sep<span class="op">=</span><span class="st">","</span>,
+      data.table<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>;
+   <span class="va">txColname</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">tx2geneDF</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>;
+   <span class="va">geneColname</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">tx2geneDF</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>;
+<span class="op">}</span>
+<span class="co">#&gt;                 gene_id      gene_name transcript_id</span>
+<span class="co">#&gt; FBtr0081624 FBgn0000003 7SLRNA:CR32864   FBtr0081624</span>
+<span class="co">#&gt; FBtr0342981 FBgn0000008              a   FBtr0342981</span>
+<span class="co">#&gt; FBtr0071763 FBgn0000008              a   FBtr0071763</span>
+<span class="co">#&gt; FBtr0100521 FBgn0000008              a   FBtr0100521</span>
+<span class="co">#&gt; FBtr0071764 FBgn0000008              a   FBtr0071764</span>
+<span class="co">#&gt; FBtr0306337 FBgn0000014          abd-A   FBtr0306337</span></pre></div>
 </div>
 <div id="import-salmon-transcript-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#import-salmon-transcript-data" class="anchor"></a>Import Salmon transcript data</h2>
 <p>In this case, Salmon quantification files are imported, via the tximport package (if available).</p>
 <p>A summary of imported data is shown using the function <code><a href="https://rdrr.io/pkg/jamba/man/sdim.html">jamba::sdim()</a></code> which prints the dimensions of each object in a list.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(tximportData)) <span class="op">&amp;&amp;</span>
-<span class="st">      </span><span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(tximport))) {
-   txiTx &lt;-<span class="st"> </span>tximport<span class="op">::</span><span class="kw">tximport</span>(files,
-      <span class="dt">type=</span><span class="st">"salmon"</span>,
-      <span class="dt">txOut=</span><span class="ot">TRUE</span>);
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va">tximportData</span><span class="op">)</span><span class="op">)</span> <span class="op">&amp;&amp;</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/tximport">tximport</a></span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="va">txiTx</span> <span class="op">&lt;-</span> <span class="fu">tximport</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tximport/man/tximport.html">tximport</a></span><span class="op">(</span><span class="va">files</span>,
+      type<span class="op">=</span><span class="st">"salmon"</span>,
+      txOut<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>;
    
-   ## Check the data returned
-   jamba<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/sdim.html">sdim</a></span>(txiTx);
-}
-<span class="co">#&gt; Warning in library(package, lib.loc = lib.loc, character.only = TRUE,</span>
-<span class="co">#&gt; logical.return = TRUE, : there is no package called 'tximportData'</span></code></pre></div>
+   <span class="co">## Check the data returned</span>
+   <span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/sdim.html">sdim</a></span><span class="op">(</span><span class="va">txiTx</span><span class="op">)</span>;
+<span class="op">}</span>
+<span class="co">#&gt; reading in files with read_tsv</span>
+<span class="co">#&gt; 1 2 3 4 5 6</span>
+<span class="co">#&gt;                       rows cols     class</span>
+<span class="co">#&gt; abundance           200401    6    matrix</span>
+<span class="co">#&gt; counts              200401    6    matrix</span>
+<span class="co">#&gt; length              200401    6    matrix</span>
+<span class="co">#&gt; countsFromAbundance      1      character</span></pre></div>
 <div id="summarizedexperiment-for-transcript-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#summarizedexperiment-for-transcript-data" class="anchor"></a>SummarizedExperiment for transcript data</h3>
@@ -193,53 +196,57 @@
 <blockquote>
 <p>Note: During this step, data is log2-transformed using the format <code><a href="https://rdrr.io/r/base/Log.html">log2(1+x)</a></code>.</p>
 </blockquote>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Create SummarizedExperiment transcript object
-<span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(SummarizedExperiment)) <span class="op">&amp;&amp;</span>
-<span class="st">      </span><span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"txiTx"</span>)) {
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="co">## Create SummarizedExperiment transcript object</span>
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va">SummarizedExperiment</span><span class="op">)</span><span class="op">)</span> <span class="op">&amp;&amp;</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"txiTx"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
 
-   assayNames &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/sets.html">intersect</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"abundance"</span>,<span class="st">"counts"</span>),
-      <span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(txiTx));
-   geneMatch &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/match.html">match</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(txiTx[[assayNames[<span class="dv">1</span>]]]),
-      tx2geneDF[,txColname]);
-   sampleDF &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
-      <span class="dt">Sample=</span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(txiTx[[assayNames[<span class="dv">1</span>]]]),
-      <span class="dt">Group=</span><span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>, <span class="st">"B"</span>),
-         <span class="dt">length.out=</span><span class="kw"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(txiTx[[assayNames[<span class="dv">1</span>]]])));
+   <span class="va">assayNames</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/setops-methods.html">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"abundance"</span>,<span class="st">"counts"</span><span class="op">)</span>,
+      <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">txiTx</span><span class="op">)</span><span class="op">)</span>;
+   <span class="va">geneMatch</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.html">match</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">txiTx</span><span class="op">[[</span><span class="va">assayNames</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+      <span class="va">tx2geneDF</span><span class="op">[</span>,<span class="va">txColname</span><span class="op">]</span><span class="op">)</span>;
+   <span class="va">sampleDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+      Sample<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">txiTx</span><span class="op">[[</span><span class="va">assayNames</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+      Group<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>,
+         length.out<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">txiTx</span><span class="op">[[</span><span class="va">assayNames</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>;
 
-   TxSE &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html">SummarizedExperiment</a></span>(
-      <span class="dt">assays=</span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(txiTx[assayNames], <span class="cf">function</span>(x){<span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span>x)}),
-      <span class="dt">rowData=</span><span class="kw">DataFrame</span>(tx2geneDF[geneMatch,,<span class="dt">drop=</span><span class="ot">FALSE</span>]),
-      <span class="dt">colData=</span><span class="kw">DataFrame</span>(sampleDF)
-   );
-}
-<span class="co">#&gt; Warning: multiple methods tables found for 'type'</span>
-<span class="co">#&gt; Warning: multiple methods tables found for 'splitAsList'</span>
-<span class="co">#&gt; Warning: replacing previous import 'BiocGenerics::type' by 'DelayedArray::type'</span>
-<span class="co">#&gt; when loading 'SummarizedExperiment'</span></code></pre></div>
+   <span class="va">TxSE</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html">SummarizedExperiment</a></span><span class="op">(</span>
+      assays<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">txiTx</span><span class="op">[</span><span class="va">assayNames</span><span class="op">]</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">x</span><span class="op">)</span><span class="op">}</span><span class="op">)</span>,
+      rowData<span class="op">=</span><span class="fu">DataFrame</span><span class="op">(</span><span class="va">tx2geneDF</span><span class="op">[</span><span class="va">geneMatch</span>,,drop<span class="op">=</span><span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span>,
+      colData<span class="op">=</span><span class="fu">DataFrame</span><span class="op">(</span><span class="va">sampleDF</span><span class="op">)</span>
+   <span class="op">)</span>;
+<span class="op">}</span></pre></div>
 </div>
 </div>
 <div id="import-salmon-gene-data-using-tx2genedf" class="section level2">
 <h2 class="hasAnchor">
 <a href="#import-salmon-gene-data-using-tx2genedf" class="anchor"></a>Import Salmon gene data using tx2geneDF</h2>
 <p>If data were imported at the transcript level (above) then it can be summarized at the gene level without re-importing from the source files. Alternatively, it can be imported from source files without importing at the transcript level. Both methods are shown below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##
-<span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(tximportData))) {
-   <span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"txiTx"</span>)) {
-      ## Summarize transcript data to the gene level
-      txiGene &lt;-<span class="st"> </span>tximport<span class="op">::</span><span class="kw">summarizeToGene</span>(txiTx,
-         <span class="dt">tx2gene=</span>tx2geneDF[,<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(txColname,geneColname)]);
-   } <span class="cf">else</span> {
-      ## Import Salmon data and summarize to genes directly
-      txiGene &lt;-<span class="st"> </span>tximport<span class="op">::</span><span class="kw">tximport</span>(<span class="kw"><a href="https://rdrr.io/r/base/unname.html">unname</a></span>(files),
-         <span class="dt">type=</span><span class="st">"salmon"</span>,
-         <span class="dt">tx2gene=</span>tx2geneDF[,<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(txColname,geneColname)]);
-   }
+<div class="sourceCode" id="cb6"><pre class="downlit">
+<span class="co">##</span>
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va">tximportData</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"txiTx"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+      <span class="co">## Summarize transcript data to the gene level</span>
+      <span class="va">txiGene</span> <span class="op">&lt;-</span> <span class="fu">tximport</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tximport/man/summarizeToGene.html">summarizeToGene</a></span><span class="op">(</span><span class="va">txiTx</span>,
+         tx2gene<span class="op">=</span><span class="va">tx2geneDF</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">txColname</span>,<span class="va">geneColname</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>;
+   <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span>
+      <span class="co">## Import Salmon data and summarize to genes directly</span>
+      <span class="va">txiGene</span> <span class="op">&lt;-</span> <span class="fu">tximport</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tximport/man/tximport.html">tximport</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">files</span><span class="op">)</span>,
+         type<span class="op">=</span><span class="st">"salmon"</span>,
+         tx2gene<span class="op">=</span><span class="va">tx2geneDF</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">txColname</span>,<span class="va">geneColname</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>;
+   <span class="op">}</span>
    
-   ## Check the data returned
-   jamba<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/sdim.html">sdim</a></span>(txiGene);
-}
-<span class="co">#&gt; Warning in library(package, lib.loc = lib.loc, character.only = TRUE,</span>
-<span class="co">#&gt; logical.return = TRUE, : there is no package called 'tximportData'</span></code></pre></div>
+   <span class="co">## Check the data returned</span>
+   <span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/sdim.html">sdim</a></span><span class="op">(</span><span class="va">txiGene</span><span class="op">)</span>;
+<span class="op">}</span>
+<span class="co">#&gt; summarizing abundance</span>
+<span class="co">#&gt; summarizing counts</span>
+<span class="co">#&gt; summarizing length</span>
+<span class="co">#&gt;                      rows cols     class</span>
+<span class="co">#&gt; abundance           58288    6    matrix</span>
+<span class="co">#&gt; counts              58288    6    matrix</span>
+<span class="co">#&gt; length              58288    6    matrix</span>
+<span class="co">#&gt; countsFromAbundance     1      character</span></pre></div>
 <div id="summarizedexperiment-for-gene-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#summarizedexperiment-for-gene-data" class="anchor"></a>SummarizedExperiment for gene data</h3>
@@ -250,23 +257,24 @@
 <blockquote>
 <p>Note: During this step, data is log2-transformed using the format <code><a href="https://rdrr.io/r/base/Log.html">log2(1+x)</a></code>.</p>
 </blockquote>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Create SummarizedExperiment transcript object
-<span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"txiGene"</span>)) {
-   assayNamesG &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/sets.html">intersect</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"abundance"</span>,<span class="st">"counts"</span>), <span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(txiGene));
-   geneMatchG &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/match.html">match</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(txiGene[[assayNames[<span class="dv">1</span>]]]),
-      tx2geneDF[,geneColname]);
-   geneColnames &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(geneColname,
-      jamba<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/unvigrep.html">unvigrep</a></span>(<span class="st">"^trans|^tx"</span>, <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(tx2geneDF))));
+<div class="sourceCode" id="cb7"><pre class="downlit">
+<span class="co">## Create SummarizedExperiment transcript object</span>
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"txiGene"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="va">assayNamesG</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/setops-methods.html">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"abundance"</span>,<span class="st">"counts"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">txiGene</span><span class="op">)</span><span class="op">)</span>;
+   <span class="va">geneMatchG</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.html">match</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">txiGene</span><span class="op">[[</span><span class="va">assayNames</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+      <span class="va">tx2geneDF</span><span class="op">[</span>,<span class="va">geneColname</span><span class="op">]</span><span class="op">)</span>;
+   <span class="va">geneColnames</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">geneColname</span>,
+      <span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/unvigrep.html">unvigrep</a></span><span class="op">(</span><span class="st">"^trans|^tx"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">tx2geneDF</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>;
    
-   sampleDF &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">Sample=</span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(txiGene[[assayNames[<span class="dv">1</span>]]]),
-      <span class="dt">Group=</span><span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"A"</span>, <span class="st">"B"</span>), <span class="dt">length.out=</span><span class="kw"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(txiGene[[assayNames[<span class="dv">1</span>]]])));
+   <span class="va">sampleDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>Sample<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">txiGene</span><span class="op">[[</span><span class="va">assayNames</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+      Group<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, length.out<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">txiGene</span><span class="op">[[</span><span class="va">assayNames</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>;
    
-   GeneSE &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html">SummarizedExperiment</a></span>(
-      <span class="dt">assays=</span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(txiGene[assayNamesG], <span class="cf">function</span>(x){<span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span>x)}),
-      <span class="dt">rowData=</span><span class="kw">DataFrame</span>(tx2geneDF[geneMatchG,geneColnames,<span class="dt">drop=</span><span class="ot">FALSE</span>]),
-      <span class="dt">colData=</span><span class="kw">DataFrame</span>(sampleDF)
-   )
-}</code></pre></div>
+   <span class="va">GeneSE</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html">SummarizedExperiment</a></span><span class="op">(</span>
+      assays<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">txiGene</span><span class="op">[</span><span class="va">assayNamesG</span><span class="op">]</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">x</span><span class="op">)</span><span class="op">}</span><span class="op">)</span>,
+      rowData<span class="op">=</span><span class="fu">DataFrame</span><span class="op">(</span><span class="va">tx2geneDF</span><span class="op">[</span><span class="va">geneMatchG</span>,<span class="va">geneColnames</span>,drop<span class="op">=</span><span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span>,
+      colData<span class="op">=</span><span class="fu">DataFrame</span><span class="op">(</span><span class="va">sampleDF</span><span class="op">)</span>
+   <span class="op">)</span>
+<span class="op">}</span></pre></div>
 </div>
 </div>
 <div id="transcript-level-analysis-steps" class="section level2">
@@ -277,32 +285,34 @@
 <a href="#define-detected-transcripts" class="anchor"></a>Define detected transcripts</h3>
 <p>Often the RNA-seq data includes a number of transcripts for which there is no detectable signal. Several filtering methods are encapsulated into a function <code><a href="../reference/defineDetectedTx.html">defineDetectedTx()</a></code> to filter transcript isoform data which should be considered below the effective limit of detection.</p>
 <p>At this step, group mean values are used for filtering, however it can be performed without grouping, by setting <code>groups=colnames(TxSE)</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   cutoffTxExpr &lt;-<span class="st"> </span><span class="dv">7</span>;
-   cutoffTxTPMExpr &lt;-<span class="st"> </span><span class="dv">1</span>;
-   cutoffTxPctMax &lt;-<span class="st"> </span><span class="dv">10</span>;
-   detectedTxTPML &lt;-<span class="st"> </span><span class="kw"><a href="../reference/defineDetectedTx.html">defineDetectedTx</a></span>(
-      <span class="dt">iMatrixTx=</span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(TxSE)[[<span class="st">"counts"</span>]],
-      <span class="dt">iMatrixTxTPM=</span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(TxSE)[[<span class="st">"abundance"</span>]],
-      <span class="dt">groups=</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/nameVector.html">nameVector</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span>(TxSE)<span class="op">$</span>Group, <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(TxSE)),
-      <span class="dt">cutoffTxPctMax=</span>cutoffTxPctMax,
-      <span class="dt">cutoffTxExpr=</span>cutoffTxExpr,
-      <span class="dt">cutoffTxTPMExpr=</span>cutoffTxTPMExpr,
-      <span class="dt">tx2geneDF=</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/renameColumn.html">renameColumn</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span>(TxSE),
-        <span class="dt">from=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(geneColname,txColname),
-        <span class="dt">to=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"gene_name"</span>,<span class="st">"transcript_id"</span>)),
-      <span class="dt">useMedian=</span><span class="ot">FALSE</span>,
-      <span class="dt">verbose=</span><span class="ot">FALSE</span>);
-   detectedTx &lt;-<span class="st"> </span>detectedTxTPML<span class="op">$</span>detectedTx;
-   numDetectedTx &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(detectedTx);
-   detectedGenes &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/mixedSort.html">mixedSort</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span>(TxSE[detectedTx,])[,geneColname]));
-   numDetectedGenes &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(detectedGenes);
-   jamba<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/printDebug.html">printDebug</a></span>(<span class="st">"Defined "</span>,
-      <span class="kw"><a href="https://rdrr.io/r/base/format.html">format</a></span>(<span class="dt">big.mark=</span><span class="st">","</span>, numDetectedTx),
+<div class="sourceCode" id="cb8"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"TxSE"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="va">cutoffTxExpr</span> <span class="op">&lt;-</span> <span class="fl">7</span>;
+   <span class="va">cutoffTxTPMExpr</span> <span class="op">&lt;-</span> <span class="fl">1</span>;
+   <span class="va">cutoffTxPctMax</span> <span class="op">&lt;-</span> <span class="fl">10</span>;
+   <span class="va">detectedTxTPML</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/defineDetectedTx.html">defineDetectedTx</a></span><span class="op">(</span>
+      iMatrixTx<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span><span class="op">[[</span><span class="st">"counts"</span><span class="op">]</span><span class="op">]</span>,
+      iMatrixTxTPM<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span><span class="op">[[</span><span class="st">"abundance"</span><span class="op">]</span><span class="op">]</span>,
+      groups<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/nameVector.html">nameVector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span><span class="op">$</span><span class="va">Group</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span><span class="op">)</span>,
+      cutoffTxPctMax<span class="op">=</span><span class="va">cutoffTxPctMax</span>,
+      cutoffTxExpr<span class="op">=</span><span class="va">cutoffTxExpr</span>,
+      cutoffTxTPMExpr<span class="op">=</span><span class="va">cutoffTxTPMExpr</span>,
+      tx2geneDF<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/renameColumn.html">renameColumn</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span>,
+        from<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">geneColname</span>,<span class="va">txColname</span><span class="op">)</span>,
+        to<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"gene_name"</span>,<span class="st">"transcript_id"</span><span class="op">)</span><span class="op">)</span>,
+      useMedian<span class="op">=</span><span class="cn">FALSE</span>,
+      verbose<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>;
+   <span class="va">detectedTx</span> <span class="op">&lt;-</span> <span class="va">detectedTxTPML</span><span class="op">$</span><span class="va">detectedTx</span>;
+   <span class="va">numDetectedTx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">detectedTx</span><span class="op">)</span>;
+   <span class="va">detectedGenes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/jamba/man/mixedSort.html">mixedSort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">[</span><span class="va">detectedTx</span>,<span class="op">]</span><span class="op">)</span><span class="op">[</span>,<span class="va">geneColname</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>;
+   <span class="va">numDetectedGenes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">detectedGenes</span><span class="op">)</span>;
+   <span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/printDebug.html">printDebug</a></span><span class="op">(</span><span class="st">"Defined "</span>,
+      <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span>big.mark<span class="op">=</span><span class="st">","</span>, <span class="va">numDetectedTx</span><span class="op">)</span>,
       <span class="st">" detected Tx representing "</span>,
-      <span class="kw"><a href="https://rdrr.io/r/base/format.html">format</a></span>(<span class="dt">big.mark=</span><span class="st">","</span>, numDetectedGenes),
-      <span class="st">" genes."</span>);
-}</code></pre></div>
+      <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span>big.mark<span class="op">=</span><span class="st">","</span>, <span class="va">numDetectedGenes</span><span class="op">)</span>,
+      <span class="st">" genes."</span><span class="op">)</span>;
+<span class="op">}</span>
+<span class="co">#&gt; ##  (19:09:15) 09Mar2021:  Defined 36,191 detected Tx representing 13,732 genes.</span></pre></div>
 <ul>
 <li>**{r if (exists(“TxSE”)) format(numDetectedTx, scientific=FALSE, big.mark=“,”)} detected transcripts</li>
 <li>**{r if (exists(“TxSE”)) format(numDetectedGenes, scientific=FALSE, big.mark=“,”)} detected genes</li>
@@ -311,26 +321,32 @@
 <h4 class="hasAnchor">
 <a href="#determining-reasonable-cutoff-values" class="anchor"></a>Determining reasonable cutoff values</h4>
 <p>Some of the cutoff values can be visualized by plotting the TPM versus the pseudocounts, shown below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## For this plot, filter out all rows where TPM and abundance are zero.
-<span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   iWhich &lt;-<span class="st"> </span>(<span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(TxSE[,<span class="dv">1</span>])[[<span class="st">"counts"</span>]] <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span>
-<span class="st">         </span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(TxSE[,<span class="dv">1</span>])[[<span class="st">"abundance"</span>]] <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>);
-   <span class="kw"><a href="https://rdrr.io/r/graphics/par.html">par</a></span>(<span class="st">"mfrow"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="st">"mar"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">5</span>,<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">2</span>), <span class="st">"oma"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>));
-   <span class="kw"><a href="https://rdrr.io/pkg/jamba/man/plotSmoothScatter.html">plotSmoothScatter</a></span>(<span class="dt">x=</span><span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(TxSE[iWhich,<span class="dv">1</span>])[[<span class="st">"counts"</span>]]),
-      <span class="dt">y=</span><span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(TxSE[iWhich,<span class="dv">1</span>])[[<span class="st">"abundance"</span>]]),
-      <span class="dt">xlab=</span><span class="st">"counts"</span>,
-      <span class="dt">ylab=</span><span class="st">"abundance"</span>,
-      <span class="dt">xaxt=</span><span class="st">"n"</span>,
-      <span class="dt">yaxt=</span><span class="st">"n"</span>);
-   jamba<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/minorLogTicksAxis.html">minorLogTicksAxis</a></span>(<span class="dv">1</span>,
-      <span class="dt">logBase=</span><span class="dv">2</span>, <span class="dt">displayBase=</span><span class="dv">10</span>, <span class="dt">offset=</span><span class="dv">1</span>);
-   jamba<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/minorLogTicksAxis.html">minorLogTicksAxis</a></span>(<span class="dv">2</span>,
-      <span class="dt">logBase=</span><span class="dv">2</span>, <span class="dt">displayBase=</span><span class="dv">10</span>, <span class="dt">offset=</span><span class="dv">1</span>);
-   <span class="kw"><a href="https://rdrr.io/r/graphics/abline.html">abline</a></span>(<span class="dt">v=</span><span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxExpr),
-      <span class="dt">h=</span><span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxTPMExpr),
-      <span class="dt">lty=</span><span class="st">"dashed"</span>,
-      <span class="dt">col=</span><span class="st">"red"</span>);
-}</code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit">
+<span class="co">## For this plot, filter out all rows where TPM and abundance are zero.</span>
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"TxSE"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="va">iWhich</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">[[</span><span class="st">"counts"</span><span class="op">]</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">&amp;</span>
+         <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">[[</span><span class="st">"abundance"</span><span class="op">]</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span><span class="st">"mfrow"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>, <span class="st">"mar"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span><span class="op">)</span>, <span class="st">"oma"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/pkg/jamba/man/plotSmoothScatter.html">plotSmoothScatter</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">[</span><span class="va">iWhich</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">[[</span><span class="st">"counts"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+      y<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">[</span><span class="va">iWhich</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">[[</span><span class="st">"abundance"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+      xlab<span class="op">=</span><span class="st">"counts"</span>,
+      ylab<span class="op">=</span><span class="st">"abundance"</span>,
+      xaxt<span class="op">=</span><span class="st">"n"</span>,
+      yaxt<span class="op">=</span><span class="st">"n"</span><span class="op">)</span>;
+   <span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/minorLogTicksAxis.html">minorLogTicksAxis</a></span><span class="op">(</span><span class="fl">1</span>,
+      logBase<span class="op">=</span><span class="fl">2</span>, displayBase<span class="op">=</span><span class="fl">10</span>, offset<span class="op">=</span><span class="fl">1</span><span class="op">)</span>;
+   <span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/minorLogTicksAxis.html">minorLogTicksAxis</a></span><span class="op">(</span><span class="fl">2</span>,
+      logBase<span class="op">=</span><span class="fl">2</span>, displayBase<span class="op">=</span><span class="fl">10</span>, offset<span class="op">=</span><span class="fl">1</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html">abline</a></span><span class="op">(</span>v<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">cutoffTxExpr</span><span class="op">)</span>,
+      h<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">cutoffTxTPMExpr</span><span class="op">)</span>,
+      lty<span class="op">=</span><span class="st">"dashed"</span>,
+      col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span>;
+<span class="op">}</span></pre></div>
+<div class="figure">
+<img src="basic-rnaseq-workflow_files/figure-html/tpm_counts-1.png" alt="Salmon pseudocounts versus TPM" width="672"><p class="caption">
+Salmon pseudocounts versus TPM
+</p>
+</div>
 <p>Another method to determine suitable cutoff values is to create an MA-plot of the data, and look for the expression below which the variability becomes very high.</p>
 </div>
 </div>
@@ -344,29 +360,31 @@
 <a href="#ma-plots-of-pseudocount-data" class="anchor"></a>MA-plots of pseudocount data</h4>
 <p>The <code>jammaplot</code> R package is available on Github:</p>
 <blockquote>
-<p><code><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">devtools::install_github("jmw86069/jamma")</a></code></p>
+<p><code><a href="https://rdrr.io/pkg/remotes/man/install_github.html">devtools::install_github("jmw86069/jamma")</a></code></p>
 </blockquote>
 <p>First show the pseudocount data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   <span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(jamma))) {
-      <span class="kw"><a href="https://rdrr.io/r/graphics/par.html">par</a></span>(<span class="st">"oma"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">3</span>,<span class="dv">0</span>));
-      jamma<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamma/man/jammaplot.html">jammaplot</a></span>(
-         <span class="kw"><a href="https://rdrr.io/pkg/jamba/man/noiseFloor.html">noiseFloor</a></span>(<span class="dt">minimum=</span><span class="fl">0.0001</span>,
-            <span class="dt">newValue=</span><span class="ot">NA</span>,
-            <span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(TxSE)[[<span class="st">"counts"</span>]]),
-         <span class="dt">transFactor=</span><span class="fl">0.3</span>,
-         <span class="dt">ylim=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="dv">3</span>,<span class="dv">3</span>),
-         <span class="dt">ablineV=</span><span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxExpr),
-         <span class="dt">titleBoxColor=</span>colorjam<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/colorjam/man/group2colors.html">group2colors</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span>(TxSE)<span class="op">$</span>Group),
-         <span class="dt">groupSuffix=</span><span class="st">""</span>,
-         <span class="dt">titleCexFactor=</span><span class="fl">1.2</span>,
-         <span class="dt">useMean=</span><span class="ot">TRUE</span>);
-      <span class="kw"><a href="https://rdrr.io/r/graphics/title.html">title</a></span>(<span class="dt">outer=</span><span class="ot">TRUE</span>,
-         <span class="dt">main=</span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MA-plot using Salmon pseudocounts</span><span class="ch">\n</span><span class="st">"</span>,
-            <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"Showing pseudocount cutoff value approximately "</span>,
-               <span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxExpr))));
-   }
-}</code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"TxSE"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="http://github.com/jmw86069/jamma">jamma</a></span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+      <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span><span class="st">"oma"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">3</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span>;
+      <span class="fu">jamma</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamma/man/jammaplot.html">jammaplot</a></span><span class="op">(</span>
+         <span class="fu"><a href="https://rdrr.io/pkg/jamba/man/noiseFloor.html">noiseFloor</a></span><span class="op">(</span>minimum<span class="op">=</span><span class="fl">0.0001</span>,
+            newValue<span class="op">=</span><span class="cn">NA</span>,
+            <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span><span class="op">[[</span><span class="st">"counts"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+         transFactor<span class="op">=</span><span class="fl">0.3</span>,
+         ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span>,
+         ablineV<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">cutoffTxExpr</span><span class="op">)</span>,
+         titleBoxColor<span class="op">=</span><span class="fu">colorjam</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/colorjam/man/group2colors.html">group2colors</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span><span class="op">$</span><span class="va">Group</span><span class="op">)</span>,
+         groupSuffix<span class="op">=</span><span class="st">""</span>,
+         titleCexFactor<span class="op">=</span><span class="fl">1.2</span>,
+         useMean<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>;
+      <span class="fu"><a href="https://rdrr.io/r/graphics/title.html">title</a></span><span class="op">(</span>outer<span class="op">=</span><span class="cn">TRUE</span>,
+         main<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"MA-plot using Salmon pseudocounts\n"</span>,
+            <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"Showing pseudocount cutoff value approximately "</span>,
+               <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">cutoffTxExpr</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>;
+   <span class="op">}</span>
+<span class="op">}</span></pre></div>
+<p><img src="basic-rnaseq-workflow_files/figure-html/jammaplot_counts-1.png" width="480"></p>
 <p>In the MA-plots above, one expects each sample to have roughly horizontal distribution, centered at <code>y=0</code>, which means the median transcript expression is roughly unchanged across all samples(<code>y=0</code>), and that the signal is roughly consistent from the low to high end of expression (horizontal).</p>
 <p>Whenever a sample has bulk of its expression above (or below) <code>y=0</code>, it suggests there is overall higher (or lower) signal for all transcripts in that sample, which is counter to most assumptions of data normalization.</p>
 </div>
@@ -374,25 +392,27 @@
 <h4 class="hasAnchor">
 <a href="#ma-plots-of-tpm-data" class="anchor"></a>MA-plots of TPM data</h4>
 <p>Next show the TPM data:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   <span class="kw"><a href="https://rdrr.io/r/graphics/par.html">par</a></span>(<span class="st">"oma"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">3</span>,<span class="dv">0</span>));
-   jamma<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamma/man/jammaplot.html">jammaplot</a></span>(
-      <span class="kw"><a href="https://rdrr.io/pkg/jamba/man/noiseFloor.html">noiseFloor</a></span>(<span class="dt">minimum=</span><span class="fl">0.0001</span>,
-         <span class="dt">newValue=</span><span class="ot">NA</span>,
-         <span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(TxSE)[[<span class="st">"abundance"</span>]]),
-      <span class="dt">transFactor=</span><span class="fl">0.3</span>,
-      <span class="dt">ylim=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="dv">3</span>,<span class="dv">3</span>),
-      <span class="dt">ablineV=</span><span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxTPMExpr),
-      <span class="dt">titleBoxColor=</span>colorjam<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/colorjam/man/group2colors.html">group2colors</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span>(TxSE)<span class="op">$</span>Group),
-      <span class="dt">groupSuffix=</span><span class="st">""</span>,
-      <span class="dt">displayMAD=</span><span class="ot">TRUE</span>,
-      <span class="dt">titleCexFactor=</span><span class="fl">1.2</span>,
-      <span class="dt">useMean=</span><span class="ot">TRUE</span>);
-   <span class="kw"><a href="https://rdrr.io/r/graphics/title.html">title</a></span>(<span class="dt">outer=</span><span class="ot">TRUE</span>,
-      <span class="dt">main=</span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MA-plot using Salmon TPM</span><span class="ch">\n</span><span class="st">"</span>,
-         <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"Showing TPM cutoff value approximately "</span>,
-            <span class="kw"><a href="https://rdrr.io/r/base/Log.html">log2</a></span>(<span class="dv">1</span><span class="op">+</span>cutoffTxTPMExpr))));
-}</code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"TxSE"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span><span class="st">"oma"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">3</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span>;
+   <span class="fu">jamma</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamma/man/jammaplot.html">jammaplot</a></span><span class="op">(</span>
+      <span class="fu"><a href="https://rdrr.io/pkg/jamba/man/noiseFloor.html">noiseFloor</a></span><span class="op">(</span>minimum<span class="op">=</span><span class="fl">0.0001</span>,
+         newValue<span class="op">=</span><span class="cn">NA</span>,
+         <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span><span class="op">[[</span><span class="st">"abundance"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+      transFactor<span class="op">=</span><span class="fl">0.3</span>,
+      ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span>,
+      ablineV<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">cutoffTxTPMExpr</span><span class="op">)</span>,
+      titleBoxColor<span class="op">=</span><span class="fu">colorjam</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/colorjam/man/group2colors.html">group2colors</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span><span class="op">$</span><span class="va">Group</span><span class="op">)</span>,
+      groupSuffix<span class="op">=</span><span class="st">""</span>,
+      displayMAD<span class="op">=</span><span class="cn">TRUE</span>,
+      titleCexFactor<span class="op">=</span><span class="fl">1.2</span>,
+      useMean<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/r/graphics/title.html">title</a></span><span class="op">(</span>outer<span class="op">=</span><span class="cn">TRUE</span>,
+      main<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"MA-plot using Salmon TPM\n"</span>,
+         <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"Showing TPM cutoff value approximately "</span>,
+            <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">cutoffTxTPMExpr</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>;
+<span class="op">}</span></pre></div>
+<p><img src="basic-rnaseq-workflow_files/figure-html/jammaplot_tpm-1.png" width="480"></p>
 <p>The typical remedy for certain MA-plot patterns are summarized briefly below:</p>
 <ol style="list-style-type: decimal">
 <li>If expression is roughly horizontal for all samples, with all samples centered closely at <code>y=0</code>, then no normalization is required.</li>
@@ -409,75 +429,107 @@
 <div id="design-and-contrast-matrices" class="section level4">
 <h4 class="hasAnchor">
 <a href="#design-and-contrast-matrices" class="anchor"></a>Design and Contrast matrices</h4>
-<p>Before statistical comparisons can be performed, the design matrix and contrast matrix must be defined. The function <code><a href="../reference/groups2contrasts.html">groups2contrasts()</a></code> makes it convenient to convert group names to a set of contrasts. The group names are assumed to have underscore “_" as a delimiter between factors, for example <code>"Wildtype_Control"</code> and <code>"Mutant_Treated"</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   ## Design matrix is defined by the sample groups
-   iSamples &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(TxSE);
-   iGroups &lt;-<span class="st"> </span>jamba<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/nameVector.html">nameVector</a></span>(
-      <span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span>(TxSE[,iSamples])<span class="op">$</span>Group,
-         iSamples);
+<p>Before statistical comparisons can be performed, the design matrix and contrast matrix must be defined. The function <code><a href="../reference/groups2contrasts.html">groups2contrasts()</a></code> makes it convenient to convert group names to a set of contrasts. The group names are assumed to have underscore "_" as a delimiter between factors, for example <code>"Wildtype_Control"</code> and <code>"Mutant_Treated"</code>.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"TxSE"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="co">## Design matrix is defined by the sample groups</span>
+   <span class="va">iSamples</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span>;
+   <span class="va">iGroups</span> <span class="op">&lt;-</span> <span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/nameVector.html">nameVector</a></span><span class="op">(</span>
+      <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">[</span>,<span class="va">iSamples</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">Group</span>,
+         <span class="va">iSamples</span><span class="op">)</span>;
    
-   ## Use the function groups2contrasts()
-   iDC &lt;-<span class="st"> </span><span class="kw"><a href="../reference/groups2contrasts.html">groups2contrasts</a></span>(iGroups, <span class="dt">returnDesign=</span><span class="ot">TRUE</span>);
-   iDesign &lt;-<span class="st"> </span>iDC<span class="op">$</span>iDesign;
-   iContrasts &lt;-<span class="st"> </span>iDC<span class="op">$</span>iContrasts;
+   <span class="co">## Use the function groups2contrasts()</span>
+   <span class="va">iDC</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/groups2contrasts.html">groups2contrasts</a></span><span class="op">(</span><span class="va">iGroups</span>, returnDesign<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>;
+   <span class="va">iDesign</span> <span class="op">&lt;-</span> <span class="va">iDC</span><span class="op">$</span><span class="va">iDesign</span>;
+   <span class="va">iContrasts</span> <span class="op">&lt;-</span> <span class="va">iDC</span><span class="op">$</span><span class="va">iContrasts</span>;
    
-   <span class="kw"><a href="https://rdrr.io/pkg/jamba/man/printDebug.html">printDebug</a></span>(<span class="st">"iDesign:"</span>);
-   <span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(iDesign);
-   <span class="kw"><a href="https://rdrr.io/pkg/jamba/man/printDebug.html">printDebug</a></span>(<span class="st">"iContrasts:"</span>);
-   <span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(iContrasts);
+   <span class="fu"><a href="https://rdrr.io/pkg/jamba/man/printDebug.html">printDebug</a></span><span class="op">(</span><span class="st">"iDesign:"</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">iDesign</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/pkg/jamba/man/printDebug.html">printDebug</a></span><span class="op">(</span><span class="st">"iContrasts:"</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">iContrasts</span><span class="op">)</span>;
    
-   ## Alternative method
-   <span class="cf">if</span> (<span class="dv">1</span> <span class="op">==</span><span class="st"> </span><span class="dv">2</span>) {
-      iDesign &lt;-<span class="st"> </span>stats<span class="op">::</span><span class="kw"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span>(<span class="op">~</span><span class="dv">0</span><span class="op">+</span>iGroups);
-      <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(iDesign) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/levels.html">levels</a></span>(iGroups);
-      <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(iDesign) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(iGroups);
+   <span class="co">## Alternative method</span>
+   <span class="kw">if</span> <span class="op">(</span><span class="fl">1</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span> <span class="op">{</span>
+      <span class="va">iDesign</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="op">~</span><span class="fl">0</span><span class="op">+</span><span class="va">iGroups</span><span class="op">)</span>;
+      <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">iDesign</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html">levels</a></span><span class="op">(</span><span class="va">iGroups</span><span class="op">)</span>;
+      <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">iDesign</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">iGroups</span><span class="op">)</span>;
       <span class="co"># Alternative format, useful for custom contrasts</span>
-      iContrasts &lt;-<span class="st"> </span>limma<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/limma/man/makeContrasts.html">makeContrasts</a></span>(
-         <span class="dt">contrasts=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
+      <span class="va">iContrasts</span> <span class="op">&lt;-</span> <span class="fu">limma</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/limma/man/makeContrasts.html">makeContrasts</a></span><span class="op">(</span>
+         contrasts<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
             <span class="st">"CA2_DE-CA2_CB"</span>,
-            <span class="st">"CA1_DE-CA1_CB"</span>),
-         <span class="dt">levels=</span>iDesign);
-   }
-}</code></pre></div>
+            <span class="st">"CA1_DE-CA1_CB"</span><span class="op">)</span>,
+         levels<span class="op">=</span><span class="va">iDesign</span><span class="op">)</span>;
+   <span class="op">}</span>
+<span class="op">}</span>
+<span class="co">#&gt; ##  (19:09:19) 09Mar2021:  iDesign: </span>
+<span class="co">#&gt;           A B</span>
+<span class="co">#&gt; ERR188297 1 0</span>
+<span class="co">#&gt; ERR188088 0 1</span>
+<span class="co">#&gt; ERR188329 1 0</span>
+<span class="co">#&gt; ERR188288 0 1</span>
+<span class="co">#&gt; ERR188021 1 0</span>
+<span class="co">#&gt; ERR188356 0 1</span>
+<span class="co">#&gt; ##  (19:09:19) 09Mar2021:  iContrasts: </span>
+<span class="co">#&gt;       Contrasts</span>
+<span class="co">#&gt; Levels B-A</span>
+<span class="co">#&gt;      A  -1</span>
+<span class="co">#&gt;      B   1</span></pre></div>
 <p>Note that it is important to keep the colnames(TxSE), design matrix, and contrast matrix in proper order. For this reason, <code>iSamples</code> is defined as <code><a href="https://rdrr.io/r/base/colnames.html">colnames(TxSE)</a></code>, which should equal <code><a href="https://rdrr.io/r/base/colnames.html">rownames(iDesign)</a></code>. Finally, <code><a href="https://rdrr.io/r/base/colnames.html">colnames(iDesign)</a></code> should equal <code><a href="https://rdrr.io/r/base/colnames.html">rownames(iContrasts)</a></code>.</p>
 <p>As a fun matrix math review, you can print the crossproduct of the design and contrast matrices to view the samples used in each contrast.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   <span class="kw"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(TxSE) <span class="op">==</span><span class="st"> </span>iSamples)
-   <span class="kw"><a href="https://rdrr.io/r/base/all.html">all</a></span>(iSamples <span class="op">==</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(iDesign))
-   <span class="kw"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(iDesign) <span class="op">==</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(iContrasts))
+<div class="sourceCode" id="cb13"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"TxSE"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">)</span> <span class="op">==</span> <span class="va">iSamples</span><span class="op">)</span>
+   <span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span><span class="op">(</span><span class="va">iSamples</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">iDesign</span><span class="op">)</span><span class="op">)</span>
+   <span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">iDesign</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">iContrasts</span><span class="op">)</span><span class="op">)</span>
    
-   iDesign <span class="op">%*%</span><span class="st"> </span>iContrasts;
-}</code></pre></div>
+   <span class="va">iDesign</span> <span class="op">%*%</span> <span class="va">iContrasts</span>;
+<span class="op">}</span>
+<span class="co">#&gt;            Contrasts</span>
+<span class="co">#&gt;             B-A</span>
+<span class="co">#&gt;   ERR188297  -1</span>
+<span class="co">#&gt;   ERR188088   1</span>
+<span class="co">#&gt;   ERR188329  -1</span>
+<span class="co">#&gt;   ERR188288   1</span>
+<span class="co">#&gt;   ERR188021  -1</span>
+<span class="co">#&gt;   ERR188356   1</span></pre></div>
 </div>
 <div id="rundiffsplice" class="section level4">
 <h4 class="hasAnchor">
 <a href="#rundiffsplice" class="anchor"></a>runDiffSplice()</h4>
 <p>Given an expression data matrix, design matrix, and contrast matrix, <code><a href="../reference/runDiffSplice.html">splicejam::runDiffSplice()</a></code> can be called. Note that all abundance values of zero are set to <code>NA</code>, so they do not contribute to the analysis.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   iMatrixTxTPM &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(TxSE[,iSamples])[[<span class="st">"abundance"</span>]];
-   iMatrixTxTPM[iMatrixTxTPM <span class="op">==</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>;
-   diffSpliceL &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runDiffSplice.html">runDiffSplice</a></span>(
-      <span class="dt">iMatrixTx=</span>iMatrixTxTPM,
-      <span class="dt">detectedTx=</span>detectedTx,
-      <span class="dt">tx2geneDF=</span>tx2geneDF,
-      <span class="dt">txColname=</span>txColname,
-      <span class="dt">geneColname=</span>geneColname,
-      <span class="dt">iDesign=</span>iDesign,
-      <span class="dt">iContrasts=</span>iContrasts,
-      <span class="dt">cutoffFDR=</span><span class="fl">0.05</span>,
-      <span class="dt">cutoffFold=</span><span class="fl">1.5</span>,
-      <span class="dt">collapseByGene=</span><span class="ot">TRUE</span>,
-      <span class="dt">spliceTest=</span><span class="st">"t"</span>,
-      <span class="dt">verbose=</span><span class="ot">FALSE</span>,
-      <span class="dt">useVoom=</span><span class="ot">FALSE</span>);
-   diffSpliceHitsL &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(diffSpliceL<span class="op">$</span>statsDFs, <span class="cf">function</span>(iDF){
-      hitColname &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/jamba/man/vigrep.html">vigrep</a></span>(<span class="st">"^hit "</span>, <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(iDF)), <span class="dv">1</span>);
-      <span class="kw"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(iDF, iDF[[hitColname]] <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>)[,geneColname]);
-   });
-   <span class="kw"><a href="https://rdrr.io/pkg/jamba/man/printDebug.html">printDebug</a></span>(<span class="st">"Differential isoform hits per contrast:"</span>);
-   <span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/jamba/man/sdim.html">sdim</a></span>(diffSpliceHitsL));
-}</code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"TxSE"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="va">iMatrixTxTPM</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">TxSE</span><span class="op">[</span>,<span class="va">iSamples</span><span class="op">]</span><span class="op">)</span><span class="op">[[</span><span class="st">"abundance"</span><span class="op">]</span><span class="op">]</span>;
+   <span class="va">iMatrixTxTPM</span><span class="op">[</span><span class="va">iMatrixTxTPM</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>;
+   <span class="va">diffSpliceL</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runDiffSplice.html">runDiffSplice</a></span><span class="op">(</span>
+      iMatrixTx<span class="op">=</span><span class="va">iMatrixTxTPM</span>,
+      detectedTx<span class="op">=</span><span class="va">detectedTx</span>,
+      tx2geneDF<span class="op">=</span><span class="va">tx2geneDF</span>,
+      txColname<span class="op">=</span><span class="va">txColname</span>,
+      geneColname<span class="op">=</span><span class="va">geneColname</span>,
+      iDesign<span class="op">=</span><span class="va">iDesign</span>,
+      iContrasts<span class="op">=</span><span class="va">iContrasts</span>,
+      cutoffFDR<span class="op">=</span><span class="fl">0.05</span>,
+      cutoffFold<span class="op">=</span><span class="fl">1.5</span>,
+      collapseByGene<span class="op">=</span><span class="cn">TRUE</span>,
+      spliceTest<span class="op">=</span><span class="st">"t"</span>,
+      verbose<span class="op">=</span><span class="cn">FALSE</span>,
+      useVoom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>;
+   <span class="va">diffSpliceHitsL</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">diffSpliceL</span><span class="op">$</span><span class="va">statsDFs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">iDF</span><span class="op">)</span><span class="op">{</span>
+      <span class="va">hitColname</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/vigrep.html">vigrep</a></span><span class="op">(</span><span class="st">"^hit "</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">iDF</span><span class="op">)</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>;
+      <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">iDF</span>, <span class="va">iDF</span><span class="op">[[</span><span class="va">hitColname</span><span class="op">]</span><span class="op">]</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span><span class="op">[</span>,<span class="va">geneColname</span><span class="op">]</span><span class="op">)</span>;
+   <span class="op">}</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/pkg/jamba/man/printDebug.html">printDebug</a></span><span class="op">(</span><span class="st">"Differential isoform hits per contrast:"</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/sdim.html">sdim</a></span><span class="op">(</span><span class="va">diffSpliceHitsL</span><span class="op">)</span><span class="op">)</span>;
+<span class="op">}</span>
+<span class="co">#&gt; Total number of exons:  30572 </span>
+<span class="co">#&gt; Total number of genes:  8113 </span>
+<span class="co">#&gt; Number of genes with 1 exon:  0 </span>
+<span class="co">#&gt; Mean number of exons in a gene:  4 </span>
+<span class="co">#&gt; Max number of exons in a gene:  22 </span>
+<span class="co">#&gt; ##  (19:09:21) 09Mar2021:  Differential isoform hits per contrast: </span>
+<span class="co">#&gt;     rows     class</span>
+<span class="co">#&gt; B-A  644 character</span></pre></div>
 </div>
 <div id="export-diffsplice-results-to-excel" class="section level4">
 <h4 class="hasAnchor">
@@ -497,23 +549,24 @@
 <p>The BGA technique is based upon results from an underlying clustering method such as PCA or COA, and therefore inherits potential weaknesses of such tools. In short, it is sometimes helpful to filter genes or transcripts by minimum expression, roughly above the level of statistical noise.</p>
 <p>For the example below, the gene summary TPM values are used as input, and correspondence analysis (COA) is chosen as the underlying clustering algorithm.</p>
 <p>In the absence of sample groups, BGA can be run with each biological sample in its own group. The results will be equivalent to running normal COA (or PCA).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"TxSE"</span>)) {
-   <span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(made4))) {
-      bgaExprThreshold &lt;-<span class="st"> </span><span class="dv">5</span>;
-      bgaExprs &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span>(GeneSE)<span class="op">$</span>counts;
-      ## Apply a noise floor so all (data &lt; threshold) is set to threshold
-      bgaExprs[bgaExprs <span class="op">&lt;</span><span class="st"> </span>bgaExprThreshold] &lt;-<span class="st"> </span>bgaExprThreshold;
-      ## Then require rows to have some difference between the
-      ## minimum and maximum value.
-      bgaExprsUse &lt;-<span class="st"> </span>bgaExprs[<span class="kw">rowMins</span>(bgaExprs) <span class="op">&lt;</span><span class="st"> </span><span class="kw">rowMaxs</span>(bgaExprs),,drop=<span class="ot">FALSE</span>];
+<div class="sourceCode" id="cb15"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"TxSE"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="http://www.hsph.harvard.edu/aedin-culhane/">made4</a></span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+      <span class="va">bgaExprThreshold</span> <span class="op">&lt;-</span> <span class="fl">5</span>;
+      <span class="va">bgaExprs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assays</a></span><span class="op">(</span><span class="va">GeneSE</span><span class="op">)</span><span class="op">$</span><span class="va">counts</span>;
+      <span class="co">## Apply a noise floor so all (data &lt; threshold) is set to threshold</span>
+      <span class="va">bgaExprs</span><span class="op">[</span><span class="va">bgaExprs</span> <span class="op">&lt;</span> <span class="va">bgaExprThreshold</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">bgaExprThreshold</span>;
+      <span class="co">## Then require rows to have some difference between the</span>
+      <span class="co">## minimum and maximum value.</span>
+      <span class="va">bgaExprsUse</span> <span class="op">&lt;-</span> <span class="va">bgaExprs</span><span class="op">[</span><span class="fu">rowMins</span><span class="op">(</span><span class="va">bgaExprs</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fu">rowMaxs</span><span class="op">(</span><span class="va">bgaExprs</span><span class="op">)</span>,,drop<span class="op">=</span><span class="cn">FALSE</span><span class="op">]</span>;
       <span class="co">#nrow(bgaExprsUse);</span>
       
-      geneBga &lt;-<span class="st"> </span><span class="kw">bga</span>(<span class="dt">dataset=</span>bgaExprsUse,
-         <span class="dt">classvec=</span><span class="kw"><a href="https://rdrr.io/pkg/jamba/man/nameVector.html">nameVector</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span>(GeneSE)<span class="op">$</span>Group,
-            <span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(GeneSE)),
-         <span class="dt">type=</span><span class="st">"coa"</span>);
-   }
-}</code></pre></div>
+      <span class="va">geneBga</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/made4/man/bga.html">bga</a></span><span class="op">(</span>dataset<span class="op">=</span><span class="va">bgaExprsUse</span>,
+         classvec<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/jamba/man/nameVector.html">nameVector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span><span class="op">(</span><span class="va">GeneSE</span><span class="op">)</span><span class="op">$</span><span class="va">Group</span>,
+            <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">GeneSE</span><span class="op">)</span><span class="op">)</span>,
+         type<span class="op">=</span><span class="st">"coa"</span><span class="op">)</span>;
+   <span class="op">}</span>
+<span class="op">}</span></pre></div>
 <div id="bga-plotly-visualization" class="section level4">
 <h4 class="hasAnchor">
 <a href="#bga-plotly-visualization" class="anchor"></a>BGA plotly visualization</h4>
@@ -522,50 +575,40 @@
 <blockquote>
 <p>Note: The steps below are disabled for the purpose of this example data, which does not contain proper sample groups with replicates. However, the commands below are adequate for a typical RNA-seq experimental design.</p>
 </blockquote>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="dv">1</span> <span class="op">==</span><span class="st"> </span><span class="dv">2</span> <span class="op">&amp;&amp;</span>
-<span class="st">      </span><span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(made4)) <span class="op">&amp;&amp;</span>
-<span class="st">      </span><span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(plotly))) {
-   colorSubBga &lt;-<span class="st"> </span>colorjam<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/colorjam/man/group2colors.html">group2colors</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span>(GeneSE)<span class="op">$</span>Group);
+<div class="sourceCode" id="cb16"><pre class="downlit">
+<span class="kw">if</span> <span class="op">(</span><span class="fl">1</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">&amp;&amp;</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="http://www.hsph.harvard.edu/aedin-culhane/">made4</a></span><span class="op">)</span><span class="op">)</span> <span class="op">&amp;&amp;</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://plotly-r.com">plotly</a></span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+   <span class="va">colorSubBga</span> <span class="op">&lt;-</span> <span class="fu">colorjam</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/colorjam/man/group2colors.html">group2colors</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span><span class="op">(</span><span class="va">GeneSE</span><span class="op">)</span><span class="op">$</span><span class="va">Group</span><span class="op">)</span>;
    
-   geneBgaly &lt;-<span class="st"> </span><span class="kw"><a href="../reference/bgaPlotly3d.html">bgaPlotly3d</a></span>(geneBga,
-      <span class="dt">axes=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),
-      <span class="dt">colorSub=</span>colorSubBga,
-      <span class="dt">useScaledCoords=</span><span class="ot">FALSE</span>,
-      <span class="dt">drawVectors=</span><span class="st">"none"</span>,
-      <span class="dt">drawSampleLabels=</span><span class="ot">FALSE</span>,
-      <span class="dt">superGroups=</span><span class="kw"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span>(<span class="st">"_.+"</span>, <span class="st">""</span>, geneBga<span class="op">$</span>fac),
-      <span class="dt">ellipseType=</span><span class="st">"none"</span>,
-      <span class="dt">sceneX=</span><span class="dv">0</span>, <span class="dt">sceneY=</span><span class="dv">1</span>, <span class="dt">sceneZ=</span><span class="dv">1</span>,
-      <span class="dt">verbose=</span><span class="ot">TRUE</span>);
-   <span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(geneBgaly);
+   <span class="va">geneBgaly</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bgaPlotly3d.html">bgaPlotly3d</a></span><span class="op">(</span><span class="va">geneBga</span>,
+      axes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>,
+      colorSub<span class="op">=</span><span class="va">colorSubBga</span>,
+      useScaledCoords<span class="op">=</span><span class="cn">FALSE</span>,
+      drawVectors<span class="op">=</span><span class="st">"none"</span>,
+      drawSampleLabels<span class="op">=</span><span class="cn">FALSE</span>,
+      superGroups<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span><span class="op">(</span><span class="st">"_.+"</span>, <span class="st">""</span>, <span class="va">geneBga</span><span class="op">$</span><span class="va">fac</span><span class="op">)</span>,
+      ellipseType<span class="op">=</span><span class="st">"none"</span>,
+      sceneX<span class="op">=</span><span class="fl">0</span>, sceneY<span class="op">=</span><span class="fl">1</span>, sceneZ<span class="op">=</span><span class="fl">1</span>,
+      verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>;
+   <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">geneBgaly</span><span class="op">)</span>;
    
-   ## Example for saving the BGA plot to an HTML file
+   <span class="co">## Example for saving the BGA plot to an HTML file</span>
    <span class="co">#</span>
    <span class="co">#htmlwidgets::saveWidget(geneBgaly,</span>
    <span class="co">#   file="RNAseq_BGA_clustering.html",</span>
    <span class="co">#   title="RNA-seq BGA clustering");</span>
-}</code></pre></div>
+<span class="op">}</span></pre></div>
 </div>
 </div>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <div id="tocnav">
-      <h2 class="hasAnchor">
-<a href="#tocnav" class="anchor"></a>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-<li><a href="#r-setup">R setup</a></li>
-      <li><a href="#salmon-quant-sf-gz-files">Salmon “quant.sf.gz” files</a></li>
-      <li><a href="#transcript-to-gene-from-gtf">Transcript-to-gene from GTF</a></li>
-      <li><a href="#import-salmon-transcript-data">Import Salmon transcript data</a></li>
-      <li><a href="#import-salmon-gene-data-using-tx2genedf">Import Salmon gene data using tx2geneDF</a></li>
-      <li><a href="#transcript-level-analysis-steps">Transcript-level analysis steps</a></li>
-      <li><a href="#pcabga-clustering">PCA/BGA Clustering</a></li>
-      </ul>
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
 </div>
-      </div>
 
 </div>
 
@@ -576,7 +619,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

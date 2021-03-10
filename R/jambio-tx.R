@@ -2909,7 +2909,7 @@ assignGRLexonNames <- function
          "geneSymbolColname values:",
          head(GenomicRanges::values(GRLred@unlistData)[,geneSymbolColname], 10));
    }
-   GRLredStrand <- jamba::cPasteS(unique(strand(GRLred)));
+   GRLredStrand <- jamba::cPasteS(as.list(unique(strand(GRLred))));
    GRLredStrandP <- grep("[+]", GRLredStrand);
    GRLredStrandN <- setdiff(seq_along(GRLredStrand),
       GRLredStrandP);
@@ -2965,7 +2965,7 @@ assignGRLexonNames <- function
       jamba::printDebug("assignGRLexonNames(): ",
          "Completed annotateGRLfromGRL().");
    }
-   GRLnewStrand <- cPasteS(unique(strand(GRLnew)));
+   GRLnewStrand <- jamba::cPasteS(as.list(unique(strand(GRLnew))));
    GRLnewStrandP <- grep("[+]", GRLnewStrand);
    GRLnewStrandN <- setdiff(seq_along(GRLnewStrand),
       GRLnewStrandP);

@@ -42,7 +42,7 @@ names(test_junc_gr) <- jamba::makeNames(
 test_junc_gr;
 
 # To plot junctions, use grl2df(..., shape="junction")
-junc_df <-grl2df(test_junc_gr, shape="junction")
+junc_df <- grl2df(test_junc_gr, shape="junction")
 gg1 <- ggplot(junc_df, aes(x=x, y=y, group=id, fill=gr_name)) +
    ggforce::geom_diagonal_wide(alpha=0.7) +
    colorjam::theme_jam() +

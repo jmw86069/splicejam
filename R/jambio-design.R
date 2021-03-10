@@ -133,6 +133,7 @@
 #' iFactors;
 #' groups2contrasts(iFactors)
 #'
+#'
 #' # Again remove WT-WT and KO-KO contrasts
 #' groups2contrasts(iFactors,
 #'    removePairs=list(c("WT"), c("KO")))
@@ -635,7 +636,7 @@ groups2contrasts <- function
             jamba::printDebug("groups2contrasts(): ",
                "   Checking for removePairs in column:", iCol);
          }
-         iColVals <- jamba::cPasteS(strsplit(iContrastNames[[iCol]], ","));
+         iColVals <- jamba::cPasteS(strsplit(as.character(iContrastNames[[iCol]]), ","));
          if (any(iColVals %in% removePairsFull)) {
             iWhich1 <- which(iColVals %in% removePairsFull);
             iWhich <- which(!iColVals %in% removePairsFull);

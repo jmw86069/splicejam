@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Curate vector into a data.frame — curateVtoDF" />
 <meta property="og:description" content="Curate vector into a data.frame" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -69,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.58.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
       </span>
     </div>
 
@@ -105,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jmw86069/splicejam">
+  <a href="http://github.com/jmw86069/splicejam/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -124,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Curate vector into a data.frame</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jmw86069/splicejam/blob/master/R/jambio-design.R'><code>R/jambio-design.R</code></a></small>
+    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/jambio-design.R'><code>R/jambio-design.R</code></a></small>
     <div class="hidden name"><code>curateVtoDF.Rd</code></div>
     </div>
 
@@ -132,17 +135,17 @@
     <p>Curate vector into a data.frame</p>
     </div>
 
-    <pre class="usage"><span class='fu'>curateVtoDF</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>curationL</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>matchWholeString</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>trimWhitespace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>whitespace</span> <span class='kw'>=</span> <span class='st'>"_ "</span>,
-  <span class='kw'>expandWhitespace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>previous</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>curateVtoDF</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  curationL <span class='op'>=</span> <span class='cn'>NULL</span>,
+  matchWholeString <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  trimWhitespace <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  whitespace <span class='op'>=</span> <span class='st'>"_ "</span>,
+  expandWhitespace <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  previous <span class='op'>=</span> <span class='cn'>NULL</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -232,42 +235,30 @@ replaced with "KO".</p>
 loaded into a list with this type of setup:</p>
 <p><code>curationL &lt;- yaml::yaml.load_file("curation.yaml")</code>.</p>
 <p>The generic YAML format is as follows:</p>
-<p>NewColname_1:</p><ul>
-<li><p></p><ul>
-<li><p>patternA</p></li>
-<li><p>replacementA</p></li>
-</ul></li>
-<li><p></p><ul>
-<li><p>patternB</p></li>
-<li><p>replacementB
-NewColname_2:</p></li>
-</ul></li>
-<li><p></p><ul>
-<li><p>patternC</p></li>
-<li><p>replacementC</p></li>
-</ul></li>
-</ul>
+<pre>
+<span class='va'>NewColname_1</span><span class='op'>:</span>
+<span class='op'>-</span> <span class='op'>-</span> <span class='va'>patternA</span>
+  <span class='op'>-</span> <span class='va'>replacementA</span>
+<span class='op'>-</span> <span class='op'>-</span> <span class='va'>patternB</span>
+  <span class='op'>-</span> <span class='va'>replacementB</span>
+<span class='va'>NewColname_2</span><span class='op'>:</span>
+<span class='op'>-</span> <span class='op'>-</span> <span class='va'>patternC</span>
+  <span class='op'>-</span> <span class='va'>replacementC</span>
+</pre>
 
 <p>A specific example:</p>
-<p>Treatment:</p><ul>
-<li><p></p><ul>
-<li><p>LPS</p></li>
-<li><p>LPS</p></li>
-</ul></li>
-<li><p></p><ul>
-<li><p>Control|cntrl|ctrl</p></li>
-<li><p>Control
-Genotype:</p></li>
-</ul></li>
-<li><p></p><ul>
-<li><p>WT|wildtype</p></li>
-<li><p>WT</p></li>
-</ul></li>
-<li><p></p><ul>
-<li><p>KO|knockout|knock</p></li>
-<li><p>KO</p></li>
-</ul></li>
-</ul>
+<pre>
+<span class='va'>Treatment</span><span class='op'>:</span>
+<span class='op'>-</span> <span class='op'>-</span> <span class='va'>LPS</span>
+  <span class='op'>-</span> <span class='va'>LPS</span>
+<span class='op'>-</span> <span class='op'>-</span> <span class='va'>Control</span><span class='op'>|</span><span class='va'>cntrl</span><span class='op'>|</span><span class='va'>ctrl</span>
+  <span class='op'>-</span> <span class='va'>Control</span>
+<span class='va'>Genotype</span><span class='op'>:</span>
+<span class='op'>-</span> <span class='op'>-</span> <span class='va'>WT</span><span class='op'>|</span><span class='va'>wildtype</span>
+  <span class='op'>-</span> <span class='va'>WT</span>
+<span class='op'>-</span> <span class='op'>-</span> <span class='va'>KO</span><span class='op'>|</span><span class='va'>knockout</span><span class='op'>|</span><span class='va'>knock</span>
+  <span class='op'>-</span> <span class='va'>KO</span>
+</pre>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -276,18 +267,19 @@ Genotype:</p></li>
 <code><a href='groups2contrasts.html'>groups2contrasts</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>123</span>);
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(
-   <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"file"</span>,
-      <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>sapply</a></span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='kw'>function</span>(<span class='no'>i</span>) {
-         <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='no'>LETTERS</span>, <span class='fl'>5</span>), <span class='kw'>collapse</span><span class='kw'>=</span><span class='st'>""</span>)
-      })),
-   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"WT"</span>, <span class='st'>"Mut"</span>), <span class='kw'>each</span><span class='kw'>=</span><span class='fl'>3</span>),
-   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Veh"</span>,<span class='st'>"EtOH"</span>), <span class='fl'>3</span>),
-   <span class='kw'>sep</span><span class='kw'>=</span><span class='st'>"_"</span>);
-<span class='no'>x</span>;</div><div class='output co'>#&gt; [1] "fileOSNCJ_WT_Veh"   "fileRVKET_WT_EtOH"  "fileNVESI_WT_Veh"  
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>123</span><span class='op'>)</span>;
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span>
+   <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"file"</span>,
+      <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>sapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='kw'>function</span><span class='op'>(</span><span class='va'>i</span><span class='op'>)</span> <span class='op'>{</span>
+         <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='va'>LETTERS</span>, <span class='fl'>5</span><span class='op'>)</span>, collapse<span class='op'>=</span><span class='st'>""</span><span class='op'>)</span>
+      <span class='op'>}</span><span class='op'>)</span><span class='op'>)</span>,
+   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"WT"</span>, <span class='st'>"Mut"</span><span class='op'>)</span>, each<span class='op'>=</span><span class='fl'>3</span><span class='op'>)</span>,
+   <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Veh"</span>,<span class='st'>"EtOH"</span><span class='op'>)</span>, <span class='fl'>3</span><span class='op'>)</span>,
+   sep<span class='op'>=</span><span class='st'>"_"</span><span class='op'>)</span>;
+<span class='va'>x</span>;
+</div><div class='output co'>#&gt; [1] "fileOSNCJ_WT_Veh"   "fileRVKET_WT_EtOH"  "fileNVESI_WT_Veh"  
 #&gt; [4] "fileCHGJI_Mut_EtOH" "fileSDNQK_Mut_Veh"  "fileOSNCJ_Mut_EtOH"</div><div class='input'>
-<span class='no'>curationYaml</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(
+<span class='va'>curationYaml</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>
 <span class='st'>"Genotype:
 - - WT|wildtype
   - WT
@@ -301,9 +293,10 @@ File:
   - \\1
 FileStem:
 - - file([A-Z]+)
-  - \\2"</span>);
+  - \\2"</span><span class='op'>)</span>;
 <span class='co'># print the curation.yaml to show its structure</span>
-<span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span>(<span class='no'>curationYaml</span>)</div><div class='output co'>#&gt; Genotype:
+<span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span><span class='op'>(</span><span class='va'>curationYaml</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; Genotype:
 #&gt; - - WT|wildtype
 #&gt;   - WT
 #&gt; - - Mut|mutant
@@ -316,11 +309,12 @@ FileStem:
 #&gt;   - \1
 #&gt; FileStem:
 #&gt; - - file([A-Z]+)
-#&gt;   - \2</div><div class='input'><span class='no'>curationL</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>yaml</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/yaml/man/yaml.load.html'>yaml.load</a></span>(<span class='no'>curationYaml</span>);
-<span class='fu'>curateVtoDF</span>(<span class='no'>x</span>, <span class='no'>curationL</span>);</div><div class='output co'>#&gt; ##  (<span style='color: #00BBBB;font-weight: bold;'>12:19:24</span><span>) 25Feb2020:  </span><span style='color: #BB0000;'>curateVtoDF(): </span><span style='color: #0000BB;'>Creating column:</span><span style='color: #BB0000;'>Genotype</span><span> 
-#&gt; ##  (</span><span style='color: #00BBBB;font-weight: bold;'>12:19:24</span><span>) 25Feb2020:  </span><span style='color: #BB0000;'>curateVtoDF(): </span><span style='color: #0000BB;'>Creating column:</span><span style='color: #BB0000;'>Treatment</span><span> 
-#&gt; ##  (</span><span style='color: #00BBBB;font-weight: bold;'>12:19:24</span><span>) 25Feb2020:  </span><span style='color: #BB0000;'>curateVtoDF(): </span><span style='color: #0000BB;'>Creating column:</span><span style='color: #BB0000;'>File</span><span> 
-#&gt; ##  (</span><span style='color: #00BBBB;font-weight: bold;'>12:19:24</span><span>) 25Feb2020:  </span><span style='color: #BB0000;'>curateVtoDF(): </span><span style='color: #0000BB;'>Creating column:</span><span style='color: #BB0000;'>FileStem</span><span> </div><div class='output co'>#&gt;                    Genotype Treatment      File FileStem
+#&gt;   - \2</div><div class='input'><span class='va'>curationL</span> <span class='op'>&lt;-</span> <span class='fu'>yaml</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/yaml/man/yaml.load.html'>yaml.load</a></span><span class='op'>(</span><span class='va'>curationYaml</span><span class='op'>)</span>;
+<span class='fu'>curateVtoDF</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>curationL</span><span class='op'>)</span>;
+</div><div class='output co'>#&gt; ##  (<span style='color: #00D7D7;font-weight: bold;'>19:08:22</span><span>) 09Mar2021:  </span><span style='color: #FF8700;'>curateVtoDF(): </span><span style='color: #00AFFF;'>Creating column:</span><span style='color: #FF8700;'>Genotype</span><span> 
+#&gt; ##  (</span><span style='color: #00D7D7;font-weight: bold;'>19:08:22</span><span>) 09Mar2021:  </span><span style='color: #FF8700;'>curateVtoDF(): </span><span style='color: #00AFFF;'>Creating column:</span><span style='color: #FF8700;'>Treatment</span><span> 
+#&gt; ##  (</span><span style='color: #00D7D7;font-weight: bold;'>19:08:22</span><span>) 09Mar2021:  </span><span style='color: #FF8700;'>curateVtoDF(): </span><span style='color: #00AFFF;'>Creating column:</span><span style='color: #FF8700;'>File</span><span> 
+#&gt; ##  (</span><span style='color: #00D7D7;font-weight: bold;'>19:08:22</span><span>) 09Mar2021:  </span><span style='color: #FF8700;'>curateVtoDF(): </span><span style='color: #00AFFF;'>Creating column:</span><span style='color: #FF8700;'>FileStem</span><span> </div><div class='output co'>#&gt;                    Genotype Treatment      File FileStem
 #&gt; fileOSNCJ_WT_Veh         WT       Veh fileOSNCJ    OSNCJ
 #&gt; fileRVKET_WT_EtOH        WT      EtOH fileRVKET    RVKET
 #&gt; fileNVESI_WT_Veh         WT       Veh fileNVESI    NVESI
@@ -329,15 +323,10 @@ FileStem:
 #&gt; fileOSNCJ_Mut_EtOH      Mut      EtOH fileOSNCJ    OSNCJ</div><div class='input'>
 </div></span></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -348,7 +337,7 @@ FileStem:
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
