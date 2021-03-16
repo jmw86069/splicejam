@@ -932,7 +932,7 @@ exoncov2polygon <- function
 #'    which is a list of numeric coverage values.
 #'
 #' @family jam GRanges functions
-#' @family RNA-seq functions
+#' @family jam RNA-seq functions
 #'
 #' @param gr GRanges object
 #' @param bwUrls character vector of full file paths or web URLs
@@ -1430,7 +1430,7 @@ combineGRcoverage <- function
 #' @param ... additional arguments are passed to `make_ref2compressed()`,
 #'    `getGRcoverageFromBw()`, `exoncov2polygon()`.
 #'
-#' @family RNA-seq functions
+#' @family jam RNA-seq functions
 #' @family jam plot functions
 #' @family splicejam core functions
 #'
@@ -2209,7 +2209,7 @@ prepareSashimi <- function
 #' can be defined higher in order to minimize junction arc
 #' overlaps.
 #'
-#' @family RNA-seq functions
+#' @family jam RNA-seq functions
 #'
 #' @return numeric vector named by `names(juncGR)` whose values
 #'    are the maximum score of internal overlapping junction ends.

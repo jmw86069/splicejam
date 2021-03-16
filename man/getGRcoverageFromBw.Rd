@@ -92,6 +92,7 @@ Other jam GRanges functions:
 \code{\link{combineGRcoverage}()},
 \code{\link{exoncov2polygon}()},
 \code{\link{findOverlapsGRL}()},
+\code{\link{flattenExonsBy}()},
 \code{\link{getFirstStrandedFromGRL}()},
 \code{\link{getGRLgaps}()},
 \code{\link{getGRgaps}()},
@@ -102,9 +103,22 @@ Other jam GRanges functions:
 \code{\link{spliceGR2junctionDF}()},
 \code{\link{stackJunctions}()}
 
-Other RNA-seq functions: 
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{flattenExonsBy}()},
+\code{\link{groups2contrasts}()},
 \code{\link{internal_junc_score}()},
-\code{\link{prepareSashimi}()}
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{prepareSashimi}()},
+\code{\link{runDiffSplice}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 }
-\concept{RNA-seq functions}
 \concept{jam GRanges functions}
+\concept{jam RNA-seq functions}

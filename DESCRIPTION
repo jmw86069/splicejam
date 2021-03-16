@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.63.900
+Version: 0.0.64.900
 Authors@R: c(
     person(given="James M.",
        family="Ward",
@@ -46,7 +46,8 @@ Imports: jamba(>= 0.0.41.900),
     cowplot,
     plotly,
     DT,
-    memoise(>= 1.1.0.9000)
+    memoise(>= 1.1.0.9000),
+    testthat(>= 3.0.0)
 Suggests: 
     made4,
     openxlsx,

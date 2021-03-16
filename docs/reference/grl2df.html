@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.64.900</span>
       </span>
     </div>
 
@@ -293,6 +293,7 @@ using compresssed coordinates.</p>
 <code><a href='combineGRcoverage.html'>combineGRcoverage</a>()</code>,
 <code><a href='exoncov2polygon.html'>exoncov2polygon</a>()</code>,
 <code><a href='findOverlapsGRL.html'>findOverlapsGRL</a>()</code>,
+<code><a href='flattenExonsBy.html'>flattenExonsBy</a>()</code>,
 <code><a href='getFirstStrandedFromGRL.html'>getFirstStrandedFromGRL</a>()</code>,
 <code><a href='getGRLgaps.html'>getGRLgaps</a>()</code>,
 <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw</a>()</code>,
@@ -327,7 +328,7 @@ using compresssed coordinates.</p>
    feature_type<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"noncds"</span>, <span class='st'>"cds"</span>, <span class='st'>"noncds"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>,<span class='fl'>5</span>,<span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>;
 <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>gr</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'>jamba</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/jamba/man/makeNames.html'>makeNames</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='st'>"exon"</span>, <span class='fl'>7</span><span class='op'>)</span><span class='op'>)</span>;
 <span class='va'>grldf</span> <span class='op'>&lt;-</span> <span class='fu'>grl2df</span><span class='op'>(</span><span class='va'>gr</span>, addGaps<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>;
-</div><div class='output co'>#&gt; <span class='warning'>Warning: failed to set names on the unlisted CompressedRleList object</span></div><div class='input'>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: failed to set names on the unlisted CompressedRleList object</span></div><div class='output co'>#&gt; <span class='warning'>Warning: package ‘data.table’ was built under R version 3.6.2</span></div><div class='input'>
 <span class='va'>gg1</span> <span class='op'>&lt;-</span> <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>grldf</span>, <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x<span class='op'>=</span><span class='va'>x</span>, y<span class='op'>=</span><span class='va'>y</span>, group<span class='op'>=</span><span class='va'>id</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
    <span class='fu'>ggforce</span><span class='fu'>::</span><span class='fu'><a href='https://ggforce.data-imaginist.com/reference/geom_shape.html'>geom_shape</a></span><span class='op'>(</span><span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>fill<span class='op'>=</span><span class='va'>feature_type</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
    <span class='fu'>colorjam</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/colorjam/man/theme_jam.html'>theme_jam</a></span><span class='op'>(</span><span class='op'>)</span>

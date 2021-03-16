@@ -115,6 +115,7 @@ Other jam GRanges functions:
 \code{\link{combineGRcoverage}()},
 \code{\link{exoncov2polygon}()},
 \code{\link{findOverlapsGRL}()},
+\code{\link{flattenExonsBy}()},
 \code{\link{getFirstStrandedFromGRL}()},
 \code{\link{getGRLgaps}()},
 \code{\link{getGRcoverageFromBw}()},

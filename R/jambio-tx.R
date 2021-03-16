@@ -2774,33 +2774,59 @@ findOverlapsGRL <- function
 #' @family jam GRanges functions
 #' @family jam RNA-seq functions
 #'
-#' @param GRL GRangesList input object. Ideally, the input GRanges are
+#' @param GRL `GRangesList` input object. Ideally, the input `GRanges` are
 #'    disjoint, meaning no two exons overlap, but instead are represented
 #'    by non-overlapping regions that are sometimes adjacent.
-#' @param geneSymbolColname character string indicating with colname
+#' @param geneSymbolColname `character` string indicating with colname
 #'    of `values(GRL)` contains the unique gene symbol. If this value
 #'    does not already exist, it is created and populated using
-#'    `names(GRL)`.
-#' @param exonNameColname character string to be used for the resulting
+#'    `names(GRL)`. If `names(GRL)` does not exist, it tries to use
+#'    `values(GRL)[[geneSymbolColname]]` then if that does not exist
+#'    it tries to use `values(GRL@unlistData)[[geneSymbolColname]]`
+#'    with the first entry in each `GRanges` from `GRL`.
+#' @param exonNameColname `character` string to be used for the resulting
 #'    exon name. By default `"Exon"` is appended to the end of the
 #'    `geneSymbolColname`.
-#' @param suffix character value indicating the suffix to add to the
+#' @param suffix `character` value indicating the suffix to add to the
 #'    `geneSymbolColname` to indicate individual exon numbers.
-#' @param renameOnes logical indicating whether to name exon sub-sections
+#' @param renameOnes `logical` indicating whether to name exon sub-sections
 #'    when the exon is not subdivided. For example, when `renameOnes=FALSE`,
 #'    an exon with one section would be named, `"exon1"`, otherwise
 #'    when `renameOnes=TRUE` an exon with one section would be named,
 #'    `"exon1a"`. This distinction can be helpful to recognize exons that
 #'    contain no subsections.
-#' @param filterTwoStrand logical indicating whether to filter out genes
+#' @param filterTwoStrand `logical` indicating whether to filter out genes
 #'    occurring on two different strands.
-#' @param checkDisjoin character value indicating how to handle non-disjoint
+#' @param checkDisjoin `character` value indicating how to handle non-disjoint
 #'    input GRL ranges. When `checkDisjoin="stop"` then any non-disjoint
 #'    GRanges in an element of `GRL` will cause the function to fail.
-#' @param assignGRLnames logical indicating whether names for the
+#' @param assignGRLnames `logical` indicating whether names for the
 #'    resulting GRangesList should use the exon names.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
+#'
+#' @examples
+#' gene1 <- GenomicRanges::GRanges(seqnames="chr1",
+#'    ranges=IRanges::IRanges(
+#'       start=c(100, 200, 400, 500),
+#'       width=c(100, 50, 50, 150)),
+#'    strand="+",
+#'    geneSymbol="Gene1");
+#' gene2 <- GenomicRanges::GRanges(seqnames="chr1",
+#'    ranges=IRanges::IRanges(
+#'       start=c(600, 900, 1150, 1200),
+#'       width=c(200, 100, 100, 50)),
+#'    strand="-",
+#'    geneSymbol="Gene2");
+#' gene3 <- GenomicRanges::GRanges(seqnames="chr1",
+#'    ranges=IRanges::IRanges(
+#'       start=c(1500),
+#'       width=c(75)),
+#'    strand="+",
+#'    geneSymbol="Gene3");
+#' GRL <- GenomicRanges::GRangesList(list(gene1, gene2, gene3))
+#' assignGRLexonNames(GRL)
+#'
 #'
 #' @export
 assignGRLexonNames <- function
@@ -2832,6 +2858,42 @@ assignGRLexonNames <- function
    ##
    checkDisjoin <- match.arg(checkDisjoin);
 
+   ## verify names(GRL) exists or values(GRL@unlistData) has geneSymbolColname
+   if (!geneSymbolColname %in% colnames(values(GRL))) {
+      if (!geneSymbolColname %in% colnames(values(GRL@unlistData))) {
+         if (length(names(GRL)) == 0) {
+            stop(paste0(
+               "Input GRangesList must have one of: ",
+               "names(GRL), ",
+               "values(GRL)[[geneSymbolColname]], ",
+               "values(GRL@unlist)[[geneSymbolColname]]"));
+         }
+         if (verbose) {
+            jamba::printDebug("assignGRLexonNames(): ",
+               "Using geneSymbol values from names(GRL).");
+         }
+         GRLnames <- names(GRL);
+      } else {
+         # assign names(GRL) from the first geneSymbolColname value in each GRanges
+         use_idx <- unname(c(1,
+            1 + head(cumsum(IRanges::elementNROWS(GRL)), -1)));
+         GRLnames <- values(GRL@unlistData)[[geneSymbolColname]][use_idx];
+         names(GRL) <- jamba::makeNames(GRLnames);
+         if (verbose) {
+            jamba::printDebug("assignGRLexonNames(): ",
+               "Using geneSymbol values from values(GRL@unlistData)[[geneSymbolColname]].");
+         }
+      }
+   } else {
+      # assign names(GRL) from geneSymbolColname
+      GRLnames <- values(GRL)[[geneSymbolColname]];
+      names(GRL) <- jamba::makeNames(GRLnames);
+      if (verbose) {
+         jamba::printDebug("assignGRLexonNames(): ",
+            "Using geneSymbol values from values(GRL)[[geneSymbolColname]].");
+      }
+   }
+
    ## First verify that incoming data is valid per assumptions
    ## that exons for a transcript would all appear only on one strand
    if (verbose) {
@@ -2839,6 +2901,7 @@ assignGRLexonNames <- function
          "class(GRL):",
          class(GRL));
    }
+
    GRLstrandL <- unique(GenomicRanges::strand(GRL));
    if (filterTwoStrand) {
       if (any(S4Vectors::elementNROWS(GRLstrandL) > 1)) {
@@ -2846,8 +2909,9 @@ assignGRLexonNames <- function
             jamba::printDebug("assignGRLexonNames(): ",
                "removing some multi-stranded exon entries.");
          }
-         iRemove <- which(S4Vectors::elementNROWS(GRLstrandL) > 1);
-         GRL <- GRL[-iRemove];
+         iKeep <- !(S4Vectors::elementNROWS(GRLstrandL) > 1);
+         GRL <- GRL[iKeep];
+         GRLnames <- GRLnames[iKeep];
       } else {
          if (verbose) {
             jamba::printDebug("assignGRLexonNames(): ",
@@ -2862,16 +2926,12 @@ assignGRLexonNames <- function
    }
 
    ## check disjoint GRanges
-   if (checkDisjoin %in% c("warn","stop")) {
+   if (checkDisjoin %in% c("warn", "stop")) {
       if (verbose) {
          jamba::printDebug("assignGRLexonNames(): ",
             "Checking disjoint ranges.");
       }
-      input_width <- sum(sum(width(GRL)));
-      reduced_width <- sum(sum(width(reduce(GRL))));
-      #GRLdis <- GenomicRanges::disjoin(GRL);
-      #if (!all(S4Vectors::elementNROWS(GRLdis) == S4Vectors::elementNROWS(GRL))) {
-      if (!jam_isDisjoint(GRL)) {
+      if (!any(jam_isDisjoint(GRL))) {
          if (checkDisjoin %in% "stop") {
             stop("assignGRLexonNames() detected overlapping GRanges, stopping.");
          } else {
@@ -2890,11 +2950,14 @@ assignGRLexonNames <- function
    GRLred <- GenomicRanges::reduce(GRL);
 
    ## Add geneSymbolColname if it does not already exist
+   if (!all(names(GRLred) == names(GRL))) {
+      stop("reduce() changed the order of names in GRL to GRLred. This is unexpected.")
+   }
    if (!geneSymbolColname %in% colnames(GenomicRanges::values(GRLred@unlistData))) {
-      GenomicRanges::values(GRLred@unlistData)[,geneSymbolColname] <- rep(names(GRLred),
+      GenomicRanges::values(GRLred@unlistData)[,geneSymbolColname] <- rep(GRLnames,
          S4Vectors::elementNROWS(GRLred));
    }
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("assignGRLexonNames(): ",
          "head(GRLred):");
       print(head(GRLred));
@@ -2904,7 +2967,7 @@ assignGRLexonNames <- function
          "geneSymbolColname:",
          geneSymbolColname);
    }
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("assignGRLexonNames(): ",
          "geneSymbolColname values:",
          head(GenomicRanges::values(GRLred@unlistData)[,geneSymbolColname], 10));
@@ -2918,7 +2981,7 @@ assignGRLexonNames <- function
 
    ## Stranded exon numbering
    GenomicRanges::values(GRLred@unlistData)[,exonNameColname] <- "";
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("assignGRLexonNames(): ",
          "head(GRLred):");
       print(head(GRLred));
@@ -2941,7 +3004,7 @@ assignGRLexonNames <- function
          suffix=suffix,
          renameOnes=TRUE));
    }
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("assignGRLexonNames(): ",
          "exonNameColname values:",
          head(GenomicRanges::values(GRLred@unlistData)[,exonNameColname], 10));
@@ -2950,7 +3013,7 @@ assignGRLexonNames <- function
    ## Add lowercase letter suffix
    GRLcolnames <- unvigrep(paste0(exonNameColname, "(_v[0-9]|)$"),
       colnames(GenomicRanges::values(GRL@unlistData)));
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("assignGRLexonNames(): ",
          "head(GRL[,GRLcolnames]):");
       print(head(GRL[,GRLcolnames]));
@@ -3004,16 +3067,24 @@ assignGRLexonNames <- function
 #'
 #' This function is a simple alternative to `GenomicRanges::isDisjoint()`
 #' that is intended to produce identical output while being markedly
-#' more efficient.
+#' more efficient. For large `GRangesList` objects the result
+#' from `GenomicRanges::isDisjoint()` was returned in 100+ seconds,
+#' and the result from `jam_isDisjoint()` was returned in 0.5 seconds.
+#'
+#' Note that this function forces `ignore.strand=FALSE`, which means
+#' all comparisons are strand-specific. To force non-stranded comparisons,
+#' update the strand of the input object to `"*"`.
 #'
 #' @family jam GRanges functions
 #'
-#' @return `logical` indicating whether the input `x` contains
-#'    disjoint ranges. When input `x` is a `GRangesList` then this
-#'    function tests `GRanges` elements independently for overlaps,
-#'    and returns `TRUE` only if all `GRanges` elements are disjoint.
-#'    If any `GRanges` elements are not disjoint, this function
-#'    returns `FALSE`.
+#' @return `logical` vector indicating whether the input `x` contains
+#'    disjoint ranges. When input `x` is a `GRangesList` then the
+#'    vector represents each `GenomicRanges` object in the `GRangesList`
+#'    and should therefore be `length(x)`. When input `x` is
+#'    `GRanges` this function returns one value representing the
+#'    full `GRanges` object. The output for this function changed
+#'    in version `0.0.64.900` to be consistent with
+#'    `GenomicRanges::isDisjoint()`.
 #'
 #' @param x `GRanges` or `GRangesList` object
 #'
@@ -3021,13 +3092,9 @@ assignGRLexonNames <- function
 jam_isDisjoint <- function
 (x)
 {
-   input_width <- sum(sum(width(x)));
-   reduced_width <- sum(sum(width(reduce(x))));
-   if (reduced_width < input_width) {
-      return(FALSE);
-   } else {
-      return(TRUE);
-   }
+   input_width <- sum(GenomicRanges::width(x));
+   reduced_width <- sum(width(GenomicRanges::reduce(x)));
+   return(reduced_width < input_width);
 }
 
 #' Prepare ALE data for violin plots
@@ -3945,7 +4012,7 @@ getGRLgaps <- function
 #' in more detail.
 #'
 #' @family jam RNA-seq functions
-#' @family GRanges functions
+#' @family jam GRanges functions
 #'
 #' @return `GRangesList` with names dependent upon argument `by`:
 #'    when `by="gene"` names are derived from values in `geneColname`;

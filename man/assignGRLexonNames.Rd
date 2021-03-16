@@ -18,37 +18,40 @@ assignGRLexonNames(
 )
 }
 \arguments{
-\item{GRL}{GRangesList input object. Ideally, the input GRanges are
+\item{GRL}{\code{GRangesList} input object. Ideally, the input \code{GRanges} are
 disjoint, meaning no two exons overlap, but instead are represented
 by non-overlapping regions that are sometimes adjacent.}
 
-\item{geneSymbolColname}{character string indicating with colname
+\item{geneSymbolColname}{\code{character} string indicating with colname
 of \code{values(GRL)} contains the unique gene symbol. If this value
 does not already exist, it is created and populated using
-\code{names(GRL)}.}
+\code{names(GRL)}. If \code{names(GRL)} does not exist, it tries to use
+\code{values(GRL)[[geneSymbolColname]]} then if that does not exist
+it tries to use \code{values(GRL@unlistData)[[geneSymbolColname]]}
+with the first entry in each \code{GRanges} from \code{GRL}.}
 
-\item{exonNameColname}{character string to be used for the resulting
+\item{exonNameColname}{\code{character} string to be used for the resulting
 exon name. By default \code{"Exon"} is appended to the end of the
 \code{geneSymbolColname}.}
 
-\item{suffix}{character value indicating the suffix to add to the
+\item{suffix}{\code{character} value indicating the suffix to add to the
 \code{geneSymbolColname} to indicate individual exon numbers.}
 
-\item{renameOnes}{logical indicating whether to name exon sub-sections
+\item{renameOnes}{\code{logical} indicating whether to name exon sub-sections
 when the exon is not subdivided. For example, when \code{renameOnes=FALSE},
 an exon with one section would be named, \code{"exon1"}, otherwise
 when \code{renameOnes=TRUE} an exon with one section would be named,
 \code{"exon1a"}. This distinction can be helpful to recognize exons that
 contain no subsections.}
 
-\item{filterTwoStrand}{logical indicating whether to filter out genes
+\item{filterTwoStrand}{\code{logical} indicating whether to filter out genes
 occurring on two different strands.}
 
-\item{checkDisjoin}{character value indicating how to handle non-disjoint
+\item{checkDisjoin}{\code{character} value indicating how to handle non-disjoint
 input GRL ranges. When \code{checkDisjoin="stop"} then any non-disjoint
 GRanges in an element of \code{GRL} will cause the function to fail.}
 
-\item{assignGRLnames}{logical indicating whether names for the
+\item{assignGRLnames}{\code{logical} indicating whether names for the
 resulting GRangesList should use the exon names.}
 
 \item{verbose}{logical indicating whether to print verbose output.}
@@ -88,6 +91,30 @@ The reasoning, is to preserve the gene symbol for readability, but
 to number exons to indicate the numbered contiguous exon, with suffix
 to indicate the sub-section of each exon.
 }
+\examples{
+gene1 <- GenomicRanges::GRanges(seqnames="chr1",
+   ranges=IRanges::IRanges(
+      start=c(100, 200, 400, 500),
+      width=c(100, 50, 50, 150)),
+   strand="+",
+   geneSymbol="Gene1");
+gene2 <- GenomicRanges::GRanges(seqnames="chr1",
+   ranges=IRanges::IRanges(
+      start=c(600, 900, 1150, 1200),
+      width=c(200, 100, 100, 50)),
+   strand="-",
+   geneSymbol="Gene2");
+gene3 <- GenomicRanges::GRanges(seqnames="chr1",
+   ranges=IRanges::IRanges(
+      start=c(1500),
+      width=c(75)),
+   strand="+",
+   geneSymbol="Gene3");
+GRL <- GenomicRanges::GRangesList(list(gene1, gene2, gene3))
+assignGRLexonNames(GRL)
+
+
+}
 \seealso{
 Other jam GRanges functions: 
 \code{\link{addGRLgaps}()},
@@ -98,6 +125,7 @@ Other jam GRanges functions:
 \code{\link{combineGRcoverage}()},
 \code{\link{exoncov2polygon}()},
 \code{\link{findOverlapsGRL}()},
+\code{\link{flattenExonsBy}()},
 \code{\link{getFirstStrandedFromGRL}()},
 \code{\link{getGRLgaps}()},
 \code{\link{getGRcoverageFromBw}()},
@@ -116,9 +144,12 @@ Other jam RNA-seq functions:
 \code{\link{detectedTxInfo}()},
 \code{\link{exoncov2polygon}()},
 \code{\link{flattenExonsBy}()},
+\code{\link{getGRcoverageFromBw}()},
 \code{\link{groups2contrasts}()},
+\code{\link{internal_junc_score}()},
 \code{\link{makeTx2geneFromGtf}()},
 \code{\link{make_ref2compressed}()},
+\code{\link{prepareSashimi}()},
 \code{\link{runDiffSplice}()},
 \code{\link{sortSamples}()},
 \code{\link{spliceGR2junctionDF}()}

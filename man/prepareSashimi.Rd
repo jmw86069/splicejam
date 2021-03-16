@@ -202,9 +202,22 @@ plotSashimi(sh1);
 
 }
 \seealso{
-Other RNA-seq functions: 
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{flattenExonsBy}()},
 \code{\link{getGRcoverageFromBw}()},
-\code{\link{internal_junc_score}()}
+\code{\link{groups2contrasts}()},
+\code{\link{internal_junc_score}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{runDiffSplice}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 
 Other jam plot functions: 
 \code{\link{bgaPlotly3d}()},
@@ -222,6 +235,6 @@ Other splicejam core functions:
 \code{\link{make_ref2compressed}()},
 \code{\link{plotSashimi}()}
 }
-\concept{RNA-seq functions}
+\concept{jam RNA-seq functions}
 \concept{jam plot functions}
 \concept{splicejam core functions}

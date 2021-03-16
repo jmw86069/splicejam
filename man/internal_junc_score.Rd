@@ -54,8 +54,21 @@ can be defined higher in order to minimize junction arc
 overlaps.
 }
 \seealso{
-Other RNA-seq functions: 
+Other jam RNA-seq functions: 
+\code{\link{assignGRLexonNames}()},
+\code{\link{closestExonToJunctions}()},
+\code{\link{combineGRcoverage}()},
+\code{\link{defineDetectedTx}()},
+\code{\link{detectedTxInfo}()},
+\code{\link{exoncov2polygon}()},
+\code{\link{flattenExonsBy}()},
 \code{\link{getGRcoverageFromBw}()},
-\code{\link{prepareSashimi}()}
+\code{\link{groups2contrasts}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{make_ref2compressed}()},
+\code{\link{prepareSashimi}()},
+\code{\link{runDiffSplice}()},
+\code{\link{sortSamples}()},
+\code{\link{spliceGR2junctionDF}()}
 }
-\concept{RNA-seq functions}
+\concept{jam RNA-seq functions}

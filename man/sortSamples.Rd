@@ -97,9 +97,12 @@ Other jam RNA-seq functions:
 \code{\link{detectedTxInfo}()},
 \code{\link{exoncov2polygon}()},
 \code{\link{flattenExonsBy}()},
+\code{\link{getGRcoverageFromBw}()},
 \code{\link{groups2contrasts}()},
+\code{\link{internal_junc_score}()},
 \code{\link{makeTx2geneFromGtf}()},
 \code{\link{make_ref2compressed}()},
+\code{\link{prepareSashimi}()},
 \code{\link{runDiffSplice}()},
 \code{\link{spliceGR2junctionDF}()}
 }

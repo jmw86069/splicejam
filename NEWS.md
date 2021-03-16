@@ -1,4 +1,25 @@
-# splicejam version 0.0.63.900
+# splicejam 0.0.64.900
+
+## minor updates
+
+* Added `"testthat"` package dependency, which requires
+version 3.0.0 or higher to avoid the bug associated
+with `testthat_print() not found`.
+* `assignGRLexonNames()` was updated to include examples,
+and to remove a redundant step when checking for disjoint
+ranges. The process was updated to clarify how geneSymbol
+values are obtained, from `values(GRL)[[geneSymbolColname]]`,
+`values(GRL@unlistData)[[geneSymbolColname]]`, then
+`names(GRL)` in order of the first one with valid values.
+It now also handles the case where `names(GRL)` is not
+defined, but where values are present via `geneSymbolColname`.
+* `jam_isDisjoint()` was updated to return a `logical`
+vector for `GRangesList` input, representing each `GRanges`
+element in the `GRangesList`. This change is consistent
+with `GenomicRanges::isDisjoint()` without sacrificing
+speed.
+
+# splicejam 0.0.63.900
 
 ## bug fixes
 
@@ -14,7 +35,7 @@ as expected.
 * Cleaned up some errors in function examples, most just needed
 to have the examples re-evaluated to clear the cached error.
 
-# splicejam version 0.0.62.900
+# splicejam 0.0.62.900
 
 ## enhancements
 
@@ -35,7 +56,7 @@ when using TPM values it is useful to allow values less than `1`.
 New arguments: `floorTPM` and `floorCounts` allow custom minimum
 values, the defaults are 0.001.
 
-# splicejam version 0.0.61.900
+# splicejam 0.0.61.900
 
 ## Bug fixes
 
@@ -181,7 +202,8 @@ version of Gencode.) Ideally, install an R package that contains:
 (with fix for mis-matched transcript_id between GTF and FASTA from Gencode)
 * `txdb` (optional, but not provided by Bioconductor currently)
 
-# splicejam version 0.0.60.900
+
+# splicejam 0.0.60.900
 
 ## changes to existing functions
 
@@ -193,7 +215,7 @@ factor contrasts (where that factor does not change.)
 count and mean abundance group values, rounded to the
 0.1 decimal place.
 
-# splicejam version 0.0.59.900
+# splicejam 0.0.59.900
 
 ## changes to existing functions
 
@@ -266,7 +288,7 @@ will now ignore any samples that are not present in the colnames
 of the `GRanges` object supplied.
 
 
-# splicejam version 0.0.58.900
+# splicejam 0.0.58.900
 
 ## Ongoing issues with file caching and R-shiny efficiencies
 
@@ -320,7 +342,7 @@ applied in all cases.
 in the top search pane, which allows someone to set the coverage strand
 consistent with the gene if desired.
 
-# splicejam version 0.0.57.900
+# splicejam 0.0.57.900
 
 ## Bug fixes
 
@@ -338,7 +360,7 @@ inside tagList context -- for example when embedding a custom
 htmlwidget inside a table cell.
 Perhaps the proper remedy is related.
 
-# splicejam version 0.0.56.900
+# splicejam 0.0.56.900
 
 ## Bug fixes
 
@@ -347,7 +369,7 @@ which failed to initialize a new GRanges column with numeric(0)
 instead of using a numeric form of NA, which was accomplished
 with `c(0, NA)[2]`.
 
-# splicejam version 0.0.55.900
+# splicejam 0.0.55.900
 
 ## changes
 
@@ -361,7 +383,7 @@ the reference (chromosome) as the x-axis label, which makes
 sense because the axis shows chromosome coordinates. The `"xlabel"`
 argument is intended to allow a fully custom label.
 
-# splicejam version 0.0.54.900
+# splicejam 0.0.54.900
 
 ## bug fixed
 
@@ -385,7 +407,7 @@ polygon coordinates are adjusted.
 of `prepareSashimi()` only once, instead of re-creating it each
 time. Probably no noticeable effect, but it feels better.
 
-# splicejam version 0.0.53.900
+# splicejam 0.0.53.900
 
 ## changes
 
@@ -395,7 +417,7 @@ contains the minimum required to produce the Gria1 plot.
 * Added splicejam hexsticker with an embedded sashimi plot.
 An R package isn't an R package without a hexsticker.
 
-# splicejam version 0.0.52.900
+# splicejam 0.0.52.900
 
 ## enhancements
 
@@ -431,7 +453,7 @@ handle consistently by other downstream functions.
 Also made small update to handle `sample_id` as a factor
 when input data is supplied only as a GRanges object.
 
-# splicejam version 0.0.51.900
+# splicejam 0.0.51.900
 
 ## changes
 
@@ -465,7 +487,7 @@ un-scaled coordinates, which keeps the x, y, and z axis scales
 proportional to their relative contribution, which visually
 reinforces the relative strength of separation in each dimension.
 
-# splicejam version 0.0.50.900
+# splicejam 0.0.50.900
 
 ## bug fixes
 
@@ -482,7 +504,7 @@ which is the point where the API changed with `ggforce::StatBezier`.
 for example `org.Mm.eg.db`. Now if the package is not available,
 it skips the corresponding sections.
 
-# splicejam version 0.0.49.900
+# splicejam 0.0.49.900
 
 ## changes
 
@@ -498,7 +520,7 @@ package from being required only for the example vignette.
 In future, a random generated expression data matrix may
 be created.
 
-# splicejam version 0.0.48.900
+# splicejam 0.0.48.900
 
 ## bug fix
 
@@ -533,7 +555,7 @@ to `"gear"`, thanks to @DivadNojnarg of the
 * Updated R package dependencies for minimum versions for
 `"shinydashboardPlus"` and `"farrisdata"`.
 
-# splicejam version 0.0.47.900
+# splicejam 0.0.47.900
 
 ## Changes
 
@@ -571,7 +593,7 @@ functions, which may reference the environment rather than
 data objects themselves.
 
 
-# splicejam version 0.0.46.900
+# splicejam 0.0.46.900
 
 ## Bug fixes
 
@@ -630,7 +652,7 @@ slightest change in any molecule in the world, so caching should
 not be problematic.
 
 
-# splicejam version 0.0.45.900
+# splicejam 0.0.45.900
 
 ## R-shiny changes
 
@@ -657,7 +679,7 @@ the effect should be slightly higher junction arcs. In future,
 will consider inspecting intervening coverage max height as perhaps
 better estimate of a minimum junction arc, plus some buffer height.
 
-# splicejam version 0.0.44.900
+# splicejam 0.0.44.900
 
 ## bug fixes
 
@@ -666,7 +688,7 @@ using gene in the caption, but the function did not need
 to know the gene.
 * Improved overall handling of reactive gene, sample_id values.
 
-# splicejam version 0.0.43.900
+# splicejam 0.0.43.900
 
 ## changes
 
@@ -690,7 +712,7 @@ when determining the minimum height for a junction arc.
 * Fixed errors when part of the Sashimi plot data did not exist,
 for example no junction data or no coverage data.
 
-# splicejam version 0.0.42.900
+# splicejam 0.0.42.900
 
 ## changes
 
@@ -712,7 +734,7 @@ frequently changed, this update should be a substantial improvement.
 * Changed default R-shiny to non-interactive. One day will switch it
 back, but need plotly ninja skills meanwhile.
 
-# splicejam version 0.0.41.900
+# splicejam 0.0.41.900
 
 ## R-shiny app updates
 
@@ -721,20 +743,20 @@ flatExonsByTx data.
 * Updated the Guides tab with a description of Sashimi plots,
 and a how-to for creating a Sashimi plot.
 
-# splicejam version 0.0.40.900
+# splicejam 0.0.40.900
 
 ## bug fixes
 
 * Added `shinyjs` package dependency.
 
-# splicejam version 0.0.39.900
+# splicejam 0.0.39.900
 
 ## bug fixes
 
 * Fixed regression in junction scale factors, not consistently applied
 in `prepareSashimi()`.
 
-# splicejam version 0.0.38.900
+# splicejam 0.0.38.900
 
 ## additional package dependencies
 
@@ -766,7 +788,7 @@ alternatives.
 * Plot settings like panel height, font relative sizing, and exon
 label size (for non-interactive) are available.
 
-# splicejam version 0.0.37.900
+# splicejam 0.0.37.900
 
 ## updates
 
@@ -779,7 +801,7 @@ select sample_id entries to display or hide in the Sashimi plots.
 Purely aesthetic and non-functional, still testing out the many
 javascript table options available.
 
-# splicejam version 0.0.36.900
+# splicejam 0.0.36.900
 
 ## bug fixes
 
@@ -788,7 +810,7 @@ colors in sashimi plots.
 * Updated plotly highlighting, increasing the success rate in most
 test cases.
 
-# splicejam version 0.0.35.900
+# splicejam 0.0.35.900
 
 ## changes
 
@@ -801,7 +823,7 @@ in testing phases.
 coverage, and label coordinate data.frames to enable plotly and
 crosstalk to highlight features. The end result looks amazing.
 
-# splicejam version 0.0.34.900
+# splicejam 0.0.34.900
 
 ## changes
 
@@ -812,7 +834,7 @@ tx2geneDF, detectedTx, detectedGenes. This mechanism is used for now,
 both to help define custom input data, but also to help define the
 data values needed to produce plots manually outside R-shiny.
 
-# splicejam version 0.0.33.900
+# splicejam 0.0.33.900
 
 ## changes
 
@@ -828,7 +850,7 @@ to highlight the major isoform splice junctions per sample.
 Unfortunately, plotly does not honor the polygon render
 order (yet).
 
-# splicejam version 0.0.32.900
+# splicejam 0.0.32.900
 
 ## changes/fixes
 
@@ -839,7 +861,7 @@ gene-exon model.
 the gene-exon model. Also option to show all or detected
 transcripts.
 
-# splicejam version 0.0.31.900
+# splicejam 0.0.31.900
 
 ## changes/fixes
 
@@ -856,7 +878,7 @@ other panels.
 sample_id, the name of the exon or feature, and the track
 (referring to the name of the coverage).
 
-# splicejam version 0.0.30.900
+# splicejam 0.0.30.900
 
 ## additions
 
@@ -873,7 +895,7 @@ two polygons, which are combined in the geom. Still todo: figure
 out how to add a label; and make the middle x position immune to
 x-axis rescaling.
 
-# splicejam version 0.0.29.900
+# splicejam 0.0.29.900
 
 * R-shiny app now properly keeps interactive plot x-axis ranges
 in sync, when zooming the plot.
@@ -881,7 +903,7 @@ in sync, when zooming the plot.
 no junctions overlapped another, resulting in error
 "invalid 'type' (S4) of argument".
 
-# splicejam version 0.0.28.900
+# splicejam 0.0.28.900
 
 ## changes to existing functions
 
@@ -897,7 +919,7 @@ assigned to one or another isoform, leaving zero in the
 alternate position. Excluding zero ensures that group
 mean values represent only the assigned quantitation.
 
-# splicejam version 0.0.27.900
+# splicejam 0.0.27.900
 
 ## bug fixes
 
@@ -920,7 +942,7 @@ gene-exon model. Future versions will allow R-shiny user
 customization.
 * `bgaPlotly3d()` removed some unnecessary print functions.
 
-# splicejam version 0.0.26.900
+# splicejam 0.0.26.900
 
 ## changes
 
@@ -930,7 +952,7 @@ some display options of Sashimi plots in the R-shiny app.
 interactive options, and evaluating some UI elements in sidebar.
 * Added option to display gene-exon model in R-shiny.
 
-# splicejam version 0.0.25.900
+# splicejam 0.0.25.900
 
 ## changes
 
@@ -945,14 +967,14 @@ uses `data.table::fread()`.
 provide basic support of `ggforce::geom_shape()` when converting
 ggplot objects to plotly.
 
-# splicejam version 0.0.24.900
+# splicejam 0.0.24.900
 
 ## changes
 
 * R-shiny Sashimi app now allows zooming into coordinate ranges,
 defined per gene.
 
-# splicejam version 0.0.23.900
+# splicejam 0.0.23.900
 
 ## additions
 
@@ -961,7 +983,7 @@ certain genes that needs debugging. Defaults to using
 Farris et al data from `farrisdata` package, but can
 be overridden with global environment variables.
 
-# splicejam version 0.0.22.900
+# splicejam 0.0.22.900
 
 ## additions
 
@@ -969,7 +991,7 @@ be overridden with global environment variables.
 * Suggests the `farrisdata` package for example data used
 for the Farris et all RNA-seq mouse hippocampus manuscript.
 
-# splicejam version 0.0.21.900
+# splicejam 0.0.21.900
 
 ## bug fixes
 
@@ -985,7 +1007,7 @@ and `"jam codon-usage RNA-seq functions"` to help organize the
 large list of accessory functions.
 
 
-# splicejam version 0.0.20.900
+# splicejam 0.0.20.900
 
 ## changes
 
@@ -1005,7 +1027,7 @@ Sashimi plots.
 * Renamed `flattenExonsByGene()` to `flattenExonsBy()` to reflect
 that the function handles `by="gene"` and `by="tx"`.
 
-# splicejam version 0.0.19.900
+# splicejam 0.0.19.900
 
 ## additions
 
@@ -1020,7 +1042,7 @@ example on plotting junctions by themselves.
 keep GRanges intact, and instead transform the x-axis scale to compress
 visible gaps.
 
-# splicejam version 0.0.18.900
+# splicejam 0.0.18.900
 
 ## changes to existing functions
 
@@ -1035,7 +1057,7 @@ be considered positive stranded.
 intuitive... Ah well.
 * Fixed small typo in plotSashimi.Rd help that included an unmatched quote.
 
-# splicejam version 0.0.17.900
+# splicejam 0.0.17.900
 
 ## new functions
 
@@ -1051,7 +1073,7 @@ moving them to the new `jamSashimi()`.
 to add CDS regions to existing exon models.
 * `gene2gg()` is more robust to edge input cases.
 
-# splicejam version 0.0.16.900
+# splicejam 0.0.16.900
 
 ## new functions
 
@@ -1123,7 +1145,7 @@ x-axis coordinates to know their context, in terms of chromosome/seqname.
 * Multiple vignettes to demonstrate workflows: Sashimi plots; preparing
 exon GRangesList; using `annotateGRLfromGRL()` to add annotations, etc.
 
-# splicejam version 0.0.15.900
+# splicejam 0.0.15.900
 
 ## new functions
 
@@ -1145,14 +1167,14 @@ to annotate junction ends near compatible exon boundaries, with
 some buffer distance allowed to "snap" junctions to the edge.
 
 
-# splicejam version 0.0.14.900
+# splicejam 0.0.14.900
 
 ## bug fixes
 
 * Fixed issue where `numTxs` was not getting populated in `runDiffSplice()`,
 otherwise the stats summary is not changed.
 
-# splicejam version 0.0.13.900
+# splicejam 0.0.13.900
 
 ## changes
 
@@ -1171,7 +1193,7 @@ in the full design table.
 
 * Added basic RNA-seq workflow to vignettes.
 
-# splicejam version 0.0.12.900
+# splicejam 0.0.12.900
 
 ## new functions
 
@@ -1196,7 +1218,7 @@ when calling `limma::topSplice()`. Only the "t" (t-test) returns fold change,
 therefore hits are not filtered by fold change for "F" or "simes".
 
 
-# splicejam version 0.0.11.900
+# splicejam 0.0.11.900
 
 ## new functions
 
@@ -1205,7 +1227,7 @@ produces a ggplot2 violin plot object, as well as the underlying data.
 It allows a custom filtering function, which allows filtering gene lists
 for relevant regions of expression.
 
-# splicejam version 0.0.10.900
+# splicejam 0.0.10.900
 
 ## enhancements
 
@@ -1213,7 +1235,7 @@ for relevant regions of expression.
 colnames.
 * `tx2ale()` modified to be tolerant of NA values in the expression matrix.
 
-# splicejam version 0.0.9.900
+# splicejam 0.0.9.900
 
 ## new functions
 
@@ -1242,7 +1264,7 @@ of all other dependent functions. Those details should be irrelevant to
 other package maintainers.
 
 
-# splicejam version 0.0.8.900
+# splicejam 0.0.8.900
 
 ## enhancements
 
@@ -1252,7 +1274,7 @@ but ultimately the arules package is preferred.
 * Configured the package to use pkgdown for function references.
 * Added "#' @imports jamba" to import all jamba R functions.
 
-# splicejam version 0.0.7.900
+# splicejam 0.0.7.900
 
 ## new functions
 
@@ -1261,7 +1283,7 @@ same order of levels as the input factor, but including summary stats
 like the number of items for each factor level. Useful for ggplot2
 visualizations, to include counts in the color legend for example.
 
-# splicejam version 0.0.6.900
+# splicejam 0.0.6.900
 
 ## enhancements
 
@@ -1282,7 +1304,7 @@ to the classical approach.
 * `detectedTxInfo()` summarizes the data used to define detected
 transcripts for a given gene, or for a given set of transcripts.
 
-# splicejam version 0.0.5.900
+# splicejam 0.0.5.900
 
 ## bug fixes
 
@@ -1290,7 +1312,7 @@ transcripts for a given gene, or for a given set of transcripts.
 `col.names` during import.
 * Several minor documentation updates.
 
-# splicejam version 0.0.4.900
+# splicejam 0.0.4.900
 
 ## bug fixes
 

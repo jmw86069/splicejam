@@ -10,12 +10,14 @@ jam_isDisjoint(x)
 \item{x}{\code{GRanges} or \code{GRangesList} object}
 }
 \value{
-\code{logical} indicating whether the input \code{x} contains
-disjoint ranges. When input \code{x} is a \code{GRangesList} then this
-function tests \code{GRanges} elements independently for overlaps,
-and returns \code{TRUE} only if all \code{GRanges} elements are disjoint.
-If any \code{GRanges} elements are not disjoint, this function
-returns \code{FALSE}.
+\code{logical} vector indicating whether the input \code{x} contains
+disjoint ranges. When input \code{x} is a \code{GRangesList} then the
+vector represents each \code{GenomicRanges} object in the \code{GRangesList}
+and should therefore be \code{length(x)}. When input \code{x} is
+\code{GRanges} this function returns one value representing the
+full \code{GRanges} object. The output for this function changed
+in version \verb{0.0.64.900} to be consistent with
+\code{GenomicRanges::isDisjoint()}.
 }
 \description{
 Test whether GRanges are disjoint (non-overlapping)
@@ -23,7 +25,13 @@ Test whether GRanges are disjoint (non-overlapping)
 \details{
 This function is a simple alternative to \code{GenomicRanges::isDisjoint()}
 that is intended to produce identical output while being markedly
-more efficient.
+more efficient. For large \code{GRangesList} objects the result
+from \code{GenomicRanges::isDisjoint()} was returned in 100+ seconds,
+and the result from \code{jam_isDisjoint()} was returned in 0.5 seconds.
+
+Note that this function forces \code{ignore.strand=FALSE}, which means
+all comparisons are strand-specific. To force non-stranded comparisons,
+update the strand of the input object to \code{"*"}.
 }
 \seealso{
 Other jam GRanges functions: 
@@ -36,6 +44,7 @@ Other jam GRanges functions:
 \code{\link{combineGRcoverage}()},
 \code{\link{exoncov2polygon}()},
 \code{\link{findOverlapsGRL}()},
+\code{\link{flattenExonsBy}()},
 \code{\link{getFirstStrandedFromGRL}()},
 \code{\link{getGRLgaps}()},
 \code{\link{getGRcoverageFromBw}()},

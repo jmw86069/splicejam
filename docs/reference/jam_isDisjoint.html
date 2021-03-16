@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.64.900</span>
       </span>
     </div>
 
@@ -148,17 +148,24 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>logical</code> indicating whether the input <code>x</code> contains
-disjoint ranges. When input <code>x</code> is a <code>GRangesList</code> then this
-function tests <code>GRanges</code> elements independently for overlaps,
-and returns <code>TRUE</code> only if all <code>GRanges</code> elements are disjoint.
-If any <code>GRanges</code> elements are not disjoint, this function
-returns <code>FALSE</code>.</p>
+    <p><code>logical</code> vector indicating whether the input <code>x</code> contains
+disjoint ranges. When input <code>x</code> is a <code>GRangesList</code> then the
+vector represents each <code>GenomicRanges</code> object in the <code>GRangesList</code>
+and should therefore be <code><a href='https://rdrr.io/r/base/length.html'>length(x)</a></code>. When input <code>x</code> is
+<code>GRanges</code> this function returns one value representing the
+full <code>GRanges</code> object. The output for this function changed
+in version <code>0.0.64.900</code> to be consistent with
+<code><a href='https://rdrr.io/pkg/GenomicRanges/man/inter-range-methods.html'>GenomicRanges::isDisjoint()</a></code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function is a simple alternative to <code><a href='https://rdrr.io/pkg/GenomicRanges/man/inter-range-methods.html'>GenomicRanges::isDisjoint()</a></code>
 that is intended to produce identical output while being markedly
-more efficient.</p>
+more efficient. For large <code>GRangesList</code> objects the result
+from <code><a href='https://rdrr.io/pkg/GenomicRanges/man/inter-range-methods.html'>GenomicRanges::isDisjoint()</a></code> was returned in 100+ seconds,
+and the result from <code>jam_isDisjoint()</code> was returned in 0.5 seconds.</p>
+<p>Note that this function forces <code>ignore.strand=FALSE</code>, which means
+all comparisons are strand-specific. To force non-stranded comparisons,
+update the strand of the input object to <code>"*"</code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other jam GRanges functions: 
@@ -171,6 +178,7 @@ more efficient.</p>
 <code><a href='combineGRcoverage.html'>combineGRcoverage</a>()</code>,
 <code><a href='exoncov2polygon.html'>exoncov2polygon</a>()</code>,
 <code><a href='findOverlapsGRL.html'>findOverlapsGRL</a>()</code>,
+<code><a href='flattenExonsBy.html'>flattenExonsBy</a>()</code>,
 <code><a href='getFirstStrandedFromGRL.html'>getFirstStrandedFromGRL</a>()</code>,
 <code><a href='getGRLgaps.html'>getGRLgaps</a>()</code>,
 <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw</a>()</code>,

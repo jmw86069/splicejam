@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.64.900</span>
       </span>
     </div>
 
@@ -153,31 +153,34 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>GRL</th>
-      <td><p>GRangesList input object. Ideally, the input GRanges are
+      <td><p><code>GRangesList</code> input object. Ideally, the input <code>GRanges</code> are
 disjoint, meaning no two exons overlap, but instead are represented
 by non-overlapping regions that are sometimes adjacent.</p></td>
     </tr>
     <tr>
       <th>geneSymbolColname</th>
-      <td><p>character string indicating with colname
+      <td><p><code>character</code> string indicating with colname
 of <code>values(GRL)</code> contains the unique gene symbol. If this value
 does not already exist, it is created and populated using
-<code><a href='https://rdrr.io/r/base/names.html'>names(GRL)</a></code>.</p></td>
+<code><a href='https://rdrr.io/r/base/names.html'>names(GRL)</a></code>. If <code><a href='https://rdrr.io/r/base/names.html'>names(GRL)</a></code> does not exist, it tries to use
+<code>values(GRL)[[geneSymbolColname]]</code> then if that does not exist
+it tries to use <code>values(GRL@unlistData)[[geneSymbolColname]]</code>
+with the first entry in each <code>GRanges</code> from <code>GRL</code>.</p></td>
     </tr>
     <tr>
       <th>exonNameColname</th>
-      <td><p>character string to be used for the resulting
+      <td><p><code>character</code> string to be used for the resulting
 exon name. By default <code>"Exon"</code> is appended to the end of the
 <code>geneSymbolColname</code>.</p></td>
     </tr>
     <tr>
       <th>suffix</th>
-      <td><p>character value indicating the suffix to add to the
+      <td><p><code>character</code> value indicating the suffix to add to the
 <code>geneSymbolColname</code> to indicate individual exon numbers.</p></td>
     </tr>
     <tr>
       <th>renameOnes</th>
-      <td><p>logical indicating whether to name exon sub-sections
+      <td><p><code>logical</code> indicating whether to name exon sub-sections
 when the exon is not subdivided. For example, when <code>renameOnes=FALSE</code>,
 an exon with one section would be named, <code>"exon1"</code>, otherwise
 when <code>renameOnes=TRUE</code> an exon with one section would be named,
@@ -186,18 +189,18 @@ contain no subsections.</p></td>
     </tr>
     <tr>
       <th>filterTwoStrand</th>
-      <td><p>logical indicating whether to filter out genes
+      <td><p><code>logical</code> indicating whether to filter out genes
 occurring on two different strands.</p></td>
     </tr>
     <tr>
       <th>checkDisjoin</th>
-      <td><p>character value indicating how to handle non-disjoint
+      <td><p><code>character</code> value indicating how to handle non-disjoint
 input GRL ranges. When <code>checkDisjoin="stop"</code> then any non-disjoint
 GRanges in an element of <code>GRL</code> will cause the function to fail.</p></td>
     </tr>
     <tr>
       <th>assignGRLnames</th>
-      <td><p>logical indicating whether names for the
+      <td><p><code>logical</code> indicating whether names for the
 resulting GRangesList should use the exon names.</p></td>
     </tr>
     <tr>
@@ -247,6 +250,7 @@ to indicate the sub-section of each exon.</p>
 <code><a href='combineGRcoverage.html'>combineGRcoverage</a>()</code>,
 <code><a href='exoncov2polygon.html'>exoncov2polygon</a>()</code>,
 <code><a href='findOverlapsGRL.html'>findOverlapsGRL</a>()</code>,
+<code><a href='flattenExonsBy.html'>flattenExonsBy</a>()</code>,
 <code><a href='getFirstStrandedFromGRL.html'>getFirstStrandedFromGRL</a>()</code>,
 <code><a href='getGRLgaps.html'>getGRLgaps</a>()</code>,
 <code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw</a>()</code>,
@@ -264,13 +268,70 @@ to indicate the sub-section of each exon.</p>
 <code><a href='detectedTxInfo.html'>detectedTxInfo</a>()</code>,
 <code><a href='exoncov2polygon.html'>exoncov2polygon</a>()</code>,
 <code><a href='flattenExonsBy.html'>flattenExonsBy</a>()</code>,
+<code><a href='getGRcoverageFromBw.html'>getGRcoverageFromBw</a>()</code>,
 <code><a href='groups2contrasts.html'>groups2contrasts</a>()</code>,
+<code><a href='internal_junc_score.html'>internal_junc_score</a>()</code>,
 <code><a href='makeTx2geneFromGtf.html'>makeTx2geneFromGtf</a>()</code>,
 <code><a href='make_ref2compressed.html'>make_ref2compressed</a>()</code>,
+<code><a href='prepareSashimi.html'>prepareSashimi</a>()</code>,
 <code><a href='runDiffSplice.html'>runDiffSplice</a>()</code>,
 <code><a href='sortSamples.html'>sortSamples</a>()</code>,
 <code><a href='spliceGR2junctionDF.html'>spliceGR2junctionDF</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>gene1</span> <span class='op'>&lt;-</span> <span class='fu'>GenomicRanges</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></span><span class='op'>(</span>seqnames<span class='op'>=</span><span class='st'>"chr1"</span>,
+   ranges<span class='op'>=</span><span class='fu'>IRanges</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html'>IRanges</a></span><span class='op'>(</span>
+      start<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>100</span>, <span class='fl'>200</span>, <span class='fl'>400</span>, <span class='fl'>500</span><span class='op'>)</span>,
+      width<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>100</span>, <span class='fl'>50</span>, <span class='fl'>50</span>, <span class='fl'>150</span><span class='op'>)</span><span class='op'>)</span>,
+   strand<span class='op'>=</span><span class='st'>"+"</span>,
+   geneSymbol<span class='op'>=</span><span class='st'>"Gene1"</span><span class='op'>)</span>;
+<span class='va'>gene2</span> <span class='op'>&lt;-</span> <span class='fu'>GenomicRanges</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></span><span class='op'>(</span>seqnames<span class='op'>=</span><span class='st'>"chr1"</span>,
+   ranges<span class='op'>=</span><span class='fu'>IRanges</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html'>IRanges</a></span><span class='op'>(</span>
+      start<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>600</span>, <span class='fl'>900</span>, <span class='fl'>1150</span>, <span class='fl'>1200</span><span class='op'>)</span>,
+      width<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>200</span>, <span class='fl'>100</span>, <span class='fl'>100</span>, <span class='fl'>50</span><span class='op'>)</span><span class='op'>)</span>,
+   strand<span class='op'>=</span><span class='st'>"-"</span>,
+   geneSymbol<span class='op'>=</span><span class='st'>"Gene2"</span><span class='op'>)</span>;
+<span class='va'>gene3</span> <span class='op'>&lt;-</span> <span class='fu'>GenomicRanges</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></span><span class='op'>(</span>seqnames<span class='op'>=</span><span class='st'>"chr1"</span>,
+   ranges<span class='op'>=</span><span class='fu'>IRanges</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html'>IRanges</a></span><span class='op'>(</span>
+      start<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1500</span><span class='op'>)</span>,
+      width<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>75</span><span class='op'>)</span><span class='op'>)</span>,
+   strand<span class='op'>=</span><span class='st'>"+"</span>,
+   geneSymbol<span class='op'>=</span><span class='st'>"Gene3"</span><span class='op'>)</span>;
+<span class='va'>GRL</span> <span class='op'>&lt;-</span> <span class='fu'>GenomicRanges</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/GenomicRanges/man/GRangesList-class.html'>GRangesList</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>gene1</span>, <span class='va'>gene2</span>, <span class='va'>gene3</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'>assignGRLexonNames</span><span class='op'>(</span><span class='va'>GRL</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; GRangesList object of length 3:
+#&gt; $Gene1
+#&gt; GRanges object with 4 ranges and 2 metadata columns:
+#&gt;                seqnames    ranges strand |  geneSymbol geneSymbolExon
+#&gt;                   &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;    &lt;character&gt;
+#&gt;   Gene1_exon1a     chr1   100-199      + |       Gene1   Gene1_exon1a
+#&gt;   Gene1_exon1b     chr1   200-249      + |       Gene1   Gene1_exon1b
+#&gt;    Gene1_exon2     chr1   400-449      + |       Gene1    Gene1_exon2
+#&gt;    Gene1_exon3     chr1   500-649      + |       Gene1    Gene1_exon3
+#&gt;   -------
+#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths
+#&gt; 
+#&gt; $Gene2
+#&gt; GRanges object with 4 ranges and 2 metadata columns:
+#&gt;                seqnames    ranges strand |  geneSymbol geneSymbolExon
+#&gt;                   &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;    &lt;character&gt;
+#&gt;    Gene2_exon3     chr1   600-799      - |       Gene2    Gene2_exon3
+#&gt;    Gene2_exon2     chr1   900-999      - |       Gene2    Gene2_exon2
+#&gt;   Gene2_exon1b     chr1 1150-1249      - |       Gene2   Gene2_exon1b
+#&gt;   Gene2_exon1a     chr1 1200-1249      - |       Gene2   Gene2_exon1a
+#&gt;   -------
+#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths
+#&gt; 
+#&gt; $Gene3
+#&gt; GRanges object with 1 range and 2 metadata columns:
+#&gt;               seqnames    ranges strand |  geneSymbol geneSymbolExon
+#&gt;                  &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;    &lt;character&gt;
+#&gt;   Gene3_exon1     chr1 1500-1574      + |       Gene3    Gene3_exon1
+#&gt;   -------
+#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths
+#&gt; </div><div class='input'>
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
