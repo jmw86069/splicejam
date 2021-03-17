@@ -129,7 +129,7 @@ sashimiAppUI <- function
       jam_get("show_detected_tx", TRUE, verbose=TRUE, ...));
 
    # sidebar
-   sidebar <- shinydashboard::dashboardSidebar(
+   sidebar <- dashboardSidebar(
       sidebarMenu(
          id="tabs",
          menuItem(
@@ -157,7 +157,7 @@ sashimiAppUI <- function
          column(
             width=12,
             style="padding:0px",
-            shinydashboard::box(
+            box(
                title="Plot Parameters",
                status="warning",
                solidHeader=TRUE,
@@ -290,7 +290,7 @@ sashimiAppUI <- function
          column(
             width=12,
             style="padding:0px",
-            shinydashboardPlus::boxPlus(
+            box(
                title="Sashimi Plot",
                status="primary",
                solidHeader=TRUE,
@@ -499,7 +499,7 @@ sashimiAppUI <- function
    #sashimiAppConstants();
 
    # dashboard body
-   body <- shinydashboard::dashboardBody(
+   body <- dashboardBody(
       shinyjs::useShinyjs(),
       setShadow(class="box"),
       setShadow(class="boxPlus"),
@@ -511,7 +511,7 @@ sashimiAppUI <- function
       )
    );
 
-   dp <- shinydashboard::dashboardPage(
+   dp <- dashboardPage(
       header,
       sidebar,
       body,
