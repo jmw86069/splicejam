@@ -25,7 +25,7 @@ sashimiAppUI <- function
 (...)
 {
    # header
-   header <- shinydashboardPlus::dashboardHeaderPlus(
+   header <- dashboardHeader(
       title=tagList("Splicejam Sashimi Viewer",
          icon("map"))
    );
