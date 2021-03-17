@@ -25,7 +25,7 @@ sashimiAppUI <- function
 (...)
 {
    # header
-   header <- dashboardHeaderPlus(
+   header <- shinydashboardPlus::dashboardHeaderPlus(
       title=tagList("Splicejam Sashimi Viewer",
          icon("map"))
    );
@@ -129,7 +129,7 @@ sashimiAppUI <- function
       jam_get("show_detected_tx", TRUE, verbose=TRUE, ...));
 
    # sidebar
-   sidebar <- dashboardSidebar(
+   sidebar <- shinydashboard::dashboardSidebar(
       sidebarMenu(
          id="tabs",
          menuItem(
@@ -499,7 +499,7 @@ sashimiAppUI <- function
    #sashimiAppConstants();
 
    # dashboard body
-   body <- dashboardBody(
+   body <- shinydashboard::dashboardBody(
       shinyjs::useShinyjs(),
       setShadow(class="box"),
       setShadow(class="boxPlus"),
@@ -511,7 +511,7 @@ sashimiAppUI <- function
       )
    );
 
-   dp <- dashboardPage(
+   dp <- shinydashboard::dashboardPage(
       header,
       sidebar,
       body,
