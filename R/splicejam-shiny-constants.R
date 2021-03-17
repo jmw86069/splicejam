@@ -314,11 +314,10 @@ sashimiAppConstants <- function
                jamba::printDebug("sashimiAppConstants(): ",
                   "Reloading stored tx2geneDF: '",
                   tx2geneFile, "'");
-               tx2geneDF <- data.frame(check.names=FALSE,
-                  stringsAsFactors=FALSE,
-                  data.table::fread(file=tx2geneFile,
-                     sep="\t",
-                     header=TRUE));
+               tx2geneDF <- data.table::fread(file=tx2geneFile,
+                  sep="\t",
+                  header=TRUE,
+                  data.table=FALSE);
             }
             # Assign in the appropriate environment
             assign("tx2geneDF",
@@ -456,11 +455,13 @@ sashimiAppConstants <- function
    if (length(detectedTx) == 0) {
       if (empty_uses_farrisdata && suppressPackageStartupMessages(require(farrisdata))) {
          data(farrisTxSE);
-         jamba::printDebug("sashimiAppConstants(): ",
-            c("Using detectedTx from '", "farrisTxSE", "'"),
-            sep="");
          detectedTx <- subset(SummarizedExperiment::rowData(farrisTxSE),
             TxDetectedByTPM)$transcript_id;
+         jamba::printDebug("sashimiAppConstants(): ",
+            c("Using ",
+               jamba::formatInt(length(detectedTx)),
+               "detectedTx from '", "farrisdata::farrisTxSE", "'"),
+            sep="");
       } else {
          detectedTx <- unique(tx2geneDF$transcript_id);
          jamba::printDebug("sashimiAppConstants(): ",
@@ -482,12 +483,22 @@ sashimiAppConstants <- function
       if (length(detectedTx) == 0) {
          detectedTx <- unique(tx2geneDF$transcript_id);
          jamba::printDebug("sashimiAppConstants(): ",
-            c("Defined ",
-               jamba::formatInt(length(detectedTx)),
-               " detectedTx using '",
+            c("None of the ",
+               jamba::formatInt(detlen),
+               " detectedTx entries were found in '",
                "tx2geneDF$transcript_id",
-               "' since no supplied ", "detectedTx", " were present."),
+               "', defined ",
+               jamba::formatInt(length(detectedTx)),
+               " detectedTx will use all of tx2geneDF$transcript_id"),
             sep="");
+         if (length(detectedTx) == 0) {
+            jamba::printDebug("sashimiAppConstants(): ",
+               c("No values were present in tx2geneDF$transcript_id. Printing '",
+                  "head(tx2geneDF, 20)", "'"),
+               sep="")
+            print(head(tx2geneDF, 20));
+            stop("There were no values in tx2geneDF$transcript_id");
+         }
       } else {
          jamba::printDebug("sashimiAppConstants(): ",
             c("Subsetting '", "detectedTx", "' from ",

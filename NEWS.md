@@ -1,3 +1,25 @@
+# splicejam 0.0.65.900
+
+## minor updates
+
+Tentative changes are being implemented to correct an issue
+with re-used `tx2geneDF.txt` files by the `sashimiAppConstants()`
+function. These changes should not change any behavior but may
+make this process more transparent to alert for errors in
+the expected data content, and recognizing when data does not
+match the expected format.
+
+* `sashimiAppConstants()` was updated to use
+`data.table::fread(..., data.table=FALSE)` instead of coercing
+to `data.frame` separately.
+* `sashimiAppConstants()` was updated to print more detail regarding
+`detectedTx` entries during the preparation steps. When there
+are no `detectedTx` entries that match `tx2geneDF$transcript_id`
+then it prints the first 20 lines of `tx2geneDF` for visual review.
+In these cases the resolution might be to remove the local
+file `".tx2geneDF.txt"` which will force the file to be
+re-created from the GTF source file, and may resolve the mismatch.
+
 # splicejam 0.0.64.900
 
 ## minor updates
