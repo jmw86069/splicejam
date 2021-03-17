@@ -122,27 +122,45 @@ sashimiAppServer <- function
    # use debounce to slow down rendering a plot while changing parameters
    debounce_ms <- 1000;
    junction_alpha <- reactive({
+      if (length(input$junction_alpha) == 0) {
+         return(0.7);
+      }
       input$junction_alpha;
    });
    junction_alpha_d <- debounce(junction_alpha, debounce_ms);
    share_y_axis <- reactive({
-      input$share_y_axis;
+      if (length(input$share_y_axis) == 0) {
+         return(TRUE);
+      }
+      return(input$share_y_axis);
    });
    share_y_axis_d <- debounce(share_y_axis, debounce_ms);
    show_gene_model <- reactive({
-      input$show_gene_model;
+      if (length(input$show_gene_model) == 0) {
+         return(TRUE)
+      }
+      input$show_gene_model
    });
    show_gene_model_d <- debounce(show_gene_model, debounce_ms);
    show_tx_model <- reactive({
-      input$show_tx_model;
+      if (length(input$show_tx_model) == 0) {
+         return(TRUE)
+      }
+      input$show_tx_model
    });
    show_tx_model_d <- debounce(show_tx_model, debounce_ms);
    show_detected_tx <- reactive({
+      if (length(input$show_detected_tx) == 0) {
+         return(TRUE)
+      }
       input$show_detected_tx;
    });
    show_detected_tx_d <- debounce(show_detected_tx, debounce_ms);
    exon_label_size <- reactive({
       font_sizing <- input$exon_label_size;
+      if (length(font_sizing) == 0) {
+         font_sizing <- "Default"
+      }
       base_font_size <- 1.0 * dplyr::case_when(
          igrepHas("-4", font_sizing) ~ -4,
          igrepHas("-3", font_sizing) ~ -3,
@@ -159,11 +177,17 @@ sashimiAppServer <- function
    });
    exon_label_size_d <- debounce(exon_label_size, debounce_ms);
    panel_height <- reactive({
+      if (length(input$panel_height) == 0) {
+         return(200)
+      }
       input$panel_height;
    });
    panel_height_d <- debounce(panel_height, debounce_ms);
    font_sizing <- reactive({
       font_sizing <- input$font_sizing;
+      if (length(font_sizing) == 0) {
+         font_sizing <- "Default"
+      }
       base_font_size <- 1.0 * dplyr::case_when(
          igrepHas("-4", font_sizing) ~ -4,
          igrepHas("-3", font_sizing) ~ -3,
@@ -180,10 +204,16 @@ sashimiAppServer <- function
    });
    font_sizing_d <- debounce(font_sizing, debounce_ms);
    do_plotly <- reactive({
+      if (length(input$do_plotly) == 0) {
+         return(FALSE)
+      }
       input$do_plotly;
    });
    do_plotly_d <- debounce(do_plotly, debounce_ms);
    enable_highlights <- reactive({
+      if (length(input$enable_highlights) == 0) {
+         return(FALSE)
+      }
       input$enable_highlights;
    });
    enable_highlights_d <- debounce(enable_highlights, debounce_ms);
@@ -280,7 +310,9 @@ sashimiAppServer <- function
                cdsByTx=cdsByTx,
                tx2geneDF=tx2geneDF);
          } else {
-            #flatExonsByGene1 <- flatExonsByGene;
+            jamba::printDebug("sashimiAppServer(): ",
+               "Re-using flat exons for gene:",
+               gene);
             flatExonsByGene1 <- flatExonsByGene[gene];
          }
       } else {
@@ -295,16 +327,22 @@ sashimiAppServer <- function
       if (length(gene) > 0 && nchar(gene) > 0) {
          ## Handle "All Genes" where it is not present in flatExonsByGene
          if (!gene %in% names(flatExonsByGene)) {
-            jamba::printDebug("sashimiAppServer(): ",
-               "Creating flat exons for gene:",
-               gene);
+            if (verbose) {
+               jamba::printDebug("sashimiAppServer(): ",
+                  "Creating flat exons for gene:",
+                  gene);
+            }
             flatExonsByGene1 <- flattenExonsBy(genes=gene,
                by="gene",
                exonsByTx=exonsByTx,
                cdsByTx=cdsByTx,
                tx2geneDF=tx2geneDF);
          } else {
-            #flatExonsByGene1 <- flatExonsByGene;
+            if (verbose) {
+               jamba::printDebug("sashimiAppServer(): ",
+                  "Re-using flat exons for gene:",
+                  gene);
+            }
             flatExonsByGene1 <- flatExonsByGene[gene];
          }
       } else {
@@ -319,7 +357,7 @@ sashimiAppServer <- function
       ## get gene coordinate range
       use_exon_names <- isolate(input$use_exon_names);
       flatExonsByGene1 <- get_flat_gene_exons_plot();
-      if (use_exon_names %in% "exon names") {
+      if ("exon names" %in% use_exon_names) {
          exon_range <- isolate(input$exon_range);
          # Convert exon names to coordinates
          gene_coords <- range(as.data.frame(range(
@@ -410,7 +448,7 @@ sashimiAppServer <- function
          message="Preparing Sashimi data.",
          value=0,
          {
-            if (1 == 1 || verbose) {
+            if (1 || verbose) {
                gene_has_cache <- memoise::has_cache(prepareSashimi_m)(
                   gene=gene,
                   flatExonsByGene=flatExonsByGene1,
@@ -459,7 +497,7 @@ sashimiAppServer <- function
                ## Some underlying data was NULL, therefore try to repair
                if (compareVersion(as.character(packageVersion("memoise")), "1.1.0.900") >= 0) {
                   ## memoise 1.1.0.900 has new function memoise::drop_cache()
-                  if (1 == 1 || verbose) {
+                  if (1 || verbose) {
                      jamba::printDebug("sashimiAppServer(): ",
                         "Dropping memoise cache, then re-creating with memoise.");
                   }
@@ -487,7 +525,7 @@ sashimiAppServer <- function
                      do_shiny_progress=TRUE);
                } else {
                   ## Re-run prepareSashimi without using memoise
-                  if (1 == 1 || verbose) {
+                  if (1 || verbose) {
                      jamba::printDebug("sashimiAppServer(): ",
                         "Invalid memoise cache file, re-running prepareSashimi() without memoise.",
                         fgText="red");
@@ -555,7 +593,6 @@ sashimiAppServer <- function
             label_coords=get_gene_coords(),
             ref2c=ref2c,
             fill_scheme="sample_id");
-         #sashimi_data <- sashimi_data;
 
          # Check layout_ncol
          layout_ncol <- isolate(input$layout_ncol);
@@ -581,6 +618,15 @@ sashimiAppServer <- function
             }
             if (show_tx_model_d() && length(flatExonsByTx) > 0) {
                if (show_detected_tx_d()) {
+                  jamba::printDebug("preparing to show detected transcripts:",
+                     length(flatExonsByTx[names(flatExonsByTx) %in% detectedTx]));
+                  if (length(flatExonsByTx[names(flatExonsByTx) %in% detectedTx]) == 0) {
+                     jamba::printDebug("No transcripts in flatExonsByTx matched detectedTx. Showing head(names(flatExonsByTx)), then head(flatExonsByTx):");
+                     print(head(names(flatExonsByTx)));
+                     print(head(flatExonsByTx));
+                  } else {
+                     print(head(subset(flatExonsByTx[names(flatExonsByTx) %in% detectedTx]@unlistData, gene_name %in% gene)));
+                  }
                   gg_gene <- gene2gg(gene=gene,
                      flatExonsByGene=flatExonsByGene1,
                      flatExonsByTx=flatExonsByTx[names(flatExonsByTx) %in% detectedTx],

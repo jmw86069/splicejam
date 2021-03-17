@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.64.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.65.900</span>
       </span>
     </div>
 
@@ -129,6 +129,33 @@
       <small>Source: <a href='http://github.com/jmw86069/splicejam/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="splicejam-0065900" class="section level1">
+<h1 class="page-header" data-toc-text="0.0.65.900">
+<a href="#splicejam-0065900" class="anchor"></a>splicejam 0.0.65.900</h1>
+<p>Several updates were implemented to correct behavior seen only with long-running R-shiny apps, such as <a href="https://splicejam.vtc.vt.edu" class="uri">https://splicejam.vtc.vt.edu</a> unfortunately. These changes should help make the R-shiny app more robust for all users, but are particularly targeted at the longer-running R-shiny servers.</p>
+<div id="updates" class="section level2">
+<h2 class="hasAnchor">
+<a href="#updates" class="anchor"></a>updates</h2>
+<p>The <code>shinydashboardPlus</code> package version 2.0.0 included numerous of “breaking changes” that also required numerous updates to the R-shiny sashimi app. Functions were renamed (<code>dashboardHeaderPlus()</code>, <code>boxPlus()</code>) and introduced name conflicts with the existing <code>shinydashboard</code> package - and so required package prefixing to ensure the correct function is being called.</p>
+<ul>
+<li>
+<code><a href="../reference/flattenExonsBy.html">flattenExonsBy()</a></code> was updated to warn on disjoint exons correctly this time.</li>
+<li>
+<code><a href="../reference/flattenExonsBy.html">flattenExonsBy()</a></code> several updates to ensure proper handling of <code>detectedTx</code> in edge cases. Code was somewhat cleaned up to make each step more clear.</li>
+<li>
+<code><a href="../reference/sashimiAppServer.html">sashimiAppServer()</a></code> was updated to force several instances of default behavior for some form components that apparently do not return values upon the initial start-up of the R-shiny app. This behavior may be fixed properly in future, so that the values are initially available. For now, the fallback to use default values is chosen.</li>
+<li>
+<code><a href="../reference/sashimiAppServer.html">sashimiAppServer()</a></code> fixed bug where <code>detectedTx</code> was not showing even when check box “Show transcripts” and “Detected only” were both checked. In future unchecking “Detected only” should include more transcripts for genes that have a subset of detected transcripts, thus widening the field of view so to speak.</li>
+<li>
+<code><a href="../reference/sashimiAppConstants.html">sashimiAppConstants()</a></code> was updated to print more detail regarding <code>detectedTx</code> entries during the preparation steps. When there are no <code>detectedTx</code> entries that match <code>tx2geneDF$transcript_id</code> then it prints the first 20 lines of <code>tx2geneDF</code> for visual review. In these cases the resolution might be to remove the local file <code>".tx2geneDF.txt"</code> which will force the file to be re-created from the GTF source file, and may resolve the mismatch.</li>
+</ul>
+</div>
+<div id="bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes" class="anchor"></a>bug fixes</h2>
+<p>Apparently for <code>.tx2geneDF.txt</code> files that existed in older versions of splicejam, the stored file included rownames that were ignored upon load. When splicejam switched to use <code><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html">data.table::fread()</a></code> and <code><a href="https://Rdatatable.gitlab.io/data.table/reference/fwrite.html">data.table::fwrite()</a></code> it briefly broke the ability to keep the header line because <code>header=TRUE</code> was not working as expected. Removing <code>header=TRUE</code> causes <code>data.table</code> to detect the rownames and add a new column which is ignored. All future versions of splicejam should not be affected.</p>
+</div>
+</div>
     <div id="splicejam-0064900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.64.900">
 <a href="#splicejam-0064900" class="anchor"></a>splicejam 0.0.64.900</h1>
@@ -147,9 +174,9 @@
     <div id="splicejam-0063900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.63.900">
 <a href="#splicejam-0063900" class="anchor"></a>splicejam 0.0.63.900</h1>
-<div id="bug-fixes" class="section level2">
+<div id="bug-fixes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-1" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed jampack <a href='http://github.com/jmw86069/splicejam/issues/1'>#1</a> bug with <code><a href="../reference/gene2gg.html">splicejam::gene2gg()</a></code> when only <code>flatExonsByGene</code> is supplied without <code>flatExonsByTx</code> the <code>GRangesList</code> coersion no longer allows one object to be <code>NULL</code>. Workaround is to ignore the missing object which keeps everything as <code>GRangesList</code> without needing coersion.</li>
 <li>Fixed bug in <code><a href="../reference/assignGRLexonNames.html">assignGRLexonNames()</a></code> that appears to be caused by a new Bioconductor data type <code>FactorList</code>, which requires explicit conversion to <code>list</code> for this function to work as expected.</li>
@@ -180,9 +207,9 @@
     <div id="splicejam-0061900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.61.900">
 <a href="#splicejam-0061900" class="anchor"></a>splicejam 0.0.61.900</h1>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="../reference/annotateGRfromGR.html">annotateGRfromGR()</a></code> was optimized for edge cases where there were a low number of multi-overlaps and large number of single-overlaps.</li>
@@ -367,9 +394,9 @@
     <div id="splicejam-0057900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.57.900">
 <a href="#splicejam-0057900" class="anchor"></a>splicejam 0.0.57.900</h1>
-<div id="bug-fixes-2" class="section level2">
+<div id="bug-fixes-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Fixed issue with plotly rendering in R-shiny context, it was throwing an error <code>"TypeError: postRenderHandlers is undefined"</code>. Upon deeper inspection, the <code>uiOutput()</code> element being used to display both ggplot and ggplotly output, was somehow not providing the plotly javascript dependencies to include relevant <code>postRenderHandlers</code>. The workaround was to add an empty <code>plotlyOutput("plotly_blank")</code> to the UI, which appears to cause the required javascript dependencies to be loaded. Stackoverflow threads and Github issues suggest there exists a method to load dependencies when embedding htmlwidgets inside tagList context – for example when embedding a custom htmlwidget inside a table cell. Perhaps the proper remedy is related.</li>
 </ul>
@@ -378,9 +405,9 @@
     <div id="splicejam-0056900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.56.900">
 <a href="#splicejam-0056900" class="anchor"></a>splicejam 0.0.56.900</h1>
-<div id="bug-fixes-3" class="section level2">
+<div id="bug-fixes-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-4" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Fixed rare error in <code><a href="../reference/annotateGRfromGR.html">annotateGRfromGR()</a></code> with numeric columns, which failed to initialize a new GRanges column with numeric(0) instead of using a numeric form of NA, which was accomplished with <code>c(0, NA)[2]</code>.</li>
 </ul>
@@ -441,9 +468,9 @@
 <li>Slight enhancement to <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> to change the <code>"name"</code> column to a factor, in order to force the drawing order of junction arcs, so junctions are drawn in order of most dominant, to least dominant, then shorter spans to longer spans. Smaller score, wider junctions are drawn last, since they are typically the most difficult to see otherwise. “Dominant”" refers to the <code>junction_rank</code> calculated by having the highest score among junctions that start or end at the same coordinate: <code>junction_rank=3</code> means the junction has the highest score on both sides, and has the darkest color; <code>junction_rank=2</code> has the highest score on one side but not both sides, and is lighter in color; and <code>junction_rank=1</code> does not have the highest score on either side of the junction, and has the lightest color. The <code>junction_rank=1</code> entries are now drawn last, since they typically have the lowest scores, and are small and thus easily obscured.</li>
 </ul>
 </div>
-<div id="bug-fixes-4" class="section level2">
+<div id="bug-fixes-5" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-4" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-5" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>
 <code>splicejam-sashimi-server()</code> was updated to handle changes in the gene search field properly, avoiding edge cases with un-detected genes that have no sashimi data.</li>
@@ -471,9 +498,9 @@
 <code><a href="../reference/gene2gg.html">gene2gg()</a></code> updated to maintain a minimum y-axis range when <code>labelExons=FALSE</code>. Previously the exons could be cropped.</li>
 </ul>
 </div>
-<div id="bug-fixes-5" class="section level2">
+<div id="bug-fixes-6" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-5" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-6" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>
 <code><a href="../reference/bgaPlotly3d.html">bgaPlotly3d()</a></code> bug fixed which prevented display of scaled coordinates from the <code>bgaInfo</code> object, mainly because the scaled coordinates are not supplied for individual samples. Instead the scaling factor (adjustment used to convert centroid coordinates from raw to scaled) is applied to sample coordinates to produce equivalent scaled coordinates. That said, I recommend using un-scaled coordinates, which keeps the x, y, and z axis scales proportional to their relative contribution, which visually reinforces the relative strength of separation in each dimension.</li>
@@ -483,9 +510,9 @@
     <div id="splicejam-0050900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.50.900">
 <a href="#splicejam-0050900" class="anchor"></a>splicejam 0.0.50.900</h1>
-<div id="bug-fixes-6" class="section level2">
+<div id="bug-fixes-7" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-6" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-7" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed regression in <code><a href="../reference/geom_diagonal_wide_arc.html">stat_diagonal_wide_arc()</a></code> which calls <code><a href="https://ggforce.data-imaginist.com/reference/ggforce-extensions.html">ggforce::StatBezier</a></code>. Version 3.1.0 of ggforce changed the required call to that function, breaking the dependency and causing junction arcs to be invisible as a result. The new interface mimics how <code><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">ggforce::stat_diagonal_wide()</a></code> calls <code><a href="https://ggforce.data-imaginist.com/reference/ggforce-extensions.html">ggforce::StatBezier</a></code>. I hope the interface does not change in future.</li>
 <li>Added package version dependency for <code>ggforce</code> version 0.3.1, which is the point where the API changed with <code><a href="https://ggforce.data-imaginist.com/reference/ggforce-extensions.html">ggforce::StatBezier</a></code>.</li>
@@ -541,9 +568,9 @@
 <li>Package dependency on memoise, using Github version <code>1.1.0.9000</code> which allows invalidating a single problem cache file. It has been available since October 2018 but not released to CRAN yet. This changes is a step toward recovering from network outages, which currently create empty cache files which cannot be recovered without emptying the entire cache.</li>
 </ul>
 </div>
-<div id="bug-fixes-7" class="section level2">
+<div id="bug-fixes-8" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-7" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-8" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="../reference/getGRcoverageFromBw.html">getGRcoverageFromBw()</a></code> now checks if memoise cached data is <code>NULL</code>, which happens during network outage. If the data returned from the cache is <code>NULL</code> it clears the cache for that key, then tries again.</li>
@@ -557,9 +584,9 @@
     <div id="splicejam-0046900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.46.900">
 <a href="#splicejam-0046900" class="anchor"></a>splicejam 0.0.46.900</h1>
-<div id="bug-fixes-8" class="section level2">
+<div id="bug-fixes-9" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-8" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-9" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Updated <code><a href="../reference/groups2contrasts.html">groups2contrasts()</a></code> to detect when any factor level contains <code>"-"</code>, and converts the <code>"-"</code> to <code>"."</code> prior to detecting contrasts. Previously the <code>"-"</code> interfered with proper contrast names, and resulted in some contrasts not being returned by this function. Note that this function avoids using <code><a href="https://rdrr.io/r/base/make.names.html">base::make.names()</a></code> because that function aggressively converts other valid characters to <code>"."</code>. However, if downstream functions require <code><a href="https://rdrr.io/r/base/make.names.html">base::make.names()</a></code> compliant names, run that function prior to calling <code><a href="../reference/groups2contrasts.html">groups2contrasts()</a></code>.</li>
 <li>
@@ -613,9 +640,9 @@
     <div id="splicejam-0044900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.44.900">
 <a href="#splicejam-0044900" class="anchor"></a>splicejam 0.0.44.900</h1>
-<div id="bug-fixes-9" class="section level2">
+<div id="bug-fixes-10" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-9" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-10" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed regression in R-shiny, updating the progress bar using gene in the caption, but the function did not need to know the gene.</li>
 <li>Improved overall handling of reactive gene, sample_id values.</li>
@@ -671,9 +698,9 @@
     <div id="splicejam-0040900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.40.900">
 <a href="#splicejam-0040900" class="anchor"></a>splicejam 0.0.40.900</h1>
-<div id="bug-fixes-10" class="section level2">
+<div id="bug-fixes-11" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-10" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-11" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Added <code>shinyjs</code> package dependency.</li>
 </ul>
@@ -682,9 +709,9 @@
     <div id="splicejam-0039900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.39.900">
 <a href="#splicejam-0039900" class="anchor"></a>splicejam 0.0.39.900</h1>
-<div id="bug-fixes-11" class="section level2">
+<div id="bug-fixes-12" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-11" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-12" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed regression in junction scale factors, not consistently applied in <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code>.</li>
 </ul>
@@ -717,9 +744,9 @@
     <div id="splicejam-0037900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.37.900">
 <a href="#splicejam-0037900" class="anchor"></a>splicejam 0.0.37.900</h1>
-<div id="updates" class="section level2">
+<div id="updates-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#updates" class="anchor"></a>updates</h2>
+<a href="#updates-1" class="anchor"></a>updates</h2>
 <ul>
 <li>Added panel height to R-shiny UI, controlling the allocated height for each facet panel.</li>
 <li>Numerous updates to the plotly highlighting methods.</li>
@@ -731,9 +758,9 @@
     <div id="splicejam-0036900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.36.900">
 <a href="#splicejam-0036900" class="anchor"></a>splicejam 0.0.36.900</h1>
-<div id="bug-fixes-12" class="section level2">
+<div id="bug-fixes-13" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-12" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-13" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed regression in use of <code>color_sub</code> to pre-define categorical colors in sashimi plots.</li>
 <li>Updated plotly highlighting, increasing the success rate in most test cases.</li>
@@ -853,9 +880,9 @@
     <div id="splicejam-0027900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.27.900">
 <a href="#splicejam-0027900" class="anchor"></a>splicejam 0.0.27.900</h1>
-<div id="bug-fixes-13" class="section level2">
+<div id="bug-fixes-14" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-13" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-14" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Packages now imported for <code><a href="../reference/launchSashimiApp.html">launchSashimiApp()</a></code>: <code>shiny</code>, <code>shinydashboard</code>, <code>shinydashboardPlus</code>, <code>shinyWidgets</code>.</li>
 <li>
@@ -945,9 +972,9 @@
     <div id="splicejam-0021900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.21.900">
 <a href="#splicejam-0021900" class="anchor"></a>splicejam 0.0.21.900</h1>
-<div id="bug-fixes-14" class="section level2">
+<div id="bug-fixes-15" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-14" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-15" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed examples that did not explicitly call library() for required libraries.</li>
 <li>Fixed error in <code><a href="../reference/codonUsage2df.html">codonUsage2df()</a></code> example data file path.</li>
@@ -1113,9 +1140,9 @@
     <div id="splicejam-0014900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.14.900">
 <a href="#splicejam-0014900" class="anchor"></a>splicejam 0.0.14.900</h1>
-<div id="bug-fixes-15" class="section level2">
+<div id="bug-fixes-16" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-15" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-16" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed issue where <code>numTxs</code> was not getting populated in <code><a href="../reference/runDiffSplice.html">runDiffSplice()</a></code>, otherwise the stats summary is not changed.</li>
 </ul>
@@ -1220,9 +1247,9 @@
 <code><a href="../reference/assignGRLexonNames.html">assignGRLexonNames()</a></code> assigns exon names and numbers to a disjoint set of exons per gene model.</li>
 </ul>
 </div>
-<div id="updates-1" class="section level2">
+<div id="updates-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#updates-1" class="anchor"></a>updates</h2>
+<a href="#updates-2" class="anchor"></a>updates</h2>
 <ul>
 <li>Added “S4Vectors” to package imports, since some functions like <code><a href="https://rdrr.io/r/base/lengths.html">lengths()</a></code> have been moved there. Another reason using a package prefix is clunky at best. If methods have dispatch, and if they did not conflict between S3 and S4 methods, that would be the better strategy. It is not a solution to hardcode package names into function bodies, since every package maintainer has to stay updated on the source package of all other dependent functions. Those details should be irrelevant to other package maintainers.</li>
 </ul>
@@ -1279,9 +1306,9 @@
     <div id="splicejam-005900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.5.900">
 <a href="#splicejam-005900" class="anchor"></a>splicejam 0.0.5.900</h1>
-<div id="bug-fixes-16" class="section level2">
+<div id="bug-fixes-17" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-16" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-17" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Minor fix to <code><a href="../reference/makeTx2geneFromGtf.html">makeTx2geneFromGtf()</a></code> to remove requirement for <code>col.names</code> during import.</li>
 <li>Several minor documentation updates.</li>
@@ -1291,9 +1318,9 @@
     <div id="splicejam-004900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.4.900">
 <a href="#splicejam-004900" class="anchor"></a>splicejam 0.0.4.900</h1>
-<div id="bug-fixes-17" class="section level2">
+<div id="bug-fixes-18" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-17" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-18" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Updated the DESCRIPTION file to include proper “Remotes” entries and depencies for jamba, colorjam, and jamma packages.</li>
 <li>Fixed issue where the <code>data.table</code> package required a specific <code>#' <a href='http://github.com/import'>@import</a> data.table</code> entry in the roxygen2 entry for the <code>shrinkMatrix</code> function. This issue prevented <code><a href="../reference/defineDetectedTx.html">defineDetectedTx()</a></code> from working within an R package.</li>

@@ -1,17 +1,40 @@
 # splicejam 0.0.65.900
 
-## minor updates
+Several updates were implemented to correct
+behavior seen only with long-running R-shiny
+apps, such as https://splicejam.vtc.vt.edu
+unfortunately. These changes should help make
+the R-shiny app more robust for all users, but
+are particularly targeted at the longer-running
+R-shiny servers.
 
-Tentative changes are being implemented to correct an issue
-with re-used `tx2geneDF.txt` files by the `sashimiAppConstants()`
-function. These changes should not change any behavior but may
-make this process more transparent to alert for errors in
-the expected data content, and recognizing when data does not
-match the expected format.
+## updates
 
-* `sashimiAppConstants()` was updated to use
-`data.table::fread(..., data.table=FALSE)` instead of coercing
-to `data.frame` separately.
+The `shinydashboardPlus` package version 2.0.0 included
+numerous of "breaking changes" that also required
+numerous updates to the R-shiny sashimi app.
+Functions were renamed (`dashboardHeaderPlus()`, `boxPlus()`)
+and introduced name conflicts with the existing
+`shinydashboard` package - and so required package prefixing
+to ensure the correct function is being called.
+
+* `flattenExonsBy()` was updated to warn on disjoint exons
+correctly this time.
+* `flattenExonsBy()` several updates to ensure proper
+handling of `detectedTx` in edge cases. Code was somewhat
+cleaned up to make each step more clear.
+* `sashimiAppServer()` was updated to force several instances
+of default behavior for some form components that apparently
+do not return values upon the initial start-up of the R-shiny
+app. This behavior may be fixed properly in future, so that
+the values are initially available. For now, the fallback to
+use default values is chosen.
+* `sashimiAppServer()` fixed bug where `detectedTx` was not
+showing even when check box "Show transcripts" and "Detected only"
+were both checked. In future unchecking "Detected only" should
+include more transcripts for genes that have a subset of
+detected transcripts, thus widening the field of view so to
+speak.
 * `sashimiAppConstants()` was updated to print more detail regarding
 `detectedTx` entries during the preparation steps. When there
 are no `detectedTx` entries that match `tx2geneDF$transcript_id`
@@ -19,6 +42,19 @@ then it prints the first 20 lines of `tx2geneDF` for visual review.
 In these cases the resolution might be to remove the local
 file `".tx2geneDF.txt"` which will force the file to be
 re-created from the GTF source file, and may resolve the mismatch.
+
+## bug fixes
+
+Apparently for `.tx2geneDF.txt` files that existed in older
+versions of splicejam, the stored file included rownames
+that were ignored upon load. When splicejam switched to
+use `data.table::fread()` and `data.table::fwrite()` it
+briefly broke the ability to keep the header line because
+`header=TRUE` was not working as expected. Removing
+`header=TRUE` causes `data.table` to detect the rownames
+and add a new column which is ignored. All future versions
+of splicejam should not be affected.
+
 
 # splicejam 0.0.64.900
 

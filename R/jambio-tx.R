@@ -2931,7 +2931,7 @@ assignGRLexonNames <- function
          jamba::printDebug("assignGRLexonNames(): ",
             "Checking disjoint ranges.");
       }
-      if (!any(jam_isDisjoint(GRL))) {
+      if (any(jam_isDisjoint(GRL))) {
          if (checkDisjoin %in% "stop") {
             stop("assignGRLexonNames() detected overlapping GRanges, stopping.");
          } else {
@@ -4121,10 +4121,10 @@ flattenExonsBy <- function
       stop("There are no Tx entries shared by: names(exonsByTx), tx2geneDF[,txColname], detectedTx.");
    }
    if (length(exonsByTx) > 0) {
-      exonsByTx <- exonsByTx[names(exonsByTx) %in% tx2geneDF[[txColname]]];
+      exonsByTx <- exonsByTx[names(exonsByTx) %in% iTxs];
    }
    if (length(cdsByTx) > 0) {
-      cdsByTx <- cdsByTx[names(cdsByTx) %in% tx2geneDF[[txColname]]];
+      cdsByTx <- cdsByTx[names(cdsByTx) %in% iTxs];
    }
    if (verbose) {
       jamba::printDebug("flattenExonsBy(): ",
@@ -4134,7 +4134,7 @@ flattenExonsBy <- function
    }
 
    ## Subset exonsByTx and add gene annotations
-   iTxExonsGRL <- exonsByTx[iTxs];
+   iTxExonsGRL <- exonsByTx[match(iTxs, names(exonsByTx))];
    iTxMatch <- match(names(iTxExonsGRL),
       tx2geneDF[[txColname]]);
    GenomicRanges::values(iTxExonsGRL@unlistData)[,geneColname] <- rep(
@@ -4191,13 +4191,6 @@ flattenExonsBy <- function
       GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
          names(iGeneExonsDisGRL),
          elementNROWS(iGeneExonsDisGRL));
-   #} else {
-      #GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,txColname] <- rep(
-      #   names(iGeneExonsDisGRL),
-      #   elementNROWS(iGeneExonsDisGRL));
-      #txMatch <- match(names(iGeneExonsDisGRL),
-      #   tx2geneDF[[txColname]]);
-      #GenomicRanges::values(iGeneExonsDisGRL)[,geneColname] <- tx2geneDF[txMatch, geneColname]
    }
 
    ## Optionally subdivide by CDS boundary if supplied
@@ -4206,30 +4199,27 @@ flattenExonsBy <- function
          jamba::printDebug("flattenExonsBy(): ",
             "Creating cdsByGene from cdsByTx.");
       }
-      cdsByTx <- cdsByTx[names(cdsByTx) %in% iTxs];
-      if (length(cdsByTx) > 0) {
-         if (!geneColname %in% colnames(GenomicRanges::values(cdsByTx))) {
-            txMatch <- match(names(cdsByTx), tx2geneDF[[txColname]]);
-            GenomicRanges::values(cdsByTx@unlistData)[,geneColname] <- rep(
-               tx2geneDF[txMatch,geneColname],
-               elementNROWS(cdsByTx));
-         }
-         if ("gene" %in% by) {
-            cdsByGene <- GenomicRanges::reduce(GenomicRanges::GRangesList(
-               GenomicRanges::split(cdsByTx@unlistData,
-                  GenomicRanges::values(cdsByTx@unlistData)[[geneColname]])));
-         } else {
-            cdsByGene <- cdsByTx;
-            GenomicRanges::values(cdsByGene@unlistData)[,txColname] <- rep(
-               names(cdsByGene),
-               elementNROWS(cdsByGene)
-            );
-         }
-         if (verbose) {
-            jamba::printDebug("flattenExonsBy(): ",
-               "length(cdsByGene):",
-               length(cdsByGene));
-         }
+      if (!geneColname %in% colnames(GenomicRanges::values(cdsByTx))) {
+         txMatch <- match(names(cdsByTx), tx2geneDF[[txColname]]);
+         GenomicRanges::values(cdsByTx@unlistData)[,geneColname] <- rep(
+            tx2geneDF[txMatch,geneColname],
+            elementNROWS(cdsByTx));
+      }
+      if ("gene" %in% by) {
+         cdsByGene <- GenomicRanges::reduce(GenomicRanges::GRangesList(
+            GenomicRanges::split(cdsByTx@unlistData,
+               GenomicRanges::values(cdsByTx@unlistData)[[geneColname]])));
+      } else {
+         cdsByGene <- cdsByTx;
+         GenomicRanges::values(cdsByGene@unlistData)[,txColname] <- rep(
+            names(cdsByGene),
+            elementNROWS(cdsByGene)
+         );
+      }
+      if (verbose) {
+         jamba::printDebug("flattenExonsBy(): ",
+            "length(cdsByGene):",
+            length(cdsByGene));
       }
    }
    if (length(cdsByGene) > 0 && any(names(iGeneExonsDisGRL) %in% names(cdsByGene))) {
@@ -4267,7 +4257,7 @@ flattenExonsBy <- function
          #);
          if (verbose) {
             jamba::printDebug("flattenExonsBy(): ",
-               "split()");
+               "by='tx' split()");
          }
          exonsByGeneCds <- GenomicRanges::split(
                c(exonsByGeneSub@unlistData,
@@ -4307,7 +4297,11 @@ flattenExonsBy <- function
       naClass <- is.na(GenomicRanges::values(exonsByGeneCds@unlistData)[,"subclass"]);
       GenomicRanges::values(exonsByGeneCds@unlistData)[naClass,"subclass"] <- "noncds";
       GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,"subclass"] <- "noncds";
-      iGeneExonsDisGRL[names(exonsByGeneCds)] <- exonsByGeneCds[,c(geneColname, "subclass")];
+      if ("gene" %in% by) {
+         iGeneExonsDisGRL[names(exonsByGeneCds)] <- exonsByGeneCds[,c(geneColname, "subclass")];
+      } else {
+         iGeneExonsDisGRL[names(exonsByGeneCds)] <- exonsByGeneCds[,c(txColname, geneColname, "subclass")];
+      }
    }
 
    ## Assign exon names and numbers

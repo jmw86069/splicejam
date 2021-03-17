@@ -144,10 +144,6 @@ sashimiAppUI <- function
             text="Guides",
             tabName="guides",
             icon=icon("info"))
-         #menuItem(
-         #   text="Samples and Data",
-         #   tabName="samplesdata",
-         #   icon=icon("table"))
       )
    );
 
@@ -157,7 +153,7 @@ sashimiAppUI <- function
          column(
             width=12,
             style="padding:0px",
-            box(
+            shinydashboardPlus::box(
                title="Plot Parameters",
                status="warning",
                solidHeader=TRUE,
@@ -174,8 +170,6 @@ sashimiAppUI <- function
                      selectizeInput(
                         label="Select Gene",
                         inputId="gene",
-                        #selected="Gria1",
-                        #choices=c("Gria1", "Ntrk2"),
                         selected=default_gene,
                         choices=detectedGenes,
                         options=list(maxOptions=100),
@@ -290,17 +284,12 @@ sashimiAppUI <- function
          column(
             width=12,
             style="padding:0px",
-            box(
+            shinydashboardPlus::box(
                title="Sashimi Plot",
                status="primary",
                solidHeader=TRUE,
                closable=FALSE,
                collapsible=TRUE,
-               enable_sidebar=TRUE,
-               #sidebar_icon="fa fa-cog",
-               #sidebar_icon="fa fa-bar-chart",
-               # glyphicon glyphicon-cog
-               sidebar_icon="gear",
                ## icons: https://adminlte.io/themes/AdminLTE/pages/UI/icons.html
                width=12,
                height="100%",
@@ -316,115 +305,25 @@ sashimiAppUI <- function
                      plotlyOutput("plotly_blank")
                   )
                ),
-               sidebar_width=25,
-               sidebar_start_open=FALSE,
-               sidebar_content=tagList(
-                  shinyWidgets::sliderTextInput(
-                     inputId="panel_height",
-                     label="Height per panel:",
-                     choices=c(50,75,100,150,200,250,300,400,500),
-                     selected=200,
-                     grid=TRUE
-                  ),
-                  shinyWidgets::sliderTextInput(
-                     inputId="font_sizing",
-                     label="Font sizing:",
-                     choices=c("-4 smaller",
-                        "-3 smaller",
-                        "-2 smaller",
-                        "-1 smaller",
-                        "Default",
-                        "+1 larger",
-                        "+2 larger",
-                        "+3 larger",
-                        "+4 larger"),
-                     selected="Default",
-                     grid=TRUE
-                  ),
-                  shiny::sliderInput(
-                     inputId="junction_alpha",
-                     label="Junction transparency:",
-                     min=0.1,
-                     max=1.0,
-                     step=0.1,
-                     value=0.7
-                  ),
-                  tags$b("Plot Style:"),
-                  shinyWidgets::prettyCheckbox(
-                     inputId="do_plotly",
-                     value=FALSE,
-                     icon=icon("check"),
-                     status="primary",
-                     label="Interactive plot"),
-                  conditionalPanel(
-                     condition="input.do_plotly == true",
-                     nbsp3,
-                     nbsp3,
-                     shinyWidgets::prettyCheckbox(
-                        inputId="enable_highlights",
-                        inline=TRUE,
-                        value=FALSE,
-                        icon=icon("check"),
-                        status="primary",
-                        label="Enable highlighting"),
-                     tags$br(),
-                     nbsp3,
-                     nbsp3,
-                     shinyWidgets::prettyCheckbox(
-                        inputId="plotly_legend",
-                        inline=TRUE,
-                        value=FALSE,
-                        icon=icon("check"),
-                        status="primary",
-                        label="Display filter legend")
-                  ),
-                  tags$b("Axis Settings:"),
-                  shinyWidgets::prettyCheckbox(
-                     inputId="share_y_axis",
-                     value=share_y_axis,
-                     icon=icon("check"),
-                     status="success",
-                     label="Shared y-axis range"
-                  ),
-                  tags$b("Exon Models:"),
-                  shinyWidgets::prettyCheckbox(
-                     inputId="show_gene_model",
-                     value=show_gene_model,
-                     icon=icon("check"),
-                     status="warning",
-                     label="Show gene model"
-                  ),
-                  conditionalPanel(
-                     condition="input.show_gene_model == true",
-                     nbsp3,
-                     shinyWidgets::prettyCheckbox(
-                        inputId="show_tx_model",
-                        inline=TRUE,
-                        value=show_tx_model,
-                        icon=icon("check"),
-                        status="warning",
-                        label="Show transcripts"
-                     ),
-                     conditionalPanel(
-                        condition="input.show_tx_model == true",
-                        nbsp3,
-                        nbsp3,
-                        shinyWidgets::prettyCheckbox(
-                           inputId="show_detected_tx",
-                           inline=TRUE,
-                           value=show_detected_tx,
-                           icon=icon("check"),
-                           status="warning",
-                           label="Detected only"
-                        )
-                     )
-                  ),
-                  br(),
-                  conditionalPanel(
-                     condition="input.do_plotly == false",
+               #sidebar_icon="fa fa-cog",
+               #sidebar_icon="fa fa-bar-chart",
+               # glyphicon glyphicon-cog
+               sidebar=boxSidebar(
+                  id="sashimi_sidebar",
+                  width=25,
+                  startOpen=FALSE,
+                  icon=shiny::icon("gear"),
+                  tagList(
                      shinyWidgets::sliderTextInput(
-                        inputId="exon_label_size",
-                        label="Exon font sizing:",
+                        inputId="panel_height",
+                        label="Height per panel:",
+                        choices=c(50,75,100,150,200,250,300,400,500),
+                        selected=200,
+                        grid=TRUE
+                     ),
+                     shinyWidgets::sliderTextInput(
+                        inputId="font_sizing",
+                        label="Font sizing:",
                         choices=c("-4 smaller",
                            "-3 smaller",
                            "-2 smaller",
@@ -436,6 +335,103 @@ sashimiAppUI <- function
                            "+4 larger"),
                         selected="Default",
                         grid=TRUE
+                     ),
+                     shiny::sliderInput(
+                        inputId="junction_alpha",
+                        label="Junction transparency:",
+                        min=0.1,
+                        max=1.0,
+                        step=0.1,
+                        value=0.7
+                     ),
+                     tags$b("Plot Style:"),
+                     shinyWidgets::prettyCheckbox(
+                        inputId="do_plotly",
+                        value=FALSE,
+                        icon=icon("check"),
+                        status="primary",
+                        label="Interactive plot"),
+                     conditionalPanel(
+                        condition="input.do_plotly == true",
+                        nbsp3,
+                        nbsp3,
+                        shinyWidgets::prettyCheckbox(
+                           inputId="enable_highlights",
+                           inline=TRUE,
+                           value=FALSE,
+                           icon=icon("check"),
+                           status="primary",
+                           label="Enable highlighting"),
+                        tags$br(),
+                        nbsp3,
+                        nbsp3,
+                        shinyWidgets::prettyCheckbox(
+                           inputId="plotly_legend",
+                           inline=TRUE,
+                           value=FALSE,
+                           icon=icon("check"),
+                           status="primary",
+                           label="Display filter legend")
+                     ),
+                     tags$b("Axis Settings:"),
+                     shinyWidgets::prettyCheckbox(
+                        inputId="share_y_axis",
+                        value=share_y_axis,
+                        icon=icon("check"),
+                        status="success",
+                        label="Shared y-axis range"
+                     ),
+                     tags$b("Exon Models:"),
+                     shinyWidgets::prettyCheckbox(
+                        inputId="show_gene_model",
+                        value=show_gene_model,
+                        icon=icon("check"),
+                        status="warning",
+                        label="Show gene model"
+                     ),
+                     conditionalPanel(
+                        condition="input.show_gene_model == true",
+                        nbsp3,
+                        shinyWidgets::prettyCheckbox(
+                           inputId="show_tx_model",
+                           inline=TRUE,
+                           value=show_tx_model,
+                           icon=icon("check"),
+                           status="warning",
+                           label="Show transcripts"
+                        ),
+                        conditionalPanel(
+                           condition="input.show_tx_model == true",
+                           nbsp3,
+                           nbsp3,
+                           shinyWidgets::prettyCheckbox(
+                              inputId="show_detected_tx",
+                              inline=TRUE,
+                              value=show_detected_tx,
+                              icon=icon("check"),
+                              status="warning",
+                              label="Detected only"
+                           )
+                        )
+                     ),
+                     br(),
+                     conditionalPanel(
+                        condition="input.do_plotly == false",
+                        shinyWidgets::sliderTextInput(
+                           inputId="exon_label_size",
+                           label="Exon font sizing:",
+                           choices=c("-4 smaller",
+                              "-3 smaller",
+                              "-2 smaller",
+                              "-1 smaller",
+                              "Default",
+                              "+1 larger",
+                              "+2 larger",
+                              "+3 larger",
+                              "+4 larger"),
+                           selected="Default",
+                           grid=TRUE
+                        )
                      )
                   )
                )
@@ -463,7 +459,7 @@ sashimiAppUI <- function
          column(
             width=12,
             style="padding:0px",
-            shinydashboard::box(
+            shinydashboardPlus::box(
                title="Sample Selection and Order",
                status="warning",
                solidHeader=TRUE,
@@ -511,12 +507,11 @@ sashimiAppUI <- function
       )
    );
 
-   dp <- dashboardPage(
+   dp <- shinydashboardPlus::dashboardPage(
       header,
       sidebar,
       body,
       skin="blue");
-   printDebug("class(dp):", class(dp));
    dp;
 
 }

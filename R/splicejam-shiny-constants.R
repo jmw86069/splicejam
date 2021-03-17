@@ -459,7 +459,7 @@ sashimiAppConstants <- function
          jamba::printDebug("sashimiAppConstants(): ",
             c("Using ",
                jamba::formatInt(length(detectedTx)),
-               "detectedTx from '", "farrisdata::farrisTxSE", "'"),
+               " detectedTx from '", "farrisdata::farrisTxSE", "'"),
             sep="");
       } else {
          detectedTx <- unique(tx2geneDF$transcript_id);
