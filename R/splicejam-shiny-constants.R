@@ -316,7 +316,6 @@ sashimiAppConstants <- function
                   tx2geneFile, "'");
                tx2geneDF <- data.table::fread(file=tx2geneFile,
                   sep="\t",
-                  header=TRUE,
                   data.table=FALSE);
             }
             # Assign in the appropriate environment
