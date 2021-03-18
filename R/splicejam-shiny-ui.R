@@ -312,6 +312,8 @@ sashimiAppUI <- function
                   id="sashimi_sidebar",
                   width=25,
                   startOpen=FALSE,
+                  #background="#FFE5C8",
+                  background="#AAAAAA",
                   icon=shiny::icon("gear"),
                   tagList(
                      shinyWidgets::sliderTextInput(
@@ -459,7 +461,7 @@ sashimiAppUI <- function
          column(
             width=12,
             style="padding:0px",
-            shinydashboardPlus::box(
+            shinydashboard::box(
                title="Sample Selection and Order",
                status="warning",
                solidHeader=TRUE,

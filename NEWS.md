@@ -1,3 +1,30 @@
+# splicejam 0.0.66.900
+
+## visual updates
+
+* `sashimiAppUI()` was updated to correct some visual glitches in
+the R-shiny app, using the `shinydashboard::box()` instead of
+`shinydashboardPlus::box()` except where required. The
+`shinyWidgets::sliderTextInput()` appears to detect the
+wrong color for title text and tick marks, so the sidebar
+background was changed to medium grey to try to account
+for those oddly inconsistent choices. It currently cannot
+be customized.
+
+## changes to existing functions
+
+* `gene2gg()` new argument `geneSymbolColname` allows using
+a specific gene symbol column name, instead of the previous
+default `"gene_name"`. The corresponding `ggplot2::aes()`
+was changed to `ggplot2::aes_()` to allow using a variable
+as a name.
+* `gene2gg()` argument `hjust` was changed to `hjust=-0.5`
+because somehow the apparent behavior of `hjust` in `ggrepel`
+has changed in recent versions. The previous value `hjust=2`
+is roughly the same as the new value `hjust=-0.5` which
+is... unexpected.
+
+
 # splicejam 0.0.65.900
 
 Several updates were implemented to correct

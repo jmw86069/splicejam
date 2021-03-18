@@ -572,11 +572,12 @@ gene2gg <- function
  labelExons=TRUE,
  exonLabelAngle=90,
  exonLabelSize=8,
+ geneSymbolColname="gene_name",
  newValues=list(feature_type="gap", subclass="gap", gene_nameExon="gap"),
  gene_order=c("first","last"),
  return_type=c("grob", "df"),
  ref2c=NULL,
- hjust=2,
+ hjust=-0.2,
  vjust=0.5,
  direction=c("both", "x", "y"),
  compressGaps=TRUE,
@@ -618,28 +619,28 @@ gene2gg <- function
    if (length(flatExonsByTx) > 0 && igrepHas("GRanges", class(flatExonsByTx))) {
       grl1 <- NULL;
       if (length(gene) > 0) {
-         if ("gene_name" %in% colnames(values(flatExonsByTx))) {
+         if (geneSymbolColname %in% colnames(values(flatExonsByTx))) {
             if (verbose) {
                jamba::printDebug("gene2gg(): ",
                   "values(flatExonsByTx)$gene_name %in% gene");
             }
             grl1 <- subset(flatExonsByTx, gene_name %in% gene);
          } else if (length(tx2geneDF) > 0 &&
-            "gene_name" %in% colnames(tx2geneDF)) {
+            geneSymbolColname %in% colnames(tx2geneDF)) {
             if (verbose) {
                jamba::printDebug("gene2gg(): ",
-                  "subset(tx2geneDF, gene_name %in% gene)$transcript_id");
+                  "subset(tx2geneDF, ", geneSymbolColname, " %in% gene)$transcript_id");
             }
             tx <- unique(c(tx,
-               subset(tx2geneDF, gene_name %in% gene)$transcript_id));
+               subset(tx2geneDF, tx2geneDF[[geneSymbolColname]] %in% gene)$transcript_id));
          }
       }
       if (length(tx) > 0) {
          grl1 <- GRangesList(c(grl1,
             flatExonsByTx[names(flatExonsByTx) %in% tx]))
-         GenomicRanges::values(grl1)$gene_name <- tx2geneDF[match(names(grl1),
-            tx2geneDF$transcript_id),"gene_name"];
-         GenomicRanges::values(grl1@unlistData)$gene_name <- rep(values(grl1)$gene_name,
+         GenomicRanges::values(grl1)[,geneSymbolColname] <- tx2geneDF[match(names(grl1),
+            tx2geneDF$transcript_id),geneSymbolColname];
+         GenomicRanges::values(grl1@unlistData)[,geneSymbolColname] <- rep(values(grl1)[,geneSymbolColname],
             S4Vectors::elementNROWS(grl1));
          GenomicRanges::values(grl1)$transcript_id <- names(grl1);
          GenomicRanges::values(grl1@unlistData)$transcript_id <- rep(values(grl1)$transcript_id,
@@ -733,20 +734,29 @@ gene2gg <- function
          to="id",
          shrinkMatrix(grl1a1df[,c("x","y")],
             groupBy=grl1a1df[,"id"]));
-      exonLabelDF[,"gene_nameExon"] <- grl1a1df[match(exonLabelDF[,"id"],
-         grl1a1df[,"id"]), "gene_nameExon"];
+      exonColname <- intersect(paste0(geneSymbolColname, "Exon"),
+         colnames(grl1a1df));
+      if (length(exonColname) == 0) {
+         jamba::printDebug("gene2gg(): ",
+            "Warning: exonColname not found in grl1a1df, skipping exon labels.",
+            fgText=c("darkorange", "red"))
+         labelExons <- FALSE;
+      } else {
+         exonLabelDF[,exonColname] <- grl1a1df[match(exonLabelDF[,"id"],
+            grl1a1df[,"id"]), exonColname];
 
-      exonLabelDF$y <- shrinkMatrix(grl1a1df[,c("x","y")],
-         groupBy=grl1a1df[,"id"],
-         shrinkFunc=min)$y;
-      # Remove gap labels
-      exonLabelDF <- subset(exonLabelDF,
-         !grepl("^gap$|,", gene_nameExon));
-      # Optionally remove labels outside the label_coords range
-      if (length(label_coords) > 0 && nrow(exonLabelDF) > 0) {
+         exonLabelDF$y <- shrinkMatrix(grl1a1df[,c("x","y")],
+            groupBy=grl1a1df[,"id"],
+            shrinkFunc=min)$y;
+         # Remove gap labels
          exonLabelDF <- subset(exonLabelDF,
-            x >= min(label_coords) &
-               x <= max(label_coords));
+            !grepl("^gap$|,", gene_nameExon));
+         # Optionally remove labels outside the label_coords range
+         if (length(label_coords) > 0 && nrow(exonLabelDF) > 0) {
+            exonLabelDF <- subset(exonLabelDF,
+               x >= min(label_coords) &
+                  x <= max(label_coords));
+         }
       }
    }
    if (length(ref2c) == 0) {
@@ -802,15 +812,15 @@ gene2gg <- function
          scale_x_continuous(trans=ref2c$trans_grc);
    }
    if (labelExons && length(exonLabelDF) > 0 && nrow(exonLabelDF) > 0) {
-      if (1 == 1 || length(ref2c) == 0) {
+      if (1 || length(ref2c) == 0) {
          grl1a1gg <- grl1a1gg +
             ggrepel::geom_text_repel(
                inherit.aes=FALSE,
                data=exonLabelDF,
-               aes(x=x,
-                  y=min(y),
+               aes_(x=~x,
+                  y=~min(y),
                   #text=NULL,
-                  label=gene_nameExon),
+                  label=as.name(exonColname)),
                angle=exonLabelAngle,
                hjust=vjust,
                vjust=hjust,

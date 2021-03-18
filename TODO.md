@@ -1,5 +1,20 @@
 # TODO for splicejam
 
+## 18mar2021 todo items
+
+* for interactive plots, highlighting a splice junction also highlights
+all splice junctions for the same exon span, which is good
+
+   * for flat gene-exon models, name the gap using the format
+   `geneSymbolexon_name1-geneSymbolexon_name2` which will allow
+   the gap to be highlighted as well.
+   * for flat transcript-exon models, not sure if this is
+   appropriate.
+
+* Fix the ggrepel exon labeling which is now above instead of below
+the gene-exon model.
+
+
 ## 23apr2020 todo items
 
 * Consider adding transcript selection to the left menu items
