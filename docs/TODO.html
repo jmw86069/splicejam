@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.65.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.67.900</span>
       </span>
     </div>
 
@@ -130,6 +130,32 @@
 
 <div id="todo-for-splicejam" class="section level1">
 
+<div id="19mar2021-todo-items" class="section level2">
+<h2 class="hasAnchor">
+<a href="#19mar2021-todo-items" class="anchor"></a>19mar2021 todo items</h2>
+<ul>
+<li>
+<p>COMPLETE: Fix broken Sample Selection - change to table selection/ordering</p>
+<ul>
+<li>include <code><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo()</a></code> in a hidden section on the R-shiny app to be able to confirm all packages and version numbers being used.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="18mar2021-todo-items" class="section level2">
+<h2 class="hasAnchor">
+<a href="#18mar2021-todo-items" class="anchor"></a>18mar2021 todo items</h2>
+<ul>
+<li><p>COMPLETE: Fix the ggrepel exon labeling which is now above instead of below the gene-exon model.</p></li>
+<li>
+<p>for interactive plots, highlighting a splice junction also highlights all splice junctions for the same exon span, which is good</p>
+<ul>
+<li>for flat gene-exon models, name the gap using the format <code>geneSymbolexon_name1-geneSymbolexon_name2</code> which will allow the gap to be highlighted as well.</li>
+<li>for flat transcript-exon models, not sure if this is appropriate.</li>
+</ul>
+</li>
+</ul>
+</div>
 <div id="23apr2020-todo-items" class="section level2">
 <h2 class="hasAnchor">
 <a href="#23apr2020-todo-items" class="anchor"></a>23apr2020 todo items</h2>
@@ -159,9 +185,9 @@
 <h2 class="hasAnchor">
 <a href="#21apr2020-todo-items" class="anchor"></a>21apr2020 todo items</h2>
 <ul>
-<li><p>It looks like junction stacking on negative strand is applied to the wrong edge of each junction (left-right instead of right-left).</p></li>
+<li><p>COMPLETE: It looks like junction stacking on negative strand is applied to the wrong edge of each junction (left-right instead of right-left).</p></li>
 <li>
-<p>Allow the gene-transcript panel to be adjusted taller.</p>
+<p>COMPLETE: Allow the gene-transcript panel to be adjusted taller.</p>
 <ul>
 <li>By default, gene panel height should be auto-adjusted based upon the number of transcripts shown.</li>
 <li>Ideally the panel height should be adjusted based upon label height.</li>

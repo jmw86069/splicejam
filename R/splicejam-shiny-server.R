@@ -35,6 +35,11 @@ sashimiAppServer <- function
    output$sashimiplot_guide <- renderUI(sashimiplot_guide);
    output$sashimiplotviz_guide <- renderUI(sashimiplotviz_guide);
 
+   ## show sessionInfo()
+   output$sessionInfo <- renderPrint({
+      capture.output(sessionInfo())
+   })
+
    ## Update gene_choices
    get_gene_choices <- reactive({
       search_genelist <- input$search_genelist;
@@ -429,7 +434,8 @@ sashimiAppServer <- function
       }
 
       ## Define sample_id from sample selection
-      sample_id <- get_sample_id();
+      #sample_id <- get_sample_id();
+      sample_id <- get_sample_id_dt();
       if (verbose) {
          jamba::printDebug("sashimiAppServer(): ",
             "Using sample_id:",
@@ -668,7 +674,7 @@ sashimiAppServer <- function
          #num_samples <- max(c(length(sample_id), 1)) + 1;
          #num_samples <- 2;
          ## Define sample_id from sample selection
-         sample_id <- get_sample_id();
+         sample_id <- get_sample_id_dt();
 
          num_samples <- length(unique(sample_id));
          panel_height <- panel_height_d();
@@ -907,40 +913,74 @@ sashimiAppServer <- function
       )
    );
 
-   # Render the orderInput elements
-   output$selection_sort <- renderUI({
-      if (exists("filesDF") && length(filesDF$sample_id) > 0) {
-         sample_items <- unique(filesDF$sample_id);
+   # Render samples_df for sample selection and ordering
+   data <- reactiveValues(
+      samples_data=unique(filesDF[,setdiff(colnames(filesDF), c("url", "type", "scale_factor")), drop=FALSE]),
+      sample_id=if (exists("sample_id")) {
+         sample_id
+      } else if (all(c("CA1_CB", "CA1_DE", "CA2_CB", "CA2_DE") %in% filesDF$sample_id)) {
+         c("CA1_CB", "CA1_DE", "CA2_CB", "CA2_DE")
+      } else if (is.factor(filesDF$sample_id)) {
+         levels(filesDF$sample_id)
       } else {
-         sample_items <- NULL;
+         unique(filesDF$sample_id)
       }
-      sample_id <- get_sample_id();
-      if (exists("sample_id") && length(sample_id) > 0) {
-         display_items <- unique(sample_id);
-         sample_items <- setdiff(sample_items, display_items);
-      } else {
-         display_items <- NULL;
+   );
+   get_sample_id_dt <- reactive({
+      # force update when Calculate Gene Params button is clicked
+      # This step prevents updates from changing the sashimi plot
+      # until the Calculate button is clicked.
+      input$calc_gene_params;
+      new_sample_id <- isolate(data$sample_id);
+      if (verbose >= 0) {
+         jamba::printDebug("get_sample_id_dt(): ",
+            new_sample_id);
       }
-      tagList(
-         shinyjqui::orderInput(
-            inputId="selectionfrom",
-            label="Hidden samples:",
-            items=sample_items,
-            item_class="primary",
-            connect="selectionto",
-            width="100%",
-            placeholder="(Drag samples here to hide)"
-         ),
-         shinyjqui::orderInput(
-            inputId="selectionto",
-            label="Display samples:",
-            items=display_items,
-            item_class="primary",
-            connect="selectionfrom",
-            width="100%",
-            placeholder="(Drag samples here to display)"
-         )
+      return(new_sample_id)
+   })
+   output$samplesdf <- DT::renderDataTable({
+      isolate(data$samples_data)
+   },
+      options=list(
+         pageLength=nrow(isolate(data$samples_data)),
+         lengthMenu=nrow(isolate(data$samples_data)),
+         dom='t',
+         columnDefs=list(
+            list(
+               targets=seq_len(ncol(isolate(data$samples_data))),
+               searchable=FALSE,
+               sortable=FALSE))
+      ),
+      selection=list(
+         mode='multiple',
+         selected=match(get_sample_id_dt(),
+            isolate(data$samples_data)$sample_id)
       )
-   });
+   );
+   # event of clicking the samples_df table
+   observeEvent(input$samplesdf_cell_clicked, {
+      selected_rows <- input$samplesdf_rows_selected;
+      if (verbose > 1) {
+         jamba::printDebug("selected_rows:", selected_rows);
+      }
+      # calculate new row order
+      row_order <- order(
+         seq_along(isolate(data$samples_data)$sample_id) %in% selected_rows,
+         decreasing=TRUE
+      )
+      new_sample_id <- isolate(data$samples_data)$sample_id[selected_rows];
+      if (verbose > 1) {
+         jamba::printDebug("New sample_id values selected:",
+            new_sample_id);
+      }
+      data$sample_id <- new_sample_id;
+      data$samples_data <- isolate(data$samples_data)[row_order,,drop=FALSE];
+      proxy <- DT::dataTableProxy('samplesdf')
+      DT::replaceData(proxy, data$samples_data)
+      # make sure to select the rows again
+      DT::selectRows(proxy, seq_along(selected_rows))
+      # enable the Calculate button so the sashimi plot can be updated
+      shinyjs::enable("calc_gene_params");
+   })
 
 }

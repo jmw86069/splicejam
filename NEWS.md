@@ -1,3 +1,26 @@
+# splicejam 0.0.67.900
+
+## updates to R-shiny
+
+* `sashimiAppUI()` was updated to change "Sample Selection"
+to use `dataTable` output.
+* `sashimiAppServer()` was updated to handle `dataTable`
+widget for "Sample Selection" and sample ordering,
+removing the previous method of drag-and-drop. The
+reasons: first, the drag-and-drop was not mobile-friendly;
+second, the widget apparently broke after the recent
+updates. The error was reproduced by changing the
+sample selection, then creating a new sashimi
+figure - in that case no sample selections were
+retained and the figure failed due to no selected
+samples.
+* `sashimiAppConstants()` was updated to include a
+text box with full `sessionInfo()` output, inside
+a box that is collapsed and hidden by default.
+This output is on the `"Guides"` tab below the
+section `"Relevant R version info"`.
+
+
 # splicejam 0.0.66.900
 
 ## visual updates

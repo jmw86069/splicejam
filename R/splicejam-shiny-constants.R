@@ -686,6 +686,21 @@ sashimiAppConstants <- function
                   strong(style="color:black", "plotly:"),
                   as.character(packageVersion("plotly"))
                )
+            ),
+            fluidRow(
+               column(
+                  width=12,
+                  style="padding:0px",
+                  shinydashboardPlus::box(
+                     title="Full R sessionInfo():",
+                     #status="warning",
+                     solidHeader=TRUE,
+                     collapsible=TRUE,
+                     collapsed=TRUE,
+                     width=12,
+                     shiny::pre(shiny::htmlOutput("sessionInfo"))
+                  )
+               )
             )
          )
       )

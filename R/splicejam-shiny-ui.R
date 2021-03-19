@@ -467,12 +467,15 @@ sashimiAppUI <- function
                solidHeader=TRUE,
                collapsible=TRUE,
                width=12,
-               "Select samples by dragging them down to the Display Samples section.",
                fluidRow(
                   column(
                      width=7,
                      style="padding:15px",
-                     uiOutput("selection_sort")
+                     paste("Select samples in the order they should appear in the figure.",
+                        "The table will re-order itself to place selected samples",
+                        "at the top. De-select samples to remove them from the figure.",
+                        "Click 'Update Sashimi Plots' to create a new figure."),
+                     DT::dataTableOutput('samplesdf')
                   ),
                   column(
                      width=4,

@@ -1,7 +1,16 @@
 # TODO for splicejam
 
+## 19mar2021 todo items
+
+* COMPLETE: Fix broken Sample Selection - change to table selection/ordering
+
+   * include `sessionInfo()` in a hidden section on the R-shiny app
+   to be able to confirm all packages and version numbers being used.
+
 ## 18mar2021 todo items
 
+* COMPLETE: Fix the ggrepel exon labeling which is now above instead of below
+the gene-exon model.
 * for interactive plots, highlighting a splice junction also highlights
 all splice junctions for the same exon span, which is good
 
@@ -11,8 +20,6 @@ all splice junctions for the same exon span, which is good
    * for flat transcript-exon models, not sure if this is
    appropriate.
 
-* Fix the ggrepel exon labeling which is now above instead of below
-the gene-exon model.
 
 
 ## 23apr2020 todo items
@@ -71,9 +78,9 @@ they get the best default Gria1 view they can get. When they go to
 
 ## 21apr2020 todo items
 
-* It looks like junction stacking on negative strand is applied
+* COMPLETE: It looks like junction stacking on negative strand is applied
 to the wrong edge of each junction (left-right instead of right-left).
-* Allow the gene-transcript panel to be adjusted taller.
+* COMPLETE: Allow the gene-transcript panel to be adjusted taller.
 
    * By default, gene panel height should be auto-adjusted based
    upon the number of transcripts shown.

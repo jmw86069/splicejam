@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.65.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.67.900</span>
       </span>
     </div>
 
@@ -129,6 +129,44 @@
       <small>Source: <a href='http://github.com/jmw86069/splicejam/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="splicejam-0067900" class="section level1">
+<h1 class="page-header" data-toc-text="0.0.67.900">
+<a href="#splicejam-0067900" class="anchor"></a>splicejam 0.0.67.900</h1>
+<div id="updates-to-r-shiny" class="section level2">
+<h2 class="hasAnchor">
+<a href="#updates-to-r-shiny" class="anchor"></a>updates to R-shiny</h2>
+<ul>
+<li>
+<code><a href="../reference/sashimiAppUI.html">sashimiAppUI()</a></code> was updated to change “Sample Selection” to use <code>dataTable</code> output.</li>
+<li>
+<code><a href="../reference/sashimiAppServer.html">sashimiAppServer()</a></code> was updated to handle <code>dataTable</code> widget for “Sample Selection” and sample ordering, removing the previous method of drag-and-drop. The reasons: first, the drag-and-drop was not mobile-friendly; second, the widget apparently broke after the recent updates. The error was reproduced by changing the sample selection, then creating a new sashimi figure - in that case no sample selections were retained and the figure failed due to no selected samples.</li>
+<li>
+<code><a href="../reference/sashimiAppConstants.html">sashimiAppConstants()</a></code> was updated to include a text box with full <code><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo()</a></code> output, inside a box that is collapsed and hidden by default. This output is on the <code>"Guides"</code> tab below the section <code>"Relevant R version info"</code>.</li>
+</ul>
+</div>
+</div>
+    <div id="splicejam-0066900" class="section level1">
+<h1 class="page-header" data-toc-text="0.0.66.900">
+<a href="#splicejam-0066900" class="anchor"></a>splicejam 0.0.66.900</h1>
+<div id="visual-updates" class="section level2">
+<h2 class="hasAnchor">
+<a href="#visual-updates" class="anchor"></a>visual updates</h2>
+<ul>
+<li>
+<code><a href="../reference/sashimiAppUI.html">sashimiAppUI()</a></code> was updated to correct some visual glitches in the R-shiny app, using the <code><a href="https://rdrr.io/pkg/shinydashboard/man/box.html">shinydashboard::box()</a></code> instead of <code><a href="https://rdrr.io/pkg/shinydashboardPlus/man/box.html">shinydashboardPlus::box()</a></code> except where required. The <code><a href="https://rdrr.io/pkg/shinyWidgets/man/sliderTextInput.html">shinyWidgets::sliderTextInput()</a></code> appears to detect the wrong color for title text and tick marks, so the sidebar background was changed to medium grey to try to account for those oddly inconsistent choices. It currently cannot be customized.</li>
+</ul>
+</div>
+<div id="changes-to-existing-functions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#changes-to-existing-functions" class="anchor"></a>changes to existing functions</h2>
+<ul>
+<li>
+<code><a href="../reference/gene2gg.html">gene2gg()</a></code> new argument <code>geneSymbolColname</code> allows using a specific gene symbol column name, instead of the previous default <code>"gene_name"</code>. The corresponding <code><a href="https://ggplot2.tidyverse.org/reference/aes.html">ggplot2::aes()</a></code> was changed to <code><a href="https://ggplot2.tidyverse.org/reference/aes_.html">ggplot2::aes_()</a></code> to allow using a variable as a name.</li>
+<li>
+<code><a href="../reference/gene2gg.html">gene2gg()</a></code> argument <code>hjust</code> was changed to <code>hjust=-0.5</code> because somehow the apparent behavior of <code>hjust</code> in <code>ggrepel</code> has changed in recent versions. The previous value <code>hjust=2</code> is roughly the same as the new value <code>hjust=-0.5</code> which is… unexpected.</li>
+</ul>
+</div>
+</div>
     <div id="splicejam-0065900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.65.900">
 <a href="#splicejam-0065900" class="anchor"></a>splicejam 0.0.65.900</h1>
@@ -225,9 +263,9 @@
 <code><a href="../reference/jam_isDisjoint.html">jam_isDisjoint()</a></code> is a rapid alternative to <code><a href="https://rdrr.io/pkg/GenomicRanges/man/inter-range-methods.html">GenomicRanges::isDisjoint()</a></code>, that tests <code>GRanges</code> or <code>GRangesList</code> for disjoint (non-overlapping) ranges. In one test with large <code>GRangesList</code>, the duration was reduced from 100+ seconds to 0.5 seconds.</li>
 </ul>
 </div>
-<div id="changes-to-existing-functions" class="section level2">
+<div id="changes-to-existing-functions-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-1" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li><p><code><a href="../reference/makeTx2geneFromGtf.html">makeTx2geneFromGtf()</a></code> was optimized again, substantially reducing the time and memory required. The rownames returned are also defined by values in colname <code>"transcript_id"</code> if it or similar colname exists, passed through <code><a href="https://rdrr.io/pkg/jamba/man/makeNames.html">jamba::makeNames()</a></code> to ensure they are unique.</p></li>
 <li><p>Updated help documentation for <code><a href="../reference/assignGRLexonNames.html">assignGRLexonNames()</a></code>.</p></li>
@@ -323,9 +361,9 @@
     <div id="splicejam-0060900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.60.900">
 <a href="#splicejam-0060900" class="anchor"></a>splicejam 0.0.60.900</h1>
-<div id="changes-to-existing-functions-1" class="section level2">
+<div id="changes-to-existing-functions-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-1" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-2" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/groups2contrasts.html">groups2contrasts()</a></code> updated a bug that was not maintaining factor order in two-way contrasts. Slightly enhanced logic used in argument <code>removePairs</code> so that it works with single factor contrasts (where that factor does not change.)</li>
@@ -337,9 +375,9 @@
     <div id="splicejam-0059900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.59.900">
 <a href="#splicejam-0059900" class="anchor"></a>splicejam 0.0.59.900</h1>
-<div id="changes-to-existing-functions-2" class="section level2">
+<div id="changes-to-existing-functions-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-2" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-3" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/defineDetectedTx.html">defineDetectedTx()</a></code> default argument value <code>cutoffTxTPMExpr=0.1</code> which was previously <code>cutoffTxTPMExpr=2</code>. It appears that this threshold is somewhat dependent upon the input data, and that <code>2</code> was too stringent for the majority of datasets testes since the Farris et al publication. Therefore, a more suitable default value is less restrictive of low-TPM abundance values. This change also makes the count-based threshold the dominant filter for technical detection above background noise, which makes some sense because count noise is somewhat more of a hard boundary.</li>
@@ -868,9 +906,9 @@
     <div id="splicejam-0028900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.28.900">
 <a href="#splicejam-0028900" class="anchor"></a>splicejam 0.0.28.900</h1>
-<div id="changes-to-existing-functions-3" class="section level2">
+<div id="changes-to-existing-functions-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-3" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-4" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/defineDetectedTx.html">defineDetectedTx()</a></code> has a new argument <code>zeroAsNA</code> to handle the special case where some expression values reported as zero should be treated as <code>NA</code> (no data obtained) and therefore will not be included in group mean calculations. As transcript-exon models get more “comprehensive”, kmer quantitation tools such as Salmon and Kallisto sometimes need to assign abundance to one of several nearly identical isoforms, and in low count scenarios all counts may be assigned to one or another isoform, leaving zero in the alternate position. Excluding zero ensures that group mean values represent only the assigned quantitation.</li>
@@ -1022,9 +1060,9 @@
 <li>Added examples to <code><a href="../reference/stackJunctions.html">stackJunctions()</a></code> with schematics, including example on plotting junctions by themselves.</li>
 </ul>
 </div>
-<div id="changes-to-existing-functions-4" class="section level2">
+<div id="changes-to-existing-functions-5" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-4" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-5" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>Removed <code>compressGRgaps()</code> for now, since the methods now try to keep GRanges intact, and instead transform the x-axis scale to compress visible gaps.</li>
 </ul>
@@ -1033,9 +1071,9 @@
     <div id="splicejam-0018900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.18.900">
 <a href="#splicejam-0018900" class="anchor"></a>splicejam 0.0.18.900</h1>
-<div id="changes-to-existing-functions-5" class="section level2">
+<div id="changes-to-existing-functions-6" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-5" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-6" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/bgaPlotly3d.html">bgaPlotly3d()</a></code> now properly handles ellipsoid colors, previously the colors were assigned but not honored by <code><a href="https://docs.ropensci.org/plotly/reference/add_trace.html">plotly::add_trace()</a></code>.</li>
@@ -1058,9 +1096,9 @@
 <code>jamSashimi()</code> is used to plot Sashimi data prepared by <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> in order to separate the download and preparation of Sashimi data from the visualization.</li>
 </ul>
 </div>
-<div id="changes-to-existing-functions-6" class="section level2">
+<div id="changes-to-existing-functions-7" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-6" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-7" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> is refactored to remove the plot functions, moving them to the new <code>jamSashimi()</code>.</li>
@@ -1083,7 +1121,7 @@
 <li>
 <code><a href="../reference/gene2gg.html">gene2gg()</a></code> is a lightweight function that creates gene and transcript exons models, and returns a ggplot2 object for plotting. It can optionally return the data.frame used by ggplot2.</li>
 <li>
-<code><a href="../reference/grl2df.html">grl2df()</a></code> is similar to <code>fortify()</code> from ggplot2, or the <code><a href="https://rdrr.io/pkg/generics/man/tidy.html">broom::tidy()</a></code> functions, that take a custom object and return a data.frame for downstream use. Here the function currently works with “rectangle” data (like exons, introns, peaks, etc.), and “junction” (like junction regions to be represented by <code><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">ggforce::geom_diagonal_wide()</a></code>). In future it may also handle sequence coverage polygons.</li>
+<code><a href="../reference/grl2df.html">grl2df()</a></code> is similar to <code>fortify()</code> from ggplot2, or the <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy()</a></code> functions, that take a custom object and return a data.frame for downstream use. Here the function currently works with “rectangle” data (like exons, introns, peaks, etc.), and “junction” (like junction regions to be represented by <code><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">ggforce::geom_diagonal_wide()</a></code>). In future it may also handle sequence coverage polygons.</li>
 <li>
 <code><a href="../reference/exoncov2polygon.html">exoncov2polygon()</a></code> converts a GRanges object containing coverage in the form of NumericList for each exon or intron, into a data.frame suitable for use by <code>geom_polygon()</code> or <code><a href="https://ggforce.data-imaginist.com/reference/geom_shape.html">ggforce::geom_shape()</a></code>.</li>
 <li>
