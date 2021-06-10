@@ -1,3 +1,25 @@
+# splicejam 0.0.68.900
+
+## bug fixes
+
+* `getGRcoverageFromBw()` was updated to fix a bug that really
+originated from `rtracklayer::import.bw()`, which returns output
+sorted by the bigWig file chromosome sort order, and not
+by the order of `rtracklayer::BigWigSelection()` as documented
+in `rtracklayer::import.bw()`. The workaround implemented in
+`getGRcoverageFromBw()` is to return coverage in the exact
+order requested. Note this issue will not affect sashimi plots
+since each gene is contained within one chromosome, and in this
+case the coverage is returned by `rtracklayer` in the order
+it is requested within a chromsome, but `rtracklayer` bug
+returns results for each chromosome together regardless the
+order it was requested.
+Also this update was performed outside the memoise call, so
+the cache will store data in the order received from
+`rtracklayer::import.bw()` but will re-order those results
+consistent with the order of input GRanges.
+
+
 # splicejam 0.0.67.900
 
 ## updates to R-shiny

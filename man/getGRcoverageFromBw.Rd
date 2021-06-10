@@ -68,8 +68,11 @@ the progress bar is already initiated.}
 }
 \value{
 DataFrame object, whose colnames are defined using
-\code{jamba::makeNames(basename(bwUrls))}. Each column is type \code{NumericList},
-which is a list of numeric coverage values.
+either \code{names(bwUrls)} or by \code{jamba::makeNames(basename(bwUrls))}
+then removing the \code{.bw} or \code{.bigWig} file extension,
+case-insensitively.
+Each column is type \code{IRanges::NumericList-class} which is a
+list of numeric coverage values.
 }
 \description{
 Get coverage for GRanges from bigWig files
@@ -80,6 +83,27 @@ for which coverage data is loaded for each \code{bwUrls} input file.
 
 Note that this function uses \code{rtracklayer::import.bw()} which
 they describe does not work on the Windows platform.
+
+Update in version 0.0.68.900: This function was updated in two
+subtle ways, to work around a bug in \code{rtracklater::import.bw()},
+which returns data sorted by chromosome in the order it is indexed
+in the bigWig file, then within each chromosome entries are returned
+in the order requested. This \code{getGRcoverageFromBw()} was updated to:
+\enumerate{
+\item Confirm input \code{gr} GRanges contains names, or assigns names
+as needed.
+\item The output coverage from \code{rtracklayer::import.gw()} is ordered
+by \code{names(gr)} to confirm the output coverage is returned in the
+identical order as requested.
+}
+
+The updates above were done outside the scope of memoise file caching,
+so that stored coverage cache files will still be valid, but the
+order of named entries from the cache will be dependent upon the
+order requested. In the event the cache coverage contains no names,
+they will be returned in the same order as stored, however it is
+possible the cache will be invalidated by the addition of names
+to \code{gr}, though unclear exactly how deeply memoise checks such things.
 }
 \seealso{
 Other jam GRanges functions: 

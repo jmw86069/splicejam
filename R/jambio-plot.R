@@ -927,9 +927,33 @@ exoncov2polygon <- function
 #' Note that this function uses `rtracklayer::import.bw()` which
 #' they describe does not work on the Windows platform.
 #'
+#' Update in version 0.0.68.900: This function was updated in two
+#' subtle ways, to work around a bug in `rtracklater::import.bw()`,
+#' which returns data sorted by chromosome in the order it is indexed
+#' in the bigWig file, then within each chromosome entries are returned
+#' in the order requested. This `getGRcoverageFromBw()` was updated to:
+#'
+#' 1. Confirm input `gr` GRanges contains names, or assigns names
+#' as needed.
+#' 2. The output coverage from `rtracklayer::import.gw()` is ordered
+#' by `names(gr)` to confirm the output coverage is returned in the
+#' identical order as requested.
+#'
+#' The updates above were done outside the scope of memoise file caching,
+#' so that stored coverage cache files will still be valid, but the
+#' order of named entries from the cache will be dependent upon the
+#' order requested. In the event the cache coverage contains no names,
+#' they will be returned in the same order as stored, however it is
+#' possible the cache will be invalidated by the addition of names
+#' to `gr`, though unclear exactly how deeply memoise checks such things.
+#'
 #' @return DataFrame object, whose colnames are defined using
-#'    `jamba::makeNames(basename(bwUrls))`. Each column is type `NumericList`,
-#'    which is a list of numeric coverage values.
+#'    either `names(bwUrls)` or by `jamba::makeNames(basename(bwUrls))`
+#'    then removing the `.bw` or `.bigWig` file extension,
+#'    case-insensitively.
+#'    Each column is type `IRanges::NumericList-class` which is a
+#'    list of numeric coverage values.
+#'
 #'
 #' @family jam GRanges functions
 #' @family jam RNA-seq functions
@@ -1043,6 +1067,16 @@ getGRcoverageFromBw <- function
       import_or_null_m <- memoise::memoise(import_or_null,
          cache=memoise::cache_filesystem(memoise_coverage_path));
    }
+   ## version 0.0.68.900
+   ## - fix issue with rtracklayer::import.bw() returning in bigWig
+   ##    chromosome index order and not the input order
+   ## - confirm names(gr) exist and are unique
+   if (length(names(gr)) == 0) {
+      names(gr) <- paste0("GR", seq_along(gr));
+   }
+   grnames <- jamba::nameVector(names(gr));
+   names(gr) <- names(grnames);
+
    ## Iterate bwUrls and get coverage from each
    if (verbose) {
       jamba::printDebug("getGRcoverageFromBw(): ",
@@ -1133,6 +1167,10 @@ getGRcoverageFromBw <- function
       } else {
          cov1 <- import_or_null(bwUrl,
             gr=gr);
+      }
+      if (length(cov1) > 0 && length(names(cov1)) > 0) {
+         cov1 <- cov1[match(names(grnames), names(cov1))]
+         names(cov1) <- grnames;
       }
       cov1;
    });
