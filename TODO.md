@@ -1,5 +1,85 @@
 # TODO for splicejam
 
+## 12jul2021
+
+* New feature (minor): Allow resizing the gene-transcript panel
+
+   * Use case: Sometimes there are way too many transcripts, the
+   panel should be much taller. Sometimes the exon labels are clipped
+   off the bottom of the figure.
+   * Note that adjusting "per panel size" affects gene-transcript
+   panel, making it much too crowded.
+
+* New feature (minor): Allow down-sampling the coverage profile
+
+   * Use case: exons are rarely displayed one base per pixel, more
+   often an exon is roughly 100-500 bases wide, but displayed in
+   the equivalent of 25-50 pixels. The adjustment would be to
+   down-sample data to help speed up the rendering step.
+
+* New feature (minor): Optionally display gene model per column.
+
+   * Use case: Currently with two-column display the gene model
+   does not visually align to the coverages.
+
+* New feature (inquiry): Test porting track type to ggbio or gviz.
+
+   * Use case: To integrate other track types, coverage, peaks, genes,
+   etc. the ggbio and gviz R packages are more feature-rich.
+   * General idea is to provide two things: track "geom", and
+   x-axis compressed axis which effectively compresses the intron ranges.
+   * For Gviz, understand `GdObject-class` and create CustomTrack,
+   which should mimic the workflow used by `AlignmentsTrack()`:
+   
+      ```R
+      Gviz::CustomTrack(plottingFunction=function(GdObject, prepare=FALSE, ...){},
+         variables=list(), name="CustomTrack", ...)
+      ```
+
+* New feature (minor): Color picker beside Shiny app Sample Selection
+
+   * Use case is to display, and allow selection of colors per sample
+   * Not sure if "easy" color picker widgets will work with
+   the selectable table widget.
+
+
+* New feature (major): multiple features in transcript window
+
+   * Use case is to display more than one gene, or gene(s) alongside
+   another track such as ChIP-seq peaks, or enhancer regions.
+   * The main change would be to define a region by coordinates
+   rather than by the gene symbol - which itself only implies
+   coordinates.
+   * All features displayed in the region would be used to define
+   compressed exon ranges.
+   * Major change: splice junction strandedness should be allowed
+   to differ from the feature of interest, which may cause problems
+   when using STAR junctions where strandedness is not always
+   reliable.
+
+* New features (major): coverage and junctions from BAM files
+
+   * Use case is to allow BAM input, both for coverage and for junctions.
+   * Major enabling feature: This step is a precursor to handling
+   scRNA-seq, which could dynamically split the BAM reads by
+   tSNE/UMAP clusters.
+
+* New data (major): pre-defined hg19 transcriptome data required for sashimi plots
+
+   * Gencode comprehensive with all genes, flat exons pre-computed.
+   * Obvious enhancement: hg38, mm10, other common organisms.
+   * Describe steps used so others can use their own GTF as needed.
+
+
+* New feature (nice to have): ability to select/deselect transcripts
+displayed in the R-shiny app for a given gene.
+
+   Use case is when displaying all transcripts for a given gene,
+   but there are too many un-expressed transcripts, e.g. human ACTB.
+   Could allow a separate table to select transcripts to include/hide.
+   When performing "Update" the compressed exons would be re-calculated
+   for that gene using the selected exons.
+
 ## 19mar2021 todo items
 
 * COMPLETE: Fix broken Sample Selection - change to table selection/ordering
