@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.67.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.69.900</span>
       </span>
     </div>
 
@@ -79,7 +79,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -99,6 +99,9 @@
     <li>
       <a href="../articles/create-a-sashimi-plot.html">Create a Sashimi Plot</a>
     </li>
+    <li>
+      <a href="../articles/shiny-server-for-sashimi-plots.html">Shiny server for Sashimi Plots</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -108,7 +111,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="http://github.com/jmw86069/splicejam/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -129,6 +132,42 @@
       <small>Source: <a href='http://github.com/jmw86069/splicejam/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="splicejam-0069900" class="section level1">
+<h1 class="page-header" data-toc-text="0.0.69.900">
+<a href="#splicejam-0069900" class="anchor"></a>splicejam 0.0.69.900</h1>
+<div id="new-functions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-functions" class="anchor"></a>new functions</h2>
+<ul>
+<li>
+<code><a href="../reference/sashimiDataConstants.html">sashimiDataConstants()</a></code> is a subset of <code><a href="../reference/sashimiAppConstants.html">sashimiAppConstants()</a></code> that includes only the required data, and not the R-shiny app components such as the help text and widgets. It was updated to store all data inside an environment, which updates data in that environment during processing as needed.</li>
+<li>
+<code><a href="../reference/get_fn_envir.html">get_fn_envir()</a></code> is a helper function that returns a variable value from the calling function, or from one or more provided environments. The use case is to allow a user to define function variable values directly, then to use the environment values otherwise.</li>
+</ul>
+</div>
+<div id="changes-to-existing-functions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#changes-to-existing-functions" class="anchor"></a>changes to existing functions</h2>
+<ul>
+<li><p><code><a href="../reference/launchSashimiApp.html">launchSashimiApp()</a></code> was changed so that it uses a user-supplied environment to store intermediate data for the R-shiny app. By default this environment is <code><a href="https://rdrr.io/r/base/environment.html">globalenv()</a></code> for backward compatibility, however it is recommended to create a new environment to insulate data from the <code><a href="https://rdrr.io/r/base/environment.html">globalenv()</a></code>.</p></li>
+<li><p><code><a href="../reference/sashimiAppConstants.html">sashimiAppConstants()</a></code> was updated to use environment as input and the new function <code><a href="../reference/get_fn_envir.html">get_fn_envir()</a></code>. Note that previous input would ultimately use values in <code><a href="https://rdrr.io/r/base/environment.html">globalenv()</a></code> even when using a specific environment. The default was to use <code><a href="https://rdrr.io/r/base/environment.html">globalenv()</a></code> so that behavior was not problematic. The new behavior will strictly only use either the function argument, or the value in the specific environment provided.</p></li>
+<li><p><code><a href="../reference/import_juncs_from_bed.html">import_juncs_from_bed()</a></code> was refactored completely, so it is able to handle BED12 input as well as <code>"SJ.out.tab"</code> junction output directly from STAR alignments. This refactor will cause all previous memoise cache for junction files to be invalidated, and thus downloaded again. These files are small and fast to download, but it is worth noting. The underlying method now uses <code><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html">data.table::fread()</a></code> then it decides whether to convert from BED format with <code>as(bed, "GRanges")</code> or converts from <code>"SJ.out.tab"</code> when there are 9 columns.</p></li>
+<li><p>Several functions had the <code>verbose</code> output reduced, instead when <code>verbose &gt; 1</code> the more verbose output is printed.</p></li>
+</ul>
+</div>
+</div>
+    <div id="splicejam-0068900" class="section level1">
+<h1 class="page-header" data-toc-text="0.0.68.900">
+<a href="#splicejam-0068900" class="anchor"></a>splicejam 0.0.68.900</h1>
+<div id="bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes" class="anchor"></a>bug fixes</h2>
+<ul>
+<li>
+<code><a href="../reference/getGRcoverageFromBw.html">getGRcoverageFromBw()</a></code> was updated to fix a bug that really originated from <code><a href="https://rdrr.io/pkg/rtracklayer/man/BigWigFile.html">rtracklayer::import.bw()</a></code>, which returns output sorted by the bigWig file chromosome sort order, and not by the order of <code><a href="https://rdrr.io/pkg/rtracklayer/man/BigWigSelection-class.html">rtracklayer::BigWigSelection()</a></code> as documented in <code><a href="https://rdrr.io/pkg/rtracklayer/man/BigWigFile.html">rtracklayer::import.bw()</a></code>. The workaround implemented in <code><a href="../reference/getGRcoverageFromBw.html">getGRcoverageFromBw()</a></code> is to return coverage in the exact order requested. Note this issue will not affect sashimi plots since each gene is contained within one chromosome, and in this case the coverage is returned by <code>rtracklayer</code> in the order it is requested within a chromsome, but <code>rtracklayer</code> bug returns results for each chromosome together regardless the order it was requested. Also this update was performed outside the memoise call, so the cache will store data in the order received from <code><a href="https://rdrr.io/pkg/rtracklayer/man/BigWigFile.html">rtracklayer::import.bw()</a></code> but will re-order those results consistent with the order of input GRanges.</li>
+</ul>
+</div>
+</div>
     <div id="splicejam-0067900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.67.900">
 <a href="#splicejam-0067900" class="anchor"></a>splicejam 0.0.67.900</h1>
@@ -156,9 +195,9 @@
 <code><a href="../reference/sashimiAppUI.html">sashimiAppUI()</a></code> was updated to correct some visual glitches in the R-shiny app, using the <code><a href="https://rdrr.io/pkg/shinydashboard/man/box.html">shinydashboard::box()</a></code> instead of <code><a href="https://rdrr.io/pkg/shinydashboardPlus/man/box.html">shinydashboardPlus::box()</a></code> except where required. The <code><a href="https://rdrr.io/pkg/shinyWidgets/man/sliderTextInput.html">shinyWidgets::sliderTextInput()</a></code> appears to detect the wrong color for title text and tick marks, so the sidebar background was changed to medium grey to try to account for those oddly inconsistent choices. It currently cannot be customized.</li>
 </ul>
 </div>
-<div id="changes-to-existing-functions" class="section level2">
+<div id="changes-to-existing-functions-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-1" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/gene2gg.html">gene2gg()</a></code> new argument <code>geneSymbolColname</code> allows using a specific gene symbol column name, instead of the previous default <code>"gene_name"</code>. The corresponding <code><a href="https://ggplot2.tidyverse.org/reference/aes.html">ggplot2::aes()</a></code> was changed to <code><a href="https://ggplot2.tidyverse.org/reference/aes_.html">ggplot2::aes_()</a></code> to allow using a variable as a name.</li>
@@ -188,9 +227,9 @@
 <code><a href="../reference/sashimiAppConstants.html">sashimiAppConstants()</a></code> was updated to print more detail regarding <code>detectedTx</code> entries during the preparation steps. When there are no <code>detectedTx</code> entries that match <code>tx2geneDF$transcript_id</code> then it prints the first 20 lines of <code>tx2geneDF</code> for visual review. In these cases the resolution might be to remove the local file <code>".tx2geneDF.txt"</code> which will force the file to be re-created from the GTF source file, and may resolve the mismatch.</li>
 </ul>
 </div>
-<div id="bug-fixes" class="section level2">
+<div id="bug-fixes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-1" class="anchor"></a>bug fixes</h2>
 <p>Apparently for <code>.tx2geneDF.txt</code> files that existed in older versions of splicejam, the stored file included rownames that were ignored upon load. When splicejam switched to use <code><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html">data.table::fread()</a></code> and <code><a href="https://Rdatatable.gitlab.io/data.table/reference/fwrite.html">data.table::fwrite()</a></code> it briefly broke the ability to keep the header line because <code>header=TRUE</code> was not working as expected. Removing <code>header=TRUE</code> causes <code>data.table</code> to detect the rownames and add a new column which is ignored. All future versions of splicejam should not be affected.</p>
 </div>
 </div>
@@ -212,9 +251,9 @@
     <div id="splicejam-0063900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.63.900">
 <a href="#splicejam-0063900" class="anchor"></a>splicejam 0.0.63.900</h1>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed jampack <a href='http://github.com/jmw86069/splicejam/issues/1'>#1</a> bug with <code><a href="../reference/gene2gg.html">splicejam::gene2gg()</a></code> when only <code>flatExonsByGene</code> is supplied without <code>flatExonsByTx</code> the <code>GRangesList</code> coersion no longer allows one object to be <code>NULL</code>. Workaround is to ignore the missing object which keeps everything as <code>GRangesList</code> without needing coersion.</li>
 <li>Fixed bug in <code><a href="../reference/assignGRLexonNames.html">assignGRLexonNames()</a></code> that appears to be caused by a new Bioconductor data type <code>FactorList</code>, which requires explicit conversion to <code>list</code> for this function to work as expected.</li>
@@ -245,9 +284,9 @@
     <div id="splicejam-0061900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.61.900">
 <a href="#splicejam-0061900" class="anchor"></a>splicejam 0.0.61.900</h1>
-<div id="bug-fixes-2" class="section level2">
+<div id="bug-fixes-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="../reference/annotateGRfromGR.html">annotateGRfromGR()</a></code> was optimized for edge cases where there were a low number of multi-overlaps and large number of single-overlaps.</li>
@@ -255,17 +294,17 @@
 <code><a href="../reference/grl2df.html">grl2df()</a></code> was not properly stacking junctions in sashimi plots, the problem was caused by <code><a href="../reference/closestExonToJunctions.html">closestExonToJunctions()</a></code> which annotates junctions by the nearest compatible exon boundary, with no regard to distance from the exon. The <code><a href="../reference/stackJunctions.html">stackJunctions()</a></code> function simply stacks based upon <code>"nameFrom"</code> and <code>"nameTo"</code>, so junctions that land between exons were being stacked together with junctions that properly align those exons. Now <code><a href="../reference/closestExonToJunctions.html">closestExonToJunctions()</a></code> has optional argument <code>spliceBuffer</code>, when supplied a distance, exons beyond that distance are annotated by <code>exonName.distance</code>. Novel junctions will stack only when they share the same distance from an annotated exon.</li>
 </ul>
 </div>
-<div id="new-functions" class="section level2">
+<div id="new-functions-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions" class="anchor"></a>new functions</h2>
+<a href="#new-functions-1" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/jam_isDisjoint.html">jam_isDisjoint()</a></code> is a rapid alternative to <code><a href="https://rdrr.io/pkg/GenomicRanges/man/inter-range-methods.html">GenomicRanges::isDisjoint()</a></code>, that tests <code>GRanges</code> or <code>GRangesList</code> for disjoint (non-overlapping) ranges. In one test with large <code>GRangesList</code>, the duration was reduced from 100+ seconds to 0.5 seconds.</li>
 </ul>
 </div>
-<div id="changes-to-existing-functions-1" class="section level2">
+<div id="changes-to-existing-functions-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-1" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-2" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li><p><code><a href="../reference/makeTx2geneFromGtf.html">makeTx2geneFromGtf()</a></code> was optimized again, substantially reducing the time and memory required. The rownames returned are also defined by values in colname <code>"transcript_id"</code> if it or similar colname exists, passed through <code><a href="https://rdrr.io/pkg/jamba/man/makeNames.html">jamba::makeNames()</a></code> to ensure they are unique.</p></li>
 <li><p>Updated help documentation for <code><a href="../reference/assignGRLexonNames.html">assignGRLexonNames()</a></code>.</p></li>
@@ -361,9 +400,9 @@
     <div id="splicejam-0060900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.60.900">
 <a href="#splicejam-0060900" class="anchor"></a>splicejam 0.0.60.900</h1>
-<div id="changes-to-existing-functions-2" class="section level2">
+<div id="changes-to-existing-functions-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-2" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-3" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/groups2contrasts.html">groups2contrasts()</a></code> updated a bug that was not maintaining factor order in two-way contrasts. Slightly enhanced logic used in argument <code>removePairs</code> so that it works with single factor contrasts (where that factor does not change.)</li>
@@ -375,9 +414,9 @@
     <div id="splicejam-0059900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.59.900">
 <a href="#splicejam-0059900" class="anchor"></a>splicejam 0.0.59.900</h1>
-<div id="changes-to-existing-functions-3" class="section level2">
+<div id="changes-to-existing-functions-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-3" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-4" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/defineDetectedTx.html">defineDetectedTx()</a></code> default argument value <code>cutoffTxTPMExpr=0.1</code> which was previously <code>cutoffTxTPMExpr=2</code>. It appears that this threshold is somewhat dependent upon the input data, and that <code>2</code> was too stringent for the majority of datasets testes since the Farris et al publication. Therefore, a more suitable default value is less restrictive of low-TPM abundance values. This change also makes the count-based threshold the dominant filter for technical detection above background noise, which makes some sense because count noise is somewhat more of a hard boundary.</li>
@@ -391,7 +430,7 @@
 <li><p><code><a href="../reference/sashimiAppServer.html">sashimiAppServer()</a></code> was updated to repeat the call to <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> when the returned object contained a list element <code>some_null=TRUE</code>, which indicates that one or more underlying elements of the data was returned as <code>NULL</code>, indicating a failure. In this case, <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> is called in a way that does not re-use the existing cache. Note that <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> calls other functions, each of which caches data. If those functions return <code>NULL</code>, they also assign attribute <code>attr(x, "some_null") &lt;- NULL</code>, which helps cascade this failure up the chain to calling functions.</p></li>
 <li><p><code><a href="../reference/import_juncs_from_bed.html">import_juncs_from_bed()</a></code> was updated to use <code><a href="https://rdrr.io/r/base/conditions.html">tryCatch()</a></code> to catch errors when the requested file cannot be retrieved. When memoise cache is being used, it will try to clear the cache then try again, or will try again without using memoise.</p></li>
 <li>
-<p><code><a href="../reference/getGRcoverageFromBw.html">getGRcoverageFromBw()</a></code> was updated to enhance the memoise cache repair logic: If coverage is zero-length, it tries again. Zero-length coverage can happen from a zero-length memoise cache file, or when the <code><a href="https://rdrr.io/pkg/rtracklayer/man/export.html">rtracklayer::import()</a></code> function returns zero-length coverage. That tends to happen when the file is not accessible, network is down, or the path is invalid, etc. Nonetheless, memoise will happily store a zero-size cache file (!) with no clear way to remove or ignore it. So we try to call <code><a href="https://rdrr.io/pkg/memoise/man/drop_cache.html">memoise::drop_cache()</a></code> which only exists in memoise version <code>1.1.0.9000</code>, currently on Github with no expected CRAN release timeline. If we cannot remove the cache file, we try to get coverage without using memoise. The overall summary:</p>
+<p><code><a href="../reference/getGRcoverageFromBw.html">getGRcoverageFromBw()</a></code> was updated to enhance the memoise cache repair logic: If coverage is zero-length, it tries again. Zero-length coverage can happen from a zero-length memoise cache file, or when the <code><a href="https://rdrr.io/pkg/rtracklayer/man/export.html">rtracklayer::import()</a></code> function returns zero-length coverage. That tends to happen when the file is not accessible, network is down, or the path is invalid, etc. Nonetheless, memoise will happily store a zero-size cache file (!) with no clear way to remove or ignore it. So we try to call <code><a href="https://memoise.r-lib.org/reference/drop_cache.html">memoise::drop_cache()</a></code> which only exists in memoise version <code>1.1.0.9000</code>, currently on Github with no expected CRAN release timeline. If we cannot remove the cache file, we try to get coverage without using memoise. The overall summary:</p>
 <ul>
 <li>If coverage is empty, try remove the empty memoise cache file.</li>
 <li>If we removed the empty memoise cache file, we try again to retrieve coverage using memoise. The new memoise cache file will either be empty (if the source failed again), or non-empty (the second attempt was successful). If the file is non-empty, the repair worked, and future calls should use the memoise cache file without problem.</li>
@@ -421,7 +460,7 @@
 <li>
 <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> now positions junction labels at the maximum edge of the junction arc, in stranded fashion. Might consider adding text adjustment so the label is not centered at the edge.</li>
 <li>
-<code><a href="../reference/plotSashimi.html">plotSashimi()</a></code> now applies <code><a href="https://scales.r-lib.org//reference/label_number.html">scales::comma(..., accuracy=1)</a></code> by default, which removed the decimal values from junction labels. Some recent update to <code><a href="https://scales.r-lib.org//reference/label_number.html">scales::comma()</a></code> seems to have caused decimal values to appear by default. A new argument <code>junc_accuracy</code> is passed to <code><a href="https://scales.r-lib.org//reference/label_number.html">scales::comma(..., accuracy=junc_accuracy)</a></code> to allow customization.</li>
+<code><a href="../reference/plotSashimi.html">plotSashimi()</a></code> now applies <code><a href="https://scales.r-lib.org/reference/label_number.html">scales::comma(..., accuracy=1)</a></code> by default, which removed the decimal values from junction labels. Some recent update to <code><a href="https://scales.r-lib.org/reference/label_number.html">scales::comma()</a></code> seems to have caused decimal values to appear by default. A new argument <code>junc_accuracy</code> is passed to <code><a href="https://scales.r-lib.org/reference/label_number.html">scales::comma(..., accuracy=junc_accuracy)</a></code> to allow customization.</li>
 <li>
 <code><a href="../reference/plotSashimi.html">plotSashimi()</a></code> fixed issue where <code>junc_alpha</code> was only being applied when data contained junctions without coverage, now the <code>junc_alpha</code> is applied in all cases.</li>
 <li>
@@ -432,9 +471,9 @@
     <div id="splicejam-0057900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.57.900">
 <a href="#splicejam-0057900" class="anchor"></a>splicejam 0.0.57.900</h1>
-<div id="bug-fixes-3" class="section level2">
+<div id="bug-fixes-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-4" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Fixed issue with plotly rendering in R-shiny context, it was throwing an error <code>"TypeError: postRenderHandlers is undefined"</code>. Upon deeper inspection, the <code>uiOutput()</code> element being used to display both ggplot and ggplotly output, was somehow not providing the plotly javascript dependencies to include relevant <code>postRenderHandlers</code>. The workaround was to add an empty <code>plotlyOutput("plotly_blank")</code> to the UI, which appears to cause the required javascript dependencies to be loaded. Stackoverflow threads and Github issues suggest there exists a method to load dependencies when embedding htmlwidgets inside tagList context – for example when embedding a custom htmlwidget inside a table cell. Perhaps the proper remedy is related.</li>
 </ul>
@@ -443,9 +482,9 @@
     <div id="splicejam-0056900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.56.900">
 <a href="#splicejam-0056900" class="anchor"></a>splicejam 0.0.56.900</h1>
-<div id="bug-fixes-4" class="section level2">
+<div id="bug-fixes-5" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-4" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-5" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Fixed rare error in <code><a href="../reference/annotateGRfromGR.html">annotateGRfromGR()</a></code> with numeric columns, which failed to initialize a new GRanges column with numeric(0) instead of using a numeric form of NA, which was accomplished with <code>c(0, NA)[2]</code>.</li>
 </ul>
@@ -503,12 +542,12 @@
 <h2 class="hasAnchor">
 <a href="#enhancements-1" class="anchor"></a>enhancements</h2>
 <ul>
-<li>Slight enhancement to <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> to change the <code>"name"</code> column to a factor, in order to force the drawing order of junction arcs, so junctions are drawn in order of most dominant, to least dominant, then shorter spans to longer spans. Smaller score, wider junctions are drawn last, since they are typically the most difficult to see otherwise. “Dominant”" refers to the <code>junction_rank</code> calculated by having the highest score among junctions that start or end at the same coordinate: <code>junction_rank=3</code> means the junction has the highest score on both sides, and has the darkest color; <code>junction_rank=2</code> has the highest score on one side but not both sides, and is lighter in color; and <code>junction_rank=1</code> does not have the highest score on either side of the junction, and has the lightest color. The <code>junction_rank=1</code> entries are now drawn last, since they typically have the lowest scores, and are small and thus easily obscured.</li>
+<li>Slight enhancement to <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> to change the <code>"name"</code> column to a factor, in order to force the drawing order of junction arcs, so junctions are drawn in order of most dominant, to least dominant, then shorter spans to longer spans. Smaller score, wider junctions are drawn last, since they are typically the most difficult to see otherwise. “Dominant”” refers to the <code>junction_rank</code> calculated by having the highest score among junctions that start or end at the same coordinate: <code>junction_rank=3</code> means the junction has the highest score on both sides, and has the darkest color; <code>junction_rank=2</code> has the highest score on one side but not both sides, and is lighter in color; and <code>junction_rank=1</code> does not have the highest score on either side of the junction, and has the lightest color. The <code>junction_rank=1</code> entries are now drawn last, since they typically have the lowest scores, and are small and thus easily obscured.</li>
 </ul>
 </div>
-<div id="bug-fixes-5" class="section level2">
+<div id="bug-fixes-6" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-5" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-6" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>
 <code>splicejam-sashimi-server()</code> was updated to handle changes in the gene search field properly, avoiding edge cases with un-detected genes that have no sashimi data.</li>
@@ -536,9 +575,9 @@
 <code><a href="../reference/gene2gg.html">gene2gg()</a></code> updated to maintain a minimum y-axis range when <code>labelExons=FALSE</code>. Previously the exons could be cropped.</li>
 </ul>
 </div>
-<div id="bug-fixes-6" class="section level2">
+<div id="bug-fixes-7" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-6" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-7" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>
 <code><a href="../reference/bgaPlotly3d.html">bgaPlotly3d()</a></code> bug fixed which prevented display of scaled coordinates from the <code>bgaInfo</code> object, mainly because the scaled coordinates are not supplied for individual samples. Instead the scaling factor (adjustment used to convert centroid coordinates from raw to scaled) is applied to sample coordinates to produce equivalent scaled coordinates. That said, I recommend using un-scaled coordinates, which keeps the x, y, and z axis scales proportional to their relative contribution, which visually reinforces the relative strength of separation in each dimension.</li>
@@ -548,9 +587,9 @@
     <div id="splicejam-0050900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.50.900">
 <a href="#splicejam-0050900" class="anchor"></a>splicejam 0.0.50.900</h1>
-<div id="bug-fixes-7" class="section level2">
+<div id="bug-fixes-8" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-7" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-8" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed regression in <code><a href="../reference/geom_diagonal_wide_arc.html">stat_diagonal_wide_arc()</a></code> which calls <code><a href="https://ggforce.data-imaginist.com/reference/ggforce-extensions.html">ggforce::StatBezier</a></code>. Version 3.1.0 of ggforce changed the required call to that function, breaking the dependency and causing junction arcs to be invisible as a result. The new interface mimics how <code><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">ggforce::stat_diagonal_wide()</a></code> calls <code><a href="https://ggforce.data-imaginist.com/reference/ggforce-extensions.html">ggforce::StatBezier</a></code>. I hope the interface does not change in future.</li>
 <li>Added package version dependency for <code>ggforce</code> version 0.3.1, which is the point where the API changed with <code><a href="https://ggforce.data-imaginist.com/reference/ggforce-extensions.html">ggforce::StatBezier</a></code>.</li>
@@ -606,9 +645,9 @@
 <li>Package dependency on memoise, using Github version <code>1.1.0.9000</code> which allows invalidating a single problem cache file. It has been available since October 2018 but not released to CRAN yet. This changes is a step toward recovering from network outages, which currently create empty cache files which cannot be recovered without emptying the entire cache.</li>
 </ul>
 </div>
-<div id="bug-fixes-8" class="section level2">
+<div id="bug-fixes-9" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-8" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-9" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="../reference/getGRcoverageFromBw.html">getGRcoverageFromBw()</a></code> now checks if memoise cached data is <code>NULL</code>, which happens during network outage. If the data returned from the cache is <code>NULL</code> it clears the cache for that key, then tries again.</li>
@@ -622,9 +661,9 @@
     <div id="splicejam-0046900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.46.900">
 <a href="#splicejam-0046900" class="anchor"></a>splicejam 0.0.46.900</h1>
-<div id="bug-fixes-9" class="section level2">
+<div id="bug-fixes-10" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-9" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-10" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Updated <code><a href="../reference/groups2contrasts.html">groups2contrasts()</a></code> to detect when any factor level contains <code>"-"</code>, and converts the <code>"-"</code> to <code>"."</code> prior to detecting contrasts. Previously the <code>"-"</code> interfered with proper contrast names, and resulted in some contrasts not being returned by this function. Note that this function avoids using <code><a href="https://rdrr.io/r/base/make.names.html">base::make.names()</a></code> because that function aggressively converts other valid characters to <code>"."</code>. However, if downstream functions require <code><a href="https://rdrr.io/r/base/make.names.html">base::make.names()</a></code> compliant names, run that function prior to calling <code><a href="../reference/groups2contrasts.html">groups2contrasts()</a></code>.</li>
 <li>
@@ -678,9 +717,9 @@
     <div id="splicejam-0044900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.44.900">
 <a href="#splicejam-0044900" class="anchor"></a>splicejam 0.0.44.900</h1>
-<div id="bug-fixes-10" class="section level2">
+<div id="bug-fixes-11" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-10" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-11" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed regression in R-shiny, updating the progress bar using gene in the caption, but the function did not need to know the gene.</li>
 <li>Improved overall handling of reactive gene, sample_id values.</li>
@@ -695,7 +734,7 @@
 <a href="#changes-8" class="anchor"></a>changes</h2>
 <ul>
 <li>
-<code><a href="../reference/plotSashimi.html">plotSashimi()</a></code> and <code><a href="../reference/gene2gg.html">gene2gg()</a></code> have argument <code>label_coords</code> for optional x-axis range to subset labels before displaying with <code><a href="https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html">ggrepel::geom_text_repel()</a></code>. This change solves the issue where zooming the x-axis range with <code>coord_cartesian()</code> kept all labels which were then arranged at the edges of the plot. This change also necessitates re-creating the ggplot object, since it has to change the label coordinate data.</li>
+<code><a href="../reference/plotSashimi.html">plotSashimi()</a></code> and <code><a href="../reference/gene2gg.html">gene2gg()</a></code> have argument <code>label_coords</code> for optional x-axis range to subset labels before displaying with <code><a href="https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html">ggrepel::geom_text_repel()</a></code>. This change solves the issue where zooming the x-axis range with <code><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html">coord_cartesian()</a></code> kept all labels which were then arranged at the edges of the plot. This change also necessitates re-creating the ggplot object, since it has to change the label coordinate data.</li>
 <li>Fixed some legacy code that assigned <code>gene</code> and <code>sample_id</code> to the global environment.</li>
 <li>Removed the <code>"Samples and Data"</code> tab from R-shiny for now.</li>
 <li>Improved level of detail in shiny progress bars, now shows each file being loaded. Not sure it is actually better than having less detail.</li>
@@ -736,9 +775,9 @@
     <div id="splicejam-0040900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.40.900">
 <a href="#splicejam-0040900" class="anchor"></a>splicejam 0.0.40.900</h1>
-<div id="bug-fixes-11" class="section level2">
+<div id="bug-fixes-12" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-11" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-12" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Added <code>shinyjs</code> package dependency.</li>
 </ul>
@@ -747,9 +786,9 @@
     <div id="splicejam-0039900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.39.900">
 <a href="#splicejam-0039900" class="anchor"></a>splicejam 0.0.39.900</h1>
-<div id="bug-fixes-12" class="section level2">
+<div id="bug-fixes-13" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-12" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-13" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed regression in junction scale factors, not consistently applied in <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code>.</li>
 </ul>
@@ -796,9 +835,9 @@
     <div id="splicejam-0036900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.36.900">
 <a href="#splicejam-0036900" class="anchor"></a>splicejam 0.0.36.900</h1>
-<div id="bug-fixes-13" class="section level2">
+<div id="bug-fixes-14" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-13" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-14" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed regression in use of <code>color_sub</code> to pre-define categorical colors in sashimi plots.</li>
 <li>Updated plotly highlighting, increasing the success rate in most test cases.</li>
@@ -906,9 +945,9 @@
     <div id="splicejam-0028900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.28.900">
 <a href="#splicejam-0028900" class="anchor"></a>splicejam 0.0.28.900</h1>
-<div id="changes-to-existing-functions-4" class="section level2">
+<div id="changes-to-existing-functions-5" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-4" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-5" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/defineDetectedTx.html">defineDetectedTx()</a></code> has a new argument <code>zeroAsNA</code> to handle the special case where some expression values reported as zero should be treated as <code>NA</code> (no data obtained) and therefore will not be included in group mean calculations. As transcript-exon models get more “comprehensive”, kmer quantitation tools such as Salmon and Kallisto sometimes need to assign abundance to one of several nearly identical isoforms, and in low count scenarios all counts may be assigned to one or another isoform, leaving zero in the alternate position. Excluding zero ensures that group mean values represent only the assigned quantitation.</li>
@@ -918,9 +957,9 @@
     <div id="splicejam-0027900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.27.900">
 <a href="#splicejam-0027900" class="anchor"></a>splicejam 0.0.27.900</h1>
-<div id="bug-fixes-14" class="section level2">
+<div id="bug-fixes-15" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-14" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-15" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Packages now imported for <code><a href="../reference/launchSashimiApp.html">launchSashimiApp()</a></code>: <code>shiny</code>, <code>shinydashboard</code>, <code>shinydashboardPlus</code>, <code>shinyWidgets</code>.</li>
 <li>
@@ -964,9 +1003,9 @@
 <li>Package dependencies were added for shiny, shinydashboard.</li>
 </ul>
 </div>
-<div id="new-functions-1" class="section level2">
+<div id="new-functions-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-1" class="anchor"></a>new functions</h2>
+<a href="#new-functions-2" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/to_basic.GeomShape.html">to_basic.GeomShape()</a></code> is a hidden function intended only to provide basic support of <code><a href="https://ggforce.data-imaginist.com/reference/geom_shape.html">ggforce::geom_shape()</a></code> when converting ggplot objects to plotly.</li>
@@ -1010,9 +1049,9 @@
     <div id="splicejam-0021900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.21.900">
 <a href="#splicejam-0021900" class="anchor"></a>splicejam 0.0.21.900</h1>
-<div id="bug-fixes-15" class="section level2">
+<div id="bug-fixes-16" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-15" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-16" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed examples that did not explicitly call library() for required libraries.</li>
 <li>Fixed error in <code><a href="../reference/codonUsage2df.html">codonUsage2df()</a></code> example data file path.</li>
@@ -1060,9 +1099,9 @@
 <li>Added examples to <code><a href="../reference/stackJunctions.html">stackJunctions()</a></code> with schematics, including example on plotting junctions by themselves.</li>
 </ul>
 </div>
-<div id="changes-to-existing-functions-5" class="section level2">
+<div id="changes-to-existing-functions-6" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-5" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-6" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>Removed <code>compressGRgaps()</code> for now, since the methods now try to keep GRanges intact, and instead transform the x-axis scale to compress visible gaps.</li>
 </ul>
@@ -1071,9 +1110,9 @@
     <div id="splicejam-0018900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.18.900">
 <a href="#splicejam-0018900" class="anchor"></a>splicejam 0.0.18.900</h1>
-<div id="changes-to-existing-functions-6" class="section level2">
+<div id="changes-to-existing-functions-7" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-6" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-7" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/bgaPlotly3d.html">bgaPlotly3d()</a></code> now properly handles ellipsoid colors, previously the colors were assigned but not honored by <code><a href="https://docs.ropensci.org/plotly/reference/add_trace.html">plotly::add_trace()</a></code>.</li>
@@ -1088,17 +1127,17 @@
     <div id="splicejam-0017900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.17.900">
 <a href="#splicejam-0017900" class="anchor"></a>splicejam 0.0.17.900</h1>
-<div id="new-functions-2" class="section level2">
+<div id="new-functions-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-2" class="anchor"></a>new functions</h2>
+<a href="#new-functions-3" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code>jamSashimi()</code> is used to plot Sashimi data prepared by <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> in order to separate the download and preparation of Sashimi data from the visualization.</li>
 </ul>
 </div>
-<div id="changes-to-existing-functions-7" class="section level2">
+<div id="changes-to-existing-functions-8" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-to-existing-functions-7" class="anchor"></a>changes to existing functions</h2>
+<a href="#changes-to-existing-functions-8" class="anchor"></a>changes to existing functions</h2>
 <ul>
 <li>
 <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> is refactored to remove the plot functions, moving them to the new <code>jamSashimi()</code>.</li>
@@ -1112,18 +1151,18 @@
     <div id="splicejam-0016900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.16.900">
 <a href="#splicejam-0016900" class="anchor"></a>splicejam 0.0.16.900</h1>
-<div id="new-functions-3" class="section level2">
+<div id="new-functions-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-3" class="anchor"></a>new functions</h2>
+<a href="#new-functions-4" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> is a workhorse function that prepares several types of Sashimi-like data output, including ggplot2-based Sashimi plots. This plot uses vanilla ggplot2 with custom x-axis scaling to compress genomic coordinates, while keeping data in proper genomic coordinate space.</li>
 <li>
 <code><a href="../reference/gene2gg.html">gene2gg()</a></code> is a lightweight function that creates gene and transcript exons models, and returns a ggplot2 object for plotting. It can optionally return the data.frame used by ggplot2.</li>
 <li>
-<code><a href="../reference/grl2df.html">grl2df()</a></code> is similar to <code>fortify()</code> from ggplot2, or the <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy()</a></code> functions, that take a custom object and return a data.frame for downstream use. Here the function currently works with “rectangle” data (like exons, introns, peaks, etc.), and “junction” (like junction regions to be represented by <code><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">ggforce::geom_diagonal_wide()</a></code>). In future it may also handle sequence coverage polygons.</li>
+<code><a href="../reference/grl2df.html">grl2df()</a></code> is similar to <code><a href="https://ggplot2.tidyverse.org/reference/fortify.html">fortify()</a></code> from ggplot2, or the <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy()</a></code> functions, that take a custom object and return a data.frame for downstream use. Here the function currently works with “rectangle” data (like exons, introns, peaks, etc.), and “junction” (like junction regions to be represented by <code><a href="https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html">ggforce::geom_diagonal_wide()</a></code>). In future it may also handle sequence coverage polygons.</li>
 <li>
-<code><a href="../reference/exoncov2polygon.html">exoncov2polygon()</a></code> converts a GRanges object containing coverage in the form of NumericList for each exon or intron, into a data.frame suitable for use by <code>geom_polygon()</code> or <code><a href="https://ggforce.data-imaginist.com/reference/geom_shape.html">ggforce::geom_shape()</a></code>.</li>
+<code><a href="../reference/exoncov2polygon.html">exoncov2polygon()</a></code> converts a GRanges object containing coverage in the form of NumericList for each exon or intron, into a data.frame suitable for use by <code><a href="https://ggplot2.tidyverse.org/reference/geom_polygon.html">geom_polygon()</a></code> or <code><a href="https://ggforce.data-imaginist.com/reference/geom_shape.html">ggforce::geom_shape()</a></code>.</li>
 <li>
 <code><a href="../reference/getGRcoverageFromBw.html">getGRcoverageFromBw()</a></code> loads bigWig coverage data for a GRanges of exons and introns, returning a GRanges object with columns representing each sample_id. It calls <code><a href="../reference/combineGRcoverage.html">combineGRcoverage()</a></code> to combine coverages by strand within each <code>sample_id</code>.</li>
 <li>
@@ -1160,9 +1199,9 @@
     <div id="splicejam-0015900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.15.900">
 <a href="#splicejam-0015900" class="anchor"></a>splicejam 0.0.15.900</h1>
-<div id="new-functions-4" class="section level2">
+<div id="new-functions-5" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-4" class="anchor"></a>new functions</h2>
+<a href="#new-functions-5" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/curateVtoDF.html">curateVtoDF()</a></code>, <code><a href="../reference/curateDFtoDF.html">curateDFtoDF()</a></code> are data curation functions to curate a vector, or a data.frame, into a data.frame with consistent, usable nomenclature for downstream analysis. They use a flexible yaml format that should help automate analysis pipelines that start with raw data file import.</li>
@@ -1178,9 +1217,9 @@
     <div id="splicejam-0014900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.14.900">
 <a href="#splicejam-0014900" class="anchor"></a>splicejam 0.0.14.900</h1>
-<div id="bug-fixes-16" class="section level2">
+<div id="bug-fixes-17" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-16" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-17" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Fixed issue where <code>numTxs</code> was not getting populated in <code><a href="../reference/runDiffSplice.html">runDiffSplice()</a></code>, otherwise the stats summary is not changed.</li>
 </ul>
@@ -1213,9 +1252,9 @@
     <div id="splicejam-0012900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.12.900">
 <a href="#splicejam-0012900" class="anchor"></a>splicejam 0.0.12.900</h1>
-<div id="new-functions-5" class="section level2">
+<div id="new-functions-6" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-5" class="anchor"></a>new functions</h2>
+<a href="#new-functions-6" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/runDiffSplice.html">runDiffSplice()</a></code> is a wrapped around <code><a href="https://rdrr.io/pkg/limma/man/diffSplice.html">limma::diffSplice()</a></code> intended to capture several steps of pre- and post-processing, optionally applying <code><a href="https://rdrr.io/pkg/limma/man/voom.html">limma::voom()</a></code>.</li>
@@ -1241,9 +1280,9 @@
     <div id="splicejam-0011900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.11.900">
 <a href="#splicejam-0011900" class="anchor"></a>splicejam 0.0.11.900</h1>
-<div id="new-functions-6" class="section level2">
+<div id="new-functions-7" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-6" class="anchor"></a>new functions</h2>
+<a href="#new-functions-7" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/ale2violin.html">ale2violin()</a></code> takes output from <code><a href="../reference/tx2ale.html">tx2ale()</a></code> with some arguments, and produces a ggplot2 violin plot object, as well as the underlying data. It allows a custom filtering function, which allows filtering gene lists for relevant regions of expression.</li>
@@ -1267,9 +1306,9 @@
     <div id="splicejam-009900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.9.900">
 <a href="#splicejam-009900" class="anchor"></a>splicejam 0.0.9.900</h1>
-<div id="new-functions-7" class="section level2">
+<div id="new-functions-8" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-7" class="anchor"></a>new functions</h2>
+<a href="#new-functions-8" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/sortGRL.html">sortGRL()</a></code> sorts GRangesList objects by chromosome and position.</li>
@@ -1309,9 +1348,9 @@
     <div id="splicejam-007900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.7.900">
 <a href="#splicejam-007900" class="anchor"></a>splicejam 0.0.7.900</h1>
-<div id="new-functions-8" class="section level2">
+<div id="new-functions-9" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-8" class="anchor"></a>new functions</h2>
+<a href="#new-functions-9" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/factor2label.html">factor2label()</a></code> will convert a factor to a factor label, with the same order of levels as the input factor, but including summary stats like the number of items for each factor level. Useful for ggplot2 visualizations, to include counts in the color legend for example.</li>
@@ -1329,9 +1368,9 @@
 </li>
 </ul>
 </div>
-<div id="new-functions-9" class="section level2">
+<div id="new-functions-10" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-9" class="anchor"></a>new functions</h2>
+<a href="#new-functions-10" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/codonUsage2df.html">codonUsage2df()</a></code> imports a text codon usage file, and returns a data.frame. Support function <code><a href="../reference/dna2codon.html">dna2codon()</a></code> simply takes a character vector and returns vector whose elements all have three characters, e.g. all(nchar(x) == 3).</li>
@@ -1344,9 +1383,9 @@
     <div id="splicejam-005900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.5.900">
 <a href="#splicejam-005900" class="anchor"></a>splicejam 0.0.5.900</h1>
-<div id="bug-fixes-17" class="section level2">
+<div id="bug-fixes-18" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-17" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-18" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Minor fix to <code><a href="../reference/makeTx2geneFromGtf.html">makeTx2geneFromGtf()</a></code> to remove requirement for <code>col.names</code> during import.</li>
 <li>Several minor documentation updates.</li>
@@ -1356,9 +1395,9 @@
     <div id="splicejam-004900" class="section level1">
 <h1 class="page-header" data-toc-text="0.0.4.900">
 <a href="#splicejam-004900" class="anchor"></a>splicejam 0.0.4.900</h1>
-<div id="bug-fixes-18" class="section level2">
+<div id="bug-fixes-19" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-18" class="anchor"></a>bug fixes</h2>
+<a href="#bug-fixes-19" class="anchor"></a>bug fixes</h2>
 <ul>
 <li>Updated the DESCRIPTION file to include proper “Remotes” entries and depencies for jamba, colorjam, and jamma packages.</li>
 <li>Fixed issue where the <code>data.table</code> package required a specific <code>#' <a href='http://github.com/import'>@import</a> data.table</code> entry in the roxygen2 entry for the <code>shrinkMatrix</code> function. This issue prevented <code><a href="../reference/defineDetectedTx.html">defineDetectedTx()</a></code> from working within an R package.</li>
@@ -1376,9 +1415,9 @@
 <code><a href="../reference/makeTx2geneFromGtf.html">makeTx2geneFromGtf()</a></code> takes a GTF file, and produces a <code>data.frame</code> with tx (transcript) to gene associations.</li>
 </ul>
 </div>
-<div id="new-functions-10" class="section level2">
+<div id="new-functions-11" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functions-10" class="anchor"></a>new functions</h2>
+<a href="#new-functions-11" class="anchor"></a>new functions</h2>
 <ul>
 <li>
 <code><a href="../reference/list2im.html">list2im()</a></code> converts a list to an incidence matrix. It uses the <code>arules</code> package fast methods for creating <code>transactions</code> objects, which are sparse binary matrices with linked data.frames used to describe rows and columns. Similar to <code>SummarizedExperiment</code> but with optimization specifically for list-to-matrix and matrix-to-list conversion. Their implementation is memory efficient as well.</li>

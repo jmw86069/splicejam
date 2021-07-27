@@ -179,7 +179,7 @@ bgaPlotly3d <- function
    if (!suppressPackageStartupMessages(require(plotly))) {
       stop("bgaPlotly3d() requires the plotly package.");
    }
-   if (igrepHas("list", class(bgaInfo)) &&
+   if (jamba::igrepHas("list", class(bgaInfo)) &&
          "bgaInfo" %in% names(bgaInfo)) {
       bgaInfo <- bgaInfo$bgaInfo;
    }
@@ -448,7 +448,7 @@ bgaPlotly3d <- function
 
    ############################################################
    ## Optionally add vectors from origin to genes
-   if (igrepHas("gene|row", drawVectors)) {
+   if (jamba::igrepHas("gene|row", drawVectors)) {
       axesVgO <- paste0("origin_", names(axesVg));
       if (useScaledCoords) {
          iGenes <- rownames(bgaInfo$bet$c1);
@@ -583,7 +583,7 @@ bgaPlotly3d <- function
 
    ####################################################
    ## Optionally add centroid lines to the origin
-   if (igrepHas("sample|centroid", drawVectors)) {
+   if (jamba::igrepHas("sample|centroid", drawVectors)) {
       if (verbose) {
          jamba::printDebug("bgaPlotly3d(): ",
             "Adding vectors for sample centroids.");
@@ -697,7 +697,7 @@ bgaPlotly3d <- function
             iEllipse <- list(vb=t(bgaS2coords));
          }
          dfSampleLinesDFsub <- dfSampleLinesDF[match(iGroupSamples, dfSampleLinesDF$Name),,drop=FALSE];
-         iGroupColor1 <- nameVector(
+         iGroupColor1 <- jamba::nameVector(
             dfSampleLinesDFsub[,"color"],
             iGroupSamples);
          iGroupColor <- head(iGroupColor1, 1);
@@ -771,7 +771,7 @@ bgaPlotly3d <- function
                groupcoords_unscaled[as.character(sampleGroups[names(superGroups)]),c(Xsc,Ysc,Zsc)]);
          }
          superGroupDF <- unique(superGroupsDF);
-         superGroupDF <- mixedSortDF(superGroupDF);
+         superGroupDF <- jamba::mixedSortDF(superGroupDF);
          if (verbose) {
             printDebug("bgaPlotly3d(): ",
                "head(superGroupDF, 30):");
@@ -904,7 +904,7 @@ dfWide2segments <- function
    if (length(axes1) != length(axes2)) {
       stop("dfWide2segments() requires axes1 and axes2 have identical length.");
    }
-   axes1v <- nameVector(seq_along(axes1),
+   axes1v <- jamba::nameVector(seq_along(axes1),
       axes1);
    segmentsDF <- as.data.frame(do.call(cbind,
       lapply(axes1v, function(i){
@@ -1014,7 +1014,7 @@ spline3d <- function
  ...)
 {
    ## Purpose is to provide 3D spline()
-   if (igrepHas("matrix|data.frame", class(x))) {
+   if (jamba::igrepHas("matrix|data.frame", class(x))) {
       coordsT1 <- cbind(t=1:nrow(x), x);
       colnames(coordsT1)[1:4] <- c("t","x","y","z");
    } else {

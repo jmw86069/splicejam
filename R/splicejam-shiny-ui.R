@@ -25,9 +25,9 @@ sashimiAppUI <- function
 (...)
 {
    # header
-   header <- dashboardHeader(
-      title=tagList("Splicejam Sashimi Viewer",
-         icon("map"))
+   header <- shinydashboardPlus::dashboardHeader(
+      title=htmltools::tagList("Splicejam Sashimi Viewer",
+         shiny::icon("map"))
    );
    options("warn"=-1);
    nbsp <- HTML("&nbsp;");
@@ -87,10 +87,12 @@ sashimiAppUI <- function
       100,
       verbose=TRUE,
       ...);
-   exon_range_choices_default <- jamba::mixedSort(
-      jamba::vigrep("_exon",
-      #jamba::provigrep(unique(gsub("exon.*$", "exon", exon_range_selected)),
-            values(flatExonsByGene@unlistData)$gene_nameExon));
+   if (length(flatExonsByGene) > 0) {
+      exon_range_choices_default <- jamba::mixedSort(
+         jamba::vigrep("_exon",
+         #jamba::provigrep(unique(gsub("exon.*$", "exon", exon_range_selected)),
+               GenomicRanges::values(flatExonsByGene@unlistData)$gene_nameExon));
+   }
    if (exists("gene") && length(gene) == 1 && nchar(gene) > 0) {
       exon_range_choices_default <- jamba::mixedSort(
          jamba::vigrep(paste0(gene, "_"),
@@ -129,28 +131,28 @@ sashimiAppUI <- function
       jam_get("show_detected_tx", TRUE, verbose=TRUE, ...));
 
    # sidebar
-   sidebar <- dashboardSidebar(
-      sidebarMenu(
+   sidebar <- shinydashboardPlus::dashboardSidebar(
+      shinydashboard::sidebarMenu(
          id="tabs",
-         menuItem(
+         shinydashboard::menuItem(
             text="Sashimi Plot",
             tabName="sashimiplot",
-            icon=icon("map")),
-         menuItem(
+            icon=shiny::icon("map")),
+         shinydashboard::menuItem(
             text="Sample Selection",
             tabName="sampleselect",
-            icon=icon("clipboard-list")),
-         menuItem(
+            icon=shiny::icon("clipboard-list")),
+         shinydashboard::menuItem(
             text="Guides",
             tabName="guides",
-            icon=icon("info"))
+            icon=shiny::icon("info"))
       )
    );
 
    # define Sashimi Plot tab
-   sashimiplotTab <- fluidPage(
-      fluidRow(
-         column(
+   sashimiplotTab <- shiny::fluidPage(
+      shiny::fluidRow(
+         shiny::column(
             width=12,
             style="padding:0px",
             shinydashboardPlus::box(
@@ -159,31 +161,32 @@ sashimiAppUI <- function
                solidHeader=TRUE,
                collapsible=TRUE,
                width=12,
-               fluidRow(
-                  column(
+               shiny::fluidRow(
+                  shiny::column(
                      width=1,
                      style="padding:0px"
                   ),
-                  column(
+                  shiny::column(
                      width=5,
                      style="padding:0px",
-                     selectizeInput(
+                     shiny::selectizeInput(
                         label="Select Gene",
                         inputId="gene",
                         selected=default_gene,
-                        choices=detectedGenes,
+                        choices=c("blank",
+                           detectedGenes),
                         options=list(maxOptions=100),
                         multiple=FALSE
                      )
                   ),
-                  column(
+                  shiny::column(
                      width=1,
                      style="padding:0px"
                   ),
-                  column(
+                  shiny::column(
                      width=4,
                      style="padding:0px",
-                     selectizeInput(
+                     shiny::selectizeInput(
                         label="Genes to Search",
                         inputId="search_genelist",
                         selected="Detected",
@@ -191,17 +194,17 @@ sashimiAppUI <- function
                         multiple=FALSE
                      )
                   ),
-                  column(
+                  shiny::column(
                      width=1,
                      style="padding:0px"
                   )
                ),
-               fluidRow(
-                  column(
+               shiny::fluidRow(
+                  shiny::column(
                      width=1,
                      style="padding:0px"
                   ),
-                  column(
+                  shiny::column(
                      width=4,
                      style="padding:0px",
                      shinyWidgets::radioGroupButtons(
@@ -210,13 +213,13 @@ sashimiAppUI <- function
                         choices=c("coordinates", "exon names"),
                         selected=use_exon_names,
                         checkIcon = list(
-                           yes=icon("ok", lib="glyphicon")
+                           yes=shiny::icon("ok", lib="glyphicon")
                         ),
                         #width="90%",
                         label="Slider bar measurement"
                      )
                   ),
-                  column(
+                  shiny::column(
                      width=3,
                      style="padding:0px",
                      shinyWidgets::radioGroupButtons(
@@ -226,13 +229,13 @@ sashimiAppUI <- function
                         selected=include_strand,
                         status="primary",
                         checkIcon=list(
-                           yes=icon("ok", lib="glyphicon"))
+                           yes=shiny::icon("ok", lib="glyphicon"))
                      )
                   ),
-                  column(
+                  shiny::column(
                      width=3,
                      style="padding:0px",
-                     numericInput(
+                     shiny::numericInput(
                         inputId="min_junction_reads",
                         label="Minimum junction reads",
                         value=min_junction_reads,
@@ -242,12 +245,12 @@ sashimiAppUI <- function
                         max=1000
                      )
                   ),
-                  column(
+                  shiny::column(
                      width=1,
                      style="padding:0px"
                   )
                ),
-               conditionalPanel(
+               shiny::conditionalPanel(
                   condition="input.use_exon_names == 'exon names'",
                   shinyWidgets::sliderTextInput(
                      inputId="exon_range",
@@ -259,11 +262,11 @@ sashimiAppUI <- function
                      #selected=c("exon1", "exon3")
                   )
                ),
-               conditionalPanel(
+               shiny::conditionalPanel(
                   condition="input.use_exon_names == 'coordinates'",
-                  tags$strong(textOutput("gene_coords_label",
+                  tags$strong(shiny::textOutput("gene_coords_label",
                      inline=FALSE)),
-                  sliderInput(
+                  shiny::sliderInput(
                      "gene_coords",
                      label=NULL,#"Genome coordinate range",
                      min=28,
@@ -280,8 +283,8 @@ sashimiAppUI <- function
             )
          )
       ),
-      fluidRow(
-         column(
+      shiny::fluidRow(
+         shiny::column(
             width=12,
             style="padding:0px",
             shinydashboardPlus::box(
@@ -293,29 +296,29 @@ sashimiAppUI <- function
                ## icons: https://adminlte.io/themes/AdminLTE/pages/UI/icons.html
                width=12,
                height="100%",
-               fluidRow(
-                  column(
+               shiny::fluidRow(
+                  shiny::column(
                      width=12,
                      style="padding:15px",
-                     textOutput("sashimitext_output"),
+                     shiny::textOutput("sashimitext_output"),
                      shinycssloaders::withSpinner(
-                        uiOutput("sashimiplot_output"),
+                        shiny::uiOutput("sashimiplot_output"),
                         type=8
                      ),
-                     plotlyOutput("plotly_blank")
+                     plotly::plotlyOutput("plotly_blank")
                   )
                ),
                #sidebar_icon="fa fa-cog",
                #sidebar_icon="fa fa-bar-chart",
                # glyphicon glyphicon-cog
-               sidebar=boxSidebar(
+               sidebar=shinydashboardPlus::boxSidebar(
                   id="sashimi_sidebar",
                   width=25,
                   startOpen=FALSE,
                   #background="#FFE5C8",
                   background="#AAAAAA",
                   icon=shiny::icon("gear"),
-                  tagList(
+                  htmltools::tagList(
                      shinyWidgets::sliderTextInput(
                         inputId="panel_height",
                         label="Height per panel:",
@@ -350,10 +353,10 @@ sashimiAppUI <- function
                      shinyWidgets::prettyCheckbox(
                         inputId="do_plotly",
                         value=FALSE,
-                        icon=icon("check"),
+                        icon=shiny::icon("check"),
                         status="primary",
                         label="Interactive plot"),
-                     conditionalPanel(
+                     shiny::conditionalPanel(
                         condition="input.do_plotly == true",
                         nbsp3,
                         nbsp3,
@@ -361,7 +364,7 @@ sashimiAppUI <- function
                            inputId="enable_highlights",
                            inline=TRUE,
                            value=FALSE,
-                           icon=icon("check"),
+                           icon=shiny::icon("check"),
                            status="primary",
                            label="Enable highlighting"),
                         tags$br(),
@@ -371,7 +374,7 @@ sashimiAppUI <- function
                            inputId="plotly_legend",
                            inline=TRUE,
                            value=FALSE,
-                           icon=icon("check"),
+                           icon=shiny::icon("check"),
                            status="primary",
                            label="Display filter legend")
                      ),
@@ -379,7 +382,7 @@ sashimiAppUI <- function
                      shinyWidgets::prettyCheckbox(
                         inputId="share_y_axis",
                         value=share_y_axis,
-                        icon=icon("check"),
+                        icon=shiny::icon("check"),
                         status="success",
                         label="Shared y-axis range"
                      ),
@@ -387,22 +390,22 @@ sashimiAppUI <- function
                      shinyWidgets::prettyCheckbox(
                         inputId="show_gene_model",
                         value=show_gene_model,
-                        icon=icon("check"),
+                        icon=shiny::icon("check"),
                         status="warning",
                         label="Show gene model"
                      ),
-                     conditionalPanel(
+                     shiny::conditionalPanel(
                         condition="input.show_gene_model == true",
                         nbsp3,
                         shinyWidgets::prettyCheckbox(
                            inputId="show_tx_model",
                            inline=TRUE,
                            value=show_tx_model,
-                           icon=icon("check"),
+                           icon=shiny::icon("check"),
                            status="warning",
                            label="Show transcripts"
                         ),
-                        conditionalPanel(
+                        shiny::conditionalPanel(
                            condition="input.show_tx_model == true",
                            nbsp3,
                            nbsp3,
@@ -410,14 +413,14 @@ sashimiAppUI <- function
                               inputId="show_detected_tx",
                               inline=TRUE,
                               value=show_detected_tx,
-                              icon=icon("check"),
+                              icon=shiny::icon("check"),
                               status="warning",
                               label="Detected only"
                            )
                         )
                      ),
-                     br(),
-                     conditionalPanel(
+                     tags$br(),
+                     shiny::conditionalPanel(
                         condition="input.do_plotly == false",
                         shinyWidgets::sliderTextInput(
                            inputId="exon_label_size",
@@ -443,9 +446,9 @@ sashimiAppUI <- function
    );
 
    # define Samples and Data tab
-   samplesdataTab <- fluidPage(
-      fluidRow(
-         column(
+   samplesdataTab <- shiny::fluidPage(
+      shiny::fluidRow(
+         shiny::column(
             width=12,
             style="padding:0px",
             DT::DTOutput(
@@ -456,9 +459,9 @@ sashimiAppUI <- function
    );
 
    # define Sample Selection tab
-   sampleselectTab <- fluidPage(
-      fluidRow(
-         column(
+   sampleselectTab <- shiny::fluidPage(
+      shiny::fluidRow(
+         shiny::column(
             width=12,
             style="padding:0px",
             shinydashboard::box(
@@ -467,8 +470,8 @@ sashimiAppUI <- function
                solidHeader=TRUE,
                collapsible=TRUE,
                width=12,
-               fluidRow(
-                  column(
+               shiny::fluidRow(
+                  shiny::column(
                      width=7,
                      style="padding:15px",
                      paste("Select samples in the order they should appear in the figure.",
@@ -477,10 +480,10 @@ sashimiAppUI <- function
                         "Click 'Update Sashimi Plots' to create a new figure."),
                      DT::dataTableOutput('samplesdf')
                   ),
-                  column(
+                  shiny::column(
                      width=4,
                      style="padding:15px",
-                     numericInput(
+                     shiny::numericInput(
                         inputId="layout_ncol",
                         label="Number of columns for panel layout",
                         value=layout_ncol,
@@ -496,19 +499,17 @@ sashimiAppUI <- function
       )
    );
 
-   ## Load guidesTab via salsaAppConstants()
-   #sashimiAppConstants();
 
    # dashboard body
-   body <- dashboardBody(
+   body <- shinydashboard::dashboardBody(
       shinyjs::useShinyjs(),
-      setShadow(class="box"),
-      setShadow(class="boxPlus"),
-      tabItems(
-         tabItem(tabName="guides", guidesTab),
-         tabItem(tabName="sashimiplot", sashimiplotTab),
-         tabItem(tabName="sampleselect", sampleselectTab)
-         #tabItem(tabName="samplesdata", samplesdataTab)
+      shinyWidgets::setShadow(class="box"),
+      shinyWidgets::setShadow(class="boxPlus"),
+      shinydashboard::tabItems(
+         shinydashboard::tabItem(tabName="guides", guidesTab),
+         shinydashboard::tabItem(tabName="sashimiplot", sashimiplotTab),
+         shinydashboard::tabItem(tabName="sampleselect", sampleselectTab)
+         #shinydashboard::tabItem(tabName="samplesdata", samplesdataTab)
       )
    );
 

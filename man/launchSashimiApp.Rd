@@ -4,10 +4,35 @@
 \alias{launchSashimiApp}
 \title{Launch Sashimi R-shiny application}
 \usage{
-launchSashimiApp(..., options = list(width = 1200))
+launchSashimiApp(
+  ...,
+  envir = globalenv(),
+  options = list(width = 1200),
+  verbose = TRUE
+)
 }
 \arguments{
-\item{...}{additional arguments are passed to \code{shiny::shinyApp()}.}
+\item{...}{additional arguments are passed to \code{sashimiAppConstants()}.}
+
+\item{envir}{\code{environment} that contains data needed for sashimi plots.
+If \code{envir=NULL} by default it will use \code{globalenv()}. Otherwise,
+call \code{sashimiDataConstants()} or \code{sashimiAppConstants()}
+to prepare data inside a specific environment that can be
+used by this function.}
+
+\item{options}{\code{list} of R-shiny app options, for example two
+common options are: \code{host} to indicate the host or IP address
+the R-shiny app will bind to respond to requests; and
+\code{port} for the port number. For example:
+\code{launchSashimiApp(options=list(host="0.0.0.0", port=8080))}
+where \code{port="0.0.0.0"} will listen to any request sent
+to the current machine, whether by host name, or any valid
+IP address; and \code{port=8080} will only listen to port 8080.}
+}
+\value{
+output from \code{shiny::shinyApp()} which is an object of
+class "shiny.appobj", whose default print method is to run
+the app.
 }
 \description{
 Launch Sashimi R-shiny application
@@ -19,47 +44,77 @@ R-shiny app.
 The R objects required to prepare sashimi plots are
 defined by the function \code{sashimiAppConstants()}, which
 documents each R object required and how it is used.
+The \code{sashimiAppConstants()} function returns an \code{environment}
+in which the required sashimi plot data is stored and
+used by the R-shiny app. The default environment is \code{globalenv()}
+however any custom environment can be used, for example
+with \code{myenv <- new.env()}.
 
 The most straightforward way to run a new Sashimi R-shiny
-app is to define \code{filesDF} and \code{gtf} in the global environment.
-The \code{gtf} is a path or URL to a GTF file (which can be gzipped).
-This GTF file will be used to derive all related annotation
-data.
+app is to define \code{filesDF} and \code{gtf} in the global environment,
+or define \code{filesDF} and \code{gtf} inside a custom environment.
+The required data will be derived from the GTF file \code{gtf}.
+This step is somewhat slow the first time (10 minutes) and
+saves intermediate files for rapid re-use.
+
+The data derived from the GTF file is listed below. Any data object
+that already exists in the \code{environment} is used in subsequent steps:
 \itemize{
-\item \code{txdb} -- TranscriptDb from which other objects are derived
-\item \code{tx2geneDF} -- \code{data.frame} with transcript-to-gene relationship
-\item \code{detectedTx} -- if not already defined, all transcripts are
-used. \emph{Much better to use only a subset of detected transcripts.}
-\item \code{detectedGenes} -- inferred from \code{detectedTx}, using \code{tx2geneDF}.
-\item \code{flatExonsByGene}, \code{flatExonsByTx} -- these objects will combine
-CDS exons and non-CDS exons to represent CDS and UTR regions.
+\item \code{txdb} - TranscriptDb from which \code{exonsByGene} and \code{exonsByTx}
+are derived.
+\item \code{tx2geneDF} - \code{data.frame} with transcript-to-gene relationship,
+with colnames \code{"gene_name"} and \code{"transcript_id"}. See
+\code{makeTx2geneFromGtf()} for details.
+\item \code{detectedTx} - \code{character} vector of detected transcripts, used
+to match \code{tx2geneDF$transcript_id}. When \code{detectedTx} is NULL,
+all entries in \code{tx2geneDF} are used. Note that we found it is
+\emph{much better to use only a subset of detected transcripts},
+mainly because many GTF sources include a large number of potential
+alternative isoforms, many of which have no supported evidence in
+any one given cell type. See \code{defineDetectedTx()} for one method
+to define detected transcripts.
+\item \code{detectedGenes} - \code{character} vector of genes that match
+\code{tx2geneDF$gene_name}. When \code{detectedGenes} is NULL, it is
+inferred using \code{detectedTx} and \code{tx2geneDF$transcript_id}.
+\item \code{exonsByTx}, \code{cdsByTx} - derived from \code{txdb} and annotated to include
+values from \code{tx2geneDF$gene_name}.
+\item \code{flatExonsByGene}, \code{flatExonsByTx} - \code{GRangesList} objects derived
+from \code{exonsByGene} and \code{exonsByTx}, using \code{detectedTx}.
+They also use \code{cdsByTx} to indicate coding regions (CDS) of exons.
 }
 
 Note that if \code{detectedTx} is not defined, it will use all transcripts
 at this stage, which can be substantially slower than using only
 the subset of "observed/detected" transcripts.
 
-The first time running \code{launchSashimiApp()}
-will populate several R objects in the global environment,
-and these objects will be re-used during subsequent calls to
-this function. To make changes in the content, these objects
-can be edited or deleted so the object is created again.
-For example, if \code{detectedTx} is edited, the object
-\code{detectedGenes} should be removed so \code{detectedGenes}
-will be created again during the next call to \code{launchSashimiApp()}.
+An alternative is to supply one \code{detectedGenes} gene value, which will prepare
+only one gene for \code{flatExonsByGene} in the R-shiny app. However, the
+R-shiny app has the option to search all non-detected genes, which
+are prepared one by one inside the R-shiny app. This process is slightly
+slower when using the app by a few seconds, and will use all transcripts
+for \code{detectedTx}.
 
-The \code{filesDF} object should be a \code{data.frame} with colnames
-\code{"sample_id"}, \code{"type"} (with values either \code{"bw"} or \code{"junction"}),
-and \code{"url"} (a URL or file path to each file.) If coverage
-or junctions are available in separate files, use the same
-\code{sample_id} value for each file. Files with the same \code{sample_id}
-value are combined using the sum, after multiplying each file
-by a value in the optional \code{"scale_factor"} column.
+The \code{filesDF} object should be a \code{data.frame} with at least three colnames:
+\itemize{
+\item \code{"sample_id"}
+\item \code{"type"} (with values either \code{"bw"} or \code{"junction"})
+\item \code{"url"} (a URL or file path to each file.)
+}
 
-This function calls \code{sashimiAppConstants()} which does the
-heavy work of defining or deriving all necessary data objects,
-then assigns the result to the relevant environment. The default
-environment is \code{globalenv()} (also known as \code{.GlobalEnv}).
+If coverage or junctions are available in multiple files, for example
+sequencing replicates, use the same \code{sample_id} for each file, and
+the coverage and junctions will be combined using the sum, after
+multiplying an optional \code{"scale_factor"} to each file.
+
+For more direct control over the data preparation, including
+\code{tx2geneDF}, \code{detectedTx}, \code{exonsByGene}, and \code{flatExonsByGene},
+see \code{sashimiAppConstants()} which calls \code{sashimiDataConstants()},
+both of these functions return an environment that contains the
+required data.
+
+When the R-shiny app is created, the \code{ui} and \code{server} components
+have their environments set to \code{envir} - so their context will
+include the variables defined in that environment.
 }
 \examples{
 # Note: disabled for web page examples
@@ -70,6 +125,7 @@ environment is \code{globalenv()} (also known as \code{.GlobalEnv}).
 Other splicejam R-shiny functions: 
 \code{\link{sashimiAppConstants}()},
 \code{\link{sashimiAppServer}()},
-\code{\link{sashimiAppUI}()}
+\code{\link{sashimiAppUI}()},
+\code{\link{sashimiDataConstants}()}
 }
 \concept{splicejam R-shiny functions}

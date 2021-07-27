@@ -101,7 +101,7 @@ makeTx2geneFromGtf <- function
          "reading GTF file:",
          GTF);
    }
-   if (igrepHas("[.]gz$", GTF) &&
+   if (jamba::igrepHas("[.]gz$", GTF) &&
       !suppressPackageStartupMessages(require(R.utils))) {
       if (verbose) {
          jamba::printDebug("makeTx2geneFromGtf(): ",
@@ -125,7 +125,7 @@ makeTx2geneFromGtf <- function
          data.table=FALSE);
    }
    ## Subset to clear some memory
-   colnames(gtfDF) <- makeNames(rep("V", ncol(gtfDF)), suffix="");
+   colnames(gtfDF) <- jamba::makeNames(rep("V", ncol(gtfDF)), suffix="");
    gtfDF <- subset(gtfDF,
       gtfDF[[3]] %in% c(geneFeatureType,
          txFeatureType));
@@ -148,7 +148,7 @@ makeTx2geneFromGtf <- function
    }
 
    ## gene attributes
-   geneM <- do.call(cbind, lapply(nameVector(geneAttrNames),
+   geneM <- do.call(cbind, lapply(jamba::nameVector(geneAttrNames),
       function(attrName){
          if (verbose) {
             jamba::printDebug("makeTx2geneFromGtf(): ",
@@ -185,7 +185,7 @@ makeTx2geneFromGtf <- function
       geneM));
 
    ## transcript attributes
-   txM <- do.call(cbind, lapply(nameVector(txAttrNames),
+   txM <- do.call(cbind, lapply(jamba::nameVector(txAttrNames),
       function(attrName){
          if (verbose) {
             jamba::printDebug("makeTx2geneFromGtf(): ",
@@ -440,7 +440,7 @@ tx2ale <- function
    ####################################################
    ## Determine appropriate input, ultimately create 3'UTR GRL
    if (length(threeUtrGRL) > 0 &&
-         igrepHas("GRangesList", class(threeUtrGRL))) {
+         jamba::igrepHas("GRangesList", class(threeUtrGRL))) {
       ## use threeUtrGRL as-is
       if (verbose) {
          jamba::printDebug("gencode2ale(): ",
@@ -1604,7 +1604,7 @@ detectedTxInfo <- function
       }
    }
 
-   txDatNames <- setdiff(vigrep("^tx", names(detectedTxL)), "txExprGrpTx");
+   txDatNames <- setdiff(jamba::vigrep("^tx", names(detectedTxL)), "txExprGrpTx");
    lapply(jamba::nameVector(txDatNames), function(i){
       i1 <- match(iTx, rownames(detectedTxL[[i]]));
       iM <- detectedTxL[[i]][i1,Groups,drop=FALSE];
@@ -1676,12 +1676,12 @@ factor2label <- function
    ##
    ## valuesL is either a named list or data.frame
    types <- match.arg(types);
-   if (!igrepHas("factor", class(x))) {
+   if (!jamba::igrepHas("factor", class(x))) {
       x <- factor(x,
-         levels=mixedSort(unique(x)));
+         levels=jamba::mixedSort(unique(x)));
    }
    xNames <- levels(x);
-   if (igrepHas("count", types)) {
+   if (jamba::igrepHas("count", types)) {
       xVals1 <- paste(format(table(x),
          digits=digits,
          big.mark=big.mark,
@@ -1691,7 +1691,7 @@ factor2label <- function
       xVals1 <- NULL;
    }
    if (length(valuesL) > 0) {
-      xValsL <- lapply(nameVectorN(valuesL), function(i){
+      xValsL <- lapply(jamba::nameVectorN(valuesL), function(i){
          iL <- split(valuesL[[i]], x);
          sapply(iL, function(j){
             paste(format(aggFun(rmNA(j)),
@@ -2085,7 +2085,7 @@ annotateGRfromGR <- function
    ## TODO: for entries overlapping only one other feature, skip the shrinkMatrix()
    ## step and perform a straight paste(), which should be notably faster.
    ##
-   ## useMixedSort=TRUE will use mixedSort() and mixedOrder() to sort
+   ## useMixedSort=TRUE will use jamba::mixedSort() and mixedOrder() to sort
    ## string values, so the end result will be, for example:
    ## chr1, chr2, chr3, chr10, chr11
    ## and not:
@@ -2166,11 +2166,11 @@ annotateGRfromGR <- function
    });
    if (numAsStrings) {
       stringCols <- names(colClasses)[sapply(colClasses, function(iClass){
-         igrepHas("integer|numeric|character|factor|ordered", iClass);
+         jamba::igrepHas("integer|numeric|character|factor|ordered", iClass);
       })];
       numCols <- character(0);
       if (!is.list(stringShrinkFunc)) {
-         stringShrinkFunc <- nameVector(
+         stringShrinkFunc <- jamba::nameVector(
             rep(list(stringShrinkFunc),
                length(stringCols)),
             stringCols);
@@ -2178,17 +2178,17 @@ annotateGRfromGR <- function
          iNewCols <- setdiff(stringCols,
             names(stringShrinkFunc));
          stringShrinkFunc <- c(stringShrinkFunc,
-            nameVector(
+            jamba::nameVector(
                rep(stringShrinkFunc,
                   length.out=length(iNewCols)),
                iNewCols));
       }
    } else {
       numCols <- names(colClasses)[sapply(colClasses, function(iClass){
-         igrepHas("integer|numeric|float", iClass);
+         jamba::igrepHas("integer|numeric|float", iClass);
       })];
       stringCols <- names(colClasses)[sapply(colClasses, function(iClass){
-         igrepHas("character|factor|ordered", iClass);
+         jamba::igrepHas("character|factor|ordered", iClass);
       })];
       if (length(addStringCols) > 0 && any(addStringCols %in% numCols)) {
          moveNumCols <- intersect(addStringCols, numCols);
@@ -2197,12 +2197,12 @@ annotateGRfromGR <- function
          if (verbose) {
             jamba::printDebug("annotateGRfromGR(): ",
                "Moving ",
-               cPaste(moveNumCols),
+               jamba::cPaste(moveNumCols),
                " from numCols to stringCols.");
          }
       }
       if (length(numCols) > 0 && !is.list(numShrinkFunc)) {
-         numShrinkFunc <- nameVector(
+         numShrinkFunc <- jamba::nameVector(
             rep(list(numShrinkFunc),
                length(numCols)),
             numCols);
@@ -2210,13 +2210,13 @@ annotateGRfromGR <- function
          iNewCols <- setdiff(numCols,
             names(numShrinkFunc));
          numShrinkFunc <- c(numShrinkFunc,
-            nameVector(
+            jamba::nameVector(
                rep(numShrinkFunc,
                   length.out=length(iNewCols)),
                iNewCols));
       }
       if (length(stringCols) > 0 && !is.list(stringShrinkFunc)) {
-         stringShrinkFunc <- nameVector(
+         stringShrinkFunc <- jamba::nameVector(
             rep(list(stringShrinkFunc),
                length(stringCols)),
             stringCols);
@@ -2224,7 +2224,7 @@ annotateGRfromGR <- function
          iNewCols <- setdiff(stringCols,
             names(stringShrinkFunc));
          stringShrinkFunc <- c(stringShrinkFunc,
-            nameVector(
+            jamba::nameVector(
                rep(stringShrinkFunc,
                   length.out=length(iNewCols)),
                iNewCols));
@@ -2251,7 +2251,7 @@ annotateGRfromGR <- function
             jamba::printDebug("annotateGRfromGR(): ",
                "   grOLm1>0");
          }
-         numShrunk1 <- lapply(nameVector(numCols), function(iCol){
+         numShrunk1 <- lapply(jamba::nameVector(numCols), function(iCol){
             if (verbose) {
                jamba::printDebug("annotateGRfromGR(): ",
                   "   ",
@@ -2260,7 +2260,7 @@ annotateGRfromGR <- function
             GenomicRanges::values(GR2[grOLs1])[,iCol];
          });
       }
-      numShrunk <- lapply(nameVector(numCols), function(iCol){
+      numShrunk <- lapply(jamba::nameVector(numCols), function(iCol){
          if (verbose) {
             jamba::printDebug("annotateGRfromGR(): ",
                "   ",
@@ -2298,7 +2298,7 @@ annotateGRfromGR <- function
          ## factors being converted to numeric values, then to string,
          ## and generally to be consistent with the type produced by
          ## the string shrink function below
-         stringShrunk1 <- lapply(nameVector(stringCols), function(iCol){
+         stringShrunk1 <- lapply(jamba::nameVector(stringCols), function(iCol){
             if (verbose) {
                jamba::printDebug("annotateGRfromGR(): ",
                   "   ",
@@ -2308,13 +2308,13 @@ annotateGRfromGR <- function
          });
       }
       if (nrow(grOLmUse) > 0) {
-         stringShrunk <- lapply(nameVector(stringCols), function(iCol){
+         stringShrunk <- lapply(jamba::nameVector(stringCols), function(iCol){
             if (verbose) {
                jamba::printDebug("annotateGRfromGR(): ",
                   "   ",
                   iCol);
             }
-            if (igrepHas("list", class(GenomicRanges::values(GR2)[grOLs,iCol]))) {
+            if (jamba::igrepHas("list", class(GenomicRanges::values(GR2)[grOLs,iCol]))) {
                ## list column
                ## What was all this effort doing?
                #iVals <- values(GR2)[grOLs,iCol];
@@ -2341,7 +2341,7 @@ annotateGRfromGR <- function
                #stringLnonNA <- split(iValsX[nonNA], iValsXnames1[nonNA]);
                iXnonNA <- stringShrinkFunc[[iCol]](stringLnonNA,
                   sep=sep);
-               iX <- nameVector(rep(NA, length(unique(grOLq))), names(GR1)[unique(grOLq)]);
+               iX <- jamba::nameVector(rep(NA, length(unique(grOLq))), names(GR1)[unique(grOLq)]);
                iX[names(iXnonNA)] <- iXnonNA;
                iX;
             }
@@ -2467,7 +2467,7 @@ annotateGRfromGR <- function
             "Appending column to GRanges:",
             iCol);
       }
-      if (igrepHas("integer|numeric", class(grOL1[,iCol]))) {
+      if (jamba::igrepHas("integer|numeric", class(grOL1[,iCol]))) {
          GenomicRanges::values(GR1)[,iCol] <- c(0, NA)[2];
       } else {
          grOL1[,iCol] <- gsub(", ", ",", grOL1[,iCol]);
@@ -3011,7 +3011,7 @@ assignGRLexonNames <- function
    }
 
    ## Add lowercase letter suffix
-   GRLcolnames <- unvigrep(paste0(exonNameColname, "(_v[0-9]|)$"),
+   GRLcolnames <- jamba::unvigrep(paste0(exonNameColname, "(_v[0-9]|)$"),
       colnames(GenomicRanges::values(GRL@unlistData)));
    if (verbose > 1) {
       jamba::printDebug("assignGRLexonNames(): ",
@@ -3202,9 +3202,9 @@ ale2violin <- function
    iDiffAleWide <- data.table::dcast(iDiffAleTall,
       formula=gene_name + Group ~ aleNum,
       value.var="intensity")
-   aleCols <- vigrep("^ale[0-9]+$", colnames(iDiffAleWide));
+   aleCols <- jamba::vigrep("^ale[0-9]+$", colnames(iDiffAleWide));
    iDiffAleWideM <- as.matrix(iDiffAleWide[,aleCols,drop=FALSE]);
-   rownames(iDiffAleWideM) <- pasteByRow(iDiffAleWide[,c("gene_name","Group")]);
+   rownames(iDiffAleWideM) <- jamba::pasteByRow(iDiffAleWide[,c("gene_name","Group")]);
 
    if (returnAll) {
       retVals$iDiffAle <- iDiffAle;
@@ -3278,7 +3278,7 @@ ale2violin <- function
       iDiffAleWide2$Region <- gsub("_.+", "", iDiffAleWide2$sampleGroup);
       iDiffAleWide2$CellType <- gsub("^.+_", "", iDiffAleWide2$sampleGroup);
       iGeneListRegionL <- lapply(split(iDiffAleWide2[,c("gene_name","CellType")],
-         pasteByRow(iDiffAleWide2[,c("geneList","Region")])), function(i){
+         jamba::pasteByRow(iDiffAleWide2[,c("geneList","Region")])), function(i){
             names(tcount(i$gene_name, minCount=2))
          });
       iGeneListRegionDF <- list2df(iGeneListRegionL);
@@ -3318,19 +3318,19 @@ ale2violin <- function
          !ALE %in% "ale1");
       listGroups <- c("Region","geneList","ALE");
       listSizes <- sdim(split(iDFsub,
-         pasteByRowOrdered(iDFsub[,listGroups,drop=FALSE],
+         jamba::pasteByRowOrdered(iDFsub[,listGroups,drop=FALSE],
          #pasteByRow(iDFsub[,c("Group","geneList","ALE")],
             sep="!")));
       listSizesDF <- data.frame(check.names=FALSE,
          listSizes[,c("rows"),drop=FALSE],
-         rbindList(strsplit(rownames(listSizes), "!"),
+         jamba::rbindList(strsplit(rownames(listSizes), "!"),
             newColnames=listGroups));
       listSizesDF$geneList <- factor(listSizesDF$geneList,
          levels=levels(iDiffAleTall2ctr$geneList));
    }
 
    ## Add column indicating the facet_group
-   facet_groupsV <- cPasteUnique(split(facet_groups[names(groups)], groups));
+   facet_groupsV <- jamba::cPasteUnique(split(facet_groups[names(groups)], groups));
    iDiffAleTall2ctr[[facet_name]] <- facet_groupsV[iDiffAleTall2ctr$Group];
 
    ## Optionally subset data at this step, to ensure geneLists entries
@@ -3340,7 +3340,7 @@ ale2violin <- function
    }
 
    ## Violin plot where each gene line is drawn for each sample group
-   iDiffAleTall2ctr$Line <- pasteByRowOrdered(iDiffAleTall2ctr[,c("gene_name","Group")]);
+   iDiffAleTall2ctr$Line <- jamba::pasteByRowOrdered(iDiffAleTall2ctr[,c("gene_name","Group")]);
    retVals$iDiffAleTall2ctr <- iDiffAleTall2ctr;
    if (make_ggplots) {
       if (verbose) {
@@ -3361,12 +3361,12 @@ ale2violin <- function
 
    ## Take the average value per facet_group
    iDiffAleTall2ctrFacet1 <- splicejam::shrinkMatrix(iDiffAleTall2ctr[,"intensity"],
-      groupBy=pasteByRow(iDiffAleTall2ctr[,c("gene_name",facet_name,"ALE","geneList")],
+      groupBy=jamba::pasteByRow(iDiffAleTall2ctr[,c("gene_name",facet_name,"ALE","geneList")],
          sep="!"),
       shrinkFunc=mean);
    iDF2 <- data.frame(check.names=FALSE,
       stringsAsFactors=FALSE,
-      rbindList(strsplit(iDiffAleTall2ctrFacet1$groupBy, "!"),
+      jamba::rbindList(strsplit(iDiffAleTall2ctrFacet1$groupBy, "!"),
       newColnames=c("gene_name",facet_name,"ALE","geneList")));
    iDF2$geneList <- factor(iDF2$geneList,
       levels=levels(iDiffAleTall2ctr$geneList));
@@ -3720,7 +3720,7 @@ runDiffSplice <- function
          "Preparing statsDFs.");
    }
    iCoefs <- colnames(coefficients(splice));
-   statsDFs <- lapply(nameVector(iCoefs), function(iCoef){
+   statsDFs <- lapply(jamba::nameVector(iCoefs), function(iCoef){
       iCoefGroups <- unlist(strsplit(gsub("^[(]|[)]$", "", iCoef), "[-()]+"));
       iGroupMeans <- coefficients(fit)[,iCoefGroups,drop=FALSE];
       iGroupMeansDF <- data.frame(
@@ -3743,7 +3743,7 @@ runDiffSplice <- function
          print(head(spliceDF));
       }
       if (collapseByGene) {
-         pvColname <- head(vigrep("^P.Value", colnames(spliceDF)), 1);
+         pvColname <- head(jamba::vigrep("^P.Value", colnames(spliceDF)), 1);
          bestPbyGene <- shrinkMatrix(spliceDF[,pvColname],
             groupBy=spliceDF[,geneColname],
             shrinkFunc=min,
@@ -3781,7 +3781,7 @@ runDiffSplice <- function
          from=renameCols,
          to=paste(renameCols, iCoef));
       jamba::mixedSortDF(spliceDFuse,
-         byCols=provigrep(c("FDR","P.Value"),
+         byCols=jamba::provigrep(c("FDR","P.Value"),
             colnames(spliceDFuse)));
    });
    retVals$statsDFs <- statsDFs;
@@ -3826,7 +3826,7 @@ getGRgaps <- function
    #   strand(gr) <- "*";
    #}
    #grl <- GRangesList(split(gr,
-   #   pasteByRowOrdered(as.data.frame(gr)[,c("seqnames", "strand")])));
+   #   jamba::pasteByRowOrdered(as.data.frame(gr)[,c("seqnames", "strand")])));
    gapsGRL <- getGRLgaps(grl=GenomicRanges::GRangesList(list(`gr`=gr)),
       strandSpecific=strandSpecific,
       verbose=verbose,
@@ -3888,7 +3888,7 @@ getGRLgaps <- function
       GenomicRanges::values(grl@unlistData)[,"grl_name"] <- rep(names(grl),
          S4Vectors::elementNROWS(grl));
       grl <- GenomicRanges::GRangesList(GenomicRanges::split(grl@unlistData,
-         pasteByRowOrdered(sep=":!:",
+         jamba::pasteByRowOrdered(sep=":!:",
             as.data.frame(grl@unlistData)[,c("grl_name","seqnames","strand")])
          )
       );
@@ -4087,7 +4087,7 @@ flattenExonsBy <- function
    if (!suppressPackageStartupMessages(require(GenomicRanges))) {
       stop("The GenomicRanges package is required.");
    }
-   if (!igrepHas("data.frame|tibble|tbl|dataframe", class(tx2geneDF))) {
+   if (!jamba::igrepHas("data.frame|tibble|tbl|dataframe", class(tx2geneDF))) {
       stop("tx2geneDF must be a form of data.frame or related class.");
    }
    if (!all(c(txColname, geneColname) %in% colnames(tx2geneDF))) {
@@ -4772,7 +4772,7 @@ closestExonToJunctions <- function
       names(exonsGR[spliceEndExonStartD1[,"subjectHits"]]);
 
    ## Add nameFromTo column
-   GenomicRanges::values(spliceGRgene)[,"nameFromTo"] <- pasteByRow(
+   GenomicRanges::values(spliceGRgene)[,"nameFromTo"] <- jamba::pasteByRow(
       GenomicRanges::values(spliceGRgene)[,c("nameFrom", "nameTo")],
       sep=" ",
       na.rm=TRUE);
@@ -5081,10 +5081,10 @@ spliceGR2junctionDF <- function
    if (nrow(spliceCountsDF) == 0) {
       return(NULL);
    }
-   spliceCountsDF[,"nameFromTo"] <- pasteByRow(spliceCountsDF[,c("nameFrom","nameTo"),drop=FALSE],
+   spliceCountsDF[,"nameFromTo"] <- jamba::pasteByRow(spliceCountsDF[,c("nameFrom","nameTo"),drop=FALSE],
       sep=" ",
       na.rm=TRUE);
-   spliceCountsDF[,"nameFromToSample"] <- pasteByRow(
+   spliceCountsDF[,"nameFromToSample"] <- jamba::pasteByRow(
       spliceCountsDF[,c("nameFromTo", sampleColname),drop=FALSE],
       sep=":!:");
 
@@ -5099,15 +5099,15 @@ spliceGR2junctionDF <- function
       from="groupBy",
       to="nameFromToSample");
    if (length(sampleColname) > 0) {
-      spliceCountsDFshrunk[,c("nameFromTo",sampleColname)] <- rbindList(
+      spliceCountsDFshrunk[,c("nameFromTo",sampleColname)] <- jamba::rbindList(
          strsplit(spliceCountsDFshrunk[,"nameFromToSample"], ":!:"));
    } else {
       spliceCountsDFshrunk[,"nameFromTo"] <- spliceCountsDFshrunk[,"nameFromToSample"];
    }
-   spliceCountsDFshrunk[,c("nameFrom", "nameTo")] <- rbindList(
+   spliceCountsDFshrunk[,c("nameFrom", "nameTo")] <- jamba::rbindList(
       strsplit(spliceCountsDFshrunk[,"nameFromTo"], " "));
    #spliceCountsDFshrunk <- cbind(spliceCountsDFshrunk,
-   #   rbindList(strsplit(spliceCountsDFshrunk[,"groupBy"], " ")));
+   #   jamba::rbindList(strsplit(spliceCountsDFshrunk[,"groupBy"], " ")));
    #colnames(spliceCountsDFshrunk) <- c("nameFromTo", spliceGRname, "nameFrom", "nameTo");
 
    ## Now add the start and end coordinates, so the results can be plotted
@@ -5122,7 +5122,7 @@ spliceGR2junctionDF <- function
    spliceCountsDFshrunk[,"end"] <- as.vector(spliceCountsDF[matchFromTo,"end"]);
    spliceCountsDFshrunk[,"strand"] <- as.vector(spliceCountsDF[matchFromTo,"strand"]);
    spliceCountsDFshrunk[,"width"] <- spliceCountsDFshrunk[,"end"] - spliceCountsDFshrunk[,"start"];
-   spliceCountsDFshrunk <- mixedSortDF(spliceCountsDFshrunk,
+   spliceCountsDFshrunk <- jamba::mixedSortDF(spliceCountsDFshrunk,
       byCols=c("ref", "start", "end", "strand"));
 
    ## geneGsub removes the geneExon separator, and everything after it
@@ -5143,7 +5143,7 @@ spliceGR2junctionDF <- function
 
    ## Create junctionID only after we decided how to orient exonFrom and exonTo
    ## for negative strand entries, avoiding re-creating the name for those rows
-   spliceCountsDFshrunk[,"junctionID"] <- pasteByRow(
+   spliceCountsDFshrunk[,"junctionID"] <- jamba::pasteByRow(
       spliceCountsDFshrunk[,c("exonFrom","exonTo",sampleColname),drop=FALSE],
       sep="_",
       na.rm=TRUE);

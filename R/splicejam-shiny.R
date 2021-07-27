@@ -9,50 +9,96 @@
 #' The R objects required to prepare sashimi plots are
 #' defined by the function `sashimiAppConstants()`, which
 #' documents each R object required and how it is used.
+#' The `sashimiAppConstants()` function returns an `environment`
+#' in which the required sashimi plot data is stored and
+#' used by the R-shiny app. The default environment is `globalenv()`
+#' however any custom environment can be used, for example
+#' with `myenv <- new.env()`.
 #'
 #' The most straightforward way to run a new Sashimi R-shiny
-#' app is to define `filesDF` and `gtf` in the global environment.
-#' The `gtf` is a path or URL to a GTF file (which can be gzipped).
-#' This GTF file will be used to derive all related annotation
-#' data.
+#' app is to define `filesDF` and `gtf` in the global environment,
+#' or define `filesDF` and `gtf` inside a custom environment.
+#' The required data will be derived from the GTF file `gtf`.
+#' This step is somewhat slow the first time (10 minutes) and
+#' saves intermediate files for rapid re-use.
 #'
-#' * `txdb` -- TranscriptDb from which other objects are derived
-#' * `tx2geneDF` -- `data.frame` with transcript-to-gene relationship
-#' * `detectedTx` -- if not already defined, all transcripts are
-#' used. *Much better to use only a subset of detected transcripts.*
-#' * `detectedGenes` -- inferred from `detectedTx`, using `tx2geneDF`.
-#' * `flatExonsByGene`, `flatExonsByTx` -- these objects will combine
-#' CDS exons and non-CDS exons to represent CDS and UTR regions.
+#' The data derived from the GTF file is listed below. Any data object
+#' that already exists in the `environment` is used in subsequent steps:
+#'
+#' * `txdb` - TranscriptDb from which `exonsByGene` and `exonsByTx`
+#'    are derived.
+#' * `tx2geneDF` - `data.frame` with transcript-to-gene relationship,
+#'    with colnames `"gene_name"` and `"transcript_id"`. See
+#'    `makeTx2geneFromGtf()` for details.
+#' * `detectedTx` - `character` vector of detected transcripts, used
+#'    to match `tx2geneDF$transcript_id`. When `detectedTx` is NULL,
+#'    all entries in `tx2geneDF` are used. Note that we found it is
+#'    *much better to use only a subset of detected transcripts*,
+#'    mainly because many GTF sources include a large number of potential
+#'    alternative isoforms, many of which have no supported evidence in
+#'    any one given cell type. See `defineDetectedTx()` for one method
+#'    to define detected transcripts.
+#' * `detectedGenes` - `character` vector of genes that match
+#'    `tx2geneDF$gene_name`. When `detectedGenes` is NULL, it is
+#'    inferred using `detectedTx` and `tx2geneDF$transcript_id`.
+#' * `exonsByTx`, `cdsByTx` - derived from `txdb` and annotated to include
+#'    values from `tx2geneDF$gene_name`.
+#' * `flatExonsByGene`, `flatExonsByTx` - `GRangesList` objects derived
+#'    from `exonsByGene` and `exonsByTx`, using `detectedTx`.
+#'    They also use `cdsByTx` to indicate coding regions (CDS) of exons.
 #'
 #' Note that if `detectedTx` is not defined, it will use all transcripts
 #' at this stage, which can be substantially slower than using only
 #' the subset of "observed/detected" transcripts.
 #'
-#' The first time running `launchSashimiApp()`
-#' will populate several R objects in the global environment,
-#' and these objects will be re-used during subsequent calls to
-#' this function. To make changes in the content, these objects
-#' can be edited or deleted so the object is created again.
-#' For example, if `detectedTx` is edited, the object
-#' `detectedGenes` should be removed so `detectedGenes`
-#' will be created again during the next call to `launchSashimiApp()`.
+#' An alternative is to supply one `detectedGenes` gene value, which will prepare
+#' only one gene for `flatExonsByGene` in the R-shiny app. However, the
+#' R-shiny app has the option to search all non-detected genes, which
+#' are prepared one by one inside the R-shiny app. This process is slightly
+#' slower when using the app by a few seconds, and will use all transcripts
+#' for `detectedTx`.
 #'
-#' The `filesDF` object should be a `data.frame` with colnames
-#' `"sample_id"`, `"type"` (with values either `"bw"` or `"junction"`),
-#' and `"url"` (a URL or file path to each file.) If coverage
-#' or junctions are available in separate files, use the same
-#' `sample_id` value for each file. Files with the same `sample_id`
-#' value are combined using the sum, after multiplying each file
-#' by a value in the optional `"scale_factor"` column.
+#' The `filesDF` object should be a `data.frame` with at least three colnames:
 #'
-#' This function calls `sashimiAppConstants()` which does the
-#' heavy work of defining or deriving all necessary data objects,
-#' then assigns the result to the relevant environment. The default
-#' environment is `globalenv()` (also known as `.GlobalEnv`).
+#' * `"sample_id"`
+#' * `"type"` (with values either `"bw"` or `"junction"`)
+#' * `"url"` (a URL or file path to each file.)
+#'
+#' If coverage or junctions are available in multiple files, for example
+#' sequencing replicates, use the same `sample_id` for each file, and
+#' the coverage and junctions will be combined using the sum, after
+#' multiplying an optional `"scale_factor"` to each file.
+#'
+#' For more direct control over the data preparation, including
+#' `tx2geneDF`, `detectedTx`, `exonsByGene`, and `flatExonsByGene`,
+#' see `sashimiAppConstants()` which calls `sashimiDataConstants()`,
+#' both of these functions return an environment that contains the
+#' required data.
+#'
+#' When the R-shiny app is created, the `ui` and `server` components
+#' have their environments set to `envir` - so their context will
+#' include the variables defined in that environment.
 #'
 #' @family splicejam R-shiny functions
 #'
-#' @param ... additional arguments are passed to `shiny::shinyApp()`.
+#' @return output from `shiny::shinyApp()` which is an object of
+#'    class "shiny.appobj", whose default print method is to run
+#'    the app.
+#'
+#' @param envir `environment` that contains data needed for sashimi plots.
+#'    If `envir=NULL` by default it will use `globalenv()`. Otherwise,
+#'    call `sashimiDataConstants()` or `sashimiAppConstants()`
+#'    to prepare data inside a specific environment that can be
+#'    used by this function.
+#' @param options `list` of R-shiny app options, for example two
+#'    common options are: `host` to indicate the host or IP address
+#'    the R-shiny app will bind to respond to requests; and
+#'    `port` for the port number. For example:
+#'    `launchSashimiApp(options=list(host="0.0.0.0", port=8080))`
+#'    where `port="0.0.0.0"` will listen to any request sent
+#'    to the current machine, whether by host name, or any valid
+#'    IP address; and `port=8080` will only listen to port 8080.
+#' @param ... additional arguments are passed to `sashimiAppConstants()`.
 #'
 #' @examples
 #' # Note: disabled for web page examples
@@ -61,31 +107,31 @@
 #' @export
 launchSashimiApp <- function
 (...,
- options=list(width=1200))
+ envir=globalenv(),
+ options=list(width=1200),
+ verbose=TRUE)
 {
-   ## Temporarily disabled the environment methods below
-   if (1 == 2) {
-      ## attach dots for local environment
-      dots <- list(...);
-      if (length(dots) > 0) {
-         dots_name <- gsub(" ", "_", paste0("dots ", Sys.time()));
-         printDebug("launchSashimiApp(): ",
-            "Attaching dots to environment:",
-            dots_name);
-         attach(dots,
-            name=dots_name,
-            warn.conflicts=FALSE);
-         printDebug("launchSashimiApp(): ",
-            "Attached objects:",
-            ls(dots_name));
-         on.exit(detach(dots_name,
-            character.only=TRUE));
-      }
-   }
+
+   # retrieve an environment that contains the required data
+   envir <- sashimiAppConstants(envir=envir,
+      verbose=verbose,
+      ...);
+
+   # Define these functions specifically so we can set the environment.
+   # - Now the environment will contain the data obtained above.
+   ui <- sashimiAppUI;
+   server <- sashimiAppServer;
+   environment(ui) <- envir;
+   environment(server) <- envir;
+
    ##
-   shiny::shinyApp(ui=sashimiAppUI,
-      server=sashimiAppServer,
-      onStart=sashimiAppConstants,
+   shiny::shinyApp(ui=ui,
+      server=server,
       options=options
    );
+   #shiny::shinyApp(ui=ui,#sashimiAppUI,
+   #   server=sashimiAppServer,
+   #   onStart=sashimiAppConstants,
+   #   options=options
+   #);
 }

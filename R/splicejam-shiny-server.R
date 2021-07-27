@@ -40,7 +40,7 @@ sashimiAppServer <- function
       capture.output(sessionInfo())
    })
 
-   ## Update gene_choices
+   ##  gene_choices
    get_gene_choices <- reactive({
       search_genelist <- input$search_genelist;
       if (length(search_genelist) > 0 && jamba::igrepHas("detected", search_genelist)) {
@@ -49,26 +49,31 @@ sashimiAppServer <- function
          gene_choices <- jamba::mixedSort(unique(
             tx2geneDF$gene_name));
       }
+      gene_choices <- unique(c("blank", gene_choices));
       return(gene_choices);
    });
 
    get_default_gene <- function() {
-      gene_choices <- tryCatch({
-         get_gene_choices();
-      }, error=function(e){
-         detectedGenes;
-      });
-      jamba::printDebug("sashimiAppServer(): ",
-         "length(gene_choices):",
-         jamba::formatInt(length(gene_choices)));
-      default_gene <- head(
-         jamba::provigrep(c("Gria1",
-            "Ntrk2",
-            "Actb",
-            "Gapd",
-            "^[A-Z][a-z]{3}", "."),
-            gene_choices),
-         1);
+      if (exists("default_gene") && length(default_gene) > 0 && all(nchar(default_gene) > 0)) {
+         default_gene <- head(default_gene[nchar(default_gene) > 0], 1)
+      } else {
+         gene_choices <- tryCatch({
+            get_gene_choices();
+         }, error=function(e){
+            detectedGenes;
+         });
+         jamba::printDebug("sashimiAppServer(): ",
+            "length(gene_choices):",
+            jamba::formatInt(length(gene_choices)));
+         default_gene <- head(
+            jamba::provigrep(c("Gria1",
+               "Ntrk2",
+               "Actb",
+               "Gapd",
+               "^[A-Z][a-z]{3}", "."),
+               gene_choices),
+            1);
+      }
       jamba::printDebug("sashimiAppServer(): ",
          c("default_gene:",
             default_gene), sep="");
@@ -77,11 +82,11 @@ sashimiAppServer <- function
             gene_choices);
          if (length(new_default_gene) > 0) {
             default_gene <- head(new_default_gene, 1);
+            jamba::printDebug("sashimiAppServer(): ",
+               c("new_default_gene:",
+                  default_gene), sep="");
          }
       }
-      jamba::printDebug("sashimiAppServer(): ",
-         c("default_gene:",
-            default_gene), sep="");
       return(default_gene);
    }
    observe({
@@ -93,7 +98,7 @@ sashimiAppServer <- function
             "updateSelectizeInput default_gene:",
             default_gene);
       }
-      updateSelectizeInput(session,
+      shiny::updateSelectizeInput(session,
          "gene",
          choices=gene_choices,
          selected=default_gene,
@@ -107,12 +112,8 @@ sashimiAppServer <- function
    default_gene <- get_default_gene();
    updateSelectizeInput(session,
       "gene",
-      choices=detectedGenes,
+      choices=unique(c("blank", detectedGenes)),
       selected=default_gene,
-      #choices=get_gene_choices(),
-      #selected=head(
-      #   jamba::provigrep(c("Gria1", "Ntrk2", "^[A-Z][a-z]{3}", "."),
-      #      detectedGenes), 1),
       server=TRUE);
 
    output$gene_coords_label <- renderText({"Genome coordinate range"});
@@ -167,16 +168,16 @@ sashimiAppServer <- function
          font_sizing <- "Default"
       }
       base_font_size <- 1.0 * dplyr::case_when(
-         igrepHas("-4", font_sizing) ~ -4,
-         igrepHas("-3", font_sizing) ~ -3,
-         igrepHas("-2", font_sizing) ~ -2,
-         igrepHas("-1", font_sizing) ~ -1,
-         igrepHas("Default", font_sizing) ~ 0,
-         igrepHas("+1", font_sizing) ~ 1,
-         igrepHas("+2", font_sizing) ~ 2,
-         igrepHas("+3", font_sizing) ~ 3,
-         igrepHas("+4", font_sizing) ~ 4,
-         igrepHas(".", font_sizing) ~ 0
+         jamba::igrepHas("-4", font_sizing) ~ -4,
+         jamba::igrepHas("-3", font_sizing) ~ -3,
+         jamba::igrepHas("-2", font_sizing) ~ -2,
+         jamba::igrepHas("-1", font_sizing) ~ -1,
+         jamba::igrepHas("Default", font_sizing) ~ 0,
+         jamba::igrepHas("+1", font_sizing) ~ 1,
+         jamba::igrepHas("+2", font_sizing) ~ 2,
+         jamba::igrepHas("+3", font_sizing) ~ 3,
+         jamba::igrepHas("+4", font_sizing) ~ 4,
+         jamba::igrepHas(".", font_sizing) ~ 0
       );
       base_font_size;
    });
@@ -194,16 +195,16 @@ sashimiAppServer <- function
          font_sizing <- "Default"
       }
       base_font_size <- 1.0 * dplyr::case_when(
-         igrepHas("-4", font_sizing) ~ -4,
-         igrepHas("-3", font_sizing) ~ -3,
-         igrepHas("-2", font_sizing) ~ -2,
-         igrepHas("-1", font_sizing) ~ -1,
-         igrepHas("Default", font_sizing) ~ 0,
-         igrepHas("+1", font_sizing) ~ 1,
-         igrepHas("+2", font_sizing) ~ 2,
-         igrepHas("+3", font_sizing) ~ 3,
-         igrepHas("+4", font_sizing) ~ 4,
-         igrepHas(".", font_sizing) ~ 0
+         jamba::igrepHas("-4", font_sizing) ~ -4,
+         jamba::igrepHas("-3", font_sizing) ~ -3,
+         jamba::igrepHas("-2", font_sizing) ~ -2,
+         jamba::igrepHas("-1", font_sizing) ~ -1,
+         jamba::igrepHas("Default", font_sizing) ~ 0,
+         jamba::igrepHas("+1", font_sizing) ~ 1,
+         jamba::igrepHas("+2", font_sizing) ~ 2,
+         jamba::igrepHas("+3", font_sizing) ~ 3,
+         jamba::igrepHas("+4", font_sizing) ~ 4,
+         jamba::igrepHas(".", font_sizing) ~ 0
       );
       base_font_size * 1.5;
    });
@@ -233,7 +234,9 @@ sashimiAppServer <- function
       layout_ncol <- input$layout_ncol;
       exon_range <- input$exon_range;
       gene_coords <- input$gene_coords;
-      shinyjs::enable("calc_gene_params");
+      if (!"blank" %in% gene) {
+         shinyjs::enable("calc_gene_params");
+      }
    });
 
    # Update the slider bar for each gene, or when slider type is changed
@@ -247,50 +250,71 @@ sashimiAppServer <- function
             gene);
       }
       if (length(gene) > 0 && nchar(gene) > 0) {
-         ## Handle "All Genes" where it is not present in flatExonsByGene
-         flatExonsByGene1 <- get_flat_gene_exons();
-         jamba::printDebug("sashimiAppServer(): ",
-            "update gene slider bar, gene:", gene,
-            ", length(flatExonsByGene1):", length(flatExonsByGene1),
-            ", length(flatExonsByGene1[[gene]]):", length(flatExonsByGene1[[gene]]));
-         chr_range <- as.data.frame(range(flatExonsByGene1[[gene]]))[,c("start", "end")];
-         coords_label <- paste0("Coordinate range for ",
-            gene,
-            " on ",
-            as.character(seqnames(head(flatExonsByGene1[[gene]], 1))),
-            " (", as.character(strand(head(flatExonsByGene1[[gene]], 1))),
-            "):");
-         if ("gene_nameExon" %in% colnames(values(flatExonsByGene1[[gene]]))) {
-            exon_names <- jamba::mixedSort(
-               values(flatExonsByGene1[[gene]])$gene_nameExon);
+         if (!"blank" %in% gene) {
+            shinyjs::enable("calc_gene_params");
+            shinyjs::enable("exon_range");
+            shinyjs::enable("gene_coords");
+            ## Handle "All Genes" where it is not present in flatExonsByGene
+            flatExonsByGene1 <- get_flat_gene_exons();
             jamba::printDebug("sashimiAppServer(): ",
-               "exon_names:",
-               exon_names);
+               "update gene slider bar, gene:", gene,
+               ", length(flatExonsByGene1):", length(flatExonsByGene1),
+               ", length(flatExonsByGene1[[gene]]):", length(flatExonsByGene1[[gene]]));
+            chr_range <- as.data.frame(range(flatExonsByGene1[[gene]]))[,c("start", "end")];
+            coords_label <- paste0("Coordinate range for ",
+               gene,
+               " on ",
+               as.character(seqnames(head(flatExonsByGene1[[gene]], 1))),
+               " (", as.character(strand(head(flatExonsByGene1[[gene]], 1))),
+               "):");
+            if ("gene_nameExon" %in% colnames(values(flatExonsByGene1[[gene]]))) {
+               exon_names <- jamba::mixedSort(
+                  values(flatExonsByGene1[[gene]])$gene_nameExon);
+               jamba::printDebug("sashimiAppServer(): ",
+                  "exon_names:",
+                  exon_names);
+            } else {
+               exon_names <- NULL;
+            }
+            if (length(chr_range) > 0) {
+               ## Update slider text label
+               output$gene_coords_label <- renderText({
+                  coords_label
+               });
+               ## Update sliderInput for gene_coords
+               shiny::updateSliderInput(session,
+                  "gene_coords",
+                  min=min(chr_range[["start"]]),
+                  max=max(chr_range[["end"]]),
+                  value=range(c(chr_range[["start"]], chr_range[["end"]]))
+               );
+            }
+            ## update exon name range slider
+            if (length(exon_names) > 0) {
+               shinyWidgets::updateSliderTextInput(session,
+                  "exon_range",
+                  choices=exon_names,
+                  selected=c(
+                     head(exon_names, 1),
+                     tail(exon_names, 1))
+               );
+            }
          } else {
-            exon_names <- NULL;
-         }
-         if (length(chr_range) > 0) {
-            ## Update slider text label
+            # Update gene coord label and sliders for "blank" gene
+            shinyjs::disable("calc_gene_params");
+            shinyjs::disable("exon_range");
+            shinyjs::disable("gene_coords");
             output$gene_coords_label <- renderText({
-               coords_label
+               "blank (no gene is displayed)"
             });
-            ## Update sliderInput for gene_coords
-            updateSliderInput(session,
+            shinyWidgets::updateSliderTextInput(session,
                "gene_coords",
-               min=min(chr_range[["start"]]),
-               max=max(chr_range[["end"]]),
-               value=range(c(chr_range[["start"]], chr_range[["end"]]))
-            );
-         }
-         ## update exon name range slider
-         if (length(exon_names) > 0) {
-            updateSliderTextInput(session,
+               choices=c("1", "2"),
+               selected=c("1", "2"));
+            shinyWidgets::updateSliderTextInput(session,
                "exon_range",
-               choices=exon_names,
-               selected=c(
-                  head(exon_names, 1),
-                  tail(exon_names, 1))
-            );
+               choices=c("1", "2"),
+               selected=c("1", "2"));
          }
       }
    });
@@ -301,9 +325,13 @@ sashimiAppServer <- function
       gene;
    });
 
+   # This function reacts to changes in input$gene, the "Select Gene" widget
    get_flat_gene_exons <- reactive({
       gene <- input$gene;
       if (length(gene) > 0 && nchar(gene) > 0) {
+         if ("blank" %in% gene) {
+            return(NULL)
+         }
          ## Handle "All Genes" where it is not present in flatExonsByGene
          if (!gene %in% names(flatExonsByGene)) {
             jamba::printDebug("sashimiAppServer(): ",
@@ -326,10 +354,15 @@ sashimiAppServer <- function
       return(flatExonsByGene1);
    });
 
+   # Same function as get_flat_gene_exons() except it does not react to changes in input$gene
+   # This function only reacts to "Update Sashimi Plots" input$calc_gene_params
    get_flat_gene_exons_plot <- reactive({
       input$calc_gene_params;
       gene <- isolate(input$gene);
       if (length(gene) > 0 && nchar(gene) > 0) {
+         if ("blank" %in% gene) {
+            return(NULL)
+         }
          ## Handle "All Genes" where it is not present in flatExonsByGene
          if (!gene %in% names(flatExonsByGene)) {
             if (verbose) {
@@ -413,15 +446,17 @@ sashimiAppServer <- function
       sample_id;
    });
 
+   # the main function to prepare sashimi data for display
+   # when gene is empty, "" or "blank" it returns NULL
    get_sashimi_data <- reactive({
       input$calc_gene_params;
       shinyjs::disable("calc_gene_params");
       #gene <- get_active_gene();
       gene <- isolate(input$gene);
-      flatExonsByGene1 <- get_flat_gene_exons_plot();
-      if (length(gene) == 0) {
+      if (length(gene) == 0 || nchar(gene) == 0 || "blank" %in% gene) {
          return(NULL);
       }
+      flatExonsByGene1 <- get_flat_gene_exons_plot();
       if (!exists("flatExonsByGene") ||
             !exists("filesDF")) {
          return(NULL);
@@ -553,8 +588,14 @@ sashimiAppServer <- function
       sashimi_data;
    });
 
+   # main Sashimi plot render function
    output$sashimiplot_output <- renderUI({
       sashimi_data <- get_sashimi_data();
+      if (length(sashimi_data) == 0) {
+         return(tagList(renderPlot(
+            ggplot2::ggplot() + ggplot2::theme_void()
+         )));
+      }
       if ("ref2c" %in% names(attributes(sashimi_data))) {
          ref2c <- attr(sashimi_data, "ref2c");
       } else if ("ref2c" %in% names(sashimi_data)) {
@@ -836,7 +877,7 @@ sashimiAppServer <- function
                   iCol,
                   backgroundColor=DT::styleEqual(
                      levels=names(color_sub),
-                     values=rgb2col(col2rgb(color_sub))
+                     values=jamba::rgb2col(col2rgb(color_sub))
                   ),
                   color=DT::styleEqual(
                      levels=names(color_sub),

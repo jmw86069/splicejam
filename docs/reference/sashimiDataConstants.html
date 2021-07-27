@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Sashimi Shiny app constants — sashimiAppConstants • splicejam</title>
+<title>Prepare sashimi plot required data — sashimiDataConstants • splicejam</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Sashimi Shiny app constants — sashimiAppConstants" />
-<meta property="og:description" content="Sashimi Shiny app constants" />
+<meta property="og:title" content="Prepare sashimi plot required data — sashimiDataConstants" />
+<meta property="og:description" content="Prepare sashimi plot required data, deriving data objects as needed" />
 
 
 
@@ -129,24 +129,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Sashimi Shiny app constants</h1>
-    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/splicejam-shiny-constants.R'><code>R/splicejam-shiny-constants.R</code></a></small>
-    <div class="hidden name"><code>sashimiAppConstants.Rd</code></div>
+    <h1>Prepare sashimi plot required data</h1>
+    <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/splicejam-shiny-data.R'><code>R/splicejam-shiny-data.R</code></a></small>
+    <div class="hidden name"><code>sashimiDataConstants.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Sashimi Shiny app constants</p>
+    <p>Prepare sashimi plot required data, deriving data objects as needed</p>
     </div>
 
-    <pre class="usage"><span class='fu'>sashimiAppConstants</span><span class='op'>(</span>
-  <span class='va'>...</span>,
-  filesDF <span class='op'>=</span> <span class='cn'>NULL</span>,
-  color_sub <span class='op'>=</span> <span class='cn'>NULL</span>,
-  aboutExtra <span class='op'>=</span> <span class='cn'>NULL</span>,
-  envir <span class='op'>=</span> <span class='cn'>NULL</span>,
-  assign_global <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  use_memoise <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  empty_uses_farrisdata <span class='op'>=</span> <span class='cn'>TRUE</span>,
+    <pre class="usage"><span class='fu'>sashimiDataConstants</span><span class='op'>(</span>
   gtf <span class='op'>=</span> <span class='cn'>NULL</span>,
   txdb <span class='op'>=</span> <span class='cn'>NULL</span>,
   tx2geneDF <span class='op'>=</span> <span class='cn'>NULL</span>,
@@ -156,63 +148,33 @@
   detectedGenes <span class='op'>=</span> <span class='cn'>NULL</span>,
   flatExonsByGene <span class='op'>=</span> <span class='cn'>NULL</span>,
   flatExonsByTx <span class='op'>=</span> <span class='cn'>NULL</span>,
-  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
+  envir <span class='op'>=</span> <span class='cn'>NULL</span>,
+  empty_uses_farrisdata <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  use_memoise <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>...</th>
-      <td><p>additional arguments are passed to <code><a href='sashimiDataConstants.html'>sashimiDataConstants()</a></code></p></td>
+      <th>gtf, txdb, tx2geneDF, exonsByTx, cdsByTx</th>
+      <td><p>objects used to define
+the overall set of genes, transcripts, and associated exons and
+CDS exons. See this function
+description for more detail.</p></td>
     </tr>
     <tr>
-      <th>filesDF</th>
-      <td><p><code>data.frame</code> that contains at least these colnames:
-<code>"sample_id"</code>, <code>"url"</code>, <code>"type"</code>. This <code>data.frame</code> defines the
-source data used to create sashimi plots.</p></td>
-    </tr>
-    <tr>
-      <th>color_sub</th>
-      <td><p><code>character</code> vector of R colors, whose names
-match values in <code>filesDF$sample_id</code>. If not supplied,
-or if not all names are present in <code>color_sub</code>, the
-remaining names are converted to colors using
-<code><a href='https://rdrr.io/pkg/colorjam/man/group2colors.html'>colorjam::group2colors()</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>aboutExtra</th>
-      <td><p>character string or html tag from <code>"htmltools"</code>
-suitable for use in a R-shiny app. This text is displayed
-in the Help tab, and is intended to describe the data
-content shown in the R-shiny app.</p></td>
+      <th>detectedTx, detectedGenes, flatExonsByGene, flatExonsByTx</th>
+      <td><p>objects used to derive a specific subset of gene-exon models
+using only detected transcripts or genes. See this function
+description for more detail.</p></td>
     </tr>
     <tr>
       <th>envir</th>
-      <td><p><code>environment</code> in which the data should be loaded,
-which takes priority over argument <code>assign_global</code>.
-When <code>envir=NULL</code> and <code>assign_global=TRUE</code> the default
-environment is <code><a href='https://rdrr.io/r/base/environment.html'>globalenv()</a></code>. When <code>assign_global=FALSE</code>
-and <code>envir=NULL</code> a new environment is created using
-<code><a href='https://rdrr.io/r/base/environment.html'>new.env(parent=emptyenv())</a></code> so there is no parent environment,
-thereby preventing it from searching <code><a href='https://rdrr.io/r/base/environment.html'>globalenv()</a></code> for
-variables not defined in its own environment.</p></td>
-    </tr>
-    <tr>
-      <th>assign_global</th>
-      <td><p><code>logical</code> indicating whether the default
-environment should be <code><a href='https://rdrr.io/r/base/environment.html'>globalenv()</a></code>. Note this is not
-typically recommended, however it can be convenient to
-operate using only the user global environment, and is
-the default approach.</p></td>
-    </tr>
-    <tr>
-      <th>use_memoise</th>
-      <td><p><code>logical</code> indicating whether to use <code>memoise</code>
-to cache intermediate data files for exons, flattened exons,
-transcript-gene data, and so on. This mechanism reduces
-time to render sashimi plots that re-use the same gene.
-All memoise cache folders are named with <code>"_memoise"</code>.</p></td>
+      <td><p><code>environment</code> where data will be prepared, or when
+<code>envir=NULL</code> a new environment will be created and returned.</p></td>
     </tr>
     <tr>
       <th>empty_uses_farrisdata</th>
@@ -223,73 +185,44 @@ intended to make it easy to use farrisdata to recreate
 the Sashimi plots in that publication.</p></td>
     </tr>
     <tr>
-      <th>gtf, txdb, tx2geneDF, exonsByTx, cdsByTx</th>
-      <td><p>arguments passed to
-<code><a href='sashimiDataConstants.html'>sashimiDataConstants()</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>detectedTx, detectedGenes, flatExonsByGene, flatExonsByTx</th>
-      <td><p>arguments passed to <code><a href='sashimiDataConstants.html'>sashimiDataConstants()</a></code>.</p></td>
+      <th>use_memoise</th>
+      <td><p><code>logical</code> indicating whether to use <code>memoise</code>
+to cache intermediate data files for exons, flattened exons,
+transcript-gene data, and so on. This mechanism reduces
+time to render sashimi plots that re-use the same gene.
+All memoise cache folders are named with <code>"_memoise"</code>.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
       <td><p><code>logical</code> indicating whether to print verbose output.</p></td>
     </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional arguments are ignored.</p></td>
+    </tr>
+    <tr>
+      <th>default_gene</th>
+      <td><p><code>character</code> string indicating the default
+gene to use for the initial R-shiny figure.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>environment</code> that contains the data required for the
-splicejam R-shiny app. It also includes data returned by
-<code><a href='sashimiDataConstants.html'>sashimiDataConstants()</a></code>. Note that if <code>envir</code> is supplied,
-the data will be updated inside that environment.</p>
+    <p><code>environment</code> that contains the required data objects
+for splicejam sashimi plots. Note that the environment itself
+is updated during processing, so the environment does not
+need to be returned for the data contained inside it to
+be updated by this function.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function defines several constant values
-used by the R-shiny Splicejam Sashimi viewer.
-The required coverage and junction data is prepared
-and defined by <code><a href='sashimiDataConstants.html'>sashimiDataConstants()</a></code>. The remaining
-items used in the R-shiny app are defined for inline documentation
-in the R-shiny app, including <code>aboutExtra</code> which is
-included in the <code>"About"</code> tab, intended to describe
-the source of data included in the R-shiny app.
-Data is returned in an <code>environment</code> which by default
-is the global environment <code><a href='https://rdrr.io/r/base/environment.html'>globalenv()</a></code>. However it
-is recommended to use a custom environment, for
-example: <code>shiny_envir &lt;- new.env()</code>.</p>
-<p>When the R-shiny app is defined <code><a href='launchSashimiApp.html'>launchSashimiApp()</a></code>,
-it calls <code><a href='https://rdrr.io/pkg/shiny/man/shinyApp.html'>shiny::shinyApp()</a></code> using arguments <code>server</code>, <code>ui</code>,
-and <code>options</code>. This function <code>sashimiAppConstants()</code>
-prepares <code>environment</code> which are assigned to the <code>ui</code>
-and <code>server</code> objects. The process therefore makes data
-inside these environments available to the <code>ui</code> and <code>server</code>
-functions.</p>
-<p>The following values will be used from the environment,
-searching up the environment parent chain until it finds
-a match, until searching the global environment. Similarly,
-this function also defines variables in the environment using
-the <code>&lt;&lt;-</code> operator, which by default also searches up the
-environment chain until it finds a match, otherwise
-populating the global environment.</p>
-<p>If a variable is not found, the corresponding data will be
-derived from relevant source data. If no data is provided,
-the default argument <code>empty_uses_farrisdata=TRUE</code> means the
-data and <code>filesDF</code> will use data from the publication Farris et al,
-from Github package <code>"jmw86069/farrisdata"</code>.</p>
-<p>#' The <code>filesDF</code> object should be a <code>data.frame</code> with at least three colnames:</p><ul>
-<li><p><code>"sample_id"</code></p></li>
-<li><p><code>"type"</code> (with values either <code>"bw"</code> or <code>"junction"</code>)</p></li>
-<li><p><code>"url"</code> (a URL or file path to each file.)</p></li>
-</ul>
-
-<p>It can optionally include colname <code>"scale_factor"</code> with <code>numeric</code>
-values used to multiply the coverage or junction values, the default
-<code>scale_factor=1</code>.</p>
-<p>Other data derived by this function or by <code><a href='sashimiDataConstants.html'>sashimiDataConstants()</a></code>:</p><ul>
-<li><p><strong>color_sub</strong>: <code>character</code> vector of R colors, whose names are
-used to match <code>filesDF$sample_id</code>. When not supplied,
-colors are defined by <code><a href='https://rdrr.io/pkg/colorjam/man/group2colors.html'>colorjam::group2colors()</a></code> and
-<code><a href='https://rdrr.io/r/base/unique.html'>unique(filesDF$sample_id)</a></code>.</p></li>
+    <p>This function performs a subset of steps performed by
+<code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code>, focusing only on data required
+for gene-exon structure. The <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code> defines
+<code>color_sub</code> and validates <code>filesDF</code>, then calls this function
+<code>sashimiDataConstants()</code> to prepare and validate the gene-exon
+data.</p>
+<p>Data derived by this function <code>sashimiDataConstants()</code>:</p><ul>
 <li><p><strong>txdb</strong>: <code>TranscriptDb</code> object used to derive <code>exonsByTx</code>
 and <code>cdsByTx</code> if either object does not already exist. If <code>txdb</code>
 is not supplied, it is derived from <code>gtf</code> using
@@ -334,25 +267,14 @@ to produce a clean transcript-exon model.</p></li>
 
 <p>When <code>use_memoise=TRUE</code> several R objects are cached using
 <code><a href='https://memoise.r-lib.org/reference/memoise.html'>memoise::memoise()</a></code>, to help re-use of prepared R objects,
-and to help speed the re-use of data within the R-shiny app:</p><ul>
-<li><p><strong>flatExonsByGene</strong></p></li>
-<li><p><strong>flatExonsByTx</strong></p></li>
-<li><p><strong>exonsByTx</strong></p></li>
-<li><p><strong>cdsByTx</strong></p></li>
-</ul>
-
-<p>To include a description of data used in your R-shiny app,
-define the variable <code>aboutExtra</code> either using <code>character</code> text,
-or as <code><a href='https://rdrr.io/pkg/htmltools/man/builder.html'>htmltools::tags()</a></code> sufficient to be displayed in the
-R-shiny UI. The content is displayed in the tab
-<code>"About Sashimi Plots"</code> at the top of the app.</p>
+and to help speed the re-use of data within the R-shiny app:</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other splicejam R-shiny functions: 
 <code><a href='launchSashimiApp.html'>launchSashimiApp</a>()</code>,
+<code><a href='sashimiAppConstants.html'>sashimiAppConstants</a>()</code>,
 <code><a href='sashimiAppServer.html'>sashimiAppServer</a>()</code>,
-<code><a href='sashimiAppUI.html'>sashimiAppUI</a>()</code>,
-<code><a href='sashimiDataConstants.html'>sashimiDataConstants</a>()</code></p></div>
+<code><a href='sashimiAppUI.html'>sashimiAppUI</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

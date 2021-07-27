@@ -463,7 +463,7 @@ simplifyXY <- function
             rl=rep(rl, 2),
             rv=rep(rv, 2)
          )
-         rlDF2 <- unique(mixedSortDF(
+         rlDF2 <- unique(jamba::mixedSortDF(
             data.frame(idx=c(rlDF[,1], rlDF[,2]),
                rl=rep(rl, 2),
                rv=rep(rv, 2)),
@@ -527,7 +527,7 @@ compressPolygonM <- function
          shrinkFunc=function(x){median(x, na.rm=TRUE)})$x;
    } else {
       data_style <- "fortify";
-      idrows <- pasteByRow(polyM[,c("cov","gr")]);
+      idrows <- jamba::pasteByRow(polyM[,c("cov","gr")]);
       idrows <- factor(idrows, levels=unique(idrows));
       polyML <- split(polyM, idrows);
       polyMratios <- unlist(lapply(polyML, function(i){
@@ -536,9 +536,9 @@ compressPolygonM <- function
          xv1 <- rev(sort(c(diff(xr1)+1, diff(xc1)+1)));
          xv1[1] / xv1[2];
       }));
-      polyMlengths <- sdim(polyML)[,1];
+      polyMlengths <- jamba::sdim(polyML)[,1];
    }
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("compressPolygonM(): ",
          "data_style:", data_style);
       jamba::printDebug("compressPolygonM(): ",
@@ -556,14 +556,14 @@ compressPolygonM <- function
       polyMlengths);
 
    polyDFL <- split(polyDF, polyMrepN);
-   sdim_polyDFL <- sdim(polyDFL)$rows;
+   sdim_polyDFL <- jamba::sdim(polyDFL)$rows;
    whichComp <- which(polyMratios >= minRatio & sdim_polyDFL > 5);
    whichNorm <- which(polyMratios < minRatio | sdim_polyDFL <= 5);
    if (length(whichComp) == 0) {
       return(polyM);
    }
    ## Compress those polygons whose coordinates get compressed
-   polyDFLnew <- lapply(nameVector(whichComp), function(k){
+   polyDFLnew <- lapply(jamba::nameVector(whichComp), function(k){
       iDF <- polyDFL[[k]];
       baseline <- iDF[1,"y"];
       iDF <- iDF[!is.na(iDF[,1]),,drop=FALSE];
@@ -580,16 +580,9 @@ compressPolygonM <- function
       iSeqSub <- seq(from=iRange[1],
          to=iRange[2],
          length.out=iN);
-      #iSeqNew <- seq(from=iRangeNew[1],
-      #   to=iRangeNew[2],
-      #   by=iMedRatio);
-      #iSeqSub <- seq(from=iRangeNew[1],
-      #   to=iRangeNew[2],
-      #   length.out=iN);
       iSeqSub[iSeqSub > max(iSeqNew)] <- max(iSeqNew);
 
       ## use approx() to fill in holes
-      #iYnew <- approx(x=iDFu$newX,
       iYnew <- approx(x=iDFu$x,
          y=iDFu$y,
          xout=iSeqNew)$y;
@@ -597,7 +590,7 @@ compressPolygonM <- function
       iYrunmax <- caTools::runmax(iYnew,
          k=iMultiple,
          endrule="keep");
-      if (1 == 2) {
+      if (verbose > 2) {
          jamba::printDebug("head(iDFu):");print(head(iDFu));
          jamba::printDebug("head(iYnew):", head(iYnew));
          jamba::printDebug("head(iMultiple):", head(iMultiple));
@@ -625,14 +618,12 @@ compressPolygonM <- function
          cov=head(iDF$cov, 1));
    });
    newPolyDFL <- list();
-   newPolyDFL[names(polyDFL)[whichNorm]] <- lapply(nameVector(whichNorm), function(k){
+   newPolyDFL[names(polyDFL)[whichNorm]] <- lapply(jamba::nameVector(whichNorm), function(k){
       polyDFL[[k]][,c("x","y","cov","gr"),drop=FALSE];
    });
    newPolyDFL[names(polyDFLnew)] <- polyDFLnew;
-   newPolyDFL <- newPolyDFL[mixedSort(names(newPolyDFL))];
-   newPolyM <- rbindList(newPolyDFL);
-   #plot(newPolyM, pch=".");
-   #polygon(newPolyM, col=rainbowJam(46));
+   newPolyDFL <- newPolyDFL[jamba::mixedSort(names(newPolyDFL))];
+   newPolyM <- jamba::rbindList(newPolyDFL);
    return(newPolyM);
 }
 
@@ -737,11 +728,11 @@ exoncov2polygon <- function
    suppressPackageStartupMessages(library(GenomicRanges));
    coord_style <- match.arg(coord_style);
 
-   if (!igrepHas("granges", class(gr))) {
+   if (!jamba::igrepHas("granges", class(gr))) {
       stop("Input gr should be a GRanges object.");
    }
    if (length(covNames) == 0) {
-      covNames <- provigrep(c("pos|[+]$", "neg|[-]$"),
+      covNames <- jamba::provigrep(c("pos|[+]$", "neg|[-]$"),
          colnames(GenomicRanges::values(gr)));
    }
    if (length(covNames) == 0) {
@@ -756,7 +747,7 @@ exoncov2polygon <- function
 
    ## Extend baseline to length of gr, so the baseline applies
    ## to each exon
-   baselineV <- nameVector(
+   baselineV <- jamba::nameVector(
       rep(0,
          length.out=length(gr)),
       names(gr));
@@ -774,8 +765,8 @@ exoncov2polygon <- function
          "covNames:",
          covNames);
    }
-   covPolyL <- lapply(nameVector(covNames), function(iName){
-      polyL <- lapply(nameVectorN(gr), function(iGRname){
+   covPolyL <- lapply(jamba::nameVector(covNames), function(iName){
+      polyL <- lapply(jamba::nameVectorN(gr), function(iGRname){
          yVals1a <- unlist(GenomicRanges::values(gr[iGRname])[[iName]]);
          iBase <- baselineV[iGRname];
          yVals1 <- yVals1a + iBase;
@@ -796,7 +787,7 @@ exoncov2polygon <- function
             tail(yVals1, 1),
             iBase,
             iBase);
-         if (length(xVals) != length(yVals)) {
+         if (length(xVals) != length(yVals) && verbose) {
             jamba::printDebug("length(xVals):", length(xVals));
             jamba::printDebug("length(yVals):", length(yVals));
          }
@@ -820,7 +811,7 @@ exoncov2polygon <- function
       ## coordinate matrix suitable for vectorized polygon() by separating
       ## each polygon with a row of NA values
       covPolyML <- lapply(covPolyL, function(iL){
-         tail(rbindList(lapply(iL, function(iM){
+         tail(jamba::rbindList(lapply(iL, function(iM){
             rbind(cbind(x=NA, y=NA),
                iM)
          })), -1);
@@ -828,9 +819,9 @@ exoncov2polygon <- function
       return(covPolyML);
    }
    if ("fortify" %in% coord_style) {
-      covPolyML <- lapply(nameVectorN(covPolyL), function(iN){
+      covPolyML <- lapply(jamba::nameVectorN(covPolyL), function(iN){
          iL <- covPolyL[[iN]];
-         rbindList(lapply(nameVectorN(iL), function(iN2){
+         jamba::rbindList(lapply(jamba::nameVectorN(iL), function(iN2){
             iM <- iL[[iN2]];
             data.frame(check.names=FALSE,
                stringsAsFactors=FALSE,
@@ -851,7 +842,7 @@ exoncov2polygon <- function
                verbose=verbose);
          });
          t2 <- Sys.time();
-         if (verbose) {
+         if (verbose > 1) {
             jamba::printDebug("exoncov2polygon(): ",
                "Completed polygon compression:",
                format(t2 - t1));
@@ -861,7 +852,7 @@ exoncov2polygon <- function
          covPolyML <- compCovPolyML;
       }
 
-      covPolyDF <- rbindList(covPolyML);
+      covPolyDF <- jamba::rbindList(covPolyML);
       covPolyDF$cov <- factor(covPolyDF$cov,
          levels=unique(c(covNames, covPolyDF$cov)));
       covPolyDF$gr <- factor(covPolyDF$gr,
@@ -869,7 +860,7 @@ exoncov2polygon <- function
             covPolyDF$gr)));
       ## Optionally add sample_id
       if (length(sample_id) > 0) {
-         cov2sample <- nameVector(sample_id, covNames);
+         cov2sample <- jamba::nameVector(sample_id, covNames);
          covPolyDF$sample_id <- cov2sample[covPolyDF$cov];
       }
       return(covPolyDF);
@@ -889,18 +880,19 @@ exoncov2polygon <- function
    if (doPlot) {
       if ("base" %in% coord_style) {
          if (exists("compCovPolyML")) {
-            par("mfrow"=c(2,1));
+            opar <- par("mfrow"=c(2,1));
+            on.exit(par(opar));
          }
          polyCol <- colorjam::rainbowJam(length(covPolyL[[1]]));
-         plot(rbindList(covPolyML),
+         plot(jamba::rbindList(covPolyML),
             pch=".",
             xaxt="n",
             col="transparent");
-         polygon(rbindList(covPolyML),
+         polygon(jamba::rbindList(covPolyML),
             border=polyCol,
             col=polyCol);
          if (exists("compCovPolyML")) {
-            plot(rbindList(compCovPolyML),
+            plot(jamba::rbindList(compCovPolyML),
                pch=".",
                xaxt="n",
                col="transparent");
@@ -910,7 +902,6 @@ exoncov2polygon <- function
             polygon(compCovPolyML[[2]],
                border=polyCol,
                col=polyCol);
-            par("mfrow"=c(1,1));
          }
       }
    }
@@ -1018,7 +1009,7 @@ getGRcoverageFromBw <- function
    ##
    ## TODO: consider splitting bwUrls into bwUrlsPos, bwUrlsNeg
    ## in order to allow strand-specificity
-   if (!igrepHas("GRanges", class(gr))) {
+   if (!jamba::igrepHas("GRanges", class(gr))) {
       stop("gr must be a GRanges object.");
    }
    if (length(names(bwUrls)) == 0) {
@@ -1078,12 +1069,12 @@ getGRcoverageFromBw <- function
    names(gr) <- names(grnames);
 
    ## Iterate bwUrls and get coverage from each
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("getGRcoverageFromBw(): ",
          "bwUrls:");
       print(bwUrls);
    }
-   covL <- lapply(nameVectorN(bwUrls), function(iBw){
+   covL <- lapply(jamba::nameVectorN(bwUrls), function(iBw){
       bwUrl <- bwUrls[[iBw]];
       iBwNum <- match(iBw, names(bwUrls));
       iBwPct <- iBwNum / length(bwUrls);
@@ -1548,7 +1539,7 @@ prepareSashimi <- function
       filesDF[,"scale_factor"] <- rep(1, nrow(filesDF));
    }
    ## validate other input
-   if (!igrepHas("GRangesList", class(flatExonsByGene))) {
+   if (!jamba::igrepHas("GRangesList", class(flatExonsByGene))) {
       stop("flatExonsByGene must be GRangesList")
    }
    if (length(sample_id) == 0) {
@@ -1588,7 +1579,7 @@ prepareSashimi <- function
       filesDF$sample_id %in% sample_id,,drop=FALSE];
    ## Subset by filename if include_strand is not "both"
    if (!"both" %in% include_strand) {
-      if (igrepHas("pos|[+]|plus", bwFilesDF$url)) {
+      if (jamba::igrepHas("pos|[+]|plus", bwFilesDF$url)) {
          if ("+" %in% include_strand) {
             bwFilesDF <- bwFilesDF[jamba::igrep("pos|[+]|plus", bwFilesDF$url),,drop=FALSE];
          } else {
@@ -1596,8 +1587,8 @@ prepareSashimi <- function
          }
       }
    }
-   bwUrls <- nameVector(bwFilesDF[,c("url","url")]);
-   bwSamples <- nameVector(bwFilesDF[,c("sample_id","url")]);
+   bwUrls <- jamba::nameVector(bwFilesDF[,c("url","url")]);
+   bwSamples <- jamba::nameVector(bwFilesDF[,c("sample_id","url")]);
    bwUrlsL <- split(bwUrls, unname(bwSamples));
    if (!"scale_factor" %in% colnames(bwFilesDF)) {
       bwFilesDF$scale_factor <- rep(1, nrow(bwFilesDF));
@@ -1615,7 +1606,7 @@ prepareSashimi <- function
             sep=", ");
       }
    }
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("prepareSashimi(): ",
          "bwUrls:");
       if (length(bwUrls) > 0) {
@@ -1650,8 +1641,8 @@ prepareSashimi <- function
          if (nrow(covfilesDF) == 0) {
             stop("Supplied coverage covGR does not have colnames in filesDF$url with filesDF$type == 'coverage_gr'");
          }
-         covUrls <- nameVector(covfilesDF[,c("url","url")]);
-         covSamples <- nameVector(covfilesDF[,c("sample_id","url")]);
+         covUrls <- jamba::nameVector(covfilesDF[,c("url","url")]);
+         covSamples <- jamba::nameVector(covfilesDF[,c("sample_id","url")]);
          covGRuse <- covGRuse[,covUrls];
          if ("scale_factor" %in% colnames(covfilesDF)) {
             covScaleFactors <- rmNA(naValue=1,
@@ -1661,6 +1652,11 @@ prepareSashimi <- function
          }
 
          ## Combine coverage per strand
+         if (do_shiny_progress) {
+            ##
+            shiny::setProgress(1/4,
+               detail=paste0("Combining bw coverage by sample_id"));
+         }
          covGR2 <- combineGRcoverage(covGRuse,
             covName=covSamples,
             scaleFactors=covScaleFactors,
@@ -1699,9 +1695,9 @@ prepareSashimi <- function
          covDFlab <- covDF[covDFsub,,drop=FALSE];
 
          exonLabelDF1 <- shrinkMatrix(covDFlab[,c("x","y")],
-            groupBy=pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
+            groupBy=jamba::pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
             shrinkFunc=function(x){mean(range(x))});
-         exonLabelDF1[,c("gr","sample_id")] <- rbindList(
+         exonLabelDF1[,c("gr","sample_id")] <- jamba::rbindList(
             strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
          exonLabelDF1$gr <- factor(exonLabelDF1$gr,
             levels=unique(exonLabelDF1$gr));
@@ -1743,7 +1739,11 @@ prepareSashimi <- function
          jamba::printDebug("prepareSashimi(): ",
             "Combining coverage by sample_id");
       }
-
+      if (do_shiny_progress) {
+         ##
+         shiny::setProgress(1/4,
+            detail=paste0("Combining bw coverage by sample_id"));
+      }
       covGR2 <- combineGRcoverage(covGR,
          covName=bwSamples,
          scaleFactors=bwScaleFactors,
@@ -1767,6 +1767,11 @@ prepareSashimi <- function
       if (verbose) {
          jamba::printDebug("prepareSashimi(): ",
             "Calling exoncov2polygon()");
+      }
+      if (do_shiny_progress) {
+         ##
+         shiny::setProgress(2.5/4,
+            detail=paste0("Converting coverage to polygons."));
       }
       covDF <- exoncov2polygon(covGR2,
          ref2c=ref2c,
@@ -1804,9 +1809,9 @@ prepareSashimi <- function
       covDFlab <- covDF[covDFsub,,drop=FALSE];
 
       exonLabelDF1 <- shrinkMatrix(covDFlab[,c("x","y")],
-         groupBy=pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
+         groupBy=jamba::pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
          shrinkFunc=function(x){mean(range(x))});
-      exonLabelDF1[,c("gr","sample_id")] <- rbindList(
+      exonLabelDF1[,c("gr","sample_id")] <- jamba::rbindList(
          strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
       exonLabelDF1$gr <- factor(exonLabelDF1$gr,
          levels=unique(exonLabelDF1$gr));
@@ -1833,7 +1838,7 @@ prepareSashimi <- function
       }
       if (do_shiny_progress) {
          ##
-         shiny::incProgress(2/4,
+         shiny::incProgress(3/4,
             detail=paste0("Preparing GR junction data for ", gene));
       }
       juncGRuse <- juncGR[values(juncGR)[["sample_id"]] %in% sample_id];
@@ -1873,14 +1878,14 @@ prepareSashimi <- function
    ##
    juncFilesDF <- filesDF[filesDF$type %in% "junction" &
       filesDF$sample_id %in% sample_id,c("url", "sample_id", "scale_factor"),drop=FALSE];
-   juncUrls <- nameVector(juncFilesDF[,c("url", "sample_id")]);
-   juncSamples <- nameVector(juncFilesDF[,c("sample_id", "sample_id")]);
+   juncUrls <- jamba::nameVector(juncFilesDF[,c("url", "sample_id")]);
+   juncSamples <- jamba::nameVector(juncFilesDF[,c("sample_id", "sample_id")]);
    juncUrlsL <- split(juncUrls, juncSamples);
    if (!"scale_factor" %in% colnames(juncFilesDF)) {
       juncFilesDF$scale_factor <- rep(1, nrow(juncFilesDF));
    }
    juncScaleFactors <- rmNA(naValue=1,
-      nameVector(juncFilesDF[,c("scale_factor", "sample_id")]));
+      jamba::nameVector(juncFilesDF[,c("scale_factor", "sample_id")]));
    if (verbose && length(juncScaleFactors) > 0) {
       jamba::printDebug("prepareSashimi(): ",
          "juncScaleFactors: ",
@@ -1904,17 +1909,17 @@ prepareSashimi <- function
             cache=memoise::cache_filesystem(memoise_junction_path));
       }
       if (do_shiny_progress) {
-         shiny::incProgress(2/4,
+         shiny::incProgress(3/4,
             detail=paste0("Importing junctions for ", gene));
       }
-      juncBedList <- lapply(nameVectorN(juncUrls), function(iBedName){
+      juncBedList <- lapply(jamba::nameVectorN(juncUrls), function(iBedName){
          iBed <- juncUrls[[iBedName]];
          iBedNum <- match(iBedName, jamba::makeNames(names(juncUrls)));
          iBedPct <- (iBedNum - 1) / length(juncUrls);
          if (do_shiny_progress) {
             if (!is.na(iBedPct)) {
                shiny::setProgress(
-                  value=2/4 + iBedPct/4,
+                  value=3/4 + iBedPct/6,
                   detail=paste0("Importing junctions (",
                      iBedNum,
                      " of ",
@@ -1924,7 +1929,7 @@ prepareSashimi <- function
          }
          if (verbose) {
             jamba::printDebug("prepareSashimi(): ",
-               "progress:", format(digits=2, 2/4 + iBedPct/4),
+               "progress:", format(digits=2, 3/4 + iBedPct/6),
                "Importing bed:",
                iBed,
                " with scale_factor:",
@@ -1955,7 +1960,6 @@ prepareSashimi <- function
                juncNames=iBedName,
                sample_id=juncSamples[iBedName],
                scale_factor=1,
-               #scale_factor=juncScaleFactors[iBedName],
                use_memoise=TRUE,
                memoise_junction_path=memoise_junction_path,
                gr=gr);
@@ -1964,7 +1968,6 @@ prepareSashimi <- function
                juncNames=iBedName,
                sample_id=juncSamples[iBedName],
                scale_factor=1,
-               #scale_factor=juncScaleFactors[iBedName],
                gr=gr);
          }
          ## Apply scale_factor
@@ -1984,7 +1987,7 @@ prepareSashimi <- function
                "running spliceGR2junctionDF for juncBedGR()");
          }
          if (do_shiny_progress) {
-            shiny::setProgress(3/4,
+            shiny::setProgress(3.8/4,
                detail=paste0("Combining junction data for ", gene));
          }
          juncDF1f <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
@@ -2036,12 +2039,9 @@ prepareSashimi <- function
       if (verbose) {
          jamba::printDebug("prepareSashimi(): ",
             "calling grl2df() on juncGR");
-         #print(head(juncGR));
-         #print(head(GenomicRanges::split(juncGR,
-         #   GenomicRanges::values(juncGR)[["sample_id"]])));
       }
       if (do_shiny_progress) {
-         shiny::setProgress(3.5/4,
+         shiny::setProgress(3.9/4,
             detail=paste0("Calculating junction stacking for ", gene));
       }
       ## Convert junctions to polygons usable by geom_diagonal_wide()
@@ -2081,10 +2081,10 @@ prepareSashimi <- function
       }
 
       ## define junction label positions
-      #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=makeNames(id)), grepl("_v1_v3$", id_name));
+      #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=jamba::makeNames(id)), grepl("_v1_v3$", id_name));
       if (do_shiny_progress) {
          ##
-         shiny::setProgress(3.8/4,
+         shiny::setProgress(3.95/4,
             detail=paste0("Preparing junction label coordinates for ", gene));
       }
       juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=jamba::makeNames(id)),
@@ -2104,9 +2104,9 @@ prepareSashimi <- function
          from="groupBy",
          to="nameFromToSample");
       juncLabelDF$y <- juncLabelDF_y$y;
-      juncLabelDF[,c("nameFromTo","sample_id")] <- rbindList(
+      juncLabelDF[,c("nameFromTo","sample_id")] <- jamba::rbindList(
          strsplit(juncLabelDF[,"nameFromToSample"], ":!:"));
-      juncLabelDF[,c("nameFrom", "nameTo")] <- rbindList(
+      juncLabelDF[,c("nameFrom", "nameTo")] <- jamba::rbindList(
          strsplit(juncLabelDF[,"nameFromTo"], " "));
       ## Enforce ordered factor levels for sample_id
       ## which also forces empty factor levels if applicable
@@ -2132,7 +2132,7 @@ prepareSashimi <- function
    ## exon coverage
    if (exists("covDF") && length(covDF) > 0) {
       covDF$type <- "coverage";
-      covDF$name <- pasteByRow(covDF[,c("gr", "cov", "sample_id")], sep=" ");
+      covDF$name <- jamba::pasteByRow(covDF[,c("gr", "cov", "sample_id")], sep=" ");
       covDF$feature <- covDF$gr;
       covDF$row <- seq_len(nrow(covDF));
       ## define name as factor to maintain the drawing order
@@ -2145,7 +2145,7 @@ prepareSashimi <- function
    ## exon labels
    if (exists("exonLabelDF") && length(exonLabelDF) > 0) {
       exonLabelDF$type <- "exon_label";
-      exonLabelDF$name <- pasteByRow(exonLabelDF[,c("gr","sample_id")], sep=" ");
+      exonLabelDF$name <- jamba::pasteByRow(exonLabelDF[,c("gr","sample_id")], sep=" ");
       exonLabelDF$feature <- exonLabelDF$gr;
       exonLabelDF$row <- seq_len(nrow(exonLabelDF));
       exonLabelDF$color_by <- NA;
@@ -2158,7 +2158,7 @@ prepareSashimi <- function
    ## junctions
    if (exists("juncDF") && length(juncDF) > 0) {
       juncDF$type <- "junction";
-      juncDF$name <- pasteByRow(juncDF[,c("nameFromTo", "sample_id")], sep=" ");
+      juncDF$name <- jamba::pasteByRow(juncDF[,c("nameFromTo", "sample_id")], sep=" ");
       juncDF$feature <- juncDF$nameFromTo;
       juncDF$row <- seq_len(nrow(juncDF));
       junction_spans <- abs(
@@ -2171,7 +2171,7 @@ prepareSashimi <- function
       ## easily obscured by the higher rank and larger junctions.
       if (length(unique(juncDF$junction_rank)) > 1) {
          junc_name_levels <- unique(
-            mixedSortDF(juncDF,
+            jamba::mixedSortDF(juncDF,
                byCols=c("-junction_rank", "-junction_span", "row"))$name);
          juncDF$name <- factor(juncDF$name,
             levels=junc_name_levels);
@@ -2182,7 +2182,7 @@ prepareSashimi <- function
    ## junction labels
    if (exists("juncLabelDF") && length(juncLabelDF) > 0) {
       juncLabelDF$type <- "junction_label";
-      juncLabelDF$name <- pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
+      juncLabelDF$name <- jamba::pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
       juncLabelDF$feature <- juncLabelDF$nameFromTo;
       juncLabelDF$row <- seq_len(nrow(juncLabelDF));
       ## define name as factor to maintain the drawing order
@@ -2210,7 +2210,7 @@ prepareSashimi <- function
             " data.frames into df.");
       }
       cjDF <- jamba::mergeAllXY(cjL);
-      cjDF <- mixedSortDF(cjDF,
+      cjDF <- jamba::mixedSortDF(cjDF,
          byCols=c("type","row"));
    }
    ## order columns by presence of NA values
@@ -2332,7 +2332,7 @@ internal_junc_score <- function
    juncGroupColnames <- intersect(
       c(sampleColname, "seqnames", "start", "strand", "side"),
       colnames(juncEndsDF));
-   juncGroup <- pasteByRow(juncEndsDF[, juncGroupColnames, drop=FALSE]);
+   juncGroup <- jamba::pasteByRow(juncEndsDF[, juncGroupColnames, drop=FALSE]);
    juncEndsRed <- shrinkMatrix(juncEndsDF[[scoreColname]],
       groupBy=juncGroup,
       shrinkFunc=sum);
@@ -2342,7 +2342,7 @@ internal_junc_score <- function
    }
    juncEndsRefGR <- juncEndsGR[match(juncEndsRed$groupBy, juncGroup)];
    GenomicRanges::values(juncEndsRefGR)[[scoreColname]] <- juncEndsRed$x;
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("internal_junc_score(): ",
          "length(juncEndsRefGR):", length(juncEndsRefGR));
    }
@@ -2350,12 +2350,12 @@ internal_junc_score <- function
    fo1 <- GenomicRanges::findOverlaps(juncGR, juncEndsRefGR);
    fo1df <- data.frame(q=S4Vectors::queryHits(fo1),
       s=S4Vectors::subjectHits(fo1));
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("internal_junc_score(): ",
          "dim(fo1df):", dim(fo1df));
    }
    if (nrow(fo1df) == 0) {
-      intScore <- nameVector(
+      intScore <- jamba::nameVector(
          rep(0, length(juncGR)),
          names(juncGR));
    } else {
@@ -2370,12 +2370,12 @@ internal_junc_score <- function
 
       fo1dfuse <- subset(fo1df,
          qSample == sSample);
-      if (verbose) {
+      if (verbose > 1) {
          jamba::printDebug("internal_junc_score(): ",
             "dim(fo1dfuse):", dim(fo1dfuse));
       }
       if (nrow(fo1dfuse) == 0) {
-         intScore <- nameVector(
+         intScore <- jamba::nameVector(
             rep(0, length(juncGR)),
             names(juncGR));
       } else {
@@ -2391,19 +2391,32 @@ internal_junc_score <- function
    return(intScore);
 }
 
-#' Import splice junction data from BED file
+#' Import splice junction data from BED or SJ.out.tab file
 #'
-#' Import splice junction data from BED file
+#' Import splice junction data from BED or SJ.out.tab file
 #'
 #' This function is intended to be called internally by
 #' `prepareSashimi()`, and is provided primarily to enable
 #' use of `memoise::memoise()` to cache results.
 #'
-#' This function uses `rtracklayer::import()` to import data,
-#' so any file or URL compatible with that function is acceptable.
-#' Also, any compatible file format can be used, for example
-#' a gzipped BED file. However, "bigBed" format cannot be used,
-#' since the rtracklayer package does not support that format.
+#' This function was refactored in version 0.0.69.900 to
+#' handle either BED format, or `"SJ.out.tab"` junction
+#' format as produced by STAR alignment. The method uses
+#' `data.table::fread()` then if there are 9 columns,
+#' it assumes the format is `"SJ.out.tab"`. Otherwise it
+#' coerces the `data.frame` with `as(bed, "GRanges")`.
+#'
+#' The BED or `"SJ.out.tab"` file can be gzipped, provided
+#' `data.table()` is able to recognieze and import the
+#' compression format.
+#'
+#' Note that bigBed format still cannot be used since the
+#' rtracklayer package does not support that format.
+#'
+#' Also note that junctions with `score=0` are dropped at
+#' this step, to prevent propagation of junctions with
+#' zero counts.
+#'
 #'
 #' @family jam data import functions
 #'
@@ -2438,15 +2451,58 @@ import_juncs_from_bed <- function
    # use_memoise=TRUE invokes slightly different cache strategy:
    # - load fill iBed data (using cached version if present)
    # - subset by range(gr)
+   #
+   # New workflow:
+   # - import into data.frame
+   # - determine BED or SJ.out.tab format
+   # - call appropriate method
+
+   # helper function to convert data.frame to junctions GRanges
+   df_to_junc_gr <- function(bed_df){
+      if (ncol(bed_df) == 9) {
+         bed_df <- subset(bed_df, !bed_df[,7] %in% 0);
+         bed_gr <- GenomicRanges::GRanges(
+            seqnames=c(bed_df[,1]),
+            ranges=IRanges::IRanges(
+               start=bed_df[,2] - 1,
+               end=bed_df[,3] + 0),
+            strand=ifelse(bed_df[,4] == 1, "+",
+               ifelse(bed_df[,4] == 2, "-", "*")),
+            score=bed_df[,7]
+         )
+      } else {
+         colnames(bed_df) <- head(c("seqnames",
+            "start",
+            "end",
+            "name",
+            "score",
+            "strand",
+            "thickStart",
+            "thickEnd",
+            "itemRgb",
+            "blockCount",
+            "blockSizes",
+            "blockStarts"),
+            ncol(bed_df));
+         # remove rows with score==0
+         if ("score" %in% colnames(bed_df)) {
+            bed_df <- subset(bed_df, !score %in% 0);
+         }
+         bed_gr <- as(bed_df, "GRanges")
+      }
+      return(bed_gr)
+   }
+
    if (use_memoise) {
-      import_m <- memoise::memoise(rtracklayer::import.bed,
+      import_m <- memoise::memoise(
+         function(x){data.table::fread(x, data.table=FALSE, showProgress=FALSE)},
          cache=memoise::cache_filesystem(memoise_junction_path));
       import_has_cache <- memoise::has_cache(import_m)(iBed);
       if (verbose) {
          jamba::printDebug("import_juncs_from_bed():",
             "import_has_cache:", import_has_cache);
       }
-      bed1 <- tryCatch({
+      bed_df <- tryCatch({
          import_m(iBed);
       }, error=function(e){
          warnText <- paste0("getGRcoverageFromBw():",
@@ -2456,57 +2512,56 @@ import_juncs_from_bed <- function
             "', returning NULL.");
          warning(warnText);
          NULL;
-      })
-      if (length(bed1) == 0) {
+      });
+      if (length(bed_df) == 0 && verbose) {
          jamba::printDebug("import_juncs_from_bed(): ",
             "Repairing junction cache.",
             fgText=c("darkorange","seagreen3"));
          if (compareVersion(as.character(packageVersion("memoise")), "1.1.0.900") >= 0) {
             #import_has_cache <- memoise::has_cache(import_m)(iBed);
             memoise::drop_cache(import_m)(iBed);
-            bed1 <- import_m(iBed);
-            bed1 <- tryCatch({
+            bed_df <- tryCatch({
                import_m(iBed);
             }, error=function(e){
                NULL;
             })
          } else {
-            bed1 <- tryCatch({
-               if (length(gr) > 0) {
-                  rtracklayer::import(iBed,
-                     which=range(gr));
-               } else {
-                  rtracklayer::import(iBed);
-               }
+            bed_df <- tryCatch({
+               data.table::fread(iBed, data.table=FALSE);
             }, error=function(e){
                NULL;
             });
          }
+         if (length(bed_df) == 0) {
+            jamba::printDebug("import_juncs_from_bed(): ",
+               "Failed to Repair junction cache.",
+               fgText=c("darkorange","red"));
+         }
       }
-      if (length(bed1) > 0 && length(gr) > 0) {
-         bed1 <- subsetByOverlaps(bed1,
-            ranges=range(gr));
+      if (length(bed_df) > 0) {
+         bed1 <- df_to_junc_gr(bed_df);
       } else {
-         jamba::printDebug("import_juncs_from_bed(): ",
-            "Failed to Repair junction cache.",
-            fgText=c("darkorange","red"));
          bed1 <- NULL;
-         return(bed1);
       }
    } else {
-      bed1 <- tryCatch({
-         if (length(gr) > 0) {
-            rtracklayer::import(iBed,
-               which=range(gr));
-         } else {
-            rtracklayer::import(iBed);
-         }
+      bed_df <- tryCatch({
+         data.table::fread(iBed, data.table=FALSE);
       }, error=function(e){
          NULL;
-      })
+      });
+      if (length(bed_df) > 0) {
+         bed1 <- df_to_junc_gr(bed_df);
+      } else {
+         bed1 <- NULL;
+      }
    }
    if (length(bed1) == 0) {
-      return(bed1);
+      return(NULL)
+   }
+
+   if (length(bed1) > 0 && length(gr) > 0) {
+      bed1 <- IRanges::subsetByOverlaps(bed1,
+         ranges=range(gr));
    }
 
    ## Assign score and apply scale_factor
@@ -2514,7 +2569,8 @@ import_juncs_from_bed <- function
    ## By default if name has numeric values, use them as scores,
    ## since the score column is sometimes restricted to integer
    ## values with a maximum value 1000.
-   if (!any(is.na(as.numeric(as.character(GenomicRanges::values(bed1)$name))))) {
+   if ("name" %in% colnames(GenomicRanges::values(bed1)) &&
+         !any(is.na(as.numeric(as.character(GenomicRanges::values(bed1)$name))))) {
       GenomicRanges::values(bed1)$score <- as.numeric(as.character(GenomicRanges::values(bed1)$name)) * scale_factor;
    } else {
       GenomicRanges::values(bed1)$score <- as.numeric(as.character(GenomicRanges::values(bed1)$score)) * scale_factor;
@@ -2524,12 +2580,14 @@ import_juncs_from_bed <- function
    GenomicRanges::values(bed1)[,c("sample_id")] <- sample_id;
    ## Subset junctions to require either start or end to be contained
    ## within the region of interest (filters out phantom mega-junctions)
-   bed1 <- subset(bed1,
-      (
-         IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=TRUE), range(gr)) |
-         IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=FALSE), range(gr))
-      )
-   );
+   if (length(gr) > 0) {
+      bed1 <- subset(bed1,
+         (
+            IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=TRUE), range(gr)) |
+            IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=FALSE), range(gr))
+         )
+      );
+   }
    bed1;
 }
 

@@ -37,14 +37,14 @@ psl2df <- function
    #pslLines <- gsub("[' ]+", "",
    #   readLines("Adam19_KO_e5_Tomato_mRNA.psl")[-1*c(1,2,5)]);
    pslHeaderCheck <- readLines(psl, n=1);
-   if (igrepHas("^pslayout", pslHeaderCheck)) {
+   if (jamba::igrepHas("^pslayout", pslHeaderCheck)) {
       if (verbose) {
          printDebug("psl2df(): ",
             "Detected psLayout header line.");
       }
       pslLines <- gsub("[' ]+", "",
          readLines(psl)[-1*c(1,4)]);
-      psldf1 <- rbindList(
+      psldf1 <- jamba::rbindList(
          strsplit(
             head(pslLines, 2),
             "\t"));
@@ -69,7 +69,7 @@ psl2df <- function
          c(pslHeaderCheck,
             readLines(psl)));
       printDebug("length(pslLines):", length(pslLines));
-      if (igrepHas("^[-]+$", pslLines)) {
+      if (jamba::igrepHas("^[-]+$", pslLines)) {
          pslN <- max(grep("^[-]+$", pslLines));
          if (verbose) {
             printDebug("psl2df(): ",

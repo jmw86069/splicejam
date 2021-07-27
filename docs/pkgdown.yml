@@ -1,8 +1,9 @@
-pandoc: 2.9.2.1
+pandoc: 2.14.1
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   basic-rnaseq-workflow: basic-rnaseq-workflow.html
   create-a-sashimi-plot: create-a-sashimi-plot.html
-last_built: 2021-03-19T19:59Z
+  shiny-server-for-sashimi-plots: shiny-server-for-sashimi-plots.html
+last_built: 2021-07-27T21:22Z
 

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.64.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.69.900</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -100,6 +100,9 @@
     <li>
       <a href="../articles/create-a-sashimi-plot.html">Create a Sashimi Plot</a>
     </li>
+    <li>
+      <a href="../articles/shiny-server-for-sashimi-plots.html">Shiny server for Sashimi Plots</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -109,7 +112,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="http://github.com/jmw86069/splicejam/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -183,7 +186,7 @@ value <code>"gap"</code>.</p></td>
     </tr>
     <tr>
       <th>use_memoise</th>
-      <td><p>logical indicating whether to use <code><a href='https://rdrr.io/pkg/memoise/man/memoise.html'>memoise::memoise()</a></code>
+      <td><p>logical indicating whether to use <code><a href='https://memoise.r-lib.org/reference/memoise.html'>memoise::memoise()</a></code>
 to store coverage data in cache files, which can be re-used in
 subsequent R sessions, given consistent values for
 <code>memoise_coverage_path</code>.
@@ -206,7 +209,7 @@ working directory.</p></td>
     <tr>
       <th>do_shiny_progress</th>
       <td><p>logical indicating whether to update
-shiny progress bar, using <code><a href='https://shiny.rstudio.com/reference/shiny/latest/withProgress.html'>shiny::setProgress()</a></code>. It assumes
+shiny progress bar, using <code><a href='https://rdrr.io/pkg/shiny/man/withProgress.html'>shiny::setProgress()</a></code>. It assumes
 the progress bar is already initiated.</p></td>
     </tr>
     <tr>
@@ -222,14 +225,36 @@ the progress bar is already initiated.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>DataFrame object, whose colnames are defined using
-<code><a href='https://rdrr.io/pkg/jamba/man/makeNames.html'>jamba::makeNames(basename(bwUrls))</a></code>. Each column is type <code>NumericList</code>,
-which is a list of numeric coverage values.</p>
+either <code><a href='https://rdrr.io/r/base/names.html'>names(bwUrls)</a></code> or by <code><a href='https://rdrr.io/pkg/jamba/man/makeNames.html'>jamba::makeNames(basename(bwUrls))</a></code>
+then removing the <code>.bw</code> or <code>.bigWig</code> file extension,
+case-insensitively.
+Each column is type <code>IRanges::NumericList-class</code> which is a
+list of numeric coverage values.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function takes a GRanges object to define genomic regions,
 for which coverage data is loaded for each <code>bwUrls</code> input file.</p>
 <p>Note that this function uses <code><a href='https://rdrr.io/pkg/rtracklayer/man/BigWigFile.html'>rtracklayer::import.bw()</a></code> which
 they describe does not work on the Windows platform.</p>
+<p>Update in version 0.0.68.900: This function was updated in two
+subtle ways, to work around a bug in <code>rtracklater::import.bw()</code>,
+which returns data sorted by chromosome in the order it is indexed
+in the bigWig file, then within each chromosome entries are returned
+in the order requested. This <code>getGRcoverageFromBw()</code> was updated to:</p><ol>
+<li><p>Confirm input <code>gr</code> GRanges contains names, or assigns names
+as needed.</p></li>
+<li><p>The output coverage from <code>rtracklayer::import.gw()</code> is ordered
+by <code><a href='https://rdrr.io/r/base/names.html'>names(gr)</a></code> to confirm the output coverage is returned in the
+identical order as requested.</p></li>
+</ol>
+
+<p>The updates above were done outside the scope of memoise file caching,
+so that stored coverage cache files will still be valid, but the
+order of named entries from the cache will be dependent upon the
+order requested. In the event the cache coverage contains no names,
+they will be returned in the same order as stored, however it is
+possible the cache will be invalidated by the addition of names
+to <code>gr</code>, though unclear exactly how deeply memoise checks such things.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other jam GRanges functions: 

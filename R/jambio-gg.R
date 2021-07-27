@@ -357,8 +357,10 @@ grl2df <- function
       if (verbose) {
          jamba::printDebug("grl2df(): ",
             "calling internal_junc_score()");
-         print(head(as.data.frame(grl@unlistData), 20));
-         print(tail(as.data.frame(grl@unlistData), 20));
+         if (verbose > 1) {
+            print(head(as.data.frame(grl@unlistData), 20));
+            print(tail(as.data.frame(grl@unlistData), 20));
+         }
       }
       ## sampleColname should be empty if there is no sample_id
       sampleColname <- intersect("sample_id",
@@ -616,7 +618,7 @@ gene2gg <- function
    } else {
       grl1a <- NULL;
    }
-   if (length(flatExonsByTx) > 0 && igrepHas("GRanges", class(flatExonsByTx))) {
+   if (length(flatExonsByTx) > 0 && jamba::igrepHas("GRanges", class(flatExonsByTx))) {
       grl1 <- NULL;
       if (length(gene) > 0) {
          if (geneSymbolColname %in% colnames(values(flatExonsByTx))) {
@@ -706,8 +708,8 @@ gene2gg <- function
    ## In future, define colors for each gr_name, which will allow
    ## highlighting individual features if needed.
    if (length(colorColname) > 0) {
-      grl1a1df$color_by <- pasteByRow(grl1a1df[,c("grl_name", colorColname)]);
-      subclassV <- provigrep(
+      grl1a1df$color_by <- jamba::pasteByRow(grl1a1df[,c("grl_name", colorColname)]);
+      subclassV <- jamba::provigrep(
          c("noncds", "utr", "cds", "exon", "intron", "gap", "^NA$", "."),
          rmNA(naValue="NA",
             unique(grl1a1df[[colorColname]]))
@@ -848,7 +850,7 @@ gene2gg <- function
 
    if (length(gene) > 0) {
       grl1a1gg <- grl1a1gg +
-         ggtitle(paste0(cPaste(gene), " exon model"));
+         ggtitle(paste0(jamba::cPaste(gene), " exon model"));
    }
    if ("df" %in% return_type) {
       return(grl1a1df);
@@ -1082,7 +1084,7 @@ stackJunctions <- function
    }
    GenomicRanges::values(gr)[[scoreColname]] <- scoreV;
 
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("stackJunctions(): ",
          "matchFrom:", matchFrom,
          ", matchTo:", matchTo);
@@ -1091,16 +1093,16 @@ stackJunctions <- function
    # Combine value colnames and non-value colnames, using only
    # the required colnames since as.data.frame(gr) will fail if
    # any columns are not coercible to data.frame, for example list.
-   exonsFrom <- pasteByRow(sep="_",
+   exonsFrom <- jamba::pasteByRow(sep="_",
       as.data.frame(gr[,intersect(matchFrom, grValueColnames)])[,matchFrom,drop=FALSE])
-   exonsTo <- pasteByRow(sep="_",
+   exonsTo <- jamba::pasteByRow(sep="_",
       as.data.frame(gr[,intersect(matchTo, grValueColnames)])[,matchTo,drop=FALSE])
 
    exonsFrom <- gsub("[.][-]*[0-9]+$", "",
       exonsFrom);
    exonsTo <- gsub("[.][-]*[0-9]+$", "",
       exonsTo);
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("stackJunctions(): ",
          "head(exonsFrom):",
          head(exonsFrom, 10));
@@ -1111,7 +1113,7 @@ stackJunctions <- function
 
    ## Extend baseline to length of gr, so the baseline applies
    ## to each exon
-   allExons <- mixedSort(unique(
+   allExons <- jamba::mixedSort(unique(
       c(exonsFrom, exonsTo)));
    baselineV <- jamba::nameVector(
       rep(0,
@@ -1144,7 +1146,7 @@ stackJunctions <- function
       names(gr)[order1],
       groupBy=exonsFrom[order1],
       shrinkFunc=c);
-   if (verbose) {
+   if (verbose > 1) {
       jamba::printDebug("head(yStart_df):");
       print(head(yStart_df, 20));
       print(gr[yRow_df$x]);
@@ -1187,7 +1189,7 @@ stackJunctions <- function
    ## Ensure "nameFromTo" exists
    if (all(c("nameFrom", "nameTo") %in% colnames(values(gr)))) {
       if (!"nameFromTo" %in% colnames(values(gr))) {
-         GenomicRanges::values(gr)[,"nameFromTo"] <- pasteByRow(values(gr)[,c("nameFrom", "nameTo")],
+         GenomicRanges::values(gr)[,"nameFromTo"] <- jamba::pasteByRow(values(gr)[,c("nameFrom", "nameTo")],
             sep=" ");
       }
       sampleColname <- intersect(sampleColname, colnames(values(gr)));
@@ -1200,7 +1202,7 @@ stackJunctions <- function
       } else {
          ## Stack within sample_id
          if (!"nameFromToSample" %in% colnames(values(gr))) {
-            GenomicRanges::values(gr)[,"nameFromToSample"] <- pasteByRow(values(gr)[,c("nameFromTo", sampleColname)],
+            GenomicRanges::values(gr)[,"nameFromToSample"] <- jamba::pasteByRow(values(gr)[,c("nameFromTo", sampleColname)],
                sep=":!:");
          }
          value_colnames <- c(scoreColname, "nameFromToSample");
@@ -1215,11 +1217,11 @@ stackJunctions <- function
       }
       juncRankFrom <- shrinkMatrix(
          GenomicRanges::values(gr)[,value_colnames],
-         pasteByRow(values(gr)[,from_colnames]),
+         jamba::pasteByRow(values(gr)[,from_colnames]),
          shrinkFunc=shrink_junc);
       juncRankTo <- shrinkMatrix(
          GenomicRanges::values(gr)[,value_colnames],
-         pasteByRow(values(gr)[,to_colnames]),
+         jamba::pasteByRow(values(gr)[,to_colnames]),
          shrinkFunc=shrink_junc);
       juncRankDF <- data.frame(
             juncRankFrom[match(values(gr)[,nfts_colname], juncRankFrom[,nfts_colname]),],
@@ -1390,7 +1392,7 @@ plotSashimi <- function
          sashimi$df$junction_rank <- 3;
       }
       if (fill_scheme %in% "sample_id") {
-         sashimi$df$color_by[junc_rows] <- pasteByRow(
+         sashimi$df$color_by[junc_rows] <- jamba::pasteByRow(
             sashimi$df[junc_rows,c("sample_id","junction_rank"), drop=FALSE],
             sep=".");
       } else {
@@ -1444,7 +1446,7 @@ plotSashimi <- function
       junclabel_rows <- (sashimi$df$type %in% "junction_label");
       if (any(junclabel_rows)) {
          if (fill_scheme %in% "sample_id") {
-            sashimi$df$color_by[junclabel_rows] <- pasteByRow(sashimi$df[junclabel_rows, c("sample_id","junction_rank"), drop=FALSE],
+            sashimi$df$color_by[junclabel_rows] <- jamba::pasteByRow(sashimi$df[junclabel_rows, c("sample_id","junction_rank"), drop=FALSE],
                sep=".");
          } else {
             sashimi$df$color_by[junclabel_rows] <- as.character(sashimi$df$junction_rank[junclabel_rows]);
@@ -1538,7 +1540,7 @@ plotSashimi <- function
    }
 
    # Add junction_labels only for non-plotly
-   if (igrepHas("junctionlabel|junction.label", show) &&
+   if (jamba::igrepHas("junctionlabel|junction.label", show) &&
          "junction_label" %in% cjDF$type) {
       if (do_highlight) {
          if (verbose) {

@@ -227,7 +227,7 @@ groups2contrasts <- function
    ## Special case where one data.frame column is sent, which is delimited.
    ## Mainly we treat as a vector, except that we keep the rownames
    ## so we can derive iSamples.
-   if (igrepHas("data.frame", class(iFactors)) &&
+   if (jamba::igrepHas("data.frame", class(iFactors)) &&
          ncol(iFactors) == 1) {
       iFactors <- jamba::nameVector(iFactors[,1], rownames(iFactors));
    }
@@ -265,7 +265,7 @@ groups2contrasts <- function
             iFactors <- iFactors[match(iSamples, names(iFactors))];
          }
       }
-      if (igrepHas("factor", class(iFactors))) {
+      if (jamba::igrepHas("factor", class(iFactors))) {
          ## Convert factor to a data.frame where each column
          ## is a factor with ordered levels that match the order
          ## the factor levels appear in the original factor.
@@ -289,7 +289,7 @@ groups2contrasts <- function
             jamba::rbindList(strsplit(iFactors, factorSep)));
          ## Convert each column to factor for ordering
          for (iCol in seq_len(ncol(iFactors))) {
-            if (igrepHas("[a-z]", iFactors[,iCol])) {
+            if (jamba::igrepHas("[a-z]", iFactors[,iCol])) {
                iFactors[,iCol] <- factor(iFactors[,iCol],
                   levels=sortSamples(unique(iFactors[,iCol]),
                      preControlTerms=preControlTerms,
@@ -397,7 +397,7 @@ groups2contrasts <- function
             groupColumns);
       }
 
-      ## Use mixedSortDF() to sort the data.frame,
+      ## Use jamba::mixedSortDF() to sort the data.frame,
       ## which will honor factor level orders if present.
       ## To influence this sorting, use factors with ordered levels
       ## instead of character columns.
@@ -434,7 +434,7 @@ groups2contrasts <- function
             iDesign <- iDesign[match(iSamples, rownames(iDesign)),,drop=FALSE];
          }
       }
-   } else if (igrepHas("matrix", class(iFactors)) && all(c(0,1) %in% iFactors)) {
+   } else if (jamba::igrepHas("matrix", class(iFactors)) && all(c(0,1) %in% iFactors)) {
       ##################################
       ## iDesign input
       ##
@@ -475,7 +475,7 @@ groups2contrasts <- function
    ##########################################################
    ## Check to make sure no factor levels contain "-"
    for (i in colnames(iFactors)) {
-      if (igrepHas("-", iFactors[,i])) {
+      if (jamba::igrepHas("-", iFactors[,i])) {
          iFactors[,i] <- gsub("-", ".", iFactors[,i]);
       }
    }
@@ -524,12 +524,12 @@ groups2contrasts <- function
          iNoChange <- setdiff(seq_len(ncol(iFactors)), iChange);
          ## Optionally omit certain values from consideration,
          ## notably for "," or "-" which already contain changing factors
-         iFactorUseRows <- unigrep(omitGrep, iFactors[,iChange]);
+         iFactorUseRows <- jamba::unigrep(omitGrep, iFactors[,iChange]);
 
          if (length(iNoChange) == 0) {
             iSplit <- rep("", length(iFactorUseRows));
          } else {
-            #iSplit <- pasteByRow(iFactors[iFactorUseRows,iNoChange,drop=FALSE],
+            #iSplit <- jamba::pasteByRow(iFactors[iFactorUseRows,iNoChange,drop=FALSE],
             #   sep=factorSep);
             iSplit <- jamba::pasteByRowOrdered(iFactors[iFactorUseRows,iNoChange,drop=FALSE],
                sep=factorSep);
@@ -563,7 +563,7 @@ groups2contrasts <- function
                iContrastDF <- data.frame(check.names=FALSE,
                   shrinkMatrix(iFactorsSub[intercalate(iCombn[2,], iCombn[1,]),,drop=FALSE],
                      groupBy=rep(iContrastName, each=2),
-                     shrinkFunc=function(x){cPasteUnique(x, doSort=FALSE)},
+                     shrinkFunc=function(x){jamba::cPasteUnique(x, doSort=FALSE)},
                      returnClass="matrix"),
                   contrastName=iContrastName, row.names=iContrastName);
 
@@ -666,7 +666,7 @@ groups2contrasts <- function
       }
       iContrastNamesUse <- iContrastNames[,iContrastGroupsUse,drop=FALSE];
       for (i in iContrastGroupsUse) {
-         j <- provigrep(c("^[^,]+$", "."), iContrastNamesUse[[i]]);
+         j <- jamba::provigrep(c("^[^,]+$", "."), iContrastNamesUse[[i]]);
          iContrastNamesUse[[i]] <- factor(iContrastNamesUse[[i]],
             levels=unique(j));
       }
@@ -691,7 +691,7 @@ groups2contrasts <- function
       }
       ## If length==0 then there are no valid interaction contrasts
       if (length(iContrastNamesInt) > 0 &&
-            igrepHas("[(]", rownames(iContrastNamesInt[[1]]))) {
+            jamba::igrepHas("[(]", rownames(iContrastNamesInt[[1]]))) {
          return(iContrastNamesInt);
       }
       if (length(iContrastNamesInt) > 0 &&
@@ -824,8 +824,8 @@ sortSamples <- function
    ## sortSamples(c("Trt_12h", "Trt_9h", "Trt_1h", "Vehicle"))
    ## sortSamples(c("RA_Brg1", "EtOH_WT", "RA_WT", "EtOH_Brg1"))
    ## sortSamples(c("HCTWT_DXR6", "HCTWT_DXR12", "HCTWT_DXR24", "HCTWT_NT24"))
-   #order1 <- proigrep(c(controlTerms), x);
-   #order2 <- proigrep(c(controlTerms, "."), sortFunc=sortFunc, x);
+   #order1 <- jamba::proigrep(c(controlTerms), x);
+   #order2 <- jamba::proigrep(c(controlTerms, "."), sortFunc=sortFunc, x);
    ##
    ## keepFactorsAsIs=TRUE will keep factor levels unchanged, and use those levels in the sort
    ## instead of looking for control terms
@@ -1107,15 +1107,15 @@ curateVtoDF <- function
       whitespace, "]+$");
 
    ## First check if input is a list, or data.frame, and convert as needed
-   if (igrepHas("data.frame", class(curationL))) {
+   if (jamba::igrepHas("data.frame", class(curationL))) {
       curationL <- curationDFtoL(curationL,
          whitespace=whitespace);
    }
-   if (igrepHas("character", class(curationL)) &&
+   if (jamba::igrepHas("character", class(curationL)) &&
          all(file.exists(curationL))) {
       curationL <- do.call(c, lapply(curationL, yaml::yaml.load_file));
    }
-   if (!igrepHas("list", class(curationL))) {
+   if (!jamba::igrepHas("list", class(curationL))) {
       stop("curateVtoDF() requires curationL in list format.");
    }
 
@@ -1125,15 +1125,15 @@ curateVtoDF <- function
       ## Purpose is to expand grep pattern to include the whole string
       ## Todo: adjust iGrep2 replacement to increment the numeric
       ## references as needed.
-      if (igrepHas("[^[][\\^]|^\\^", iGrep1)) {
+      if (jamba::igrepHas("[^[][\\^]|^\\^", iGrep1)) {
          ## Do not add the leading ^
-         if (igrepHas("[$]", iGrep1)) {
+         if (jamba::igrepHas("[$]", iGrep1)) {
             ## Do not add trailing $
          } else {
             iGrep1 <- paste0("(", iGrep1, ").*$");
          }
       } else {
-         if (igrepHas("[$]", iGrep1)) {
+         if (jamba::igrepHas("[$]", iGrep1)) {
             ## Do not add trailing $
             iGrep1 <- paste0("^.*(", iGrep1, ")");
          } else {
@@ -1145,7 +1145,7 @@ curateVtoDF <- function
    ## Assignment here to force evaluation in this environment
    previous <- previous;
 
-   curationValuesL <- lapply(nameVectorN(curationL), function(iName){
+   curationValuesL <- lapply(jamba::nameVectorN(curationL), function(iName){
       if (verbose) {
          printDebug("curateVtoDF(): ",
             "Creating column:",
@@ -1179,7 +1179,7 @@ curateVtoDF <- function
                x1[x1which]);
          }
       }
-      if (trimWhitespace && igrepHas(trimRegexp, x1)) {
+      if (trimWhitespace && jamba::igrepHas(trimRegexp, x1)) {
          if (verbose) {
             printDebug("curateVtoDF(): ",
                "   Trimming leading/trailing whitespace.");
@@ -1406,11 +1406,11 @@ curateDFtoDF <- function
    ## One special case, "rownames" is allowed as a list name, which
    ## refers to the rownames(x) and not a formal column of x.
    ##
-   if (!igrepHas("data.*frame|matrix|tibble|tbl", class(x))) {
+   if (!jamba::igrepHas("data.*frame|matrix|tibble|tbl", class(x))) {
       stop("curateDFtoDF() requires x as a data.frame or compatible object.");
    }
    ## Allow for curationL2 to be a vector of yaml files
-   if (igrepHas("character", class(curationL2)) &&
+   if (jamba::igrepHas("character", class(curationL2)) &&
          all(file.exists(curationL2))) {
       curationL2 <- do.call(c, lapply(curationL2, yaml::yaml.load_file));
    }
@@ -1544,7 +1544,7 @@ escapeWhitespaceRegexp <- function
    ## Iterate multiple times as needed, in order to escape each
    ## occurrence of whitespace
    for (i in 1:maxN) {
-      iWhich <- igrep(whitespaceN3, x);
+      iWhich <- jamba::igrep(whitespaceN3, x);
       xNew <- gsub(whitespaceN3, whitespaceT3, x[iWhich]);
       if (all(xNew == x[iWhich])) {
          break;

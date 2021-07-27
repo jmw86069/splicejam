@@ -6,12 +6,13 @@
 \usage{
 sashimiAppConstants(
   ...,
-  assign_global = TRUE,
-  empty_uses_farrisdata = TRUE,
-  use_memoise = TRUE,
-  aboutExtra = NULL,
   filesDF = NULL,
   color_sub = NULL,
+  aboutExtra = NULL,
+  envir = NULL,
+  assign_global = TRUE,
+  use_memoise = TRUE,
+  empty_uses_farrisdata = TRUE,
   gtf = NULL,
   txdb = NULL,
   tx2geneDF = NULL,
@@ -25,34 +26,87 @@ sashimiAppConstants(
 )
 }
 \arguments{
-\item{...}{additional arguments are ignored.}
+\item{...}{additional arguments are passed to \code{sashimiDataConstants()}}
 
-\item{empty_uses_farrisdata}{logical indicating whether to
-use data from the \code{"farrisdata"} R package if no default
-values are provided, and if that package is available.}
+\item{filesDF}{\code{data.frame} that contains at least these colnames:
+\code{"sample_id"}, \code{"url"}, \code{"type"}. This \code{data.frame} defines the
+source data used to create sashimi plots.}
+
+\item{color_sub}{\code{character} vector of R colors, whose names
+match values in \code{filesDF$sample_id}. If not supplied,
+or if not all names are present in \code{color_sub}, the
+remaining names are converted to colors using
+\code{colorjam::group2colors()}.}
 
 \item{aboutExtra}{character string or html tag from \code{"htmltools"}
-suitable for use in a shiny app. This text is intended
-to display a description of data visualized in the R-shiny
-app, for example when run with \code{launchSashimiApp()}.}
+suitable for use in a R-shiny app. This text is displayed
+in the Help tab, and is intended to describe the data
+content shown in the R-shiny app.}
+
+\item{envir}{\code{environment} in which the data should be loaded,
+which takes priority over argument \code{assign_global}.
+When \code{envir=NULL} and \code{assign_global=TRUE} the default
+environment is \code{globalenv()}. When \code{assign_global=FALSE}
+and \code{envir=NULL} a new environment is created using
+\code{new.env(parent=emptyenv())} so there is no parent environment,
+thereby preventing it from searching \code{globalenv()} for
+variables not defined in its own environment.}
+
+\item{assign_global}{\code{logical} indicating whether the default
+environment should be \code{globalenv()}. Note this is not
+typically recommended, however it can be convenient to
+operate using only the user global environment, and is
+the default approach.}
+
+\item{use_memoise}{\code{logical} indicating whether to use \code{memoise}
+to cache intermediate data files for exons, flattened exons,
+transcript-gene data, and so on. This mechanism reduces
+time to render sashimi plots that re-use the same gene.
+All memoise cache folders are named with \code{"_memoise"}.}
+
+\item{empty_uses_farrisdata}{\code{logical} indicating whether to
+use data from the Github R package \code{"jmw86069/farrisdata"}
+if no data is supplied to this function. This behavior is
+intended to make it easy to use farrisdata to recreate
+the Sashimi plots in that publication.}
+
+\item{gtf, txdb, tx2geneDF, exonsByTx, cdsByTx}{arguments passed to
+\code{sashimiDataConstants()}.}
+
+\item{detectedTx, detectedGenes, flatExonsByGene, flatExonsByTx}{arguments passed to \code{sashimiDataConstants()}.}
+
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
+}
+\value{
+\code{environment} that contains the data required for the
+splicejam R-shiny app. It also includes data returned by
+\code{sashimiDataConstants()}. Note that if \code{envir} is supplied,
+the data will be updated inside that environment.
 }
 \description{
 Sashimi Shiny app constants
 }
 \details{
 This function defines several constant values
-used by the R-shiny Splicejam Sashimi viewer,
-typically taking from the global environment
-where possible.
+used by the R-shiny Splicejam Sashimi viewer.
+The required coverage and junction data is prepared
+and defined by \code{sashimiDataConstants()}. The remaining
+items used in the R-shiny app are defined for inline documentation
+in the R-shiny app, including \code{aboutExtra} which is
+included in the \code{"About"} tab, intended to describe
+the source of data included in the R-shiny app.
+Data is returned in an \code{environment} which by default
+is the global environment \code{globalenv()}. However it
+is recommended to use a custom environment, for
+example: \code{shiny_envir <- new.env()}.
 
-The R-shiny app is started by \code{launchSashimiApp()}, which
-calls \code{shiny::shinyApp()}, using arguments \code{server}, \code{ui},
-\code{onStart}, and \code{options}. This function fulfills the
-argument \code{onStart}.
-
-This function is intended to be called only from within
-an R-shiny app, since it defines several variables in the
-parent (global) environment.
+When the R-shiny app is defined \code{launchSashimiApp()},
+it calls \code{shiny::shinyApp()} using arguments \code{server}, \code{ui},
+and \code{options}. This function \code{sashimiAppConstants()}
+prepares \code{environment} which are assigned to the \code{ui}
+and \code{server} objects. The process therefore makes data
+inside these environments available to the \code{ui} and \code{server}
+functions.
 
 The following values will be used from the environment,
 searching up the environment parent chain until it finds
@@ -62,55 +116,74 @@ the \verb{<<-} operator, which by default also searches up the
 environment chain until it finds a match, otherwise
 populating the global environment.
 
-If a variable is not found, the corresponding default
-from the \code{farrisdata} package will be used.
+If a variable is not found, the corresponding data will be
+derived from relevant source data. If no data is provided,
+the default argument \code{empty_uses_farrisdata=TRUE} means the
+data and \code{filesDF} will use data from the publication Farris et al,
+from Github package \code{"jmw86069/farrisdata"}.
+
+#' The \code{filesDF} object should be a \code{data.frame} with at least three colnames:
 \itemize{
-\item \strong{filesDF}: \code{data.frame} with colnames: \code{"sample_id"},
-\code{"type"}, \code{"url"}, \code{"scale_factor"}. When \code{"filesDF"} does
-not exist, it is taken from \code{farrisdata::farris_sashimi_files_df},
-and the default \code{"aboutExtra"} text is used.
-\item \strong{color_sub}: character vector of R colors, whose names are
-used to match \code{"sample_id"} or other values used to colorize
-ggplot visualizations. It is either populated from
-\code{farrisdata::colorSub}, or \code{colorjam::group2colors()} is called
-using the unique \code{sample_id} values in \code{filesDF}.
-\item \strong{txdb}: TxDb object used to derive \code{exonsByTx}, and \code{cdsByTx}
-if either does not exist. If the TxDb object does not exist,
-it is created from the \code{gtf} file using
-\code{GenomicFeatures::makeTxDbFromGFF()}.
-\item \strong{tx2geneDF}: \code{data.frame} with colnames: \code{"transcript_id"},
-\code{"gene_name"}. This data is used to convert \code{"gene_name"} to
-a vector of \code{"transcript_id"} values.
-\item \strong{gtf}: character path to a GTF/GFF/GFF3 file, suitable for
-\code{GenomicFeatures::makeTxDbFromGFF()}. The \code{gtf} is only used
-if \code{tx2geneDF} or \code{exonsByTx} are not available. Note that
-when \code{gtf} points to a remote server, the file is copied to
-the current working directory. If the file already exists in
-the local directory, it is re-used.
-\item \strong{exonsByTx}: \code{GRangesList} object, named by \code{"transcript_id"},
-containing all exons for each transcript.
-\item \strong{cdsByTx}: \code{GRangesList} object, named by \code{"transcript_id"},
-containing only CDS (protein-coding) exons for each transcript.
-\item \strong{detectedTx}: character vector of \code{"transcript_id"} values,
-representing the subset of transcripts detected above background.
-If it does not exist, it is derived from \code{farrisdata::farrisTxSE}
-\code{"TxDetectedByTPM"}. If those values are not all present in
-\code{tx2geneDF} then \code{detectedTx} is defined by all transcripts
-present in \code{tx2geneDF$transcript_id}.
-\item \strong{detectedGenes}: inferred using tx2geneDF and detectedTx.
-\item \strong{flatExonsByGene}: \code{GRangesList} object containing non-overlapping
-exons for each gene, or it is derived from \code{exonsByTx},
-\code{cdsByTx}, \code{detectedTx}, and \code{tx2geneDF}, using
-\code{flattenExonsBy()}.
-\item \strong{flatExonsByTx}: \code{GRangesList} object containing non-overlapping
-exons for each gene, or it is derived from \code{exonsByTx},
-\code{cdsByTx}, \code{detectedTx}, and \code{tx2geneDF}, using
-\code{flattenExonsBy()}.
+\item \code{"sample_id"}
+\item \code{"type"} (with values either \code{"bw"} or \code{"junction"})
+\item \code{"url"} (a URL or file path to each file.)
 }
 
-Several R objects are cached using \code{memoise::memoise()}, to
-avoid having to create the R object each time the R-shiny app
-is started:
+It can optionally include colname \code{"scale_factor"} with \code{numeric}
+values used to multiply the coverage or junction values, the default
+\code{scale_factor=1}.
+
+Other data derived by this function or by \code{sashimiDataConstants()}:
+\itemize{
+\item \strong{color_sub}: \code{character} vector of R colors, whose names are
+used to match \code{filesDF$sample_id}. When not supplied,
+colors are defined by \code{colorjam::group2colors()} and
+\code{unique(filesDF$sample_id)}.
+\item \strong{txdb}: \code{TranscriptDb} object used to derive \code{exonsByTx}
+and \code{cdsByTx} if either object does not already exist. If \code{txdb}
+is not supplied, it is derived from \code{gtf} using
+\code{GenomicFeatures::makeTxDbFromGFF()}.
+\item \strong{tx2geneDF}: \code{data.frame} with colnames: \code{"transcript_id"} and
+\code{"gene_name"}.
+\item \strong{gtf}: \code{character} path to a GTF/GFF/GFF3 file, suitable for
+\code{GenomicFeatures::makeTxDbFromGFF()}. The \code{gtf} is only used
+if \code{tx2geneDF} or \code{exonsByTx} are not supplied. Note that
+when \code{gtf} points to a remote server, the file is copied to
+the current working directory for more rapid use.
+If the file already exists in the local directory, it is re-used.
+\item \strong{exonsByTx}: \code{GRangesList} object, named by \code{"transcript_id"},
+containing all exons for each transcript. It is derived from \code{txdb}
+if not supplied; and names should match \code{tx2geneDF$transcript_id}.
+\item \strong{cdsByTx}: \code{GRangesList} object, named by \code{"transcript_id"},
+containing only CDS (protein-coding) exons for each transcript.
+It is derived from \code{txdb} if not supplied;
+and names should match \code{tx2geneDF$transcript_id}.
+\item \strong{detectedTx}: \code{character} vector of \code{tx2geneDF$transcript_id} values,
+representing a subset of transcripts detected above background.
+See \code{definedDetectedTx()} for one strategy to define detected transcripts.
+If \code{detectedTx} does not exist, it is defined by all transcripts
+present in \code{tx2geneDF$transcript_id}. Note this step can be the
+rate-limiting step in the preparation of \code{flatExonsByTx}.
+\item \strong{detectedGenes}: \code{character} vector of values that match
+\code{tx2geneDF$gene_name}. If it is not supplied, it is inferred
+from \code{detectedTx} and \code{tx2geneDF$transcript_id}.
+\item \strong{flatExonsByGene}: \code{GRangesList} object containing non-overlapping
+exons for each gene, whose names match \code{tx2geneDF$gene_name}. If not
+supplied, it is derived using \code{flattenExonsBy()} and objects
+\code{exonsByTx}, \code{cdsByTx}, \code{detectedTx}, and \code{tx2geneDF}. This step is
+the key step for using a subset of detected transcripts, in order
+to produce a clean gene-exon model.
+\item \strong{flatExonsByTx}: \code{GRangesList} object containing non-overlapping
+exons for each transcript. If not
+supplied, it is derived using \code{flattenExonsBy()} and objects
+\code{exonsByTx}, \code{cdsByTx}, \code{detectedTx}, and \code{tx2geneDF}. This step is
+the key step for using a subset of detected transcripts, in order
+to produce a clean transcript-exon model.
+}
+
+When \code{use_memoise=TRUE} several R objects are cached using
+\code{memoise::memoise()}, to help re-use of prepared R objects,
+and to help speed the re-use of data within the R-shiny app:
 \itemize{
 \item \strong{flatExonsByGene}
 \item \strong{flatExonsByTx}
@@ -118,17 +191,17 @@ is started:
 \item \strong{cdsByTx}
 }
 
-A special custom variable is used to describe the specific
-data included with the R-shiny app, \code{"aboutExtra"}. The
-\code{"aboutExtra"} variable is expected to contain HTML tags,
-for example from \code{htmltools::tags()} to format the text.
-The \code{"aboutExtra"} content is displayed on the tab
-\code{"About Sashimi Plots"} at the top.
+To include a description of data used in your R-shiny app,
+define the variable \code{aboutExtra} either using \code{character} text,
+or as \code{htmltools::tags()} sufficient to be displayed in the
+R-shiny UI. The content is displayed in the tab
+\code{"About Sashimi Plots"} at the top of the app.
 }
 \seealso{
 Other splicejam R-shiny functions: 
 \code{\link{launchSashimiApp}()},
 \code{\link{sashimiAppServer}()},
-\code{\link{sashimiAppUI}()}
+\code{\link{sashimiAppUI}()},
+\code{\link{sashimiDataConstants}()}
 }
 \concept{splicejam R-shiny functions}

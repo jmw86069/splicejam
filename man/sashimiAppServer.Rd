@@ -29,6 +29,7 @@ argument \code{server}.
 Other splicejam R-shiny functions: 
 \code{\link{launchSashimiApp}()},
 \code{\link{sashimiAppConstants}()},
-\code{\link{sashimiAppUI}()}
+\code{\link{sashimiAppUI}()},
+\code{\link{sashimiDataConstants}()}
 }
 \concept{splicejam R-shiny functions}

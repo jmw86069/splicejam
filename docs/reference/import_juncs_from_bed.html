@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Import splice junction data from BED file — import_juncs_from_bed • splicejam</title>
+<title>Import splice junction data from BED or SJ.out.tab file — import_juncs_from_bed • splicejam</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Import splice junction data from BED file — import_juncs_from_bed" />
-<meta property="og:description" content="Import splice junction data from BED file" />
+<meta property="og:title" content="Import splice junction data from BED or SJ.out.tab file — import_juncs_from_bed" />
+<meta property="og:description" content="Import splice junction data from BED or SJ.out.tab file" />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.69.900</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -100,6 +100,9 @@
     <li>
       <a href="../articles/create-a-sashimi-plot.html">Create a Sashimi Plot</a>
     </li>
+    <li>
+      <a href="../articles/shiny-server-for-sashimi-plots.html">Shiny server for Sashimi Plots</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -109,7 +112,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="http://github.com/jmw86069/splicejam/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -126,13 +129,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Import splice junction data from BED file</h1>
+    <h1>Import splice junction data from BED or SJ.out.tab file</h1>
     <small class="dont-index">Source: <a href='http://github.com/jmw86069/splicejam/blob/master/R/jambio-plot.R'><code>R/jambio-plot.R</code></a></small>
     <div class="hidden name"><code>import_juncs_from_bed.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Import splice junction data from BED file</p>
+    <p>Import splice junction data from BED or SJ.out.tab file</p>
     </div>
 
     <pre class="usage"><span class='fu'>import_juncs_from_bed</span><span class='op'>(</span>
@@ -186,12 +189,21 @@ range, will be removed.</p></td>
 
     <p>This function is intended to be called internally by
 <code><a href='prepareSashimi.html'>prepareSashimi()</a></code>, and is provided primarily to enable
-use of <code><a href='https://rdrr.io/pkg/memoise/man/memoise.html'>memoise::memoise()</a></code> to cache results.</p>
-<p>This function uses <code><a href='https://rdrr.io/pkg/rtracklayer/man/export.html'>rtracklayer::import()</a></code> to import data,
-so any file or URL compatible with that function is acceptable.
-Also, any compatible file format can be used, for example
-a gzipped BED file. However, "bigBed" format cannot be used,
-since the rtracklayer package does not support that format.</p>
+use of <code><a href='https://memoise.r-lib.org/reference/memoise.html'>memoise::memoise()</a></code> to cache results.</p>
+<p>This function was refactored in version 0.0.69.900 to
+handle either BED format, or <code>"SJ.out.tab"</code> junction
+format as produced by STAR alignment. The method uses
+<code><a href='https://Rdatatable.gitlab.io/data.table/reference/fread.html'>data.table::fread()</a></code> then if there are 9 columns,
+it assumes the format is <code>"SJ.out.tab"</code>. Otherwise it
+coerces the <code>data.frame</code> with <code>as(bed, "GRanges")</code>.</p>
+<p>The BED or <code>"SJ.out.tab"</code> file can be gzipped, provided
+<code>data.table()</code> is able to recognieze and import the
+compression format.</p>
+<p>Note that bigBed format still cannot be used since the
+rtracklayer package does not support that format.</p>
+<p>Also note that junctions with <code>score=0</code> are dropped at
+this step, to prevent propagation of junctions with
+zero counts.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other jam data import functions: 

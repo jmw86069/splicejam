@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.63.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.69.900</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -100,6 +100,9 @@
     <li>
       <a href="../articles/create-a-sashimi-plot.html">Create a Sashimi Plot</a>
     </li>
+    <li>
+      <a href="../articles/shiny-server-for-sashimi-plots.html">Shiny server for Sashimi Plots</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -109,7 +112,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="http://github.com/jmw86069/splicejam/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -135,66 +138,123 @@
     <p>Launch Sashimi R-shiny application</p>
     </div>
 
-    <pre class="usage"><span class='fu'>launchSashimiApp</span><span class='op'>(</span><span class='va'>...</span>, options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>width <span class='op'>=</span> <span class='fl'>1200</span><span class='op'>)</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>launchSashimiApp</span><span class='op'>(</span>
+  <span class='va'>...</span>,
+  envir <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/environment.html'>globalenv</a></span><span class='op'>(</span><span class='op'>)</span>,
+  options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>width <span class='op'>=</span> <span class='fl'>1200</span><span class='op'>)</span>,
+  verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>...</th>
-      <td><p>additional arguments are passed to <code><a href='https://shiny.rstudio.com/reference/shiny/latest/shinyApp.html'>shiny::shinyApp()</a></code>.</p></td>
+      <td><p>additional arguments are passed to <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>envir</th>
+      <td><p><code>environment</code> that contains data needed for sashimi plots.
+If <code>envir=NULL</code> by default it will use <code><a href='https://rdrr.io/r/base/environment.html'>globalenv()</a></code>. Otherwise,
+call <code><a href='sashimiDataConstants.html'>sashimiDataConstants()</a></code> or <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code>
+to prepare data inside a specific environment that can be
+used by this function.</p></td>
+    </tr>
+    <tr>
+      <th>options</th>
+      <td><p><code>list</code> of R-shiny app options, for example two
+common options are: <code>host</code> to indicate the host or IP address
+the R-shiny app will bind to respond to requests; and
+<code>port</code> for the port number. For example:
+<code>launchSashimiApp(options=list(host="0.0.0.0", port=8080))</code>
+where <code>port="0.0.0.0"</code> will listen to any request sent
+to the current machine, whether by host name, or any valid
+IP address; and <code>port=8080</code> will only listen to port 8080.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>output from <code><a href='https://rdrr.io/pkg/shiny/man/shinyApp.html'>shiny::shinyApp()</a></code> which is an object of
+class "shiny.appobj", whose default print method is to run
+the app.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function launches the Sashimi visualization
 R-shiny app.</p>
 <p>The R objects required to prepare sashimi plots are
 defined by the function <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code>, which
-documents each R object required and how it is used.</p>
+documents each R object required and how it is used.
+The <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code> function returns an <code>environment</code>
+in which the required sashimi plot data is stored and
+used by the R-shiny app. The default environment is <code><a href='https://rdrr.io/r/base/environment.html'>globalenv()</a></code>
+however any custom environment can be used, for example
+with <code>myenv &lt;- new.env()</code>.</p>
 <p>The most straightforward way to run a new Sashimi R-shiny
-app is to define <code>filesDF</code> and <code>gtf</code> in the global environment.
-The <code>gtf</code> is a path or URL to a GTF file (which can be gzipped).
-This GTF file will be used to derive all related annotation
-data.</p><ul>
-<li><p><code>txdb</code> -- TranscriptDb from which other objects are derived</p></li>
-<li><p><code>tx2geneDF</code> -- <code>data.frame</code> with transcript-to-gene relationship</p></li>
-<li><p><code>detectedTx</code> -- if not already defined, all transcripts are
-used. <em>Much better to use only a subset of detected transcripts.</em></p></li>
-<li><p><code>detectedGenes</code> -- inferred from <code>detectedTx</code>, using <code>tx2geneDF</code>.</p></li>
-<li><p><code>flatExonsByGene</code>, <code>flatExonsByTx</code> -- these objects will combine
-CDS exons and non-CDS exons to represent CDS and UTR regions.</p></li>
+app is to define <code>filesDF</code> and <code>gtf</code> in the global environment,
+or define <code>filesDF</code> and <code>gtf</code> inside a custom environment.
+The required data will be derived from the GTF file <code>gtf</code>.
+This step is somewhat slow the first time (10 minutes) and
+saves intermediate files for rapid re-use.</p>
+<p>The data derived from the GTF file is listed below. Any data object
+that already exists in the <code>environment</code> is used in subsequent steps:</p><ul>
+<li><p><code>txdb</code> - TranscriptDb from which <code>exonsByGene</code> and <code>exonsByTx</code>
+are derived.</p></li>
+<li><p><code>tx2geneDF</code> - <code>data.frame</code> with transcript-to-gene relationship,
+with colnames <code>"gene_name"</code> and <code>"transcript_id"</code>. See
+<code><a href='makeTx2geneFromGtf.html'>makeTx2geneFromGtf()</a></code> for details.</p></li>
+<li><p><code>detectedTx</code> - <code>character</code> vector of detected transcripts, used
+to match <code>tx2geneDF$transcript_id</code>. When <code>detectedTx</code> is NULL,
+all entries in <code>tx2geneDF</code> are used. Note that we found it is
+<em>much better to use only a subset of detected transcripts</em>,
+mainly because many GTF sources include a large number of potential
+alternative isoforms, many of which have no supported evidence in
+any one given cell type. See <code><a href='defineDetectedTx.html'>defineDetectedTx()</a></code> for one method
+to define detected transcripts.</p></li>
+<li><p><code>detectedGenes</code> - <code>character</code> vector of genes that match
+<code>tx2geneDF$gene_name</code>. When <code>detectedGenes</code> is NULL, it is
+inferred using <code>detectedTx</code> and <code>tx2geneDF$transcript_id</code>.</p></li>
+<li><p><code>exonsByTx</code>, <code>cdsByTx</code> - derived from <code>txdb</code> and annotated to include
+values from <code>tx2geneDF$gene_name</code>.</p></li>
+<li><p><code>flatExonsByGene</code>, <code>flatExonsByTx</code> - <code>GRangesList</code> objects derived
+from <code>exonsByGene</code> and <code>exonsByTx</code>, using <code>detectedTx</code>.
+They also use <code>cdsByTx</code> to indicate coding regions (CDS) of exons.</p></li>
 </ul>
 
 <p>Note that if <code>detectedTx</code> is not defined, it will use all transcripts
 at this stage, which can be substantially slower than using only
 the subset of "observed/detected" transcripts.</p>
-<p>The first time running <code>launchSashimiApp()</code>
-will populate several R objects in the global environment,
-and these objects will be re-used during subsequent calls to
-this function. To make changes in the content, these objects
-can be edited or deleted so the object is created again.
-For example, if <code>detectedTx</code> is edited, the object
-<code>detectedGenes</code> should be removed so <code>detectedGenes</code>
-will be created again during the next call to <code>launchSashimiApp()</code>.</p>
-<p>The <code>filesDF</code> object should be a <code>data.frame</code> with colnames
-<code>"sample_id"</code>, <code>"type"</code> (with values either <code>"bw"</code> or <code>"junction"</code>),
-and <code>"url"</code> (a URL or file path to each file.) If coverage
-or junctions are available in separate files, use the same
-<code>sample_id</code> value for each file. Files with the same <code>sample_id</code>
-value are combined using the sum, after multiplying each file
-by a value in the optional <code>"scale_factor"</code> column.</p>
-<p>This function calls <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code> which does the
-heavy work of defining or deriving all necessary data objects,
-then assigns the result to the relevant environment. The default
-environment is <code><a href='https://rdrr.io/r/base/environment.html'>globalenv()</a></code> (also known as <code>.GlobalEnv</code>).</p>
+<p>An alternative is to supply one <code>detectedGenes</code> gene value, which will prepare
+only one gene for <code>flatExonsByGene</code> in the R-shiny app. However, the
+R-shiny app has the option to search all non-detected genes, which
+are prepared one by one inside the R-shiny app. This process is slightly
+slower when using the app by a few seconds, and will use all transcripts
+for <code>detectedTx</code>.</p>
+<p>The <code>filesDF</code> object should be a <code>data.frame</code> with at least three colnames:</p><ul>
+<li><p><code>"sample_id"</code></p></li>
+<li><p><code>"type"</code> (with values either <code>"bw"</code> or <code>"junction"</code>)</p></li>
+<li><p><code>"url"</code> (a URL or file path to each file.)</p></li>
+</ul>
+
+<p>If coverage or junctions are available in multiple files, for example
+sequencing replicates, use the same <code>sample_id</code> for each file, and
+the coverage and junctions will be combined using the sum, after
+multiplying an optional <code>"scale_factor"</code> to each file.</p>
+<p>For more direct control over the data preparation, including
+<code>tx2geneDF</code>, <code>detectedTx</code>, <code>exonsByGene</code>, and <code>flatExonsByGene</code>,
+see <code><a href='sashimiAppConstants.html'>sashimiAppConstants()</a></code> which calls <code><a href='sashimiDataConstants.html'>sashimiDataConstants()</a></code>,
+both of these functions return an environment that contains the
+required data.</p>
+<p>When the R-shiny app is created, the <code>ui</code> and <code>server</code> components
+have their environments set to <code>envir</code> - so their context will
+include the variables defined in that environment.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other splicejam R-shiny functions: 
 <code><a href='sashimiAppConstants.html'>sashimiAppConstants</a>()</code>,
 <code><a href='sashimiAppServer.html'>sashimiAppServer</a>()</code>,
-<code><a href='sashimiAppUI.html'>sashimiAppUI</a>()</code></p></div>
+<code><a href='sashimiAppUI.html'>sashimiAppUI</a>()</code>,
+<code><a href='sashimiDataConstants.html'>sashimiDataConstants</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Note: disabled for web page examples</span>

@@ -1,3 +1,48 @@
+# splicejam 0.0.69.900
+
+## new functions
+
+* `sashimiDataConstants()` is a subset of `sashimiAppConstants()`
+that includes only the required data, and not the R-shiny app
+components such as the help text and widgets.
+It was updated to store all data inside an environment,
+which updates data in that environment during processing
+as needed.
+* `get_fn_envir()` is a helper function that returns a variable
+value from the calling function, or from one or more provided
+environments. The use case is to allow a user to define function
+variable values directly, then to use the environment values
+otherwise.
+
+## changes to existing functions
+
+* `launchSashimiApp()` was changed so that it uses a user-supplied
+environment to store intermediate data for the R-shiny app.
+By default this environment is `globalenv()` for backward
+compatibility, however it is recommended to create a new
+environment to insulate data from the `globalenv()`.
+
+* `sashimiAppConstants()` was updated to use environment
+as input and the new function `get_fn_envir()`. Note that
+previous input would ultimately use values in `globalenv()`
+even when using a specific environment. The default was to
+use `globalenv()` so that behavior was not problematic.
+The new behavior will strictly only use either the function
+argument, or the value in the specific environment provided.
+
+* `import_juncs_from_bed()` was refactored completely, so it is
+able to handle BED12 input as well as `"SJ.out.tab"` junction
+output directly from STAR alignments. This refactor will cause
+all previous memoise cache for junction files to be invalidated,
+and thus downloaded again. These files are small and fast to download,
+but it is worth noting. The underlying method now uses `data.table::fread()`
+then it decides whether to convert from BED format with
+`as(bed, "GRanges")` or converts from `"SJ.out.tab"` when there are
+9 columns.
+
+* Several functions had the `verbose` output reduced, instead
+when `verbose > 1` the more verbose output is printed.
+
 # splicejam 0.0.68.900
 
 ## bug fixes

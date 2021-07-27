@@ -1,0 +1,338 @@
+---
+title: "Shiny server for Sashimi Plots"
+author: "James M. Ward"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    fig_caption: yes
+    toc: true
+    toc_depth: 4
+    df_print: kable
+vignette: >
+  %\VignetteIndexEntry{Shiny server for Sashimi Plots}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+ragg_png = function(..., res = 192) {
+  ragg::agg_png(..., res = res, units = "in")
+}
+knitr::opts_chunk$set(dev = "ragg_png", fig.ext = "png")
+options("warn"=-1);
+```
+
+
+## Overview
+
+This vignette is intended to describe how to create a Shiny server
+to display interactive Sashimi plots with RNA-seq data.
+
+Splicejam uses memoise to cache data, so it is recommended
+to start the Splicejam Shiny app in its own directory.
+Each type of data is cached in its own sub-directory with
+"_memoise" in the name, 
+so you can recognize and delete these directories to clear the cache
+as needed.
+
+
+## Data Requirements
+
+There are two basic requirements for a Sashimi plot:
+
+1. Gene-exon structure, usually provided by a GTF file.
+2. Source data, sequence coverage and junction read counts:
+
+   * RNA-seq coverage data in bigWig files.
+   * Splice junction data in BED files or STAR `"SJ.out.tab"` files.
+
+Briefly:
+
+```{r quick_setup, eval=FALSE}
+library(splicejam)
+
+# define files with coverage and junctions
+filesDF <- data.frame(sample_id=c("sample_A", "sample_A"),
+   url=c("https://server/sample_A.bw", "https://server/sample_A/SJ.out.tab")
+   type=c("bw", "junction"));
+
+# provide path to genes GTF
+gtf <- "path/to/genes.gtf"
+
+# launch Splicejam Shiny app
+launchSashimiApp()
+```
+
+
+## Gene-exon structure using GTF file
+
+Ideally, the GTF used by splicejam will be the same GTF file used
+in upstream processing, for example with Salmon, Kallisto, or featureCounts.
+The benefit is that the GTF will display gene-exon structure consistent
+with your overall analysis work.
+
+That said, any GTF file for your genome will work fine.
+The GTF is used to determine gene-exon structure, and to display
+transcript isoforms per gene. It then displays RNA-seq coverage
+and junction reads over these exons.
+
+Splicejam will derive several objects from this GTF file:
+
+   * **tx2geneDF** - `data.frame` with transcript-to-gene association.
+   Specifically it looks for `"gene_name"` and `"transcript_id"`.
+   * **flatExonsByGene** - exons flattened for each gene. If optional
+   `detectedTx` is provided, then it will include only exons from the
+   detected transcripts.
+
+Most of the workflow was designed for the Gencode GTF format,
+which includes `"gene_name"` with gene symbols, and `"transcript_id"`
+with transcript identifiers.
+
+Other GTF files should work even if they have custom gene
+and transcript attributes. When in doubt, use a Gencode GTF file.
+
+
+### Commonly used GTF files by organism
+
+Some GTF files that have been tested and confirmed with Splicejam
+are listed below.
+
+```
+## Mouse mm10 as used by Farris et al
+ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz
+
+## Mouse mm10
+http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/gencode.vM27.annotation.gtf.gz
+
+## Human hg38
+http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_38/gencode.v38.annotation.gtf.gz
+
+## Human hg19
+http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_38/GRCh37_mapping/gencode.v38lift37.annotation.gtf.gz
+```
+
+### Example using Gencode for hg19
+
+Simple enough, just assign the file path to `gtf`:
+
+```{r gencode_hg19, eval=FALSE}
+gtf <- "http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_38/GRCh37_mapping/gencode.v38lift37.annotation.gtf.gz";
+```
+
+
+## Source data
+
+Source data with sequence coverage and junction read counts, is
+supplied as a `data.frame` with these columns:
+
+* `"url"`: The web URL or file path to each file.
+* `"sample_id"`: The name of each sample as it should appear in each panel.
+* `"type"`: A `character` value with either `"bw"` for bigWig coverage,
+or `"junction"` for junction read counts.
+* `"scale_factor"`: optional `numeric` column, used to scale numeric
+values for each files. This column is used for dynamic normalization,
+for example if you have size factors from DESeq2, they can be used here.
+The default `scale_factor=1`.
+* Other columns may be included.
+
+When there are multiple replicate files for a `sample_id`, the
+scores are added together and the total score is displayed
+in the sashimi plot for each `sample_id`.
+When `scale_factor` is also defined, it is applied to each file
+before values are summed across `sample_id` replicates.
+In this way, files can be individually normalized as needed.
+
+
+### Example filesDF data.frame
+
+An example of `filesDF` is provided in the R package `"farrisdata"`.
+
+```{r farris_filesdf}
+if (jamba::check_pkg_installed("farrisdata")) {
+   farrisdata::farris_sashimi_files_df[,1:4]
+}
+```
+
+
+### RNA-seq coverage data
+
+RNA-seq coverage is provided as bigWig files, and
+can be accessed via HTTP web hyperlink, or
+a direct file path.
+
+
+### Splice junction data
+
+Splice junctions are provided in one of two formats:
+
+1. **BED format**: We use BED12 format, but it can be direct BED
+format as well. The BED12 format is used with two 1-base alignments
+and a gap between them to indicate the splice junction itself.
+When all BED names are numeric, the BED name is used as the junction score,
+otherwise the BED score is used. The reason is that bigBed format does
+not allow scores higher than 1000, so we encode scores in the name field.
+2. **STAR `"SJ.out.tab"` format**: a tab-delimited file produced by the STAR
+alignment tool. This file must have 9 columns, and column 7 is used to
+define read counts because it contains uniquely mapped reads. Junctions
+with zero uniquely mapped reads are removed.
+
+
+## Quick start using Farris data
+
+As a positive control for the Splicejam Shiny server, you can use
+the Farris data that supports *Farris et al (2019)*.
+
+```{r farris_shiny, eval=FALSE}
+if (!jamba::check_pkg_installed("farrisdata")) {
+   remotes::install_github("jmw86069/farrisdata")
+}
+
+library(splicejam)
+launchSashimiApp()
+```
+
+Note this workflow will use `filesDF` from the "farrisdata" package,
+and will download Gencode mouse GTF used for that publication. It takes
+about 3 minutes to prepare data and create the first Shiny plot
+for the gene **Gria1**.
+
+This workflow will by default populate the R environment `globalenv()`
+with variables used in the farrisdata Splicejam Shiny app.
+See Advanced Options for ways to specify a new environment.
+
+
+## Quick start with GTF and filesDF
+
+
+```{r files_shiny, eval=FALSE}
+library(splicejam)
+
+# filesDF should already be defined
+filesDF2 <- subset(farrisdata::farris_sashimi_files_df,
+   sample_id %in% c("CA1_DE", "CA2_CB"));
+
+# gtf should be a file path or web URL
+gtf <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz";
+
+launchSashimiApp(filesDF=filesDF2, gtf=gtf)
+```
+
+This workflow will by default populate the R environment `globalenv()`
+with variables used in the farrisdata Splicejam Shiny app.
+See Advanced Options for ways to specify a new environment.
+
+
+## Useful custom options
+
+The following options can be invoked by defining the variable
+name inside the enrivonment used for the Splicejam Shiny app.
+By default, this environment is `globalenv()`, however the examples
+below show how to use a custom environment. The advantage of using
+an environment is that the data contained inside is not copied
+in memory during function calls, and can be shared by the Shiny UI
+and Shiny Server.
+
+
+* **detectedTx** - a `character` vector of `transcript_id` values that
+were "detected" by your experiment. You can define these however you
+prefer, or you can leave this value blank and include every transcript
+in the GTF file. Supplying a subset of detectedTx is beneficial by
+presenting a simpler gene-exon structure per gene. It also speeds up
+the initial Splicejam Shiny server start up time.
+* **detectedGenes** - a `character` vector of `gene_name` values that
+were "detected" by your experiment. The main effect of `detectedGenes`
+is that it limits the number of flat gene-exons prepared by Splicejam Shiny,
+and limits the number of genes that can be searched. However, the user
+can still change **"Genes to Search"** to **"All genes"** to search
+all genes defined by the GTF file. In that case, each new gene will
+have exons flattened during load time. This process usually takes only
+about 1 second longer than normal per gene, in return for having
+a faster Splicejam Shiny server start up time the first time.
+* **color_sub** - a `character` vector of colors, with names
+that match your `sample_id` values. This vector will define colors used
+in the Sashimi plots.
+
+For example, to define `detectedTx` you would simply assign a value
+in the `globalenv()`:
+
+```{r env_ex1, eval=FALSE}
+detectedTx <- rownames(tx2geneDF);
+```
+
+Or if using a custom environment:
+
+```{r env_ex2, eval=FALSE}
+splicejam_env <- new.env();
+assign("detectedTx",
+   envir=splicejam_env,
+   value=rownames(tx2geneDF));
+```
+
+
+## Advanced options
+
+### Start the Shiny app on a different port
+
+One of the most common ways to set up a Shiny server is to run
+it on a custom port, and listen to a specific address.
+
+Note in the example below, `host="0.0.0.0"` will instruct the
+Shiny app to respond to requests directed at any host or IP
+address. If you used `host="127.0.0.1"` the server would only
+respond to requests specific to `https://127.0.0.1:8080` and would
+not respond to requests to `https://localhost:8080`.
+
+```{r shiny_port, eval=FALSE}
+launchSashimiApp(options=list(
+   port=8080,
+   hist="0.0.0.0"))
+```
+
+
+### Specify a specific R environment for Splicejam data
+
+By default the data preparation uses the global environment
+defined by `globalenv()`. This process will create objects in your
+user session, and will update those objects during the preparation
+step.
+
+However, you can create a custom environment to keep the data
+encapsulated, and separate from your user session.
+
+It is intended to be straightforward to use a custom environment.
+First define a new environment.
+
+
+```{r files_shiny_adv, eval=FALSE}
+library(splicejam)
+
+splicejam_env <- new.env();
+
+# filesDF should already be defined
+filesDF2 <- subset(farrisdata::farris_sashimi_files_df,
+   sample_id %in% c("CA1_DE", "CA2_CB"));
+
+# gtf should be a file path or web URL
+gtf <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz";
+
+launchSashimiApp(
+   empty_uses_farrisdata=FALSE,
+   envir=splicejam_env,
+   filesDF=filesDF2,
+   gtf=gtf)
+```
+
+
+
+### Specify gene-exon data without using a GTF file
+
+At its core, splicejam derives the data it needs from the GTF
+data, but it can be supplied with this data directly, avoiding
+the need for a GTF file.
+
+More detail will be added here in future, but for now see
+the vignette **"Create a Sashimi Plot"**.

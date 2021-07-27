@@ -2,7 +2,7 @@
 % Please edit documentation in R/jambio-plot.R
 \name{import_juncs_from_bed}
 \alias{import_juncs_from_bed}
-\title{Import splice junction data from BED file}
+\title{Import splice junction data from BED or SJ.out.tab file}
 \usage{
 import_juncs_from_bed(
   iBed,
@@ -38,18 +38,30 @@ that span this range, but do not start or end inside this
 range, will be removed.}
 }
 \description{
-Import splice junction data from BED file
+Import splice junction data from BED or SJ.out.tab file
 }
 \details{
 This function is intended to be called internally by
 \code{prepareSashimi()}, and is provided primarily to enable
 use of \code{memoise::memoise()} to cache results.
 
-This function uses \code{rtracklayer::import()} to import data,
-so any file or URL compatible with that function is acceptable.
-Also, any compatible file format can be used, for example
-a gzipped BED file. However, "bigBed" format cannot be used,
-since the rtracklayer package does not support that format.
+This function was refactored in version 0.0.69.900 to
+handle either BED format, or \code{"SJ.out.tab"} junction
+format as produced by STAR alignment. The method uses
+\code{data.table::fread()} then if there are 9 columns,
+it assumes the format is \code{"SJ.out.tab"}. Otherwise it
+coerces the \code{data.frame} with \code{as(bed, "GRanges")}.
+
+The BED or \code{"SJ.out.tab"} file can be gzipped, provided
+\code{data.table()} is able to recognieze and import the
+compression format.
+
+Note that bigBed format still cannot be used since the
+rtracklayer package does not support that format.
+
+Also note that junctions with \code{score=0} are dropped at
+this step, to prevent propagation of junctions with
+zero counts.
 }
 \seealso{
 Other jam data import functions: 

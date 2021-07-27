@@ -31,6 +31,8 @@ options("warn"=-1);
 This vignette is intended to describe how to create a Sashimi
 plot using RNA-seq data.
 
+
+
 ### Requirements
 
 There are three basic requirements for a Sashimi plot:

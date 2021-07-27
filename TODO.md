@@ -1,6 +1,54 @@
 # TODO for splicejam
 
+## 16jul2021
+
+* COMPLETE: Update (minor): Import STAR `"SJ.out.tab"` format equivalent to
+importing BED12 format.
+
+   * When the junctions file has 9 columns it is assumed to be STAR format.
+   * The import now uses `data.table::fread()` and not
+   `rtracklayer::import.bed()`.
+
+* COMPLETE: Update (minor): Optional R-shiny startup without displaying a gene.
+
+   * Use `default_gene="blank"` to start with a blank plot.
+
+* Test (minor): test against alternative, commonly used GTF sources
+
+   * Use case: Most steps were designed to use Gencode GTF. The workflow
+   should also work when using other GTF files.
+   * Notable areas to test: Many steps assume GTF annotations include
+   "gene_name", "transcript_id" - but if not present the user should
+   be able to define alternate names.
+
+
+## 13jul2021
+
+* `makeTx2geneDFfromGtf()` extend to include genome coordinates (major)
+
+   * currently `tx2geneDF` does not return genome coordinates,
+   in part because a given gene symbol may be located in
+   multiple locations, multiple chromosomes, e.g. `"7SK"`.
+
+* Consider bookdown online documentation (major)
+
+   * Need model to follow for where to put documentation, how to host.
+   Check: jokergoo/ComplexHeatmap; clusterProfiler, enrichplot.
+
+
+* Consider using patchwork instead of cowplot?
+
+   * There is some issue with including the gene model panel twice,
+   maybe patchwork does that step well?
+
 ## 12jul2021
+
+* Update (minor): Update Shiny progress bar after coverage is complete,
+before splice junctions are being loaded.
+
+   * Use case: After loading coverage files, for example the label
+   says "coverage (16 of 16)", it pauses for a long time.
+   What is it doing? I want to know!
 
 * New feature (minor): Allow resizing the gene-transcript panel
 
@@ -17,45 +65,94 @@
    the equivalent of 25-50 pixels. The adjustment would be to
    down-sample data to help speed up the rendering step.
 
-* New feature (minor): Optionally display gene model per column.
+* New feature (minor): Optionally display gene model per column for multi-column layout.
 
    * Use case: Currently with two-column display the gene model
    does not visually align to the coverages.
 
-* New feature (inquiry): Test porting track type to ggbio or gviz.
+* New feature (inquiry): Test porting to ggbio or Gviz for broader re-use.
 
    * Use case: To integrate other track types, coverage, peaks, genes,
-   etc. the ggbio and gviz R packages are more feature-rich.
-   * General idea is to provide two things: track "geom", and
+   etc. the ggbio and Gviz R packages are more feature-rich. I think ggbio
+   is no longer officially supported?
+   * General idea is to provide two functionalities: track "geom", and
    x-axis compressed axis which effectively compresses the intron ranges.
    * For Gviz, understand `GdObject-class` and create CustomTrack,
    which should mimic the workflow used by `AlignmentsTrack()`:
    
-      ```R
-      Gviz::CustomTrack(plottingFunction=function(GdObject, prepare=FALSE, ...){},
-         variables=list(), name="CustomTrack", ...)
-      ```
+   ```R
+   Gviz::CustomTrack(plottingFunction=function(GdObject, prepare=FALSE, ...){},
+      variables=list(), name="CustomTrack", ...)
+   ```
 
-* New feature (minor): Color picker beside Shiny app Sample Selection
+* New feature (minor): Color picker alongside Shiny app "Sample Selection"
 
    * Use case is to display, and allow selection of colors per sample
    * Not sure if "easy" color picker widgets will work with
    the selectable table widget.
 
 
-* New feature (major): multiple features in transcript window
+* New feature (major): allow multiple genes/features in display region,
+not just one gene
 
-   * Use case is to display more than one gene, or gene(s) alongside
-   another track such as ChIP-seq peaks, or enhancer regions.
-   * The main change would be to define a region by coordinates
-   rather than by the gene symbol - which itself only implies
-   coordinates.
-   * All features displayed in the region would be used to define
-   compressed exon ranges.
-   * Major change: splice junction strandedness should be allowed
-   to differ from the feature of interest, which may cause problems
-   when using STAR junctions where strandedness is not always
-   reliable.
+   * Use case: display more than one gene; display genes and peaks.
+   * Use case: allow zooming out - beyond the annotated gene.
+   * Use case: display other genes that overlap the display coordinates.
+   * Changes:
+   * Define the display region by genome coordinates, not
+   by the gene symbol - which itself only implies coordinates.
+   * Define compressed ranges using the features displayed. This
+   step also requires renaming the compressed ranges something
+   more broadly useful. If exons from two genes overlap, what shall
+   we name this region? Probably should use "region_1" or "gap_1".
+   * Option to compress ranges using only certain features - outside
+   the Shiny app, this step is already possible using
+   `splicejam::make_ref2compressed()` with a set of `GRanges`.
+   * Major: junction strandedness should not be forced to match
+   the strand of the displayed gene. This change may cause problems
+   using STAR junctions, since STAR junction strandedness is not
+   always accurate.
+
+* New feature (moderate): Extend `splicejam::make_ref2compressed()`
+
+   * Use case: If displaying RNA-seq and ChIP-seq data together, it
+   may be useful to extend regions around the TSS before compressing gaps,
+   to show signal near the TSS. Similar with exons, peaks, etc. Some
+   configuration options could be useful to describe specifically
+   in this function.
+
+
+* New feature (major): Display multiple genes in adjacent panels.
+
+   * Use case: Given 3 genes of interest, display sashimi plots side-by-side
+   * Counterpoint: This step can be done "manually" by preparing
+   individual sashimi plots, then using `cowplot` or `patchwork` to
+   assemble them into multi-panel figure.
+   * Conclusion: Probably will not implement. May need to add this use case
+   to the vignette.
+
+* New feature (major): display Sashimi plots similar to ggridges ridge plots
+
+   * Use case: ggplot2 facet panels take up much extra space, making
+   figures look heavy and bulky - they take up a lot of web browser space.
+   The idea is to plot coverage/junctions slightly overlapping so they
+   are adjacent and perhaps more easily compared visually. Also,
+   more samples can be plotted together without using so much figure space.
+   * Changes:
+   * The y-axis label is only practical for the first sample.
+   * Draw baseline for each sample, render back samples first, top-to-bottom.
+   * Define flexible offset, either by fraction of max height, or
+   by absolute y-axis coverage units.
+   * Allow optional ggplot2 facets, which could still be used to split
+   different experiment design groups. Or could split by sample and display
+   each sample replicate per panel.
+   * Could allow some trickery, like ordering samples by a factor column,
+   where visual gaps could be inserted by using empty factor levels.
+   For example: GroupA_Veh, GroupA_Treated, GroupA_blank, GroupB_Veh, GroupB_Treated.
+   In this case `"GroupA_blank"` would be a factor level, but there would
+   be no sashimi plot data for that factor level, so it would be drawn empty,
+   leaving a visual gap.
+
 
 * New features (major): coverage and junctions from BAM files
 

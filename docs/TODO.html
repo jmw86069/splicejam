@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">splicejam</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.67.900</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.69.900</span>
       </span>
     </div>
 
@@ -79,7 +79,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -99,6 +99,9 @@
     <li>
       <a href="articles/create-a-sashimi-plot.html">Create a Sashimi Plot</a>
     </li>
+    <li>
+      <a href="articles/shiny-server-for-sashimi-plots.html">Shiny server for Sashimi Plots</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -108,7 +111,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="http://github.com/jmw86069/splicejam/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -130,6 +133,163 @@
 
 <div id="todo-for-splicejam" class="section level1">
 
+<div id="16jul2021" class="section level2">
+<h2 class="hasAnchor">
+<a href="#16jul2021" class="anchor"></a>16jul2021</h2>
+<ul>
+<li>
+<p>COMPLETE: Update (minor): Import STAR <code>"SJ.out.tab"</code> format equivalent to importing BED12 format.</p>
+<ul>
+<li>When the junctions file has 9 columns it is assumed to be STAR format.</li>
+<li>The import now uses <code><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html">data.table::fread()</a></code> and not <code><a href="https://rdrr.io/pkg/rtracklayer/man/BEDFile-class.html">rtracklayer::import.bed()</a></code>.</li>
+</ul>
+</li>
+<li>
+<p>COMPLETE: Update (minor): Optional R-shiny startup without displaying a gene.</p>
+<ul>
+<li>Use <code>default_gene="blank"</code> to start with a blank plot.</li>
+</ul>
+</li>
+<li>
+<p>Test (minor): test against alternative, commonly used GTF sources</p>
+<ul>
+<li>Use case: Most steps were designed to use Gencode GTF. The workflow should also work when using other GTF files.</li>
+<li>Notable areas to test: Many steps assume GTF annotations include “gene_name”, “transcript_id” - but if not present the user should be able to define alternate names.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="13jul2021" class="section level2">
+<h2 class="hasAnchor">
+<a href="#13jul2021" class="anchor"></a>13jul2021</h2>
+<ul>
+<li>
+<p><code>makeTx2geneDFfromGtf()</code> extend to include genome coordinates (major)</p>
+<ul>
+<li>currently <code>tx2geneDF</code> does not return genome coordinates, in part because a given gene symbol may be located in multiple locations, multiple chromosomes, e.g. <code>"7SK"</code>.</li>
+</ul>
+</li>
+<li>
+<p>Consider bookdown online documentation (major)</p>
+<ul>
+<li>Need model to follow for where to put documentation, how to host. Check: jokergoo/ComplexHeatmap; clusterProfiler, enrichplot.</li>
+</ul>
+</li>
+<li>
+<p>Consider using patchwork instead of cowplot?</p>
+<ul>
+<li>There is some issue with including the gene model panel twice, maybe patchwork does that step well?</li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="12jul2021" class="section level2">
+<h2 class="hasAnchor">
+<a href="#12jul2021" class="anchor"></a>12jul2021</h2>
+<ul>
+<li>
+<p>Update (minor): Update Shiny progress bar after coverage is complete, before splice junctions are being loaded.</p>
+<ul>
+<li>Use case: After loading coverage files, for example the label says “coverage (16 of 16)”, it pauses for a long time. What is it doing? I want to know!</li>
+</ul>
+</li>
+<li>
+<p>New feature (minor): Allow resizing the gene-transcript panel</p>
+<ul>
+<li>Use case: Sometimes there are way too many transcripts, the panel should be much taller. Sometimes the exon labels are clipped off the bottom of the figure.</li>
+<li>Note that adjusting “per panel size” affects gene-transcript panel, making it much too crowded.</li>
+</ul>
+</li>
+<li>
+<p>New feature (minor): Allow down-sampling the coverage profile</p>
+<ul>
+<li>Use case: exons are rarely displayed one base per pixel, more often an exon is roughly 100-500 bases wide, but displayed in the equivalent of 25-50 pixels. The adjustment would be to down-sample data to help speed up the rendering step.</li>
+</ul>
+</li>
+<li>
+<p>New feature (minor): Optionally display gene model per column for multi-column layout.</p>
+<ul>
+<li>Use case: Currently with two-column display the gene model does not visually align to the coverages.</li>
+</ul>
+</li>
+<li>
+<p>New feature (inquiry): Test porting to ggbio or Gviz for broader re-use.</p>
+<ul>
+<li>Use case: To integrate other track types, coverage, peaks, genes, etc. the ggbio and Gviz R packages are more feature-rich. I think ggbio is no longer officially supported?</li>
+<li>General idea is to provide two functionalities: track “geom”, and x-axis compressed axis which effectively compresses the intron ranges.</li>
+<li>For Gviz, understand <code>GdObject-class</code> and create CustomTrack, which should mimic the workflow used by <code>AlignmentsTrack()</code>:</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu">Gviz</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Gviz/man/CustomTrack-class.html">CustomTrack</a></span><span class="op">(</span>plottingFunction<span class="op">=</span><span class="kw">function</span><span class="op">(</span><span class="va">GdObject</span>, <span class="va">prepare</span><span class="op">=</span><span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span><span class="op">{</span><span class="op">}</span>,
+   variables<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>, name<span class="op">=</span><span class="st">"CustomTrack"</span>, <span class="va">...</span><span class="op">)</span></pre></div>
+</li>
+<li>
+<p>New feature (minor): Color picker alongside Shiny app “Sample Selection”</p>
+<ul>
+<li>Use case is to display, and allow selection of colors per sample</li>
+<li>Not sure if “easy” color picker widgets will work with the selectable table widget.</li>
+</ul>
+</li>
+<li>
+<p>New feature (major): allow multiple genes/features in display region, not just one gene</p>
+<ul>
+<li>Use case: display more than one gene; display genes and peaks.</li>
+<li>Use case: allow zooming out - beyond the annotated gene.</li>
+<li>Use case: display other genes that overlap the display coordinates.</li>
+<li>Changes:</li>
+<li>Define the display region by genome coordinates, not by the gene symbol - which itself only implies coordinates.</li>
+<li>Define compressed ranges using the features displayed. This step also requires renaming the compressed ranges something more broadly useful. If exons from two genes overlap, what shall we name this region? Probably should use “region_1” or “gap_1”.</li>
+<li>Option to compress ranges using only certain features - outside the Shiny app, this step is already possible using <code><a href="reference/make_ref2compressed.html">splicejam::make_ref2compressed()</a></code> with a set of <code>GRanges</code>.</li>
+<li>Major: junction strandedness should not be forced to match the strand of the displayed gene. This change may cause problems using STAR junctions, since STAR junction strandedness is not always accurate.</li>
+</ul>
+</li>
+<li>
+<p>New feature (moderate): Extend <code><a href="reference/make_ref2compressed.html">splicejam::make_ref2compressed()</a></code></p>
+<ul>
+<li>Use case: If displaying RNA-seq and ChIP-seq data together, it may be useful to extend regions around the TSS before compressing gaps, to show signal near the TSS. Similar with exons, peaks, etc. Some configuration options could be useful to describe specifically in this function.</li>
+</ul>
+</li>
+<li>
+<p>New feature (major): Display multiple genes in adjacent panels.</p>
+<ul>
+<li>Use case: Given 3 genes of interest, display sashimi plots side-by-side</li>
+<li>Counterpoint: This step can be done “manually” by preparing individual sashimi plots, then using <code>cowplot</code> or <code>patchwork</code> to assemble them into multi-panel figure.</li>
+<li>Conclusion: Probably will not implement. May need to add this use case to the vignette.</li>
+</ul>
+</li>
+<li>
+<p>New feature (major): display Sashimi plots similar to ggridges ridge plots</p>
+<ul>
+<li>Use case: ggplot2 facet panels take up much extra space, making figures look heavy and bulky - they take up a lot of web browser space. The idea is to plot coverage/junctions slightly overlapping so they are adjacent and perhaps more easily compared visually. Also, more samples can be plotted together without using so much figure space.</li>
+<li>Changes:</li>
+<li>The y-axis label is only practical for the first sample.</li>
+<li>Draw baseline for each sample, render back samples first, top-to-bottom.</li>
+<li>Define flexible offset, either by fraction of max height, or by absolute y-axis coverage units.</li>
+<li>Allow optional ggplot2 facets, which could still be used to split different experiment design groups. Or could split by sample and display each sample replicate per panel.</li>
+<li>Could allow some trickery, like ordering samples by a factor column, where visual gaps could be inserted by using empty factor levels. For example: GroupA_Veh, GroupA_Treated, GroupA_blank, GroupB_Veh, GroupB_Treated. In this case <code>"GroupA_blank"</code> would be a factor level, but there would be no sashimi plot data for that factor level, so it would be drawn empty, leaving a visual gap.</li>
+</ul>
+</li>
+<li>
+<p>New features (major): coverage and junctions from BAM files</p>
+<ul>
+<li>Use case is to allow BAM input, both for coverage and for junctions.</li>
+<li>Major enabling feature: This step is a precursor to handling scRNA-seq, which could dynamically split the BAM reads by tSNE/UMAP clusters.</li>
+</ul>
+</li>
+<li>
+<p>New data (major): pre-defined hg19 transcriptome data required for sashimi plots</p>
+<ul>
+<li>Gencode comprehensive with all genes, flat exons pre-computed.</li>
+<li>Obvious enhancement: hg38, mm10, other common organisms.</li>
+<li>Describe steps used so others can use their own GTF as needed.</li>
+</ul>
+</li>
+<li>
+<p>New feature (nice to have): ability to select/deselect transcripts displayed in the R-shiny app for a given gene.</p>
+<p>Use case is when displaying all transcripts for a given gene, but there are too many un-expressed transcripts, e.g. human ACTB. Could allow a separate table to select transcripts to include/hide. When performing “Update” the compressed exons would be re-calculated for that gene using the selected exons.</p>
+</li>
+</ul>
+</div>
 <div id="19mar2021-todo-items" class="section level2">
 <h2 class="hasAnchor">
 <a href="#19mar2021-todo-items" class="anchor"></a>19mar2021 todo items</h2>
