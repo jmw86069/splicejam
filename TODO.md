@@ -1,5 +1,9 @@
 # TODO for splicejam
 
+## 28jul2021
+
+* Ability to adjust splice junction arc minimum height
+
 ## 16jul2021
 
 * COMPLETE: Update (minor): Import STAR `"SJ.out.tab"` format equivalent to

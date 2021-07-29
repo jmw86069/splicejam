@@ -94,10 +94,22 @@ sashimiAppUI <- function
                GenomicRanges::values(flatExonsByGene@unlistData)$gene_nameExon));
    }
    if (exists("gene") && length(gene) == 1 && nchar(gene) > 0) {
-      exon_range_choices_default <- jamba::mixedSort(
-         jamba::vigrep(paste0(gene, "_"),
-            exon_range_choices_default));
+      exon_range_choices_default <- GenomicRanges::values(flatExonsByGene[[gene]])$gene_nameExon;
+      #exon_range_choices_default <- jamba::mixedSort(
+      #   jamba::vigrep(paste0("^", gene, "_"),
+      #      exon_range_choices_default));
+   } else if (exists("default_gene") && length(default_gene) == 1 && nchar(default_gene) > 0) {
+      exon_range_choices_default <- GenomicRanges::values(flatExonsByGene[[default_gene]])$gene_nameExon;
+      gene <- default_gene;
    }
+   if (exists("gene")) {
+      gene_coords_default <- range(as.data.frame(range(
+         flatExonsByGene[[gene]]
+      ))[,c("start", "end")]);
+   } else {
+      gene_coords_default <- c(1, 2);
+   }
+
    exon_range_choices <- jam_get("exon_range_choices",
       exon_range_choices_default,
       verbose=TRUE,
@@ -269,10 +281,10 @@ sashimiAppUI <- function
                   shiny::sliderInput(
                      "gene_coords",
                      label=NULL,#"Genome coordinate range",
-                     min=28,
-                     max=117,
+                     min=min(gene_coords_default),
+                     max=max(gene_coords_default),
                      #width="80%",
-                     value=c(28, 117),
+                     value=gene_coords_default,
                      step=1,
                      round=TRUE
                   )
@@ -417,6 +429,13 @@ sashimiAppUI <- function
                               status="warning",
                               label="Detected only"
                            )
+                        ),
+                        shinyWidgets::sliderTextInput(
+                           inputId="gene_panel_height",
+                           label="Height of gene panel:",
+                           choices=c(50,75,100,150,200,250,300,400,500) * 2,
+                           selected=400,
+                           grid=TRUE
                         )
                      ),
                      tags$br(),

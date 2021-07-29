@@ -1,3 +1,43 @@
+# splicejam 0.0.70.900
+
+## changes to existing functions
+
+* `sashimiAppServer()` was updated to reorganize the overall
+series of Shiny reactive events, cleaning up some dependencies.
+* `sashimiAppUI()` new query device to control the gene-transcript-exon
+panel height independent of the sashimi coverage plot panels.
+
+## New issues while using environments
+
+Wrapping Shiny functions in an environment was a clever
+way to pass variables directly from an active R session.
+It also means the data can remain inside the environment
+without copying it into each function - while also allowing
+data to be updated and saved in that environment.
+
+However it appears to break the R package `import` process,
+and caused `%>%` to be unknown even though the `dplyr`
+package was supposed to imported. I cannot understand the
+import scope - it works sometimes but not other times.
+Maybe because the environment does not have a parent, it
+causes imported functions to be lost?
+
+
+## bug fixes
+
+* `sashimiAppServer()` was updated to fix missing `%>%`, and
+other issues that arose with the new data environment workflow.
+* `sashimiAppServer()` briefly broke the ggplotly workflow
+for interactive plots, because `plotly::subplot()` absolutely
+choked and failed when the numeric vector `heights` had names.
+So that was fun... removing names from `heights` fixed the error.
+
+
+* Another bug appears to be causing splice junctions to be invisible
+on the public site, despite being present in all internal test
+instances.
+
+
 # splicejam 0.0.69.900
 
 ## new functions
