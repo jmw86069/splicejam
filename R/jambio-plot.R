@@ -2513,10 +2513,12 @@ import_juncs_from_bed <- function
          warning(warnText);
          NULL;
       });
-      if (length(bed_df) == 0 && verbose) {
-         jamba::printDebug("import_juncs_from_bed(): ",
-            "Repairing junction cache.",
-            fgText=c("darkorange","seagreen3"));
+      if (length(bed_df) == 0) {
+         if (verbose) {
+            jamba::printDebug("import_juncs_from_bed(): ",
+               "Repairing junction cache.",
+               fgText=c("darkorange","seagreen3"));
+         }
          if (compareVersion(as.character(packageVersion("memoise")), "1.1.0.900") >= 0) {
             #import_has_cache <- memoise::has_cache(import_m)(iBed);
             memoise::drop_cache(import_m)(iBed);

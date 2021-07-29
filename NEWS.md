@@ -1,3 +1,14 @@
+# splicejam 0.0.71.900
+
+## changes to existing functions
+
+* `import_juncs_from_bed()` was updated to correct an issue
+where verbose output was required for the cache repair step.
+* `sashimiAppServer()` was updated to remove all `%>%` pipes.
+Ah well, adding a package prefix was not the answer to
+that particular issue.
+
+
 # splicejam 0.0.70.900
 
 ## changes to existing functions

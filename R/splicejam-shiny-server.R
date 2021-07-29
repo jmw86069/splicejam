@@ -893,21 +893,20 @@ sashimiAppServer <- function
             # %>% plotly::style(hoveron="fill");
          }
          if (enable_highlights_d()) {
-            gg_ly <- gg_ly magrittr::`%>%`
-               highlight("plotly_hover",
+            gg_ly <- plotly::highlight(gg_ly,
+                  "plotly_hover",
                   opacityDim=0.8,
-                  selected=attrs_selected(
+                  selected=plotly::attrs_selected(
                      line=list(color="#444444")));
          }
          ## Remove the color legend (again)
          if (!input$plotly_legend) {
-            gg_ly <- gg_ly magrittr::`%>%`
-               plotly::layout(showlegend=FALSE);
+            gg_ly <- plotly::layout(gg_ly, showlegend=FALSE);
          }
          # Try converting to plotlyOutput to define a fixed plot height
          output$plotly <- plotly::renderPlotly({
-            gg_ly magrittr::`%>%`
-               plotly::layout(margin=list(r=100, l=70, t=20, b=70))
+            plotly::layout(gg_ly,
+               margin=list(r=100, l=70, t=20, b=70))
          });
          plotly_out <- plotly::plotlyOutput(
             "plotly",
@@ -1011,18 +1010,17 @@ sashimiAppServer <- function
       # check each colname for matching colors
       for (iCol in colnames(df)) {
          if (all(unique(df[[iCol]]) %in% names(color_sub))) {
-            dt <- dt magrittr::`%>%`
-               DT::formatStyle(
-                  iCol,
-                  backgroundColor=DT::styleEqual(
-                     levels=names(color_sub),
-                     values=jamba::rgb2col(col2rgb(color_sub))
-                  ),
-                  color=DT::styleEqual(
-                     levels=names(color_sub),
-                     values=setTextContrastColor(color_sub)
-                  )
-               );
+            dt <- DT::formatStyle(dt,
+               iCol,
+               backgroundColor=DT::styleEqual(
+                  levels=names(color_sub),
+                  values=jamba::rgb2col(col2rgb(color_sub))
+               ),
+               color=DT::styleEqual(
+                  levels=names(color_sub),
+                  values=setTextContrastColor(color_sub)
+               )
+            );
          }
       }
       dt;
@@ -1051,27 +1049,27 @@ sashimiAppServer <- function
       #   nrow(files_dt),
       #   "cbox_");
 
-      files_dt <- files_dt magrittr::`%>%`
-         dplyr::select(sample_id,
-            everything(),
-            -scale_factor, -type, -url,
-            type, scale_factor, url) magrittr::`%>%`
-         dplyr::arrange(sample_id, type) magrittr::`%>%`
-         DT::datatable(
-            editable=TRUE,
-            rownames=FALSE,
-            escape=TRUE,
-            #height='15px',
-            extensions=c("RowReorder"),
-            selection="none",
-            options=list(
-               autoWidth=TRUE,
-               deferRender=TRUE,
-               pageLength=24,
-               lengthMenu=c(12,24,48,120),
-               rowReorder=TRUE
-            )
-         );
+      files_dt <- dplyr::select(files_dt,
+         sample_id,
+         everything(),
+         -scale_factor, -type, -url,
+         type, scale_factor, url);
+      files_dt <- dplyr::arrange(files_dt,
+         sample_id, type)
+      files_dt <- DT::datatable(files_dt,
+         editable=TRUE,
+         rownames=FALSE,
+         escape=TRUE,
+         #height='15px',
+         extensions=c("RowReorder"),
+         selection="none",
+         options=list(
+            autoWidth=TRUE,
+            deferRender=TRUE,
+            pageLength=24,
+            lengthMenu=c(12,24,48,120),
+            rowReorder=TRUE
+         ))
          # optionally colorize sample_id using color_sub
          if (!all(c("junction", "bw") %in% names(color_sub))) {
             color_sub["junction"] <- "slateblue1";
