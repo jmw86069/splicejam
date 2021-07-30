@@ -1049,6 +1049,8 @@ getGRcoverageFromBw <- function
             "BigWig file not accessible:'",
             bwUrl,
             "', returning NULL.");
+         jamba::printDebug(warnText);
+         print(e);
          warning(warnText);
          NULL;
       });

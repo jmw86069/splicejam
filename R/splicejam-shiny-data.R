@@ -116,7 +116,7 @@ sashimiDataConstants <- function
    }
 
    params <- setdiff(names(formals(sashimiDataConstants)),
-      c("...", "envir", "verbose"));
+      c("...", "envir"));
    for (param in params) {
       if (verbose > 1) {
          jamba::printDebug("sashimiDataConstants(): ",

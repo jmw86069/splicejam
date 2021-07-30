@@ -331,36 +331,6 @@ sashimiAppUI <- function
                   background="#AAAAAA",
                   icon=shiny::icon("gear"),
                   htmltools::tagList(
-                     shinyWidgets::sliderTextInput(
-                        inputId="panel_height",
-                        label="Height per panel:",
-                        choices=c(50,75,100,150,200,250,300,400,500),
-                        selected=200,
-                        grid=TRUE
-                     ),
-                     shinyWidgets::sliderTextInput(
-                        inputId="font_sizing",
-                        label="Font sizing:",
-                        choices=c("-4 smaller",
-                           "-3 smaller",
-                           "-2 smaller",
-                           "-1 smaller",
-                           "Default",
-                           "+1 larger",
-                           "+2 larger",
-                           "+3 larger",
-                           "+4 larger"),
-                        selected="Default",
-                        grid=TRUE
-                     ),
-                     shiny::sliderInput(
-                        inputId="junction_alpha",
-                        label="Junction transparency:",
-                        min=0.1,
-                        max=1.0,
-                        step=0.1,
-                        value=0.7
-                     ),
                      tags$b("Plot Style:"),
                      shinyWidgets::prettyCheckbox(
                         inputId="do_plotly",
@@ -389,6 +359,61 @@ sashimiAppUI <- function
                            icon=shiny::icon("check"),
                            status="primary",
                            label="Display filter legend")
+                     ),
+                     shinyWidgets::sliderTextInput(
+                        inputId="panel_height",
+                        label="Height per panel:",
+                        choices=c(50,75,100,150,200,250,300,400,500),
+                        selected=200,
+                        grid=TRUE
+                     ),
+                     shinyWidgets::sliderTextInput(
+                        inputId="font_sizing",
+                        label="Font sizing:",
+                        choices=c("-4 smaller",
+                           "-3 smaller",
+                           "-2 smaller",
+                           "-1 smaller",
+                           "Default",
+                           "+1 larger",
+                           "+2 larger",
+                           "+3 larger",
+                           "+4 larger"),
+                        selected="Default",
+                        grid=TRUE
+                     ),
+                     shiny::sliderInput(
+                        inputId="junction_alpha",
+                        label="Junction non-transparency:",
+                        min=0.1,
+                        max=1.0,
+                        step=0.1,
+                        value=0.7
+                     ),
+                     shinyWidgets::sliderTextInput(
+                        inputId="junction_arc_factor",
+                        label="Junction arc factor:",
+                        choices=c(
+                           "-2 flat",
+                           "-1 lower",
+                           "Default",
+                           "+1 higher",
+                           "+2 higher",
+                           "+3 higher"),
+                        selected="Default",
+                        grid=TRUE
+                     ),
+                     shinyWidgets::sliderTextInput(
+                        inputId="junction_arc_minimum",
+                        label="Junction arc minimum:",
+                        choices=c(
+                           "0",
+                           "100",
+                           "500",
+                           "1000",
+                           "10000"),
+                        selected="100",
+                        grid=TRUE
                      ),
                      tags$b("Axis Settings:"),
                      shinyWidgets::prettyCheckbox(

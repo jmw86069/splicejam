@@ -45,7 +45,7 @@ sashimiAppServer <- function
    if (exists("verbose")) {
       verbose <- get("verbose");
    } else {
-      verbose <- FALSE;
+      verbose <- TRUE;
    }
    if (exists("dodebug")) {
       dodebug <- get("dodebug");
@@ -146,6 +146,28 @@ sashimiAppServer <- function
       input$junction_alpha;
    });
    junction_alpha_d <- debounce(junction_alpha, debounce_ms);
+   junction_arc_factor <- reactive({
+      arcValues <- c(
+         `-2 flat`=0,
+         `-1 lower`=0.1,
+         `Default`=0.2,
+         `+1 higher`=0.5,
+         `+2 higher`=1.0,
+         `+3 higher`=1.5);
+      if (length(input$junction_arc_factor) == 0) {
+         return(arcValues["Default"]);
+      }
+      arcValues[input$junction_arc_factor]
+   });
+   junction_arc_factor_d <- debounce(junction_arc_factor, debounce_ms);
+
+   junction_arc_minimum <- reactive({
+      if (length(input$junction_arc_minimum) == 0) {
+         return(100);
+      }
+      as.numeric(input$junction_arc_minimum);
+   });
+   junction_arc_minimum_d <- debounce(junction_arc_minimum, debounce_ms);
    share_y_axis <- reactive({
       if (length(input$share_y_axis) == 0) {
          return(TRUE);
@@ -588,6 +610,8 @@ sashimiAppServer <- function
             }
             sashimi_data <- prepareSashimi_m(
                gene=gene,
+               scoreArcFactor=junction_arc_factor_d(),
+               scoreArcMinimum=junction_arc_minimum_d(),
                flatExonsByGene=flatExonsByGene1,
                minJunctionScore=min_junction_reads,
                sample_id=sample_id,

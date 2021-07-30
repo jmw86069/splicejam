@@ -1,3 +1,27 @@
+# splicejam 0.0.72.900
+
+## changes to existing functions
+
+* `sashimiDataConstants()` now propagates `"verbose"` into the
+data environment so the verbose flag will be persistent through
+the Shiny app functions.
+* `getGRcoverageFromBw()` prints more error information when
+retrieving coverage fails. Errors seem to happen when openssl
+is not enabled for "https" URLs as opposed to "http" URLs.
+Unclear exactly why.
+
+## changes to Shiny app
+
+* Two new config options adjust the junction arc height. We noticed
+for some genes, the junctions overlap the intermediate coverage,
+so these options allow raising the arcs accordingly.
+
+   1. "Junction arc factor" adjusts the relative height of junction arcs.
+   2. "Junction arc minimum" defines the minimum junction arc height.
+   
+* Changed "Junction transparency" to "Junction non-transparency".
+* Moved "Interactive Plot" option to the top.
+
 # splicejam 0.0.71.900
 
 ## changes to existing functions
