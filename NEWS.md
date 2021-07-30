@@ -9,6 +9,9 @@ the Shiny app functions.
 retrieving coverage fails. Errors seem to happen when openssl
 is not enabled for "https" URLs as opposed to "http" URLs.
 Unclear exactly why.
+* `import_juncs_from_bed()` was updated to force printing error
+messages when retrieving data from cache fails, or when
+retrieving the junction data itself fails.
 
 ## changes to Shiny app
 

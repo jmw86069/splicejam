@@ -2507,11 +2507,12 @@ import_juncs_from_bed <- function
       bed_df <- tryCatch({
          import_m(iBed);
       }, error=function(e){
-         warnText <- paste0("getGRcoverageFromBw():",
+         warnText <- paste0(
             "import_juncs_from_bed() error:",
-            "file not accessible:'",
+            "file not accessible: '",
             iBed,
             "', returning NULL.");
+         print(warnText);
          warning(warnText);
          NULL;
       });
@@ -2527,6 +2528,13 @@ import_juncs_from_bed <- function
             bed_df <- tryCatch({
                import_m(iBed);
             }, error=function(e){
+               warnText <- paste0(
+                  "import_juncs_from_bed() error:",
+                  "file not accessible during repair junction step: '",
+                  iBed,
+                  "', returning NULL.");
+               print(warnText);
+               warning(warnText);
                NULL;
             })
          } else {
