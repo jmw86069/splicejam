@@ -1,3 +1,14 @@
+# splicejam 0.0.73.900
+
+## changes to existing functions
+
+* `import_juncs_from_bed()` was updated to force printing the
+actual R error message, in addition to internal error reporting
+where the error occurred. We suspect `data.table::fread()`
+or `openssl` may not be reading the remote gzipped junction
+file over the https connection. It appears to be a machine-specific
+error not seen on multiple test machines until now.
+
 # splicejam 0.0.72.900
 
 ## changes to existing functions

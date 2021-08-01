@@ -2513,6 +2513,7 @@ import_juncs_from_bed <- function
             iBed,
             "', returning NULL.");
          print(warnText);
+         print(e);
          warning(warnText);
          NULL;
       });
@@ -2534,6 +2535,7 @@ import_juncs_from_bed <- function
                   iBed,
                   "', returning NULL.");
                print(warnText);
+               print(e);
                warning(warnText);
                NULL;
             })
