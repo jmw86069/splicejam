@@ -2438,6 +2438,8 @@ internal_junc_score <- function
 #'    that span this range, but do not start or end inside this
 #'    range, will be removed.
 #'
+#' @import data.table
+#'
 #' @export
 import_juncs_from_bed <- function
 (iBed,

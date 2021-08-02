@@ -60,6 +60,8 @@ NULL
 #'
 #' @family jam RNA-seq functions
 #'
+#' @import data.table
+#'
 #' @export
 makeTx2geneFromGtf <- function
 (GTF,

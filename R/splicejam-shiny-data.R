@@ -90,6 +90,8 @@
 #' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
+#' @import data.table
+#'
 #' @export
 sashimiDataConstants <- function
 (gtf=NULL,
