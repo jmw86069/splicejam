@@ -1,5 +1,8 @@
 # splicejam 0.0.73.900
 
+Added package `R.utils` to Imports, since it is required by `data.table`
+to import `gzip` files.
+
 ## changes to existing functions
 
 * `import_juncs_from_bed()` was updated to force printing the

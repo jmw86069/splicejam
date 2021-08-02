@@ -47,7 +47,8 @@ Imports: jamba(>= 0.0.41.900),
     plotly,
     DT,
     memoise(>= 1.1.0.9000),
-    testthat(>= 3.0.0)
+    testthat(>= 3.0.0),
+    R.utils
 Suggests: 
     made4,
     openxlsx,
