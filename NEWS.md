@@ -1,7 +1,9 @@
-# splicejam 0.0.73.900
+# splicejam 0.0.74.900
 
 Added package `R.utils` to Imports, since it is required by `data.table`
 to import `gzip` files.
+
+# splicejam 0.0.73.900
 
 ## changes to existing functions
 
