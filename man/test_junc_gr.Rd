@@ -4,7 +4,8 @@
 \name{test_junc_gr}
 \alias{test_junc_gr}
 \title{Sample junction data GRangesList}
-\format{GRangesList where each GRangesList item represents
+\format{
+GRangesList where each GRangesList item represents
 a distinct biological sample. Each GRanges item represents
 one splice junction, whose score represents the abundance
 of splice junction reads observed. The start of each splice
@@ -13,7 +14,8 @@ exon, using 1-based coordinates. Therefore, an exon spanning
 1-10 covers 10 bases, the corresponding junction would
 begin at position 11. Similarly, if the connected exon
 begins at position 100, the junction would end at position
-99.}
+99.
+}
 \usage{
 test_junc_gr
 }

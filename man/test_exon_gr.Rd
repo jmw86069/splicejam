@@ -4,9 +4,11 @@
 \name{test_exon_gr}
 \alias{test_exon_gr}
 \title{Sample exon data GRanges}
-\format{GRanges object where each segment represents one
+\format{
+GRanges object where each segment represents one
 exon for an arbitrary gene. It has one column of values,
-\code{"gene_name"} used for Sashimi plot preparation.}
+\code{"gene_name"} used for Sashimi plot preparation.
+}
 \usage{
 test_exon_gr
 }

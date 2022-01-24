@@ -1,5 +1,31 @@
 # TODO for splicejam
 
+## 23jan2022
+
+* Suggest adding long gene name to the plot output somehow, in addition
+to the gene symbol.
+
+* FIXED: reported bug that upon reproducing on local machine shows R error from
+duplicate row.names, derived from coercing splice GRanges to data.frame.
+
+   * This bug appears to be fixed, at least when testing genes `Gria1` and
+   `Tnr` with all four `CB` samples. Those two test cases reproduced the
+   reported error, and the updated `splicejam` no longer shows an error.
+
+
+## 29sep2021
+
+* For plotly sashimi plots, show the coverage (y-axis height) at each position
+along the x-axis.
+
+
+## 24sep2021
+
+* BGA plot function `bgaPlotly3d()`
+
+   * allow adjustment to text label color distinct of polygon color
+
+
 ## 28jul2021
 
 * Ability to adjust splice junction arc minimum height

@@ -10,7 +10,8 @@ grl2df(
   keepGRLvalues = FALSE,
   addGaps = TRUE,
   width = 0.6,
-  widthV = c(exon = 0.6, cds = 0.6, noncds = 0.3, intron = 0.01, gap = 0.01, `NA` = 0.5),
+  widthV = c(exon = 0.6, cds = 0.6, noncds = 0.3, intron = 0.01, gap = 0.01, `NA` =
+    0.5),
   width_colname = c("subclass", "feature_type"),
   shape = c("rectangle", "junction"),
   baseline = NULL,

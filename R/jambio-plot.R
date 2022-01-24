@@ -1983,6 +1983,9 @@ prepareSashimi <- function
          juncDF1 <- NULL;
       } else {
          juncBedGR <- GRangesList(juncBedList)@unlistData;
+         # 23jan2022 bug with duplicate unlistData names in rare edge cases
+         # causes problem when coercing with as.data.frame()
+         names(juncBedGR) <- jamba::makeNames(names(juncBedGR));
          ## Create junction summary data.frame
          if (verbose) {
             jamba::printDebug("prepareSashimi(): ",

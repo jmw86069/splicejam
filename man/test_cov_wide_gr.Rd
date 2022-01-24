@@ -4,7 +4,9 @@
 \name{test_cov_wide_gr}
 \alias{test_cov_wide_gr}
 \title{Sample exon coverage data GRanges with wide introns}
-\format{An object of class \code{GRanges} of length 4.}
+\format{
+An object of class \code{GRanges} of length 4.
+}
 \usage{
 test_cov_wide_gr
 }

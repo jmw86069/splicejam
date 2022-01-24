@@ -1,3 +1,27 @@
+# splicejam 0.0.75.900
+
+* Bug was reported on edge cases with positive strand CB samples. It appears
+to be an edge case derived from rare duplicated `names()` in splice
+junction `GRanges`, fortuitous for certain genes. The duplicate names
+are repaired in `prepareSashimi()` hopefully resolving downstream effects.
+The duplicate names appear to originate from `import_juncs_from_bed()`,
+unclear why the issue was not seen before now, could be subtle change
+that added rownames that previously did not exist somewhere upstream
+in the process.
+
+   * Aside: The bug is intriguing partly by the way is was observed: only
+   when all CB samples were shown, and only on the positive strand. I think
+   the cause is related to an upstream step adding numeric names to splice
+   junctions in order they appear, and they happen to be loaded one `sample_id`
+   at a time. When selective a particular gene, it combines junctions from
+   each requested `sample_id`, after subsetting each for the requested `gene`.
+   In principle it would be rare that the same range of entries is used
+   from multiple samples - for example entries 9500 through 9575 from `CA1_CB`
+   and entries 9570 through 9800 from `DG_CB`. But it tends to happen across
+   `CB` samples and not between `CB` and `DE` samples, which suggests the `CB`
+   samples are more similar to each other than they are to `DE` samples.
+
+
 # splicejam 0.0.74.900
 
 Added package `R.utils` to Imports, since it is required by `data.table`
