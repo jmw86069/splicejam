@@ -1453,8 +1453,9 @@ jamGeomean <- function
 {
    ## Purpose is to calculate geometric mean while allowing for
    ## positive and negative values
-   x2 <- mean(log2(1+abs(x))*sign(x));
-   sign(x2)*(2^abs(x2)-1);
+   x2 <- mean(log2(1 + abs(x)) * sign(x),
+      na.rm=na.rm);
+   sign(x2) * (2 ^ abs(x2) - 1);
 }
 
 #' Classical geometric mean
@@ -1508,7 +1509,7 @@ geomean <- function
       x <- rmNA(x,
          naValue=naValue);
    }
-   2^mean(log2(x + offset)) - offset;
+   2 ^ mean(log2(x + offset), na.rm=na.rm) - offset;
 }
 
 #' Summarize detected transcript results

@@ -1,3 +1,14 @@
+# splicejam 0.0.76.900
+
+## bug fixes
+
+* Issue #3 reported `jamGeomean()` was not honoring `na.rm=TRUE`,
+this issue has been resolved. Also `geomean()` was updated to ensure
+that `na.rm=TRUE` also results in returning a non-NA value, except
+in cases where all input values are `NA` in which case it returns
+`NaN` consistent with `mean.default()`.
+
+
 # splicejam 0.0.75.900
 
 * Bug was reported on edge cases with positive strand CB samples. It appears
