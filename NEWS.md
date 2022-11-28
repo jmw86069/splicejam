@@ -1,3 +1,45 @@
+# splicejam 0.0.77.900
+
+## new functions
+
+* `readGtf()` is a small helper function to load GTF/GFF3 files, called
+by `makeTx2geneFromGtf()` and `describeGtfAttrNames()`.
+* `describeGtfAttrNames()` is a simple helper function to print a quick
+`data.frame` for each `source` (column 2) in a GTF/GFF3 file, the attribute
+names and values observed in column 9.
+
+## updates to existing functions
+
+* `makeTx2geneFromGtf()`
+
+   * Updated to handle `gff3` format in addition to `gtf` format.
+   * new argument `zcat_command` used to specify the call to `zcat` or `gzcat`,
+   only used when input is gzipped and `R.utils` is not installed.
+   * Fixed issue when transcript attribute names are not consistently
+   represented on all rows in gtf/gff3 output. Formerly the output fields
+   would contain the full semicolon-delimited values from column 9, instead
+   of replacing unaltered entries with '' empty string.
+
+* `bgaPlotly3d()`
+
+   * A more complete refactor of this function is in progress,
+   to simplify the code, to allow exporting individual `data.frame`
+   objects for the visual components displayed in plotly.
+   The original function used `rgl`, and was ported to `plotly` to help
+   render on Rmarkdown documents in HTML form. However the `rgl` package
+   can also create HTML export, so it may be preferred. The `rgl`
+   package has additional 3D shapes that would help when rendering
+   the cross-group block arrows.
+   * a plotly error occurred when `drawSegments="genes"` due to mismatch in
+   expected values in column `"textposition"` during plotly rendering.
+   This error may have occurred during a recent plotly update,
+   the workaround is simply not to include
+   `"textposition"` during display of gene vectors, which causes
+   them to default to use `textposition="top center"`.
+   * `geneColor` can now be a named vector, to allow colorizing individual
+   genes by name.
+
+
 # splicejam 0.0.76.900
 
 ## bug fixes

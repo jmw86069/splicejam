@@ -35,94 +35,124 @@
 #' either by factor levels, or by the order returned by
 #' `jamba::mixedSort()` which performs a proper alphanumeric sort.
 #'
+#' ## Background on `bga` object content
+#'
+#' Output from `made4::bga()` is an object with `class` containing `"bga"`.
+#' It is a list with three elements:
+#'
+#' 1. `"ord"`: ordination, the initial clustering results from either `"coa"`
+#' (default) or `"pca"` clustering across all individual samples. This data
+#' is fed into the second phase, group-based clustering.
+#' 2. `"bet"`: the between group analysis result, derived from `"ord"`.
+#' 3. `"fac"`: `factor` vector of groups across the `colnames(x)` of
+#' input data.
+#'
+#' The `"bet"` contents are described below, assuming the results of
+#' `made::bga()` are stored as `bgaInfo`:
+#'
+#' * gene (row) coordinates are stored:
+#'
+#'    * `bgaInfo$bet$co`: unscaled coordinates for each component axis
+#'    * `bgaInfo$bet$c1`: scaled coordinates for each component axis
+#'
+#' * group centroid coordinates are stored:
+#'
+#'    * `bgaInfo$bet$li`: unscaled group centroid coordinates
+#'    * `bgaInfo$bet$ls`: scaled group centroid coordinates
+#'
+#' * sample centroid coordinates are stored:
+#'
+#'    * `bgaInfo$bet$ls`: scaled coordinates for each component axis
+#'
 #' @return plotly object sufficient to render an HTML page containing
 #' a 3-D BGA plot.
 #'
-#' @param bgaInfo object of class `"bga"` as created by `made4::bga()`.
-#' @param axes integer vector length 3 indicating the BGA axes to use
+#' @param bgaInfo object of class `c("coa", "bga")` created by `made4::bga()`.
+#' @param axes `integer` vector length 3 indicating the BGA axes to use
 #'    for the 3-D visualization. It is sometimes helpful to use
 #'    `axes=c(2,3,4)` especially when the first component suggests
 #'    a large experimental batch effect, for example when
 #'    combining data from multiple GEO studies, often the first
 #'    BGA component is indicative of the different experimental
 #'    platforms.
-#' @param superGroups character or factor vector with length
+#' @param superGroups `character` or factor vector with length
 #'    `length(bgaInfo$fac)`, in the same order. A super group consists
 #'    of multiple sample groups, as defined by values in `bgaInfo$fac`.
-#' @param superGroupAlpha numeric value between 0 and 1 indicating the
+#' @param superGroupAlpha `numeric` value between 0 and 1 indicating the
 #'    alpha transparency to use for the vector that connects groups
 #'    within each super group.
-#' @param superGroupLwd the line width when connecting sample group
+#' @param superGroupLwd `numeric` line width when connecting sample group
 #'    centroids by `superGroups`.
-#' @param arrowSmoothFactor numeric value typically ranging from 1 to 5,
+#' @param arrowSmoothFactor `numeric` value typically ranging from 1 to 5,
 #'    affecting the amount of curve smoothing when generating a
 #'    3-D spline curve to connect more than two super groups.
 #'    When there are only two group members in one super group,
 #'    the two groups will always use a straight line. For three or
 #'    more groups, a 3-D spline is used, in order to help visualize
 #'    trends by means of a curve.
-#' @param colorSub named color vector, whose names contain values in
+#' @param colorSub `character` vector of R colors, whose names contain values in
 #'    `bgaInfo$fac`. These colors are used for the samples, sample
 #'    centroids, and are shaded via a gradient when connecting multiple
 #'    centroids using `superGroups`.
-#' @param drawVectors character vector of one or more types of vectors,
-#'    where `"centroids"` draws a vector from the origin to each group
-#'    centroid; and `"genes"` draws a vector from the origin to each
-#'    gene.
-#' @param drawSampleLabels logical indicating whether to label each
+#' @param drawVectors `character` vector of one or more types of vectors:
+#'    * `"centroids"` draws a vector from the origin to each group centroid.
+#'    * `"genes"` draws a vector from the origin to each gene.
+#' @param drawSampleLabels `logical` indicating whether to label each
 #'    individual sample point, as opposed to labeling only the
 #'    sample group centroid.
-#' @param elipseType character value indicating how to draw sample
+#' @param ellipseType `character` value indicating how to draw sample
 #'    centroid ellipses, where `"none"` draws no ellipse; `"alphahull"`
 #'    draws a wireframe; and `"ellipsoid"` draws
 #'    a partially transparent shell. Note that plotly does not handle
 #'    transparency well in 3-D space, sometimes fully obscuring
 #'    background components.
-#' @param ellipseOpacity numeric value between 0 and 1 indicating the
+#' @param ellipseOpacity `numeric` value between 0 and 1 indicating the
 #'    transparency of the ellipse, when `ellipseType` is not `"none"`;
 #'    0 is fully transparent, and 1 is non-transparent.
-#' @param useScaledCoords logical indicating whether to use the BGA
+#' @param useScaledCoords `logical` indicating whether to use the BGA
 #'    scaled coordinates, or the raw coordinates. By default the raw
 #'    coordinates are used in order to preserve the relative contribution
 #'    of each BGA component to the overall variability (or inertial
 #'    moment.)
-#' @param geneColor character color used when displaying gene points.
-#' @param geneScaleFactor numeric value used to expand the position of
+#' @param geneColor `character` color used when displaying gene points.
+#' @param geneScaleFactor `numeric` value used to expand the position of
 #'    genes relative to the origin, intended to help visualize the vector
 #'    position of genes relative to the origin.
-#' @param geneLwd,geneAlpha parameters used to customize the line width
+#' @param geneLwd,geneAlpha `numeric` used to customize the line width
 #'    and alpha transparency of gene points, respectively.
-#' @param geneLabels character vector of gene labels to use instead
+#' @param geneLabels `character` vector of gene labels to use instead
 #'    of rownames. The `names(geneLabels)` are expected to match
 #'    `rownames(bgaInfo$bet$co)`. This option is intended to allow
 #'    display of gene symbols, instead of an assay identifier like
 #'    probe set name.
-#' @param maxGenes integer maximum number of genes to display.
-#' @param centroidLwd,centroidAlpha parameters used to customize the
+#' @param maxGenes `integer` maximum number of genes to display.
+#' @param centroidLwd,centroidAlpha `numeric` used to customize the
 #'    line width and alpha transparency of vectors drawn to sample
 #'    centroids, respectively.
-#' @param textposition_centroid,textposition_sample character vector
+#' @param textposition_centroid,textposition_sample `character` vector
 #'    containing values used as the `plotly` argument `"textposition"`
 #'    to position text labels for centroids, and samples. Each
 #'    vector is extended to the number of labels, which allows
 #'    each label to be individually positioned.
-#' @param sceneX,sceneY,sceneZ parameters used to define the camera
+#' @param sceneX,sceneY,sceneZ `numeric` used to define the camera
 #'    position in 3-D space as defined by plotly. Frankly, the ability
 #'    to customize the starting position is fairly confusing, but these
 #'    values are faithfully passed along to the corresponding plotly
 #'    call.
-#' @param main character string used as a title on the plotly
+#' @param main `character` string used as a title on the plotly
 #'    visualization.
-#' @param sampleGroups vector of character or factor values. The
+#' @param sampleGroups `character` or `factor` vector, whose
 #'    names are expected to contain values in
-#'    `rownames(bgaInfo$ord$ord$tab)`, which are also the colnames
-#'    of the data matrix used in `made4::bga()`. The values in
+#'    `rownames(bgaInfo$ord$ord$tab)`, which should also be `colnames(x)`
+#'    of the input data to `made4::bga(x, ...)`. The values in
 #'    `sampleGroups` are used to re-group samples, which effectively
 #'    calculates new sample group centroids used in this
 #'    visualization. It is intended to be used when the `made4::bga()`
 #'    is used without grouping, for example when each sample replicate
-#'    is defined as its own group.
-#' @param verbose logical indicating whether to print verbose output.
+#'    is defined as its own group. The end result is that centroids
+#'    and ellipsoids are calculated for each group during visualization,
+#'    to help organize the points displayed.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional parameters are ignored
 #'
 #' @family jam plot functions
@@ -440,9 +470,12 @@ bgaPlotly3d <- function
       i2keep <- match(unique(sampleGroups), dfCVLDF[i2,"Label"]);
       dfCVLDF[i2,"Label"] <- "";
       dfCVLDF[i2[i2keep],"Label"] <- as.character(dfCVLDF$groupName)[i2[i2keep]];
-      dfCVLDF[,"textposition"] <- textposition_centroid;
-      dfCVLDF[i1,"textposition"] <- textposition_centroid;
-      dfCVLDF[i2[i2keep],"textposition"] <- textposition_centroid;
+      dfCVLDF[,"textposition"] <- rep(textposition_centroid,
+         length.out=nrow(textposition_centroid));
+      dfCVLDF[i1,"textposition"] <- rep(textposition_centroid,
+         length.out=length(i1));
+      dfCVLDF[i2[i2keep],"textposition"] <- rep(textposition_centroid,
+         length.out=length(i2[i2keep]));
    }
 
 
@@ -508,7 +541,12 @@ bgaPlotly3d <- function
       }
       dfVgLDF$Symbol <- rep(c("circle","circle-open","x"), nrow(dfVgDF));
       dfVgLDF$size <- rep(c(2,0,0), nrow(dfVgDF));
-      dfVgLDF$color <- geneColor;
+      if (length(geneColor) > 1 && length(names(geneColor)) > 0) {
+         dfVgLDF$color <- jamba::rmNA(geneColor[dfVgLDF$Name],
+            naValue="#555555");
+      } else {
+         dfVgLDF$color <- rep(geneColor, length.out=nrow(dfVgLDF));
+      }
       i1 <- jamba::igrep("^circle$", dfVgLDF$Symbol);
       i2 <- jamba::igrep("^circle-open$", dfVgLDF$Symbol);
       i3 <- jamba::igrep("^x$", dfVgLDF$Symbol);
@@ -523,8 +561,8 @@ bgaPlotly3d <- function
       dfVgLDF[i2[i2keep],"Label"] <- as.character(dfVgLDF$groupName)[i2[i2keep]];
       dfVgLDF[i2,"Label"] <- "";
       dfVgLDF[,"textposition"] <- "top center";
-      dfVgLDF[i1,"textposition"] <- "top center";
-      dfVgLDF[i2[i2keep],"textposition"] <- "top center";
+      # dfVgLDF[i1,"textposition"] <- "top center";
+      # dfVgLDF[i2[i2keep],"textposition"] <- "top center";
       if (verbose) {
          jamba::printDebug("bgaPlotly3d(): ",
             "head(dfVgLDF, 10):");
@@ -553,7 +591,7 @@ bgaPlotly3d <- function
       z=as.formula(paste0("~", Zs)),
       mode="markers+lines",
       text=dfSampleLinesDF$Label,
-      textposition=dfSampleLinesDF$textposition,
+      # textposition=dfSampleLinesDF$textposition,
       hoverinfo="text",
       line=list(
          width=5,
@@ -596,7 +634,8 @@ bgaPlotly3d <- function
          y=dfCVLDF[[Ysc]],
          z=dfCVLDF[[Zsc]],
          mode="lines",
-         #text=~dfSampleLinesDF$Label,
+         # text=~dfSampleLinesDF$Label,
+         # textposition="top center",
          line=list(width=centroidLwd,
             color=dfCVLDF$color),
          opacity=centroidAlpha

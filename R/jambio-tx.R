@@ -34,25 +34,29 @@ NULL
 #'    results into R for downstream processing.}
 #' }
 #'
-#' @param GTF character file name sent to `data.table::fread()`. When the
+#' @param GTF `character` file name sent to `data.table::fread()`. When the
 #'    file ends with ".gz", the `R.utils` package is recommended, otherwise
 #'    the fallback option is to make a system call to `gzcat`
 #'    to gunzip the file during the import step. Note this process fails
 #'    when `gzcat` is not available in the path of the user environment.
 #'    In general, the `R.utils` package is the best solution.
-#' @param geneAttrNames character vector of recognized attribute names
+#' @param geneAttrNames `character` vector of recognized attribute names
 #'    as they appear in column 9 of the GTF file, for gene rows.
-#' @param txAttrNames character vector of recognized attribute names
+#' @param txAttrNames `character` vector of recognized attribute names
 #'    as they appear in column 9 of the GTF file, for transcript rows.
-#' @param geneFeatureType character value to match column 3 of the GTF
+#' @param geneFeatureType `character` value to match column 3 of the GTF
 #'    file, used to define gene rows, by default "gene".
-#' @param txFeatureType character value to match column 3 of the GTF
+#' @param txFeatureType `character` value to match column 3 of the GTF
 #'    file, used to define gene rows, by default "transcript". In some
 #'    GTF files, "mRNA" is used, so either is accepted by default.
-#' @param nrows integer number of rows to read from the GTF file, by default
+#' @param nrows `integer` number of rows to read from the GTF file, by default
 #'    -1 means all rows are imported. This parameter is useful to check the
 #'    results of a large GTF file using only a subset portion of the file.
-#' @param verbose logical whether to print verbose output during processing.
+#' @param zcat_command `character` name or path to zcat or gzcat executable,
+#'    only used when input `GTF` is a file with `".gz"` extension, and when
+#'    R package `R.utils` is not available.
+#' @param verbose `logical` whether to print verbose output during processing.
+#' @param ... additional arguments are ignored.
 #'
 #' @return
 #' `data.frame` with colnames indicated by the values in
@@ -70,6 +74,7 @@ makeTx2geneFromGtf <- function
  geneFeatureType="gene",
  txFeatureType=c("transcript","mRNA"),
  nrows=-1L,
+ zcat_command="zcat",
  verbose=FALSE,
  ...)
 {
@@ -98,45 +103,28 @@ makeTx2geneFromGtf <- function
    if (suppressPackageStartupMessages(!require(jamba))) {
       stop(paste0("makeTx2geneFromGtf() requires the jamba package."));
    }
-   if (verbose) {
-      jamba::printDebug("makeTx2geneFromGtf(): ",
-         "reading GTF file:",
-         GTF);
-   }
-   if (jamba::igrepHas("[.]gz$", GTF) &&
-      !suppressPackageStartupMessages(require(R.utils))) {
-      if (verbose) {
-         jamba::printDebug("makeTx2geneFromGtf(): ",
-            "using commandline call to gzcat to decompress gtf.gz. ",
-            "Install the 'R.utils' package to avoid this step.");
-      }
-      gtfDF <- data.table::fread(cmd=paste0("gzcat ", GTF),
-         sep="\t",
-         header=FALSE,
-         nrows=nrows,
-         data.table=FALSE);
-   } else {
-      if (verbose) {
-         jamba::printDebug("makeTx2geneFromGtf(): ",
-            "using native data.table::fread().");
-      }
-      gtfDF <- data.table::fread(GTF,
-         sep="\t",
-         header=FALSE,
-         nrows=nrows,
-         data.table=FALSE);
-   }
+   gtfDF <- readGtf(GTF=GTF,
+      nrows=nrows,
+      zcat_command=zcat_command,
+      verbose=verbose,
+      ...)
+
    ## Subset to clear some memory
    colnames(gtfDF) <- jamba::makeNames(rep("V", ncol(gtfDF)), suffix="");
    gtfDF <- subset(gtfDF,
       gtfDF[[3]] %in% c(geneFeatureType,
          txFeatureType));
+   if (verbose > 1) {
+      jamba::printDebug("makeTx2geneFromGtf(): ",
+         "nrow for subset gene/tx feature types: ",
+         jamba::formatInt(nrow(gtfDF)));
+   }
 
    ## Make data unique by chromosome,name,source,annotation
    ## data in other columns is not relevant here
    ## this step reduces 90% rows in many files
    dupe_rows <- duplicated(gtfDF[,c(1,2,3,9),drop=FALSE]);
-   gtfDF <- gtfDF[!dupe_rows,,drop=FALSE];
+   gtfDF <- subset(gtfDF, !dupe_rows);
 
    ## Determine which rows are gene and transcript
    ## TODO: recognize when geneRows,txRows are identical
@@ -157,8 +145,12 @@ makeTx2geneFromGtf <- function
                "gene attributes:",
                attrName);
          }
-         ## new grep enforces boundary condition
-         attrGrep <- paste0('(^.+;[ ]*|^)', attrName, ' ["]([^"]+)["].*$');
+         # new grep enforces boundary condition
+         # attrGrep <- paste0('(^.+;[ ]*|^)', attrName, ' ["]([^"]+)["].*$');
+         # 0.0.77.900: alternative grep pattern tolerant to gtf and gff3 formats
+         # gtf format example:   attrName "value";
+         # gff3 format example:  attrName=value;
+         attrGrep <- paste0('(^.+;[ ]*|^[ ]*)', attrName, '[ =]+["]*([^";]+)[ ]*($|[";].*$)');
 
          ## only test up to the first 2000 rows
          if (jamba::igrepHas(attrGrep, head(gtfDF[geneRows,9], 2000))) {
@@ -194,13 +186,19 @@ makeTx2geneFromGtf <- function
                "tx attributes:",
                attrName);
          }
-         ## new grep enforces boundary condition
-         attrGrep <- paste0('(^.+;[ ]*|^)', attrName, ' ["]([^"]+)["].*$');
+         # new grep enforces boundary condition
+         # attrGrep <- paste0('(^.+;[ ]*|^)', attrName, ' ["]([^"]+)["].*$');
+         #
+         # 0.0.77.900: alternative grep pattern tolerant to gtf and gff3 formats
+         # gtf format example:   attrName "value";
+         # gff3 format example:  attrName=value;
+         attrGrep <- paste0('(^.+;[ ]*|^[ ]*)', attrName, '[ =]+["]*([^";]+)[ ]*($|[";].*$)');
+
          if (jamba::igrepHas(attrGrep, gtfDF[txRows,][[9]])) {
             attrValues <- gsub(attrGrep,
                "\\2",
                gtfDF[txRows,,drop=FALSE][[9]]);
-            attr_unchanged <- (attrValues == gtfDF[geneRows,9]);
+            attr_unchanged <- (attrValues == gtfDF[txRows,9]);
             if (any(attr_unchanged)) {
                jamba::printDebug("makeTx2geneFromGtf(): ",
                   "Some attrValues were empty for attrName:",

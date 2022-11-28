@@ -1,5 +1,34 @@
 # TODO for splicejam
 
+## 14nov2022
+
+* review R packages that produce spliced RNA plots: similar tricks;
+potential for interoperability; better ideas to make the workflow "easy"
+
+   * Ularcirc: https://bioconductor.org/packages/3.16/bioc/html/Ularcirc.html
+   * fishpond: https://bioconductor.org/packages/3.16/bioc/vignettes/fishpond/inst/doc/allelic.html
+   check `plotAllelicGene()`
+   * IsoformSwitchAnalyzeR: https://bioconductor.org/packages/3.16/bioc/vignettes/IsoformSwitchAnalyzeR/inst/doc/IsoformSwitchAnalyzeR.html
+   check `switchPlot()` and `switchPlotTranscript()`
+   * SplicingGraphs: https://bioconductor.org/packages/3.16/bioc/html/SplicingGraphs.html
+   check `plotTranscripts()`
+   * Gviz: https://bioconductor.org/packages/3.16/bioc/vignettes/Gviz/inst/doc/Gviz.html
+   * SGSeq: https://bioconductor.org/packages/3.16/bioc/vignettes/SGSeq/inst/doc/SGSeq.html
+   check `plotCoverage()` which appears to show coverage by exon, and arcs per splice;
+   also `plotSpliceGraph()` which plots schematic splice graph, flattened per gene.
+
+## 09nov2022
+
+* `makeTx2geneFromGtf()`
+
+   * optionally include other gtf/gff3 columns in the output:
+   
+      * `"source"` (column 2 in GTF/GFF3)
+      * `seqname,start,end,strand`: columns 1, 4, 5, 7
+   
+   * optional helper function to describe the observed gene and tx
+   attribute names, for the purpose of using them with `makeTx2geneFromGtf()`.
+
 ## 23jan2022
 
 * Suggest adding long gene name to the plot output somehow, in addition
