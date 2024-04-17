@@ -41,9 +41,9 @@ bgaPlotly3d(
 )
 }
 \arguments{
-\item{bgaInfo}{object of class \code{"bga"} as created by \code{made4::bga()}.}
+\item{bgaInfo}{object of class \code{c("coa", "bga")} created by \code{made4::bga()}.}
 
-\item{axes}{integer vector length 3 indicating the BGA axes to use
+\item{axes}{\code{integer} vector length 3 indicating the BGA axes to use
 for the 3-D visualization. It is sometimes helpful to use
 \code{axes=c(2,3,4)} especially when the first component suggests
 a large experimental batch effect, for example when
@@ -51,18 +51,18 @@ combining data from multiple GEO studies, often the first
 BGA component is indicative of the different experimental
 platforms.}
 
-\item{superGroups}{character or factor vector with length
+\item{superGroups}{\code{character} or factor vector with length
 \code{length(bgaInfo$fac)}, in the same order. A super group consists
 of multiple sample groups, as defined by values in \code{bgaInfo$fac}.}
 
-\item{superGroupAlpha}{numeric value between 0 and 1 indicating the
+\item{superGroupAlpha}{\code{numeric} value between 0 and 1 indicating the
 alpha transparency to use for the vector that connects groups
 within each super group.}
 
-\item{superGroupLwd}{the line width when connecting sample group
+\item{superGroupLwd}{\code{numeric} line width when connecting sample group
 centroids by \code{superGroups}.}
 
-\item{arrowSmoothFactor}{numeric value typically ranging from 1 to 5,
+\item{arrowSmoothFactor}{\code{numeric} value typically ranging from 1 to 5,
 affecting the amount of curve smoothing when generating a
 3-D spline curve to connect more than two super groups.
 When there are only two group members in one super group,
@@ -70,86 +70,89 @@ the two groups will always use a straight line. For three or
 more groups, a 3-D spline is used, in order to help visualize
 trends by means of a curve.}
 
-\item{colorSub}{named color vector, whose names contain values in
+\item{colorSub}{\code{character} vector of R colors, whose names contain values in
 \code{bgaInfo$fac}. These colors are used for the samples, sample
 centroids, and are shaded via a gradient when connecting multiple
 centroids using \code{superGroups}.}
 
-\item{drawVectors}{character vector of one or more types of vectors,
-where \code{"centroids"} draws a vector from the origin to each group
-centroid; and \code{"genes"} draws a vector from the origin to each
-gene.}
+\item{drawVectors}{\code{character} vector of one or more types of vectors:
+\itemize{
+\item \code{"centroids"} draws a vector from the origin to each group centroid.
+\item \code{"genes"} draws a vector from the origin to each gene.
+}}
 
-\item{drawSampleLabels}{logical indicating whether to label each
+\item{drawSampleLabels}{\code{logical} indicating whether to label each
 individual sample point, as opposed to labeling only the
 sample group centroid.}
 
-\item{ellipseOpacity}{numeric value between 0 and 1 indicating the
-transparency of the ellipse, when \code{ellipseType} is not \code{"none"};
-0 is fully transparent, and 1 is non-transparent.}
-
-\item{useScaledCoords}{logical indicating whether to use the BGA
-scaled coordinates, or the raw coordinates. By default the raw
-coordinates are used in order to preserve the relative contribution
-of each BGA component to the overall variability (or inertial
-moment.)}
-
-\item{geneColor}{character color used when displaying gene points.}
-
-\item{geneScaleFactor}{numeric value used to expand the position of
-genes relative to the origin, intended to help visualize the vector
-position of genes relative to the origin.}
-
-\item{geneLwd, geneAlpha}{parameters used to customize the line width
-and alpha transparency of gene points, respectively.}
-
-\item{geneLabels}{character vector of gene labels to use instead
-of rownames. The \code{names(geneLabels)} are expected to match
-\code{rownames(bgaInfo$bet$co)}. This option is intended to allow
-display of gene symbols, instead of an assay identifier like
-probe set name.}
-
-\item{maxGenes}{integer maximum number of genes to display.}
-
-\item{centroidLwd, centroidAlpha}{parameters used to customize the
-line width and alpha transparency of vectors drawn to sample
-centroids, respectively.}
-
-\item{textposition_centroid, textposition_sample}{character vector
-containing values used as the \code{plotly} argument \code{"textposition"}
-to position text labels for centroids, and samples. Each
-vector is extended to the number of labels, which allows
-each label to be individually positioned.}
-
-\item{sceneX, sceneY, sceneZ}{parameters used to define the camera
-position in 3-D space as defined by plotly. Frankly, the ability
-to customize the starting position is fairly confusing, but these
-values are faithfully passed along to the corresponding plotly
-call.}
-
-\item{main}{character string used as a title on the plotly
-visualization.}
-
-\item{sampleGroups}{vector of character or factor values. The
-names are expected to contain values in
-\code{rownames(bgaInfo$ord$ord$tab)}, which are also the colnames
-of the data matrix used in \code{made4::bga()}. The values in
-\code{sampleGroups} are used to re-group samples, which effectively
-calculates new sample group centroids used in this
-visualization. It is intended to be used when the \code{made4::bga()}
-is used without grouping, for example when each sample replicate
-is defined as its own group.}
-
-\item{verbose}{logical indicating whether to print verbose output.}
-
-\item{...}{additional parameters are ignored}
-
-\item{elipseType}{character value indicating how to draw sample
+\item{ellipseType}{\code{character} value indicating how to draw sample
 centroid ellipses, where \code{"none"} draws no ellipse; \code{"alphahull"}
 draws a wireframe; and \code{"ellipsoid"} draws
 a partially transparent shell. Note that plotly does not handle
 transparency well in 3-D space, sometimes fully obscuring
 background components.}
+
+\item{ellipseOpacity}{\code{numeric} value between 0 and 1 indicating the
+transparency of the ellipse, when \code{ellipseType} is not \code{"none"};
+0 is fully transparent, and 1 is non-transparent.}
+
+\item{useScaledCoords}{\code{logical} indicating whether to use the BGA
+scaled coordinates, or the raw coordinates. By default the raw
+coordinates are used in order to preserve the relative contribution
+of each BGA component to the overall variability (or inertial
+moment.)}
+
+\item{geneColor}{\code{character} color used when displaying gene points.}
+
+\item{geneScaleFactor}{\code{numeric} value used to expand the position of
+genes relative to the origin, intended to help visualize the vector
+position of genes relative to the origin.}
+
+\item{geneLwd, geneAlpha}{\code{numeric} used to customize the line width
+and alpha transparency of gene points, respectively.}
+
+\item{geneLabels}{\code{character} vector of gene labels to use instead
+of rownames. The \code{names(geneLabels)} are expected to match
+\code{rownames(bgaInfo$bet$co)}. This option is intended to allow
+display of gene symbols, instead of an assay identifier like
+probe set name.}
+
+\item{maxGenes}{\code{integer} maximum number of genes to display.}
+
+\item{centroidLwd, centroidAlpha}{\code{numeric} used to customize the
+line width and alpha transparency of vectors drawn to sample
+centroids, respectively.}
+
+\item{textposition_centroid, textposition_sample}{\code{character} vector
+containing values used as the \code{plotly} argument \code{"textposition"}
+to position text labels for centroids, and samples. Each
+vector is extended to the number of labels, which allows
+each label to be individually positioned.}
+
+\item{sceneX, sceneY, sceneZ}{\code{numeric} used to define the camera
+position in 3-D space as defined by plotly. Frankly, the ability
+to customize the starting position is fairly confusing, but these
+values are faithfully passed along to the corresponding plotly
+call.}
+
+\item{main}{\code{character} string used as a title on the plotly
+visualization.}
+
+\item{sampleGroups}{\code{character} or \code{factor} vector, whose
+names are expected to contain values in
+\code{rownames(bgaInfo$ord$ord$tab)}, which should also be \code{colnames(x)}
+of the input data to \code{made4::bga(x, ...)}. The values in
+\code{sampleGroups} are used to re-group samples, which effectively
+calculates new sample group centroids used in this
+visualization. It is intended to be used when the \code{made4::bga()}
+is used without grouping, for example when each sample replicate
+is defined as its own group. The end result is that centroids
+and ellipsoids are calculated for each group during visualization,
+to help organize the points displayed.}
+
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
+
+\item{...}{additional parameters are ignored}
 }
 \value{
 plotly object sufficient to render an HTML page containing
@@ -190,6 +193,38 @@ connect group centroids in order by the supergroup.
 The order of groups within each supergroup is determined
 either by factor levels, or by the order returned by
 \code{jamba::mixedSort()} which performs a proper alphanumeric sort.
+\subsection{Background on \code{bga} object content}{
+
+Output from \code{made4::bga()} is an object with \code{class} containing \code{"bga"}.
+It is a list with three elements:
+\enumerate{
+\item \code{"ord"}: ordination, the initial clustering results from either \code{"coa"}
+(default) or \code{"pca"} clustering across all individual samples. This data
+is fed into the second phase, group-based clustering.
+\item \code{"bet"}: the between group analysis result, derived from \code{"ord"}.
+\item \code{"fac"}: \code{factor} vector of groups across the \code{colnames(x)} of
+input data.
+}
+
+The \code{"bet"} contents are described below, assuming the results of
+\code{made::bga()} are stored as \code{bgaInfo}:
+\itemize{
+\item gene (row) coordinates are stored:
+\itemize{
+\item \code{bgaInfo$bet$co}: unscaled coordinates for each component axis
+\item \code{bgaInfo$bet$c1}: scaled coordinates for each component axis
+}
+\item group centroid coordinates are stored:
+\itemize{
+\item \code{bgaInfo$bet$li}: unscaled group centroid coordinates
+\item \code{bgaInfo$bet$ls}: scaled group centroid coordinates
+}
+\item sample centroid coordinates are stored:
+\itemize{
+\item \code{bgaInfo$bet$ls}: scaled coordinates for each component axis
+}
+}
+}
 }
 \seealso{
 Other jam plot functions: 

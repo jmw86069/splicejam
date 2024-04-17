@@ -7,7 +7,9 @@
 shrinkMatrix(
   x,
   groupBy,
-  shrinkFunc = function(x) {     .Internal(mean(x)) },
+  shrinkFunc = function(x) {
+     .Internal(mean(x))
+ },
   returnClass = c("data.frame", "matrix"),
   verbose = FALSE,
   ...

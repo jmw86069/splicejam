@@ -18,7 +18,7 @@ gene2gg(
   gene_order = c("first", "last"),
   return_type = c("grob", "df"),
   ref2c = NULL,
-  hjust = -0.2,
+  hjust = 0.5,
   vjust = 0.5,
   direction = c("both", "x", "y"),
   compressGaps = TRUE,

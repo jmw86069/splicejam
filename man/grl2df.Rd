@@ -10,8 +10,7 @@ grl2df(
   keepGRLvalues = FALSE,
   addGaps = TRUE,
   width = 0.6,
-  widthV = c(exon = 0.6, cds = 0.6, noncds = 0.3, intron = 0.01, gap = 0.01, `NA` =
-    0.5),
+  widthV = c(exon = 0.6, cds = 0.6, noncds = 0.3, intron = 0.01, gap = 0.01, `NA` = 0.5),
   width_colname = c("subclass", "feature_type"),
   shape = c("rectangle", "junction"),
   baseline = NULL,
@@ -129,7 +128,7 @@ using compresssed coordinates.
 \examples{
 suppressPackageStartupMessages(library(GenomicRanges));
 suppressPackageStartupMessages(library(jamba));
-gr <- GRanges(seqnames=rep(c("chr1"), 7),
+gr <- GenomicRanges::GRanges(seqnames=rep(c("chr1"), 7),
    ranges=IRanges::IRanges(start=c(50, 100, 1300, 2500, 23750, 24900, 25000),
       end=c(100, 150, 1450, 2600, 23800, 25000, 25200)),
    strand=rep("+", 7),
@@ -154,7 +153,7 @@ print(gg2);
 ## the main difference is that x-axis breaks are defined before the
 ## transformation, which can result in non-optimal placement
 gg3 <- gg1 +
-   coord_trans(x=ref2c$trans_grc) + colorjam::theme_jam();
+   ggplot2::coord_trans(x=ref2c$trans_grc) + colorjam::theme_jam();
 print(gg3);
 
 ## An example showing splice junction data

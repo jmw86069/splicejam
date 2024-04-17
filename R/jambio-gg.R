@@ -90,7 +90,7 @@
 #' @examples
 #' suppressPackageStartupMessages(library(GenomicRanges));
 #' suppressPackageStartupMessages(library(jamba));
-#' gr <- GRanges(seqnames=rep(c("chr1"), 7),
+#' gr <- GenomicRanges::GRanges(seqnames=rep(c("chr1"), 7),
 #'    ranges=IRanges::IRanges(start=c(50, 100, 1300, 2500, 23750, 24900, 25000),
 #'       end=c(100, 150, 1450, 2600, 23800, 25000, 25200)),
 #'    strand=rep("+", 7),
@@ -115,7 +115,7 @@
 #' ## the main difference is that x-axis breaks are defined before the
 #' ## transformation, which can result in non-optimal placement
 #' gg3 <- gg1 +
-#'    coord_trans(x=ref2c$trans_grc) + colorjam::theme_jam();
+#'    ggplot2::coord_trans(x=ref2c$trans_grc) + colorjam::theme_jam();
 #' print(gg3);
 #'
 #' ## An example showing splice junction data
@@ -579,7 +579,7 @@ gene2gg <- function
  gene_order=c("first","last"),
  return_type=c("grob", "df"),
  ref2c=NULL,
- hjust=-0.2,
+ hjust=0.5,
  vjust=0.5,
  direction=c("both", "x", "y"),
  compressGaps=TRUE,
@@ -784,7 +784,7 @@ gene2gg <- function
 
    ## Put it together
    grl1a1gg <- ggplot2::ggplot(grl1a1df,
-         aes(x=x,
+         ggplot2::aes(x=x,
             y=y,
             fill=color_by,
             color=color_by,
@@ -799,19 +799,19 @@ gene2gg <- function
             group=id)) +
       ggforce::geom_shape(show.legend=FALSE) +
       colorjam::theme_jam() +
-      ylab("") +
-      scale_color_manual(
-         na.value=makeColorDarker(tail(colorSubV, 1), darkFactor=1.3),
-         values=makeColorDarker(colorSubV, darkFactor=1.3)) +
-      scale_fill_manual(
-         na.value=alpha2col(tail(colorSubV, 1), alpha=1),
-         values=alpha2col(colorSubV, alpha=1)) +
-      scale_y_continuous(breaks=seq_along(grl1a1)-1,
+      ggplot2::ylab("") +
+      ggplot2::scale_color_manual(
+         na.value=jamba::makeColorDarker(tail(colorSubV, 1), darkFactor=1.3),
+         values=jamba::makeColorDarker(colorSubV, darkFactor=1.3)) +
+      ggplot2::scale_fill_manual(
+         na.value=jamba::alpha2col(tail(colorSubV, 1), alpha=1),
+         values=jamba::alpha2col(colorSubV, alpha=1)) +
+      ggplot2::scale_y_continuous(breaks=seq_along(grl1a1)-1,
          limits=c(ymin, length(grl1a1)-0.5),
          labels=names(grl1a1));
    if (length(ref2c) > 0) {
       grl1a1gg <- grl1a1gg +
-         scale_x_continuous(trans=ref2c$trans_grc);
+         ggplot2::scale_x_continuous(trans=ref2c$trans_grc);
    }
    if (labelExons && length(exonLabelDF) > 0 && nrow(exonLabelDF) > 0) {
       if (1 || length(ref2c) == 0) {
@@ -819,23 +819,24 @@ gene2gg <- function
             ggrepel::geom_text_repel(
                inherit.aes=FALSE,
                data=exonLabelDF,
-               aes_(x=~x,
+               ggplot2::aes_(x=~x,
                   y=~min(y),
                   #text=NULL,
                   label=as.name(exonColname)),
                angle=exonLabelAngle,
                hjust=vjust,
                vjust=hjust,
+               nudge_y=-0.1,
                segment.color="grey35",
                #fill="white",
                size=exonLabelMm,
                direction=direction);
       } else {
          grl1a1gg <- grl1a1gg +
-            geom_text(
+            ggplot2::geom_text(
                inherit.aes=FALSE,
                data=exonLabelDF,
-               aes(x=x,
+               ggplot2::aes(x=x,
                   y=min(y),
                   #text=NULL,
                   label=gene_nameExon),
@@ -850,7 +851,7 @@ gene2gg <- function
 
    if (length(gene) > 0) {
       grl1a1gg <- grl1a1gg +
-         ggtitle(paste0(jamba::cPaste(gene), " exon model"));
+         ggplot2::ggtitle(paste0(jamba::cPaste(gene), " exon model"));
    }
    if ("df" %in% return_type) {
       return(grl1a1df);
@@ -1275,6 +1276,22 @@ stackJunctions <- function
 #' @param junc_alpha numeric value between 0 and 1, to define the
 #'    alpha transparency used for junction colors, where 0 is
 #'    fully transparent, and 1 is completely non-transparent.
+#' @param junc_nudge_pct `numeric` value to nudge junction labels
+#'    by the percent of the maximum y-axis junction label position.
+#'    * The default `junc_nudge_pct=0.05` nudges labels up by 5%,
+#'    which makes them consistently appear above the top edge of
+#'    the junction ribbon.
+#'    * Negative values will place labels just below the top edge of
+#'    the junction ribbon.
+#'    * A vector can be supplied to nudge each junction label
+#'    individually, applied in order the labels appear from
+#'    left to right.
+#'    * Note that when the distance from label to the top edge
+#'    of the ribbon exceeds a threshold, a line segment is drawn
+#'    from the label to the top edge of the junction ribbon.
+#'    This threshold is controlled by
+#'    `ggrepel::geom_text_repel(..., min.segment.length=0.5)` and
+#'    is not configurable at this time.
 #' @param fill_scheme character string for how the exon coverages
 #'    will be color-filled: `"exon"` will define colors for each
 #'    distinct exon, using the GRanges names from `flatExonsByGene`;
@@ -1339,6 +1356,7 @@ plotSashimi <- function
  junc_fill=alpha2col("goldenrod2", 0.9),
  junc_alpha=0.8,
  junc_accuracy=1,
+ junc_nudge_pct=0.05,
  fill_scheme=c("sample_id", "exon"),
  color_sub=NULL,
  ylabel="read depth",
@@ -1467,11 +1485,11 @@ plotSashimi <- function
 
    # Create ggplot2 piece by piece
    if (do_highlight) {
-      cjDFh <- highlight_key(cjDF,
+      cjDFh <- plotly::highlight_key(cjDF,
          key=~feature);
-      gg_sashimi <- ggplot(
+      gg_sashimi <- ggplot2::ggplot(
          data=cjDFh,
-         aes(
+         ggplot2::aes(
             x=x,
             y=y,
             group=name,
@@ -1480,9 +1498,9 @@ plotSashimi <- function
             text=name
          ));
    } else {
-      gg_sashimi <- ggplot(
+      gg_sashimi <- ggplot2::ggplot(
          data=cjDF,
-         aes(
+         ggplot2::aes(
             x=x,
             y=y,
             group=name,
@@ -1493,9 +1511,10 @@ plotSashimi <- function
    # comma-delimit y-axis values
    # and remove the y-axis label
    gg_sashimi <- gg_sashimi +
-      scale_y_continuous(
+      ggplot2::scale_y_continuous(
          labels=scales::comma,
-         name=ylabel);
+         name=ylabel) +
+      ggplot2::ylab(ylabel);
 
    # Add coverage layer
    color_sub_d <- jamba::makeColorDarker(color_sub, darkFactor=1.2);
@@ -1558,6 +1577,9 @@ plotSashimi <- function
                subset(cjDF,type %in% "junction_label")$x,
                na.rm=TRUE);
          }
+         ## Todo: nudge_y to adjust labels consistently above the ribbon
+         max_junc_y <- max(subset(cjDF, type %in% "junction_label")$y,
+            na.rm=TRUE);
          gg_sashimi <- gg_sashimi +
             ggrepel::geom_text_repel(
                data=. %>% filter(type %in% "junction_label" &
@@ -1567,8 +1589,9 @@ plotSashimi <- function
                direction="y",
                point.padding=0,
                color="black",
+               nudge_y=(max_junc_y * junc_nudge_pct),
                #fill="transparent",
-               aes(
+               ggplot2::aes(
                   label=scales::comma(score,
                      accuracy=junc_accuracy)
                )
@@ -1587,11 +1610,11 @@ plotSashimi <- function
 
    if ("scale" %in% coord_method) {
       gg_sashimi <- gg_sashimi +
-         scale_x_continuous(trans=sashimi$ref2c$trans_grc,
+         ggplot2::scale_x_continuous(trans=sashimi$ref2c$trans_grc,
             name=xlabel);
    } else if ("coord" %in% coord_method) {
       gg_sashimi <- gg_sashimi +
-         coord_trans(x=sashimi$ref2c$trans_grc) +
+         ggplot2::coord_trans(x=sashimi$ref2c$trans_grc) +
          #coord_cartesian(expand=FALSE) +
          xlab(xlabel);
    }
@@ -1604,14 +1627,14 @@ plotSashimi <- function
    }
    # Apply colors
    gg_sashimi <- gg_sashimi +
-      scale_fill_manual(values=color_sub) +
-      scale_color_manual(values=makeColorDarker(color_sub, darkFactor=1.2));
+      ggplot2::scale_fill_manual(values=color_sub) +
+      ggplot2::scale_color_manual(values=jamba::makeColorDarker(color_sub, darkFactor=1.2));
 
    # Apply facet
    if (apply_facet) {
       gg_sashimi <- gg_sashimi +
-         facet_grid(sample_id~.,
-         scales=facet_scales);
+         ggplot2::facet_grid(sample_id~.,
+            scales=facet_scales);
    }
    return(gg_sashimi);
 }

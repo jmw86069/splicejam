@@ -1,3 +1,28 @@
+# splicejam 0.0.78.900
+
+## changes to existing functions
+
+* `plotSashimi()`
+
+   * New optional argument `junc_nudge_pct` to control the `nudge_y` placement
+   of junction labels relative to the top edge of the junction ribbon.
+   * Previously, labels may randomly be placed below or above the top edge
+   of the ribbon.
+   * The new default `junc_nudge_pct=0.05` slightly moves labels up by 5% the
+   max y-axis junction label position, which makes all labels appear
+   consistently above the ribbon.
+   * Negative values will place the label below the top edge of the ribbon.
+   * A vector with multiple values can be supplied, in order to control
+   the position of each individual label.
+
+* `gene2gg()`
+
+   * Added `nudge_y=-0.2` by default (not configurable) to help position
+   exon labels below the gene structure.
+   * New default `hjust=0.5` changed from `hjust=-0.2` which caused labels
+   to be slightly shifted left. (I do not think the previous effect was
+   actually intended.)
+
 # splicejam 0.0.77.900
 
 ## new functions

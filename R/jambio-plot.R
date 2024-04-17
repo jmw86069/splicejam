@@ -2386,7 +2386,7 @@ internal_junc_score <- function
       } else {
          intScore <- rmNA(naValue=0,
             max(
-               List(
+               S4Vectors::List(
                   split(fo1dfuse$sScore, fo1dfuse$q)
                )
             )[as.character(seq_along(juncGR))]);

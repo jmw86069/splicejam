@@ -11,36 +11,43 @@ makeTx2geneFromGtf(
   geneFeatureType = "gene",
   txFeatureType = c("transcript", "mRNA"),
   nrows = -1L,
+  zcat_command = "zcat",
   verbose = FALSE,
   ...
 )
 }
 \arguments{
-\item{GTF}{character file name sent to \code{data.table::fread()}. When the
+\item{GTF}{\code{character} file name sent to \code{data.table::fread()}. When the
 file ends with ".gz", the \code{R.utils} package is recommended, otherwise
 the fallback option is to make a system call to \code{gzcat}
 to gunzip the file during the import step. Note this process fails
 when \code{gzcat} is not available in the path of the user environment.
 In general, the \code{R.utils} package is the best solution.}
 
-\item{geneAttrNames}{character vector of recognized attribute names
+\item{geneAttrNames}{\code{character} vector of recognized attribute names
 as they appear in column 9 of the GTF file, for gene rows.}
 
-\item{txAttrNames}{character vector of recognized attribute names
+\item{txAttrNames}{\code{character} vector of recognized attribute names
 as they appear in column 9 of the GTF file, for transcript rows.}
 
-\item{geneFeatureType}{character value to match column 3 of the GTF
+\item{geneFeatureType}{\code{character} value to match column 3 of the GTF
 file, used to define gene rows, by default "gene".}
 
-\item{txFeatureType}{character value to match column 3 of the GTF
+\item{txFeatureType}{\code{character} value to match column 3 of the GTF
 file, used to define gene rows, by default "transcript". In some
 GTF files, "mRNA" is used, so either is accepted by default.}
 
-\item{nrows}{integer number of rows to read from the GTF file, by default
+\item{nrows}{\code{integer} number of rows to read from the GTF file, by default
 -1 means all rows are imported. This parameter is useful to check the
 results of a large GTF file using only a subset portion of the file.}
 
-\item{verbose}{logical whether to print verbose output during processing.}
+\item{zcat_command}{\code{character} name or path to zcat or gzcat executable,
+only used when input \code{GTF} is a file with \code{".gz"} extension, and when
+R package \code{R.utils} is not available.}
+
+\item{verbose}{\code{logical} whether to print verbose output during processing.}
+
+\item{...}{additional arguments are ignored.}
 }
 \value{
 \code{data.frame} with colnames indicated by the values in

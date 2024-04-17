@@ -13,6 +13,7 @@ plotSashimi(
   junc_fill = alpha2col("goldenrod2", 0.9),
   junc_alpha = 0.8,
   junc_accuracy = 1,
+  junc_nudge_pct = 0.05,
   fill_scheme = c("sample_id", "exon"),
   color_sub = NULL,
   ylabel = "read depth",
@@ -60,6 +61,25 @@ so overlapping junction arcs are visible.}
 \item{junc_alpha}{numeric value between 0 and 1, to define the
 alpha transparency used for junction colors, where 0 is
 fully transparent, and 1 is completely non-transparent.}
+
+\item{junc_nudge_pct}{\code{numeric} value to nudge junction labels
+by the percent of the maximum y-axis junction label position.
+\itemize{
+\item The default \code{junc_nudge_pct=0.05} nudges labels up by 5\%,
+which makes them consistently appear above the top edge of
+the junction ribbon.
+\item Negative values will place labels just below the top edge of
+the junction ribbon.
+\item A vector can be supplied to nudge each junction label
+individually, applied in order the labels appear from
+left to right.
+\item Note that when the distance from label to the top edge
+of the ribbon exceeds a threshold, a line segment is drawn
+from the label to the top edge of the junction ribbon.
+This threshold is controlled by
+\code{ggrepel::geom_text_repel(..., min.segment.length=0.5)} and
+is not configurable at this time.
+}}
 
 \item{fill_scheme}{character string for how the exon coverages
 will be color-filled: \code{"exon"} will define colors for each

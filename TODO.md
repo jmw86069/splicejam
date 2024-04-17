@@ -1,5 +1,28 @@
 # TODO for splicejam
 
+## 17apr2024
+
+* Stop fully importing jamba, ggplot2
+
+   * Use proper package prefixing `ggplot2::ggplot()` to avoid needing
+   to import the full package and all functions.
+
+* DONE. General request for more flexible splice count label positions.
+
+   * Currently uses `ggrepel` to position labels, inconsistently placed
+   sometimes inside or outside the junction ribbon.
+
+
+## 01aug2023
+
+* Consider NCBI tracks for miscellaneous RNA-seq data tracks as a convenient
+default set of tracks to use when viewing "supporting evidence" for
+transcription of a particular gene:
+
+   * "RNA-seq exon coverage, aggregate (filtered) - log base2 scaled"
+   * "RNA-seq intron features, aggregate (filtered)"
+
+
 ## 14nov2022
 
 * review R packages that produce spliced RNA plots: similar tricks;

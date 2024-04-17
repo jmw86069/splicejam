@@ -29,12 +29,14 @@ groups (colnames) returned for each \code{data.frame}.}
 
 \item{detectedOnly}{\code{NULL} or \code{logical} indicating whether
 to restrict \code{Tx} to detected transcripts, defined by
-\code{detectedTxL$detectedTx}. When:\preformatted{* `detectedOnly=NULL` then `Tx` is used as-is.
+\code{detectedTxL$detectedTx}. When:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{* `detectedOnly=NULL` then `Tx` is used as-is.
 * `detectedOnly=TRUE` and `Tx=NULL` then `Tx` uses all detected transcripts from `detectedTxL$detectedTx`.
 * `detectedOnly=TRUE` and `Tx` is supplied, it is restricted to detected transcripts from `detectedTxL$detectedTx`.
 * `detectedOnly=FALSE` and `Tx=NULL` then `Tx` uses all transcripts.
 * `detectedOnly=FALSE` and `Tx` is supplied, it is used as-is.
-}}
+}\if{html}{\out{</div>}}}
 
 \item{...}{additional arguments are ignored.}
 }

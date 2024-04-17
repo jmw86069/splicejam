@@ -9,7 +9,9 @@ annotateGRfromGR(
   GR2,
   grOL = NULL,
   numAsStrings = FALSE,
-  stringShrinkFunc = function(...) {     jamba::cPasteUnique(..., doSort = TRUE) },
+  stringShrinkFunc = function(...) {
+     jamba::cPasteUnique(..., doSort = TRUE)
+ },
   numShrinkFunc = sum,
   addStringCols = NULL,
   type = c("any", "start", "end", "within", "equal"),
