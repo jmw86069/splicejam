@@ -18,7 +18,7 @@ sortGRL(
 \item{splitColname}{intermediate colname used to split values
 from GRanges to GRangesList. It only needs to be defined
 if for some reason the default "splitColname" is already
-in \code{colnames(values(GRL))}.}
+in \code{colnames(GenomicRanges::values(GRL))}.}
 
 \item{keep_order}{logical indicating whether to maintain the
 input order of GRanges; \code{FALSE} will return GRangesList

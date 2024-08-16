@@ -18,7 +18,7 @@ combineGRcoverage(
 \item{gr}{GRanges object containing coverage data in columns
 containing NumericList class data.}
 
-\item{covNames}{character vector of \code{colnames(values(gr))}
+\item{covNames}{character vector of \code{colnames(GenomicRanges::values(gr))}
 representing columns in \code{gr} that contain coverage data
 in NumericList format, for example data prepared
 with \code{getGRcoverageFromBw()}.}

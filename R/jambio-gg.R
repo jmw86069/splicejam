@@ -30,7 +30,7 @@
 #' therefore `ref2c` should be supplied so the arcs are defined
 #' using compresssed coordinates.
 #'
-#' @return data.frame with `x,y` coordinates, and `id` which is used
+#' @returns `data.frame` with `x,y` coordinates, and `id` which is used
 #'    to group polygon coordinates when used with `ggplot2::geom_polygon()`
 #'    or `ggforce::geom_shape()`. When `shape="rectangle"` the colnames
 #'    include `grl_name` which are names of the input GRangesList
@@ -42,44 +42,44 @@
 #'    helpful for keeping data distinct when derived from multiple
 #'    samples.
 #'
-#' @param grl GRangesList, or GRanges which will be converted to a
+#' @param grl `GRangesList`, or `GRanges` which will be converted to a
 #'    GRangesList of length=1.
-#' @param keepGRvalues,keepGRLvalues logical indicating whether the
+#' @param keepGRvalues,keepGRLvalues `logical` indicating whether the
 #'    output data.frame should include column values from GRangesList and
 #'    GRanges, if available.
-#' @param addGaps logical indicating whether to add gap GRanges between
+#' @param addGaps `logical` indicating whether to add gap GRanges between
 #'    same-strand GRanges features within each GRangesList element.
 #'    When `TRUE` the gaps will be drawn between each GRanges rectangle.
-#' @param width numeric value of default width for features when
+#' @param width `numeric` value of default width for features when
 #'    `shape="rectangle"`.
-#' @param widthV numeric vector whose names are column values, using values
+#' @param widthV `numeric` vector whose names are column values, using values
 #'    from the first available colname from `width_colname`. Some common
 #'    defaults are provided. Values are suggested to be between 0 and 1,
 #'    since each GRangesList element is separated by 1 y-axis unit.
 #' @param width_colname when `widthV` is used to determine width based
 #'    upon a column value, the first matching colname of `width_colname`
 #'    is used.
-#' @param shape character string indicating whether input data should
+#' @param shape `character` string indicating whether input data should
 #'    be processed as rectangular segments or splice junction arcs.
-#' @param scoreColname,scoreArcMinimum,scoreFactor,scoreArcFactor numeric
+#' @param scoreColname,scoreArcMinimum,scoreFactor,scoreArcFactor `numeric`
 #'    values used to determine junction ribbon height, the minimum
 #'    height of the arc above the starting y-axis values based upon
 #'    the score, the scaling factor for score values, and the
 #'    relative height of the arc above the starting y-axis values
 #'    multiplied by the score.
-#' @param sampleColname character string indicating the column
+#' @param sampleColname `character` string indicating the column
 #'    containing biological sample identifier. This column is only
 #'    used when `type="junction"`, and when `doStackJunctions=TRUE`.
 #'    It is used to ensure the junctions are only stacked within
 #'    each sample. When `sampleColname` is not present in
-#'    `colnames(values(grl@unlistData))` then all junctions are
+#'    `colnames(GenomicRanges::values(grl@unlistData))` then all junctions are
 #'    stacked.
-#' @param doStackJunctions logical indicating whether to stack junctions
+#' @param doStackJunctions `logical` indicating whether to stack junctions
 #'    at the start and end of junctions sharing the same coordinate,
 #'    in order of shortest to longest junction width.
 #' @param ref2c optional output from `make_ref2compressed()` used to
 #'    compress axis coordinates during junction arc calculations.
-#' @param verbose logical indicating whether to print verbose output.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are passsed to relevant downstream
 #'    functions.
 #'
@@ -161,7 +161,7 @@ grl2df <- function
          jamba::printDebug("grl2df(): ",
             "converting input to GRangesList");
       }
-      grl <- GRangesList(list(gr=grl));
+      grl <- GenomicRanges::GRangesList(list(gr=grl));
    }
    if (addGaps && !"junction" %in% shape) {
       if (verbose) {
@@ -183,15 +183,15 @@ grl2df <- function
             "rectangle processing");
       }
       xCoords <- as.vector(rbind(
-         start(grl@unlistData),
-         end(grl@unlistData),
-         end(grl@unlistData),
-         start(grl@unlistData)
+         GenomicRanges::start(grl@unlistData),
+         GenomicRanges::end(grl@unlistData),
+         GenomicRanges::end(grl@unlistData),
+         GenomicRanges::start(grl@unlistData)
       ));
       width <- rep(width, length.out=length(grl@unlistData));
       width_colname_use <- head(
          intersect(width_colname,
-            colnames(values(grl@unlistData))),
+            colnames(GenomicRanges::values(grl@unlistData))),
          1);
       if (length(width_colname_use) > 0) {
          if (verbose) {
@@ -199,7 +199,7 @@ grl2df <- function
                "width_colname_use:",
                width_colname_use);
          }
-         wFound <- match(rmNA(naValue="NA",
+         wFound <- match(jamba::rmNA(naValue="NA",
             GenomicRanges::values(grl@unlistData)[[width_colname_use]]),
             names(widthV));
          width[!is.na(wFound)] <- widthV[wFound[!is.na(wFound)]];
@@ -256,7 +256,7 @@ grl2df <- function
       }
       if (length(names(grl@unlistData)) > 0) {
          if (any(duplicated(names(grl@unlistData)))) {
-            names(grl@unlistData) <- jamba::makeNames(rmNA(naValue="",
+            names(grl@unlistData) <- jamba::makeNames(jamba::rmNA(naValue="",
                names(grl@unlistData)));
          }
          grNames <- factor(
@@ -267,15 +267,15 @@ grl2df <- function
          df$gr_name <- grNames;
       }
       if (keepGRvalues) {
-         for (iCol in colnames(values(grl@unlistData))) {
-            df[,iCol] <- rep(values(grl@unlistData)[,iCol], each=4);
+         for (iCol in colnames(GenomicRanges::values(grl@unlistData))) {
+            df[,iCol] <- rep(GenomicRanges::values(grl@unlistData)[,iCol], each=4);
          }
       }
       if (keepGRLvalues) {
-         for (iCol in colnames(values(grl))) {
+         for (iCol in colnames(GenomicRanges::values(grl))) {
             if (!iCol %in% colnames(df)) {
                df[,iCol] <- rep(
-                  rep(values(grl)[,iCol],
+                  rep(GenomicRanges::values(grl)[,iCol],
                      S4Vectors::elementNROWS(grl)),
                   each=4);
             }
@@ -306,8 +306,8 @@ grl2df <- function
             baseline <- 0;
          }
          sampleColname <- intersect(sampleColname,
-            colnames(values(grl@unlistData)));
-         grlNew <- GRangesList(
+            colnames(GenomicRanges::values(grl@unlistData)));
+         grlNew <- GenomicRanges::GRangesList(
             lapply(grl, function(iGR){
                stackJunctions(gr=iGR,
                   scoreColname=scoreColname,
@@ -322,8 +322,8 @@ grl2df <- function
          grl <- grlNew;
       }
       ## create two polygons
-      xStart <- start(grl@unlistData);
-      xEnd <- end(grl@unlistData);
+      xStart <- GenomicRanges::start(grl@unlistData);
+      xEnd <- GenomicRanges::end(grl@unlistData);
       if (length(ref2c) > 0) {
          xMid <- ref2c$inverse((ref2c$transform(xStart) + ref2c$transform(xEnd)) / 2);
       } else {
@@ -340,12 +340,12 @@ grl2df <- function
          xMid
       ))+0.5;
       ## y-axis midpoints
-      if ("yStart" %in% colnames(values(grl@unlistData))) {
+      if ("yStart" %in% colnames(GenomicRanges::values(grl@unlistData))) {
          yStart <- GenomicRanges::values(grl@unlistData)$yStart;
       } else {
          yStart <- rep(0, length(grl@unlistData));
       }
-      if ("yEnd" %in% colnames(values(grl@unlistData))) {
+      if ("yEnd" %in% colnames(GenomicRanges::values(grl@unlistData))) {
          yEnd <- GenomicRanges::values(grl@unlistData)$yEnd;
       } else {
          yEnd <- rep(0, length(grl@unlistData));
@@ -364,7 +364,7 @@ grl2df <- function
       }
       ## sampleColname should be empty if there is no sample_id
       sampleColname <- intersect("sample_id",
-         colnames(values(grl@unlistData)));
+         colnames(GenomicRanges::values(grl@unlistData)));
 
       internalMaxScore <- internal_junc_score(grl@unlistData,
          scoreColname=scoreColname,
@@ -381,7 +381,7 @@ grl2df <- function
       internalArcBaseHeight <- abs(internalMaxScore) * (1.1+scoreArcFactor);
       #yBaseHeight <- noiseFloor(internalArcBaseHeight - yMaxStartEnd,
       #   minimum=scoreArcMinimum*scoreArcFactor);
-      yBaseHeight <- noiseFloor(internalArcBaseHeight - yStart,
+      yBaseHeight <- jamba::noiseFloor(internalArcBaseHeight - yStart,
          minimum=scoreArcMinimum*scoreArcFactor);
       yHeight <- pmax(arcBaseHeight, yBaseHeight);
 
@@ -438,15 +438,15 @@ grl2df <- function
          df$gr_name <- grNames;
       }
       if (keepGRvalues) {
-         for (iCol in colnames(values(grl@unlistData))) {
-            df[,iCol] <- rep(values(grl@unlistData)[[iCol]],
+         for (iCol in colnames(GenomicRanges::values(grl@unlistData))) {
+            df[,iCol] <- rep(GenomicRanges::values(grl@unlistData)[[iCol]],
                each=8);
          }
       }
       if (keepGRLvalues) {
-         for (iCol in colnames(values(grl))) {
+         for (iCol in colnames(GenomicRanges::values(grl))) {
             df[,iCol] <- rep(
-               rep(values(grl)[,iCol],
+               rep(GenomicRanges::values(grl)[,iCol],
                   S4Vectors::elementNROWS(grl)),
                each=8);
          }
@@ -474,29 +474,29 @@ grl2df <- function
 #' @family jam ggplot2 functions
 #' @family splicejam core functions
 #'
-#' @param gene character string of the gene to plot, compared
+#' @param gene `character` string of the gene to plot, compared
 #'    with `names(flatExonsByGene)` and `values(flatExonsByTx)$gene_name`.
-#' @param tx character vector of the transcripts to plot, useful
+#' @param tx `character` vector of the transcripts to plot, useful
 #'    when specifying specific transcripts. Values are matched with
 #'    `names(flatExonsByTx)`.
-#' @param flatExonsByGene,flatExonsByTx GRangesList objects, named
+#' @param flatExonsByGene,flatExonsByTx `GRangesList` objects, named
 #'    by `"gene_name"` or `"transcript_id"` respectively, containing
 #'    disjoint (non-overlapping) exons within each GRangesList
 #'    element. The data is expected to be in the form provided by
 #'    `flattenExonsBy()`.
-#' @param geneColor character color used as the base color for
+#' @param geneColor `character` color used as the base color for
 #'    exons, where the color is varied for each feature type or
 #'    subclass.
-#' @param labelExons logical indicating whether to print text
+#' @param labelExons `logical` indicating whether to print text
 #'    labels beneath each exon, using the values in colname
 #'    `"gene_nameExon"`. Typically the gene and transcripts are
 #'    named using consistent names, in which case one exon label
 #'    is placed at the bottom of the lowest transcript for each
 #'    unique exon label.
-#' @param exonLabelAngle numeric angle in degrees (0 to 360)
+#' @param exonLabelAngle `numeric` angle in degrees (0 to 360)
 #'    indicating how to rotate exon labels, where `90` is
 #'    vertical, and `0` is horizontal.
-#' @param exonLabelSize numeric value or `unit` object from `grid::unit()`.
+#' @param exonLabelSize `numeric` value or `unit` object from `grid::unit()`.
 #'    Numeric values are assumed to have unit `"pt"` which refers to
 #'    font point size. Used to size exon labels when `labelExons=TRUE`.
 #' @param newValues argument passed to `addGRLgaps()` to fill
@@ -505,32 +505,39 @@ grl2df <- function
 #'    than exons. It is also useful to have `subclass="gap"`
 #'    when there are `"cds"` and `"noncds"` entries in the
 #'    provided `flatExonsByGene` data.
-#' @param gene_order character value indicating whether the
+#' @param gene_order `character` value indicating whether the
 #'    flattened gene model should be plotted `"first"` above the
 #'    transcript exon models, or `"last"` and below the
 #'    transcript exon models.
-#' @param return_type character value indicating whether to return
+#' @param return_type `character` value indicating whether to return
 #'    the ggplot graphic object `"grob"`, or the data.frame
 #'    `"df"` used to create the ggplot object.
-#' @param ref2c list output from `make_ref2compressed()` which
+#' @param ref2c `list` output from `make_ref2compressed()` which
 #'    contains among other things, the `trans_grc` data of
-#'    class `"trans"` used in `ggplot2::coord_trans()` or
-#'    `ggplot2::scale_x_continuous()`.
-#' @param hjust,vjust numeric value to position exon labels
+#'    class `trans` or `transform` depending upon the versions
+#'    of `scales` and `ggplot2` packages. It is used by
+#'    `ggplot2::coord_trans()` or `ggplot2::scale_x_continuous()`.
+#'    Note: The use of `trans` or `transform` object types should be
+#'    consistent with the version of `scales` and `ggplot2`,
+#'    for example an older version from cached data cannot be
+#'    used with newer version of `ggplot2`. In that case the
+#'    remedy is to delete the cache and start anew. Specifically,
+#'    delete `sashimi_memoise`.
+#' @param hjust,vjust `numeric` value to position exon labels
 #'    passed to `ggrepel::geom_text_repel()`.
-#' @param direction argument passed to `ggrepel::geom_text_repel()`
+#' @param direction `character` string passed to `ggrepel::geom_text_repel()`
 #'    to restrict placement of labels to one axis direction.
-#' @param compressGaps logical indicating whether to compress gaps
+#' @param compressGaps `logical` indicating whether to compress gaps
 #'    between exons. When `ref2c` is supplied, this argument is
 #'    ignored and the supplied `ref2c` is used directly.
-#' @param tx2geneDF data.frame or NULL, optionally used to help
+#' @param tx2geneDF `data.frame` or NULL, optionally used to help
 #'    identify matching transcripts for the requested `gene` value,
 #'    used when `"gene_name"` is not present in `values(flatExonsByTx)`.
-#' @param label_coords numeric vector length 2, optional range of
+#' @param label_coords `numeric` vector length 2, optional range of
 #'    genomic coordinates to restrict labels, so labels are not
 #'    arranged by `ggrepel::geom_text_repel()` even when `coord_cartesian()`
 #'    is used to zoom into a specific x-axis range.
-#' @param verbose logical indicating whether to print verbose output.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are passed to relevant functions
 #'    as needed, including `make_ref2compressed()`.
 #'
@@ -575,13 +582,19 @@ gene2gg <- function
  exonLabelAngle=90,
  exonLabelSize=8,
  geneSymbolColname="gene_name",
- newValues=list(feature_type="gap", subclass="gap", gene_nameExon="gap"),
- gene_order=c("first","last"),
- return_type=c("grob", "df"),
+ newValues=list(feature_type="gap",
+    subclass="gap",
+    gene_nameExon="gap"),
+ gene_order=c("first",
+    "last"),
+ return_type=c("grob",
+    "df"),
  ref2c=NULL,
  hjust=0.5,
  vjust=0.5,
- direction=c("both", "x", "y"),
+ direction=c("both",
+    "x",
+    "y"),
  compressGaps=TRUE,
  tx2geneDF=NULL,
  label_coords=NULL,
@@ -591,10 +604,10 @@ gene2gg <- function
    ## Purpose is a lightweight wrapper around grl2df() specifically intended
    ## for gene and transcript exon structure
    direction <- match.arg(direction);
-   if (!suppressPackageStartupMessages(require(ggplot2))) {
+   if (!suppressPackageStartupMessages(jamba::check_pkg_installed("ggplot2"))) {
       stop("gene2gg() requires ggplot2.");
    }
-   if (!suppressPackageStartupMessages(require(ggforce))) {
+   if (!suppressPackageStartupMessages(jamba::check_pkg_installed("ggforce"))) {
       stop("gene2gg() requires ggforce.");
    }
    gene_order <- match.arg(gene_order);
@@ -621,7 +634,7 @@ gene2gg <- function
    if (length(flatExonsByTx) > 0 && jamba::igrepHas("GRanges", class(flatExonsByTx))) {
       grl1 <- NULL;
       if (length(gene) > 0) {
-         if (geneSymbolColname %in% colnames(values(flatExonsByTx))) {
+         if (geneSymbolColname %in% colnames(GenomicRanges::values(flatExonsByTx))) {
             if (verbose) {
                jamba::printDebug("gene2gg(): ",
                   "values(flatExonsByTx)$gene_name %in% gene");
@@ -638,14 +651,16 @@ gene2gg <- function
          }
       }
       if (length(tx) > 0) {
-         grl1 <- GRangesList(c(grl1,
+         grl1 <- GenomicRanges::GRangesList(c(grl1,
             flatExonsByTx[names(flatExonsByTx) %in% tx]))
          GenomicRanges::values(grl1)[,geneSymbolColname] <- tx2geneDF[match(names(grl1),
             tx2geneDF$transcript_id),geneSymbolColname];
-         GenomicRanges::values(grl1@unlistData)[,geneSymbolColname] <- rep(values(grl1)[,geneSymbolColname],
+         GenomicRanges::values(grl1@unlistData)[,geneSymbolColname] <- rep(
+            GenomicRanges::values(grl1)[,geneSymbolColname],
             S4Vectors::elementNROWS(grl1));
          GenomicRanges::values(grl1)$transcript_id <- names(grl1);
-         GenomicRanges::values(grl1@unlistData)$transcript_id <- rep(values(grl1)$transcript_id,
+         GenomicRanges::values(grl1@unlistData)$transcript_id <- rep(
+            GenomicRanges::values(grl1)$transcript_id,
             S4Vectors::elementNROWS(grl1));
       }
    } else {
@@ -659,12 +674,12 @@ gene2gg <- function
    } else if (length(grl1a) == 0) {
       grl1a1 <- rev(grl1)
    } else if ("first" %in% gene_order) {
-      grl1a1 <- GRangesList(
+      grl1a1 <- GenomicRanges::GRangesList(
          jamba::rmNULL(
             c(rev(grl1),
                grl1a)));
    } else {
-      grl1a1 <- GRangesList(c(
+      grl1a1 <- GenomicRanges::GRangesList(c(
          grl1a,
          rev(grl1)));
    }
@@ -711,7 +726,7 @@ gene2gg <- function
       grl1a1df$color_by <- jamba::pasteByRow(grl1a1df[,c("grl_name", colorColname)]);
       subclassV <- jamba::provigrep(
          c("noncds", "utr", "cds", "exon", "intron", "gap", "^NA$", "."),
-         rmNA(naValue="NA",
+         jamba::rmNA(naValue="NA",
             unique(grl1a1df[[colorColname]]))
       )
       colorSubV <- unlist(lapply(names(grl1a1), function(iname){
@@ -731,7 +746,7 @@ gene2gg <- function
    ## Make a data.frame to label each exon
    exonLabelDF <- NULL;
    if (labelExons) {
-      exonLabelDF <- renameColumn(
+      exonLabelDF <- jamba::renameColumn(
          from="groupBy",
          to="id",
          shrinkMatrix(grl1a1df[,c("x","y")],
@@ -781,6 +796,7 @@ gene2gg <- function
    ymin <- (-0.5 +
          -1 * (exonLabelMm/3) *
          ((labelExons*1) * length(grl1a1))/2);
+   ymin <- -0.5;
 
    ## Put it together
    grl1a1gg <- ggplot2::ggplot(grl1a1df,
@@ -808,6 +824,7 @@ gene2gg <- function
          values=jamba::alpha2col(colorSubV, alpha=1)) +
       ggplot2::scale_y_continuous(breaks=seq_along(grl1a1)-1,
          limits=c(ymin, length(grl1a1)-0.5),
+         expand=ggplot2::expansion(mult=c(labelExons * 2, 0)),
          labels=names(grl1a1));
    if (length(ref2c) > 0) {
       grl1a1gg <- grl1a1gg +
@@ -826,8 +843,10 @@ gene2gg <- function
                angle=exonLabelAngle,
                hjust=vjust,
                vjust=hjust,
-               nudge_y=-0.1,
+               nudge_y=-0.2,
+               ylim=c(NA, ymin),
                segment.color="grey35",
+               min.segment.length=0,
                #fill="white",
                size=exonLabelMm,
                direction=direction);
@@ -892,7 +911,7 @@ gene2gg <- function
 #'    will be positive.
 #'
 #' @param gr GRanges object representing splice junctions.
-#' @param scoreColname character string matching one of `colnames(values(gr))`
+#' @param scoreColname character string matching one of `colnames(GenomicRanges::values(gr))`
 #'    that contains a numeric value representing the abundance of
 #'    each splice junction observed.
 #' @param sampleColname character string with the column or columns
@@ -908,7 +927,7 @@ gene2gg <- function
 #'    and `"nameTo"` are used, as output from `closestExonToJunctions()`,
 #'    which has the benefit of grouping junctions within the
 #'    `spliceBuffer` distance from exon boundaries. If those values
-#'    are not present `colnames(values(gr))` then the new
+#'    are not present `colnames(GenomicRanges::values(gr))` then the new
 #'    default `c("seqnames", "start", "strand")` is used for
 #'    `matchFrom`, and `c("seqnames", "end", "strand")` is used
 #'    for `matchTo`. That said, if `matchFrom` or `matchTo` are supplied,
@@ -954,7 +973,7 @@ gene2gg <- function
 #'
 #' # quick plot showing exons and junctions using rectangles
 #' grl <- c(
-#'    GRangesList(exons=grExons),
+#'    GenomicRanges::GRangesList(exons=grExons),
 #'    split(grJunc, names(grJunc))
 #'    );
 #' ggplot(grl2df(grl), aes(x=x, y=y, group=id, fill=feature_type)) +
@@ -1001,7 +1020,7 @@ gene2gg <- function
 #' grJunc_samples <- c(grJunc, grJunc);
 #' values(grJunc_samples)[,"sample_id"] <- rep(c("SampleA","SampleB"),
 #'    each=length(grJunc));
-#' names(grJunc_samples) <- jamba::makeNames(values(grJunc_samples)[,"sample_id"]);
+#' names(grJunc_samples) <- jamba::makeNames(GenomicRanges::values(grJunc_samples)[,"sample_id"]);
 #' grlJunc2df_samples <- grl2df(grJunc_samples,
 #'    scoreArcMinimum=20,
 #'    shape="junction");
@@ -1028,13 +1047,13 @@ stackJunctions <- function
 {
    ## Purpose is to stack junctions by score (width) so they do
    ## not overlap at the start or end of each junction.
-   if (!scoreColname %in% colnames(values(gr))) {
-      stop("The scoreColname must be present in colnames(values(gr))");
+   if (!scoreColname %in% colnames(GenomicRanges::values(gr))) {
+      stop("The scoreColname must be present in colnames(GenomicRanges::values(gr))");
    }
 
    ## Validate matchFrom, matchTo
    if (length(matchFrom) == 0) {
-      if ("nameFrom" %in% colnames(values(gr))) {
+      if ("nameFrom" %in% colnames(GenomicRanges::values(gr))) {
          matchFrom <- "nameFrom";
       } else {
          matchFrom <- c("seqnames", "start");
@@ -1042,7 +1061,7 @@ stackJunctions <- function
    }
    matchFrom <- unique(c(matchFrom, sampleColname));
    if (length(matchTo) == 0) {
-      if ("nameTo" %in% colnames(values(gr))) {
+      if ("nameTo" %in% colnames(GenomicRanges::values(gr))) {
          matchTo <- "nameTo";
       } else {
          matchTo <- c("seqnames", "end");
@@ -1050,7 +1069,7 @@ stackJunctions <- function
    }
    matchTo <- unique(c(matchTo, sampleColname));
    ##
-   grValueColnames <- colnames(values(gr));
+   grValueColnames <- colnames(GenomicRanges::values(gr));
    grValues <- c("seqnames", "start", "end", "width", "strand",
       grValueColnames);
    matchFrom <- intersect(matchFrom, grValues);
@@ -1134,10 +1153,10 @@ stackJunctions <- function
       jamba::printDebug("stackJunctions(): ",
          "Stacking exonsFrom");
    }
-   if (length(tcount(names(gr), minCount=2)) > 0) {
+   if (length(jamba::tcount(names(gr), minCount=2)) > 0) {
       names(gr) <- jamba::makeNames(names(gr));
    }
-   order1 <- do.call(order, list(exonsFrom, width(gr)));
+   order1 <- do.call(order, list(exonsFrom, GenomicRanges::width(gr)));
    #values(gr)[order1,"yStart"] <- shrinkMatrix(
    yStart_df <- shrinkMatrix(
       scoreV[order1],
@@ -1165,7 +1184,7 @@ stackJunctions <- function
       jamba::printDebug("stackJunctions(): ",
          "Stacking exonsTo");
    }
-   order2 <- do.call(order, list(exonsTo, width(gr)));
+   order2 <- do.call(order, list(exonsTo, GenomicRanges::width(gr)));
    yEnd_df <- shrinkMatrix(
       scoreV[order2],
       groupBy=exonsTo[order2],
@@ -1188,12 +1207,12 @@ stackJunctions <- function
       }
    }
    ## Ensure "nameFromTo" exists
-   if (all(c("nameFrom", "nameTo") %in% colnames(values(gr)))) {
-      if (!"nameFromTo" %in% colnames(values(gr))) {
-         GenomicRanges::values(gr)[,"nameFromTo"] <- jamba::pasteByRow(values(gr)[,c("nameFrom", "nameTo")],
+   if (all(c("nameFrom", "nameTo") %in% colnames(GenomicRanges::values(gr)))) {
+      if (!"nameFromTo" %in% colnames(GenomicRanges::values(gr))) {
+         GenomicRanges::values(gr)[,"nameFromTo"] <- jamba::pasteByRow(GenomicRanges::values(gr)[,c("nameFrom", "nameTo")],
             sep=" ");
       }
-      sampleColname <- intersect(sampleColname, colnames(values(gr)));
+      sampleColname <- intersect(sampleColname, colnames(GenomicRanges::values(gr)));
       if (length(sampleColname) == 0) {
          ## Stack without using sample_id
          value_colnames <- c(scoreColname, "nameFromTo");
@@ -1202,8 +1221,8 @@ stackJunctions <- function
          nfts_colname <- "nameFromTo";
       } else {
          ## Stack within sample_id
-         if (!"nameFromToSample" %in% colnames(values(gr))) {
-            GenomicRanges::values(gr)[,"nameFromToSample"] <- jamba::pasteByRow(values(gr)[,c("nameFromTo", sampleColname)],
+         if (!"nameFromToSample" %in% colnames(GenomicRanges::values(gr))) {
+            GenomicRanges::values(gr)[,"nameFromToSample"] <- jamba::pasteByRow(GenomicRanges::values(gr)[,c("nameFromTo", sampleColname)],
                sep=":!:");
          }
          value_colnames <- c(scoreColname, "nameFromToSample");
@@ -1218,19 +1237,19 @@ stackJunctions <- function
       }
       juncRankFrom <- shrinkMatrix(
          GenomicRanges::values(gr)[,value_colnames],
-         jamba::pasteByRow(values(gr)[,from_colnames]),
+         jamba::pasteByRow(GenomicRanges::values(gr)[,from_colnames]),
          shrinkFunc=shrink_junc);
       juncRankTo <- shrinkMatrix(
          GenomicRanges::values(gr)[,value_colnames],
-         jamba::pasteByRow(values(gr)[,to_colnames]),
+         jamba::pasteByRow(GenomicRanges::values(gr)[,to_colnames]),
          shrinkFunc=shrink_junc);
       juncRankDF <- data.frame(
-            juncRankFrom[match(values(gr)[,nfts_colname], juncRankFrom[,nfts_colname]),],
-            juncRankTo[match(values(gr)[,nfts_colname], juncRankTo[,nfts_colname]),]
+            juncRankFrom[match(GenomicRanges::values(gr)[,nfts_colname], juncRankFrom[,nfts_colname]),],
+            juncRankTo[match(GenomicRanges::values(gr)[,nfts_colname], juncRankTo[,nfts_colname]),]
       );
       juncRank <- (1 +
-            juncRankFrom[match(values(gr)[,nfts_colname], juncRankFrom[,nfts_colname]),scoreColname] +
-            juncRankTo[match(values(gr)[,nfts_colname], juncRankTo[,nfts_colname]),scoreColname]
+            juncRankFrom[match(GenomicRanges::values(gr)[,nfts_colname], juncRankFrom[,nfts_colname]),scoreColname] +
+            juncRankTo[match(GenomicRanges::values(gr)[,nfts_colname], juncRankTo[,nfts_colname]),scoreColname]
       );
       GenomicRanges::values(gr)[,"junction_rank"] <- factor(juncRank);
    }
@@ -1352,8 +1371,8 @@ plotSashimi <- function
     "junctionLabels"),
  coord_method=c("scale", "coord", "none"),
  exonsGrl=NULL,
- junc_color=alpha2col("goldenrod2", 0.3),
- junc_fill=alpha2col("goldenrod2", 0.9),
+ junc_color=jamba::alpha2col("goldenrod2", 0.3),
+ junc_fill=jamba::alpha2col("goldenrod2", 0.9),
  junc_alpha=0.8,
  junc_accuracy=1,
  junc_nudge_pct=0.05,
@@ -1526,10 +1545,10 @@ plotSashimi <- function
       gg_sashimi <- gg_sashimi +
          #geom_polygon(
          ggforce::geom_shape(
-            data=. %>% filter(type %in% "coverage"),
+            data=. %>% dplyr::filter(type %in% "coverage"),
             show.legend=FALSE) +
          geom_diagonal_wide_arc(
-            data=. %>% filter(type %in% "junction"),
+            data=. %>% dplyr::filter(type %in% "junction"),
             show.legend=FALSE,
             alpha=junc_alpha,
             strength=0.4);
@@ -1541,7 +1560,7 @@ plotSashimi <- function
       gg_sashimi <- gg_sashimi +
          #geom_polygon(
          ggforce::geom_shape(
-            data=. %>% filter(type %in% "coverage"),
+            data=. %>% dplyr::filter(type %in% "coverage"),
             show.legend=FALSE
          );
    } else if ("junction" %in% cjDF$type) {
@@ -1551,7 +1570,7 @@ plotSashimi <- function
       }
       gg_sashimi <- gg_sashimi +
          geom_diagonal_wide_arc(
-            data=. %>% filter(type %in% "junction"),
+            data=. %>% dplyr::filter(type %in% "junction"),
             show.legend=FALSE,
             alpha=junc_alpha,
             strength=0.4
@@ -1582,7 +1601,7 @@ plotSashimi <- function
             na.rm=TRUE);
          gg_sashimi <- gg_sashimi +
             ggrepel::geom_text_repel(
-               data=. %>% filter(type %in% "junction_label" &
+               data=. %>% dplyr::filter(type %in% "junction_label" &
                      x >= min(label_coords) & x <= max(label_coords)),
                angle=90,
                vjust=0.5,
@@ -1616,7 +1635,7 @@ plotSashimi <- function
       gg_sashimi <- gg_sashimi +
          ggplot2::coord_trans(x=sashimi$ref2c$trans_grc) +
          #coord_cartesian(expand=FALSE) +
-         xlab(xlabel);
+         ggplot2::xlab(xlabel);
    }
 
    if (use_jam_themes) {
@@ -1639,6 +1658,10 @@ plotSashimi <- function
    return(gg_sashimi);
 }
 
+# #' @importFrom plotly to_basic
+# #' @export
+# plotly::to_basic
+
 #' Support plotly for GeomShape
 #'
 #' Support plotly for GeomShape
@@ -1656,12 +1679,13 @@ plotSashimi <- function
 #' when invoking `plotly::ggplotly()` and this function was not
 #' consistently used in that process for some reason.
 #'
-#' @param data,prestats_data,layout,params,p,... arguments provided
-#'    by plotly during rendering, after stats have been applied.
-#'    Currently only `data` is passed to `ggplot2::GeomPolygon`.
+#' Currently only `data` is passed to `ggplot2::GeomPolygon`.
+#'
+#' @inheritParams plotly::to_basic
 #'
 #' @family jam ggplot2 functions
 #'
+#' @importFrom plotly to_basic
 #' @export
 to_basic.GeomShape <- function
 (data,

@@ -203,10 +203,10 @@ bgaPlotly3d <- function
    if ("none" %in% drawVectors) {
       drawVectors <- "none";
    }
-   if (!suppressPackageStartupMessages(require(made4))) {
+   if (!jamba::check_pkg_installed("made4")) {
       stop("bgaPlotly3d() requires the made4 package.");
    }
-   if (!suppressPackageStartupMessages(require(plotly))) {
+   if (!jamba::check_pkg_installed("plotly")) {
       stop("bgaPlotly3d() requires the plotly package.");
    }
    if (jamba::igrepHas("list", class(bgaInfo)) &&
@@ -448,7 +448,7 @@ bgaPlotly3d <- function
       } else {
          dfCVDF <- data.frame(
             Label=rownames(groupcoords_unscaled),
-            renameColumn(groupcoords_unscaled[sampleGroups,names(axesVsc)]*0,
+            jamba::renameColumn(groupcoords_unscaled[sampleGroups,names(axesVsc)]*0,
                from=names(axesVsc),
                to=paste0("origin_", names(axesVsc))),
             groupcoords_unscaled[sampleGroups,names(axesVsc)]);
@@ -759,7 +759,7 @@ bgaPlotly3d <- function
                length(iEllipse$vb[2,]))
          );
          ## Add to the plotly object
-         p11 <- p11 %>% add_trace(
+         p11 <- p11 %>% plotly::add_trace(
             data=iEllipseDF,
             name=iGroup,
             type="mesh3d",
@@ -838,11 +838,11 @@ bgaPlotly3d <- function
             iDFnew <- iDF[rep(1:nrow(iDF), each=arrowSmoothFactor),];
             iDFnew[,c(Xsc, Ysc, Zsc)] <- iDFspline;
             iDFnew$newColor <- colorRampPalette(iDF$color, alpha=TRUE)(nrow(iDFnew))
-            iDFnew <- renameColumn(iDFnew,
+            iDFnew <- jamba::renameColumn(iDFnew,
                from=c(Xsc, Ysc, Zsc),
                to=c(Xs, Ys, Zs));
             ## Now add to plotly object
-            p10 <- p10 %>% add_trace(
+            p10 <- p10 %>% plotly::add_trace(
                data=iDFnew,
                name=iSuperGroup,
                legendgroup="supergroups",

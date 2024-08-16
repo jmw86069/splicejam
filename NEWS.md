@@ -1,3 +1,55 @@
+# splicejam 0.0.79.900
+
+The method of labeling exons was updated to enforce placement below
+exons, and to expand the ggplot2 whitespace below the exons using
+`ggplot2::expansion()` which uses a multiple of plot height.
+
+## notable changes
+
+* With ggplot2 version 3.5 and higher, `trans` objects are deprecated
+in favor of `transform` objects. The conversion `as.transform()` is buggy,
+it fails when provided a `trans` object to convert to `transformation` -
+which can happen when using R-shiny cached data with `launchSashimiApp()`,
+which stores objects in subfolder `sashimi_memoise/`. These objects
+may have stored `trans` objects, which s
+* Many functions were modified not to use `require(package)`
+
+   * Major changes to underlying R code which could
+   cause errors for any un-prefixed package function call.
+   * Numerous changes to add package prefixing, packages including `jamba`,
+   `GenomicRanges`, `IRanges`, `S4Vectors`, `shiny`, others. I was
+   really lax originally, using `require()` to avoid proper prefixing.
+   * Full tests were completed, mainly running the live R-shiny app
+   `launchSashimiApp()` which touches nearly every aspect of this package.
+
+## changes to existing functions
+
+* `make_ref2compressed()` returns the output from `scales::trans_new()`
+which changed output from `trans` to `transform` in newer versions
+of `scales`, consistent with `ggplot2` version 3.5 and higher,
+see previous point.
+
+   * The output of `make_ref2compressed()` with newer versions of `scales`
+   and `ggplot2` includes a `transform` object.
+   * Fortunately, all `splicejam` functions can make equivalent use of
+   `trans` or `transform` objects, provided they were created with
+   the same R package versions for `scales` and `ggplot2`.
+   * When in doubt, if observing errors `"covNamesL not found"` or similar,
+   try deleting memoise cache subfolders, update R packages, then try again.
+
+* `gene2gg()` - The method for rendering exon labels was updated:
+   
+   * It uses `expand=ggplot2::expansion()` to extend the y-axis by a
+   multiple of the plot height, making it more reliable to add enough
+   whitespace to fit exon labels.
+   * Exon labels are pushed slightly lower than before (-0.2 instead of -0.1),
+   and use `ylim` to constrain all labels below the exon. Previously with
+   many exon labels, they would be pushed up or down, making a tangled mess.
+   * Exons labels use `min.segment.length=0` and always draws a line segment.
+   * In principle, even for genes like `Zbtb20`, the exon labels should
+   be much more visible, positioned below the exon plot, and will use
+   two rows to minimize overlapping labels.
+
 # splicejam 0.0.78.900
 
 ## changes to existing functions
@@ -50,12 +102,15 @@ names and values observed in column 9.
    * A more complete refactor of this function is in progress,
    to simplify the code, to allow exporting individual `data.frame`
    objects for the visual components displayed in plotly.
-   The original function used `rgl`, and was ported to `plotly` to help
-   render on Rmarkdown documents in HTML form. However the `rgl` package
-   can also create HTML export, so it may be preferred. The `rgl`
-   package has additional 3D shapes that would help when rendering
-   the cross-group block arrows.
-   * a plotly error occurred when `drawSegments="genes"` due to mismatch in
+   * The original function used `rgl`, and was ported to `plotly` to help
+   render on Rmarkdown documents in HTML form. However, the `rgl` package
+   can also create HTML export, and makes slightly nicer figures, at the
+   expense of not having customized mouseover text labels. (Even though
+   labels are incredible difficult to customize in plotly.)
+   The `rgl` package has additional 3D shapes that could help when rendering
+   the cross-group block arrows, and could be useful to apply shape to
+   experiment design factors.
+   * A plotly error occurred when `drawSegments="genes"` due to mismatch in
    expected values in column `"textposition"` during plotly rendering.
    This error may have occurred during a recent plotly update,
    the workaround is simply not to include

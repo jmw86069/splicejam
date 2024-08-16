@@ -29,35 +29,35 @@ gene2gg(
 )
 }
 \arguments{
-\item{gene}{character string of the gene to plot, compared
+\item{gene}{\code{character} string of the gene to plot, compared
 with \code{names(flatExonsByGene)} and \code{values(flatExonsByTx)$gene_name}.}
 
-\item{tx}{character vector of the transcripts to plot, useful
+\item{tx}{\code{character} vector of the transcripts to plot, useful
 when specifying specific transcripts. Values are matched with
 \code{names(flatExonsByTx)}.}
 
-\item{flatExonsByGene, flatExonsByTx}{GRangesList objects, named
+\item{flatExonsByGene, flatExonsByTx}{\code{GRangesList} objects, named
 by \code{"gene_name"} or \code{"transcript_id"} respectively, containing
 disjoint (non-overlapping) exons within each GRangesList
 element. The data is expected to be in the form provided by
 \code{flattenExonsBy()}.}
 
-\item{geneColor}{character color used as the base color for
+\item{geneColor}{\code{character} color used as the base color for
 exons, where the color is varied for each feature type or
 subclass.}
 
-\item{labelExons}{logical indicating whether to print text
+\item{labelExons}{\code{logical} indicating whether to print text
 labels beneath each exon, using the values in colname
 \code{"gene_nameExon"}. Typically the gene and transcripts are
 named using consistent names, in which case one exon label
 is placed at the bottom of the lowest transcript for each
 unique exon label.}
 
-\item{exonLabelAngle}{numeric angle in degrees (0 to 360)
+\item{exonLabelAngle}{\code{numeric} angle in degrees (0 to 360)
 indicating how to rotate exon labels, where \code{90} is
 vertical, and \code{0} is horizontal.}
 
-\item{exonLabelSize}{numeric value or \code{unit} object from \code{grid::unit()}.
+\item{exonLabelSize}{\code{numeric} value or \code{unit} object from \code{grid::unit()}.
 Numeric values are assumed to have unit \code{"pt"} which refers to
 font point size. Used to size exon labels when \code{labelExons=TRUE}.}
 
@@ -68,40 +68,47 @@ than exons. It is also useful to have \code{subclass="gap"}
 when there are \code{"cds"} and \code{"noncds"} entries in the
 provided \code{flatExonsByGene} data.}
 
-\item{gene_order}{character value indicating whether the
+\item{gene_order}{\code{character} value indicating whether the
 flattened gene model should be plotted \code{"first"} above the
 transcript exon models, or \code{"last"} and below the
 transcript exon models.}
 
-\item{return_type}{character value indicating whether to return
+\item{return_type}{\code{character} value indicating whether to return
 the ggplot graphic object \code{"grob"}, or the data.frame
 \code{"df"} used to create the ggplot object.}
 
-\item{ref2c}{list output from \code{make_ref2compressed()} which
+\item{ref2c}{\code{list} output from \code{make_ref2compressed()} which
 contains among other things, the \code{trans_grc} data of
-class \code{"trans"} used in \code{ggplot2::coord_trans()} or
-\code{ggplot2::scale_x_continuous()}.}
+class \code{trans} or \code{transform} depending upon the versions
+of \code{scales} and \code{ggplot2} packages. It is used by
+\code{ggplot2::coord_trans()} or \code{ggplot2::scale_x_continuous()}.
+Note: The use of \code{trans} or \code{transform} object types should be
+consistent with the version of \code{scales} and \code{ggplot2},
+for example an older version from cached data cannot be
+used with newer version of \code{ggplot2}. In that case the
+remedy is to delete the cache and start anew. Specifically,
+delete \code{sashimi_memoise}.}
 
-\item{hjust, vjust}{numeric value to position exon labels
+\item{hjust, vjust}{\code{numeric} value to position exon labels
 passed to \code{ggrepel::geom_text_repel()}.}
 
-\item{direction}{argument passed to \code{ggrepel::geom_text_repel()}
+\item{direction}{\code{character} string passed to \code{ggrepel::geom_text_repel()}
 to restrict placement of labels to one axis direction.}
 
-\item{compressGaps}{logical indicating whether to compress gaps
+\item{compressGaps}{\code{logical} indicating whether to compress gaps
 between exons. When \code{ref2c} is supplied, this argument is
 ignored and the supplied \code{ref2c} is used directly.}
 
-\item{tx2geneDF}{data.frame or NULL, optionally used to help
+\item{tx2geneDF}{\code{data.frame} or NULL, optionally used to help
 identify matching transcripts for the requested \code{gene} value,
 used when \code{"gene_name"} is not present in \code{values(flatExonsByTx)}.}
 
-\item{label_coords}{numeric vector length 2, optional range of
+\item{label_coords}{\code{numeric} vector length 2, optional range of
 genomic coordinates to restrict labels, so labels are not
 arranged by \code{ggrepel::geom_text_repel()} even when \code{coord_cartesian()}
 is used to zoom into a specific x-axis range.}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are passed to relevant functions
 as needed, including \code{make_ref2compressed()}.}

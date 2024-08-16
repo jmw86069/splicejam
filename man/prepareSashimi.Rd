@@ -23,8 +23,8 @@ prepareSashimi(
   junc_label_type = c("repel", "mark", "none"),
   return_data = c("df", "ref2c"),
   include_strand = c("both", "+", "-"),
-  junc_color = alpha2col("goldenrod3", 0.7),
-  junc_fill = alpha2col("goldenrod1", 0.4),
+  junc_color = jamba::alpha2col("goldenrod3", 0.7),
+  junc_fill = jamba::alpha2col("goldenrod1", 0.4),
   doStackJunctions = TRUE,
   coord_method = c("coord", "scale", "none"),
   scoreFactor = 1,
@@ -108,7 +108,7 @@ junction arcs at each end, this argument is passed to
 \code{grl2df()} which calls \code{stackJunctions()}.}
 
 \item{covGR}{GRanges object containing coverage data in columns
-stored as NumericList class, where \code{colnames(values(covGR))}
+stored as NumericList class, where \code{colnames(GenomicRanges::values(covGR))}
 are present in \code{filesDF$url} when \code{files$type \%in\% "coverage_gr"}.}
 
 \item{juncGR}{GRanges object containing splice junctions, where

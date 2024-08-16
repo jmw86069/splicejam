@@ -18,12 +18,12 @@
 #'
 #' @family splicejam R-shiny functions
 #'
-#' @import jamba
-#' @import dplyr
-#' @import ggplot2
-#' @import plotly
-#' @importFrom plotly subplot
-#' @import GenomicRanges
+#' # @import jamba
+#' # @import dplyr
+#' # @import ggplot2
+#' # @import plotly
+#' # @importFrom plotly subplot
+#' # @import GenomicRanges
 #' @importFrom magrittr %>%
 #'
 #' @export
@@ -34,11 +34,11 @@ sashimiAppServer <- function
 {
    #
    options("warn"=-1);
-   output$sashimiplot_guide <- renderUI(sashimiplot_guide);
-   output$sashimiplotviz_guide <- renderUI(sashimiplotviz_guide);
+   output$sashimiplot_guide <- shiny::renderUI(sashimiplot_guide);
+   output$sashimiplotviz_guide <- shiny::renderUI(sashimiplotviz_guide);
 
    ## show sessionInfo()
-   output$sessionInfo <- renderPrint({
+   output$sessionInfo <- shiny::renderPrint({
       capture.output(sessionInfo())
    })
 
@@ -54,7 +54,7 @@ sashimiAppServer <- function
    }
 
    ##  gene_choices
-   get_gene_choices <- reactive({
+   get_gene_choices <- shiny::reactive({
       search_genelist <- input$search_genelist;
       if (length(search_genelist) > 0 && jamba::igrepHas("detected", search_genelist)) {
          gene_choices <- detectedGenes;
@@ -75,7 +75,7 @@ sashimiAppServer <- function
       if (exists("detectedGenes")) {
          gene_choices <- detectedGenes;
       } else {
-         gene_choices <- mixedSort(unique(tx2geneDF$gene_name));
+         gene_choices <- jamba::mixedSort(unique(tx2geneDF$gene_name));
       }
       default_gene <- head(
          jamba::provigrep(c("Gria1",
@@ -128,7 +128,7 @@ sashimiAppServer <- function
       selected=default_gene,
       server=TRUE);
 
-   output$gene_coords_label <- renderText({"Genome coordinate range"});
+   output$gene_coords_label <- shiny::renderText({"Genome coordinate range"});
 
    # Define verbose flag
    if (!exists("verbose")) {
@@ -139,14 +139,14 @@ sashimiAppServer <- function
 
    # use debounce to slow down rendering a plot while changing parameters
    debounce_ms <- 1000;
-   junction_alpha <- reactive({
+   junction_alpha <- shiny::reactive({
       if (length(input$junction_alpha) == 0) {
          return(0.7);
       }
       input$junction_alpha;
    });
    junction_alpha_d <- debounce(junction_alpha, debounce_ms);
-   junction_arc_factor <- reactive({
+   junction_arc_factor <- shiny::reactive({
       arcValues <- c(
          `-2 flat`=0,
          `-1 lower`=0.1,
@@ -161,42 +161,42 @@ sashimiAppServer <- function
    });
    junction_arc_factor_d <- debounce(junction_arc_factor, debounce_ms);
 
-   junction_arc_minimum <- reactive({
+   junction_arc_minimum <- shiny::reactive({
       if (length(input$junction_arc_minimum) == 0) {
          return(100);
       }
       as.numeric(input$junction_arc_minimum);
    });
    junction_arc_minimum_d <- debounce(junction_arc_minimum, debounce_ms);
-   share_y_axis <- reactive({
+   share_y_axis <- shiny::reactive({
       if (length(input$share_y_axis) == 0) {
          return(TRUE);
       }
       return(input$share_y_axis);
    });
    share_y_axis_d <- debounce(share_y_axis, debounce_ms);
-   show_gene_model <- reactive({
+   show_gene_model <- shiny::reactive({
       if (length(input$show_gene_model) == 0) {
          return(TRUE)
       }
       input$show_gene_model
    });
    show_gene_model_d <- debounce(show_gene_model, debounce_ms);
-   show_tx_model <- reactive({
+   show_tx_model <- shiny::reactive({
       if (length(input$show_tx_model) == 0) {
          return(TRUE)
       }
       input$show_tx_model
    });
    show_tx_model_d <- debounce(show_tx_model, debounce_ms);
-   show_detected_tx <- reactive({
+   show_detected_tx <- shiny::reactive({
       if (length(input$show_detected_tx) == 0) {
          return(TRUE)
       }
       input$show_detected_tx;
    });
    show_detected_tx_d <- debounce(show_detected_tx, debounce_ms);
-   exon_label_size <- reactive({
+   exon_label_size <- shiny::reactive({
       font_sizing <- input$exon_label_size;
       if (length(font_sizing) == 0) {
          font_sizing <- "Default"
@@ -216,21 +216,21 @@ sashimiAppServer <- function
       base_font_size;
    });
    exon_label_size_d <- debounce(exon_label_size, debounce_ms);
-   panel_height <- reactive({
+   panel_height <- shiny::reactive({
       if (length(input$panel_height) == 0) {
          return(200)
       }
       input$panel_height;
    });
    panel_height_d <- debounce(panel_height, debounce_ms);
-   gene_panel_height <- reactive({
+   gene_panel_height <- shiny::reactive({
       if (length(input$gene_panel_height) == 0) {
          return(200)
       }
       input$gene_panel_height;
    });
    gene_panel_height_d <- debounce(gene_panel_height, debounce_ms);
-   font_sizing <- reactive({
+   font_sizing <- shiny::reactive({
       font_sizing <- input$font_sizing;
       if (length(font_sizing) == 0) {
          font_sizing <- "Default"
@@ -250,14 +250,14 @@ sashimiAppServer <- function
       base_font_size * 1.5;
    });
    font_sizing_d <- debounce(font_sizing, debounce_ms);
-   do_plotly <- reactive({
+   do_plotly <- shiny::reactive({
       if (length(input$do_plotly) == 0) {
          return(FALSE)
       }
       input$do_plotly;
    });
    do_plotly_d <- debounce(do_plotly, debounce_ms);
-   enable_highlights <- reactive({
+   enable_highlights <- shiny::reactive({
       if (length(input$enable_highlights) == 0) {
          return(FALSE)
       }
@@ -280,7 +280,7 @@ sashimiAppServer <- function
       }
    });
 
-   get_gene_coords_label <- reactive({
+   get_gene_coords_label <- shiny::reactive({
       flat_list <- get_flat_gene_exons();
       gene <- flat_list$gene;
       flatExonsByGene1 <- flat_list$flatExonsByGene;
@@ -291,14 +291,14 @@ sashimiAppServer <- function
          coords_label <- paste0("Coordinate range for ",
             gene,
             " on ",
-            as.character(seqnames(head(flatExonsByGene1[[gene]], 1))),
-            " (", as.character(strand(head(flatExonsByGene1[[gene]], 1))),
+            as.character(GenomicRanges::seqnames(head(flatExonsByGene1[[gene]], 1))),
+            " (", as.character(GenomicRanges::strand(head(flatExonsByGene1[[gene]], 1))),
             "):");
       }
       coords_label;
    })
 
-   output$gene_coords_label <- renderText({
+   output$gene_coords_label <- shiny::renderText({
       get_gene_coords_label()
    });
 
@@ -329,9 +329,9 @@ sashimiAppServer <- function
             chr_range <- as.data.frame(range(flatExonsByGene1[[gene]]))[,c("start", "end")];
 
             ## update exon name range slider
-            if ("gene_nameExon" %in% colnames(values(flatExonsByGene1[[gene]]))) {
+            if ("gene_nameExon" %in% colnames(GenomicRanges::values(flatExonsByGene1[[gene]]))) {
                exon_names <- jamba::mixedSort(
-                  values(flatExonsByGene1[[gene]])$gene_nameExon);
+                  GenomicRanges::values(flatExonsByGene1[[gene]])$gene_nameExon);
                jamba::printDebug("sashimiAppServer(): ",
                   "exon_names:",
                   exon_names);
@@ -375,15 +375,15 @@ sashimiAppServer <- function
    });
 
    # assemble all gene query values into a list when "Update" button pressed
-   get_active_gene <- reactive({
+   get_active_gene <- shiny::reactive({
       input$calc_gene_params;
       # get isolated variable values
-      gene <- isolate(input$gene);
-      use_exon_names <- isolate(input$use_exon_names);
-      gene_coords <- isolate(input$gene_coords);
-      exon_range <- isolate(input$exon_range);
-      min_junction_reads <- isolate(input$min_junction_reads);
-      include_strand <- isolate(input$include_strand);
+      gene <- shiny::isolate(input$gene);
+      use_exon_names <- shiny::isolate(input$use_exon_names);
+      gene_coords <- shiny::isolate(input$gene_coords);
+      exon_range <- shiny::isolate(input$exon_range);
+      min_junction_reads <- shiny::isolate(input$min_junction_reads);
+      include_strand <- shiny::isolate(input$include_strand);
       gene_vals <- list(gene=gene,
          use_exon_names=use_exon_names,
          gene_coords=gene_coords,
@@ -396,7 +396,7 @@ sashimiAppServer <- function
    });
 
    # This function reacts to changes in input$gene, the "Select Gene" widget
-   get_flat_gene_exons <- reactive({
+   get_flat_gene_exons <- shiny::reactive({
       gene <- input$gene;
       if (length(gene) > 0 && nchar(gene) > 0) {
          if ("blank" %in% gene) {
@@ -431,7 +431,7 @@ sashimiAppServer <- function
 
    # Same function as get_flat_gene_exons() except it does not react to changes in input$gene
    # This function only reacts to "Update Sashimi Plots" input$calc_gene_params
-   get_flat_gene_exons_plot <- reactive({
+   get_flat_gene_exons_plot <- shiny::reactive({
       gene_vals <- get_active_gene();
       gene <- gene_vals$gene;
       if (length(gene) > 0 && nchar(gene) > 0) {
@@ -471,7 +471,7 @@ sashimiAppServer <- function
       #return(flatExonsByGene1);
    });
 
-   get_display_coords <- reactive({
+   get_display_coords <- shiny::reactive({
       ## 27jul2021: can this input$calc_gene_params be ignored?
       ## Instead rely upon get_flat_gene_exons_plot()?
       ## This change could force order of operation so these are not
@@ -532,7 +532,7 @@ sashimiAppServer <- function
 
    # the main function to prepare sashimi data for display
    # when gene is empty, "" or "blank" it returns NULL
-   get_sashimi_data <- reactive({
+   get_sashimi_data <- shiny::reactive({
       ## Comment out input$calc_gene_params since we depend
       ## upon its reactive effects
       #input$calc_gene_params;
@@ -701,19 +701,20 @@ sashimiAppServer <- function
    });
 
    # main Sashimi plot render function
-   output$sashimiplot_output <- renderUI({
+   output$sashimiplot_output <- shiny::renderUI({
       sashimi_data_list <- get_sashimi_data();
 
       render_blank_plot <- function() {
          jamba::printDebug("sashimiAppServer(): ",
             "Rendering blank panel for ",
             "sashimiplot_output");
-         return(tagList(renderPlot(
+         return(htmltools::tagList(shiny::renderPlot(
             height=300,
             ggplot2::ggplot() + ggplot2::theme_void()
          )));
       }
-      if (length(sashimi_data_list) == 0 || length(sashimi_data_list$sashimi_data) == 0) {
+      if (length(sashimi_data_list) == 0 ||
+            length(sashimi_data_list$sashimi_data) == 0) {
          return(render_blank_plot())
       }
 
@@ -779,7 +780,7 @@ sashimiAppServer <- function
                layout_ncol);
          }
          gg_sashimi <- gg_sashimi +
-            facet_wrap(~sample_id,
+            ggplot2::facet_wrap(~sample_id,
                ncol=layout_ncol,
                scales=facet_scales);
       }
@@ -831,13 +832,13 @@ sashimiAppServer <- function
       }
 
       ## Prepare text label with genome coordinates
-      ref_name <- as.character(head(seqnames(flatExonsByGene1[[gene]]), 1));
+      ref_name <- as.character(head(GenomicRanges::seqnames(flatExonsByGene1[[gene]]), 1));
       coord_label <- paste0(
          ref_name,
          ":",
          paste(jamba::formatInt(gene_coords), collapse="-")
       );
-      output$sashimitext_output <- renderText({
+      output$sashimitext_output <- shiny::renderText({
          HTML(paste0(" Region ",
             coord_label))
       });
@@ -876,18 +877,18 @@ sashimiAppServer <- function
             ggly1 <- plotly::ggplotly(
                gg_sashimi +
                   colorjam::theme_jam(base_size=base_size) +
-                  theme(axis.text.x=element_blank()) +
-                  xlab(NULL) +
-                  coord_cartesian(xlim=display_coords),
+                  ggplot2::theme(axis.text.x=ggplot2::element_blank()) +
+                  ggplot2::xlab(NULL) +
+                  ggplot2::coord_cartesian(xlim=display_coords),
                tooltip="text",
                plot_height=plot_heights[1])
                # %>% plotly::style(hoveron="fill")
             ggly2 <- plotly::ggplotly(
                gg_gene +
                   colorjam::theme_jam(base_size=base_size) +
-                  ggtitle(NULL) +
-                  xlab(ref_name) +
-                  coord_cartesian(xlim=display_coords),
+                  ggplot2::ggtitle(NULL) +
+                  ggplot2::xlab(ref_name) +
+                  ggplot2::coord_cartesian(xlim=display_coords),
                tooltip="text",
                plot_height=plot_heights[2]);
             p_heights <- unname(plot_heights/sum(plot_heights));
@@ -909,8 +910,8 @@ sashimiAppServer <- function
             gg_ly <- plotly::ggplotly(
                gg_sashimi +
                   colorjam::theme_jam(base_size=base_size) +
-                  xlab(ref_name) +
-                  coord_cartesian(xlim=get_display_coords()),
+                  ggplot2::xlab(ref_name) +
+                  ggplot2::coord_cartesian(xlim=get_display_coords()),
                tooltip="text",
                height=plot_height
             )
@@ -954,41 +955,40 @@ sashimiAppServer <- function
             #if (length(reactive_gene_coords$xlim) == 0) {
                reactive_gene_coords$xlim <- display_coords;
             #}
-            #jamba::printDebug("reactive_gene_coords$xlim: ", formatInt(reactive_gene_coords$xlim), sep="-");
             if (show_gene_model_d()) {
                ## With gene-transcript-exon model
                cp <- cowplot::plot_grid(
                   gg_sashimi +
                      colorjam::theme_jam(base_size=base_size) +
-                     theme(axis.text.x=element_blank()) +
-                     xlab(NULL) +
-                     coord_cartesian(xlim=reactive_gene_coords$xlim),
+                     ggplot2::theme(axis.text.x=ggplot2::element_blank()) +
+                     ggplot2::xlab(NULL) +
+                     ggplot2::coord_cartesian(xlim=reactive_gene_coords$xlim),
                   gg_gene +
                      colorjam::theme_jam(base_size=base_size) +
-                     ggtitle(NULL) +
-                     xlab(ref_name) +
-                     coord_cartesian(xlim=reactive_gene_coords$xlim),
+                     ggplot2::ggtitle(NULL) +
+                     ggplot2::xlab(ref_name) +
+                     ggplot2::coord_cartesian(xlim=reactive_gene_coords$xlim),
                   ncol=1,
                   align="v",
                   axis="lr",
                   rel_heights=plot_heights
                )
-               output[["sashimi_plot"]] <- renderPlot(
+               output[["sashimi_plot"]] <- shiny::renderPlot(
                   height=plot_height,
                   cp
                )
-               tagList(shiny::plotOutput("sashimi_plot",
+               htmltools::tagList(shiny::plotOutput("sashimi_plot",
                   height=paste0(plot_height, "px")))
             } else {
                ## No gene-transcript-exon model
                # slightly different method for dynamic zoom inside ggplot2
-               output[["sashimi_plot"]] <- renderPlot(
+               output[["sashimi_plot"]] <- shiny::renderPlot(
                   height=plot_height,
                   #suppressMessages(
                      gg_sashimi +
                         colorjam::theme_jam(base_size=base_size) +
-                        xlab(ref_name) +
-                        coord_cartesian(xlim=reactive_gene_coords$xlim)
+                        ggplot2::xlab(ref_name) +
+                        ggplot2::coord_cartesian(xlim=reactive_gene_coords$xlim)
                   #)
                )
                observeEvent(input[["sashimi_plot_dblclick"]], {
@@ -1001,10 +1001,10 @@ sashimiAppServer <- function
                      reactive_gene_coords$xlim <- gene_coords;
                   }
                })
-               tagList(shiny::plotOutput("sashimi_plot",
+               htmltools::tagList(shiny::plotOutput("sashimi_plot",
                   height=paste0(plot_height, "px"),
                   dblclick="sashimi_plot_dblclick",
-                  brush=brushOpts(
+                  brush=shiny::brushOpts(
                      direction="x",
                      id="sashimi_plot_brush",
                      resetOnNew=TRUE)
@@ -1013,7 +1013,7 @@ sashimiAppServer <- function
          } else {
             ## Fallback when get_display_coords() is empty
             ## sometimes happens at startup, unclear when/why
-            tagList(renderPlot(
+            htmltools::tagList(shiny::renderPlot(
                height=plot_height,
                gg_sashimi +
                   colorjam::theme_jam(base_size=base_size)
@@ -1022,7 +1022,7 @@ sashimiAppServer <- function
       }
    });
 
-   reactive_gene_coords <- reactiveValues(xmin=NULL, xmax=NULL)
+   reactive_gene_coords <- shiny::reactiveValues(xmin=NULL, xmax=NULL)
 
    # Helper function to colorize a datatable
    colorize_DT <- function
@@ -1116,7 +1116,7 @@ sashimiAppServer <- function
    );
 
    # Render samples_df for sample selection and ordering
-   data <- reactiveValues(
+   data <- shiny::reactiveValues(
       samples_data=unique(filesDF[,setdiff(colnames(filesDF), c("url", "type", "scale_factor")), drop=FALSE]),
       sample_id=if (exists("sample_id")) {
          sample_id
@@ -1128,13 +1128,13 @@ sashimiAppServer <- function
          unique(filesDF$sample_id)
       }
    );
-   get_sample_id_dt <- reactive({
+   get_sample_id_dt <- shiny::reactive({
       # force update when Calculate Gene Params button is clicked
       # This step prevents updates from changing the sashimi plot
       # until the Calculate button is clicked.
       input$calc_gene_params;
-      new_sample_id <- isolate(data$sample_id);
-      layout_ncol <- isolate(input$layout_ncol);
+      new_sample_id <- shiny::isolate(data$sample_id);
+      layout_ncol <- shiny::isolate(input$layout_ncol);
       if (verbose >= 0) {
          jamba::printDebug("get_sample_id_dt(): ",
             new_sample_id);
@@ -1145,22 +1145,22 @@ sashimiAppServer <- function
 
    # sample table where selected rows are re-ordered on click
    output$samplesdf <- DT::renderDataTable({
-      isolate(data$samples_data)
+      shiny::isolate(data$samples_data)
    },
       options=list(
-         pageLength=nrow(isolate(data$samples_data)),
-         lengthMenu=nrow(isolate(data$samples_data)),
+         pageLength=nrow(shiny::isolate(data$samples_data)),
+         lengthMenu=nrow(shiny::isolate(data$samples_data)),
          dom='t',
          columnDefs=list(
             list(
-               targets=seq_len(ncol(isolate(data$samples_data))),
+               targets=seq_len(ncol(shiny::isolate(data$samples_data))),
                searchable=FALSE,
                sortable=FALSE))
       ),
       selection=list(
          mode='multiple',
          selected=match(get_sample_id_dt()$sample_id,
-            isolate(data$samples_data)$sample_id)
+            shiny::isolate(data$samples_data)$sample_id)
       )
    );
    # event of clicking the samples_df table
@@ -1171,16 +1171,16 @@ sashimiAppServer <- function
       }
       # calculate new row order
       row_order <- order(
-         seq_along(isolate(data$samples_data)$sample_id) %in% selected_rows,
+         seq_along(shiny::isolate(data$samples_data)$sample_id) %in% selected_rows,
          decreasing=TRUE
       )
-      new_sample_id <- isolate(data$samples_data)$sample_id[selected_rows];
+      new_sample_id <- shiny::isolate(data$samples_data)$sample_id[selected_rows];
       if (verbose > 1) {
          jamba::printDebug("New sample_id values selected:",
             new_sample_id);
       }
       data$sample_id <- new_sample_id;
-      data$samples_data <- isolate(data$samples_data)[row_order,,drop=FALSE];
+      data$samples_data <- shiny::isolate(data$samples_data)[row_order,,drop=FALSE];
       proxy <- DT::dataTableProxy('samplesdf')
       DT::replaceData(proxy, data$samples_data)
       # make sure to select the rows again

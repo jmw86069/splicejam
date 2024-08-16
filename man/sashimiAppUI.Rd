@@ -25,7 +25,6 @@ argument \code{ui}.
 Other splicejam R-shiny functions: 
 \code{\link{launchSashimiApp}()},
 \code{\link{sashimiAppConstants}()},
-\code{\link{sashimiAppServer}()},
 \code{\link{sashimiDataConstants}()}
 }
 \concept{splicejam R-shiny functions}

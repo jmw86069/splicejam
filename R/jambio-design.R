@@ -205,9 +205,9 @@ groups2contrasts <- function
    ## TODO: fix issue when one column contains numeric values instead of
    ## character or factor, e.g. when "Time" contains c(15,45).
    ## One solution is convert to factor, then proceed.
-   if (!suppressPackageStartupMessages(require(limma))) {
-      stop("limma is required for groups2contrasts()).");
-   }
+   # if (!suppressPackageStartupMessages(require(limma))) {
+   #    stop("limma is required for groups2contrasts()).");
+   # }
    sample2group <- NULL;
    #iDesign <- NULL;
 

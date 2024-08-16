@@ -128,7 +128,7 @@ when importing transcriptome data to the gene level.
 
 These steps are run in order:
 \itemize{
-\item \code{limma:voom()} (Optional.) This step is enabled with
+\item \code{limma::voom()} (Optional.) This step is enabled with
 the argument \code{useVoom=TRUE} and should only be used when \code{iMatrixTx}
 contains count or pseudocount data. When using TPM or FPKM values,
 set \code{useVoom=FALSE}.

@@ -27,21 +27,21 @@ grl2df(
 )
 }
 \arguments{
-\item{grl}{GRangesList, or GRanges which will be converted to a
+\item{grl}{\code{GRangesList}, or \code{GRanges} which will be converted to a
 GRangesList of length=1.}
 
-\item{keepGRvalues, keepGRLvalues}{logical indicating whether the
+\item{keepGRvalues, keepGRLvalues}{\code{logical} indicating whether the
 output data.frame should include column values from GRangesList and
 GRanges, if available.}
 
-\item{addGaps}{logical indicating whether to add gap GRanges between
+\item{addGaps}{\code{logical} indicating whether to add gap GRanges between
 same-strand GRanges features within each GRangesList element.
 When \code{TRUE} the gaps will be drawn between each GRanges rectangle.}
 
-\item{width}{numeric value of default width for features when
+\item{width}{\code{numeric} value of default width for features when
 \code{shape="rectangle"}.}
 
-\item{widthV}{numeric vector whose names are column values, using values
+\item{widthV}{\code{numeric} vector whose names are column values, using values
 from the first available colname from \code{width_colname}. Some common
 defaults are provided. Values are suggested to be between 0 and 1,
 since each GRangesList element is separated by 1 y-axis unit.}
@@ -50,38 +50,38 @@ since each GRangesList element is separated by 1 y-axis unit.}
 upon a column value, the first matching colname of \code{width_colname}
 is used.}
 
-\item{shape}{character string indicating whether input data should
+\item{shape}{\code{character} string indicating whether input data should
 be processed as rectangular segments or splice junction arcs.}
 
-\item{scoreColname, scoreArcMinimum, scoreFactor, scoreArcFactor}{numeric
+\item{scoreColname, scoreArcMinimum, scoreFactor, scoreArcFactor}{\code{numeric}
 values used to determine junction ribbon height, the minimum
 height of the arc above the starting y-axis values based upon
 the score, the scaling factor for score values, and the
 relative height of the arc above the starting y-axis values
 multiplied by the score.}
 
-\item{sampleColname}{character string indicating the column
+\item{sampleColname}{\code{character} string indicating the column
 containing biological sample identifier. This column is only
 used when \code{type="junction"}, and when \code{doStackJunctions=TRUE}.
 It is used to ensure the junctions are only stacked within
 each sample. When \code{sampleColname} is not present in
-\code{colnames(values(grl@unlistData))} then all junctions are
+\code{colnames(GenomicRanges::values(grl@unlistData))} then all junctions are
 stacked.}
 
-\item{doStackJunctions}{logical indicating whether to stack junctions
+\item{doStackJunctions}{\code{logical} indicating whether to stack junctions
 at the start and end of junctions sharing the same coordinate,
 in order of shortest to longest junction width.}
 
 \item{ref2c}{optional output from \code{make_ref2compressed()} used to
 compress axis coordinates during junction arc calculations.}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are passsed to relevant downstream
 functions.}
 }
 \value{
-data.frame with \verb{x,y} coordinates, and \code{id} which is used
+\code{data.frame} with \verb{x,y} coordinates, and \code{id} which is used
 to group polygon coordinates when used with \code{ggplot2::geom_polygon()}
 or \code{ggforce::geom_shape()}. When \code{shape="rectangle"} the colnames
 include \code{grl_name} which are names of the input GRangesList

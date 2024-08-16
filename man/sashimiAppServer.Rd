@@ -25,11 +25,4 @@ calls \code{shiny::shinyApp()}, using arguments \code{server}, \code{ui},
 \code{onStart}, and \code{options}. This function fulfills the
 argument \code{server}.
 }
-\seealso{
-Other splicejam R-shiny functions: 
-\code{\link{launchSashimiApp}()},
-\code{\link{sashimiAppConstants}()},
-\code{\link{sashimiAppUI}()},
-\code{\link{sashimiDataConstants}()}
-}
-\concept{splicejam R-shiny functions}
+\concept{splicejam R-shiny functions@import jamba@import dplyr@import ggplot2@import plotly@importFrom plotly subplot@import GenomicRanges}

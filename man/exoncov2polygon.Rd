@@ -19,10 +19,10 @@ exoncov2polygon(
 )
 }
 \arguments{
-\item{gr}{GRanges where \code{colnames(values(gr))} is present in \code{covNames},
+\item{gr}{GRanges where \code{colnames(GenomicRanges::values(gr))} is present in \code{covNames},
 and contains data with class \code{NumericList}.}
 
-\item{covNames}{character vector contained in \code{colnames(values(gr))}.}
+\item{covNames}{character vector contained in \code{colnames(GenomicRanges::values(gr))}.}
 
 \item{baseline}{numeric vector of length 0, 1 or \code{length(gr)}. If
 \code{baseline} has names matching \code{names(gr)} they will be used for
@@ -54,6 +54,19 @@ is intended to reduce the intron coordinates accordingly.}
 \item{verbose}{logical indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
+}
+\value{
+output dependent upon \code{coord_style}:
+\itemize{
+\item \code{"fortify"} returns \code{data.frame} in tall format, sufficient
+to use with \code{ggplot2} functions. Each polygon is separated
+by rows where \verb{x,y} values are \code{NA}.
+\item \code{"list"} returns a \code{list} with \code{numeric} matrix objects.
+\item \code{"base"} returns a \code{list} with \code{numeric} matrix objects,
+each of which contains \code{NA} as the last coordinate, so that
+each \code{matrix} can be \code{rbind()} and used for vectorized plotting.
+\item \code{"all"} returns a \code{list} with all the data formats.
+}
 }
 \description{
 Convert exon coverage to polygons

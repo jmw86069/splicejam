@@ -144,7 +144,8 @@ make_ref2compressed <- function
    newCoordsM[,1] <- newCoordsM[,1] + 1;
 
    lookupCoordDF <- jamba::mixedSortDF(unique(data.frame(
-      refCoord=c(start(disGR),end(disGR)),
+      refCoord=c(GenomicRanges::start(disGR),
+         GenomicRanges::end(disGR)),
       coord=c(newCoordsM[,1],newCoordsM[,2])
    )));
    if (upstream > 0) {
@@ -217,7 +218,7 @@ make_ref2compressed <- function
       }
       if (all(c("refStart","refEnd") %in% colnames(GenomicRanges::values(GR)))) {
          ## Re-compress the original reference coordinates
-         ranges(gr) <- IRanges::IRanges(
+         GenomicRanges::ranges(gr) <- IRanges::IRanges(
             start=GenomicRanges::values(gr)[,"refStart"],
             end=GenomicRanges::values(gr)[,"refEnd"]
          );
@@ -225,9 +226,9 @@ make_ref2compressed <- function
          GenomicRanges::values(gr)[,"refStart"] <- GenomicRanges::start(gr);
          GenomicRanges::values(gr)[,"refEnd"] <- GenomicRanges::end(gr);
       }
-      ranges(gr) <- IRanges::IRanges(
-         start=ref2compressed(start(gr)),
-         end=ref2compressed(end(gr))
+      GenomicRanges::ranges(gr) <- IRanges::IRanges(
+         start=ref2compressed(GenomicRanges::start(gr)),
+         end=ref2compressed(GenomicRanges::end(gr))
       );
       if (length(GRnames) > 0) {
          names(gr) <- GRnames;
@@ -315,9 +316,9 @@ make_ref2compressed <- function
 
    ## Make the actual scale_x_gr_compressed() function
    scale_x_grc <- function(..., trans=trans_grc){
-      scale_x_continuous(name="grc",
-         breaks=waiver(),#trans_grc$breaks,
-         minor_breaks=waiver(),#trans_grc$minor_breaks,
+      ggplot2::scale_x_continuous(name="grc",
+         breaks=ggplot2::waiver(),#trans_grc$breaks,
+         minor_breaks=ggplot2::waiver(),#trans_grc$minor_breaks,
          labels=function(...){scales::comma(...)},#trans_grc$labels,
          trans=trans,
          ...)
@@ -432,9 +433,9 @@ simplifyXY <- function
    xyAngle <- atan2(x=xDiff,
       y=yDiff);
    if (length(restrictDegrees) > 0) {
-      xyAngle <- rad2deg(xyAngle);
+      xyAngle <- jamba::rad2deg(xyAngle);
    }
-   yRle <- Rle(xyAngle);
+   yRle <- S4Vectors::Rle(xyAngle);
 
    if (any(runLength(yRle) >= minN)) {
       rl <- runLength(yRle);
@@ -656,9 +657,9 @@ compressPolygonM <- function
 #' @family jam RNA-seq functions
 #' @family splicejam core functions
 #'
-#' @param gr GRanges where `colnames(values(gr))` is present in `covNames`,
+#' @param gr GRanges where `colnames(GenomicRanges::values(gr))` is present in `covNames`,
 #'    and contains data with class `NumericList`.
-#' @param covNames character vector contained in `colnames(values(gr))`.
+#' @param covNames character vector contained in `colnames(GenomicRanges::values(gr))`.
 #' @param baseline numeric vector of length 0, 1 or `length(gr)`. If
 #'    `baseline` has names matching `names(gr)` they will be used for
 #'    each `gr` entry; if `baseline` is not named, it is extended
@@ -685,6 +686,16 @@ compressPolygonM <- function
 #' @param ... additional arguments are ignored.
 #'
 #' @seealso `test_cov_wide_gr()` for examples
+#'
+#' @returns output dependent upon `coord_style`:
+#'    * `"fortify"` returns `data.frame` in tall format, sufficient
+#'    to use with `ggplot2` functions. Each polygon is separated
+#'    by rows where `x,y` values are `NA`.
+#'    * `"list"` returns a `list` with `numeric` matrix objects.
+#'    * `"base"` returns a `list` with `numeric` matrix objects,
+#'    each of which contains `NA` as the last coordinate, so that
+#'    each `matrix` can be `rbind()` and used for vectorized plotting.
+#'    * `"all"` returns a `list` with all the data formats.
 #'
 #' @examples
 #' # use some test data
@@ -736,7 +747,7 @@ exoncov2polygon <- function
          colnames(GenomicRanges::values(gr)));
    }
    if (length(covNames) == 0) {
-      stop("covNames must be colnames(values(gr)).");
+      stop("covNames must be colnames(GenomicRanges::values(gr)).");
    }
    retVals <- list();
 
@@ -1202,7 +1213,7 @@ getGRcoverageFromBw <- function
 #'
 #' @param gr GRanges object containing coverage data in columns
 #'    containing NumericList class data.
-#' @param covNames character vector of `colnames(values(gr))`
+#' @param covNames character vector of `colnames(GenomicRanges::values(gr))`
 #'    representing columns in `gr` that contain coverage data
 #'    in NumericList format, for example data prepared
 #'    with `getGRcoverageFromBw()`.
@@ -1275,7 +1286,7 @@ combineGRcoverage <- function
       scaleFactors <- scaleFactors[has_coverage];
    }
    #if (length(covName) == 0) {
-   #   stop("combineGRcoverage() found no covNames present in colnames(values(gr)).");
+   #   stop("combineGRcoverage() found no covNames present in colnames(GenomicRanges::values(gr)).");
    #}
    if (length(covName) > 0) {
       if (verbose) {
@@ -1438,7 +1449,7 @@ combineGRcoverage <- function
 #'    junction arcs at each end, this argument is passed to
 #'    `grl2df()` which calls `stackJunctions()`.
 #' @param covGR GRanges object containing coverage data in columns
-#'    stored as NumericList class, where `colnames(values(covGR))`
+#'    stored as NumericList class, where `colnames(GenomicRanges::values(covGR))`
 #'    are present in `filesDF$url` when `files$type %in% "coverage_gr"`.
 #' @param juncGR GRanges object containing splice junctions, where
 #'    `"score"` is used for the abundance of splice junction reads,
@@ -1502,8 +1513,8 @@ prepareSashimi <- function
  junc_label_type=c("repel", "mark", "none"),
  return_data=c("df", "ref2c"),
  include_strand=c("both", "+", "-"),
- junc_color=alpha2col("goldenrod3", 0.7),
- junc_fill=alpha2col("goldenrod1", 0.4),
+ junc_color=jamba::alpha2col("goldenrod3", 0.7),
+ junc_fill=jamba::alpha2col("goldenrod1", 0.4),
  doStackJunctions=TRUE,
  coord_method=c("coord", "scale", "none"),
  scoreFactor=1,
@@ -1595,7 +1606,7 @@ prepareSashimi <- function
    if (!"scale_factor" %in% colnames(bwFilesDF)) {
       bwFilesDF$scale_factor <- rep(1, nrow(bwFilesDF));
    }
-   bwScaleFactors <- rmNA(naValue=1,
+   bwScaleFactors <- jamba::rmNA(naValue=1,
       bwFilesDF$scale_factor);
    names(bwScaleFactors) <- names(bwUrls);
    if (length(bwScaleFactors) > 0) {
@@ -1647,7 +1658,7 @@ prepareSashimi <- function
          covSamples <- jamba::nameVector(covfilesDF[,c("sample_id","url")]);
          covGRuse <- covGRuse[,covUrls];
          if ("scale_factor" %in% colnames(covfilesDF)) {
-            covScaleFactors <- rmNA(naValue=1,
+            covScaleFactors <- jamba::rmNA(naValue=1,
                covfilesDF$scale_factor);
          } else {
             covScaleFactors <- rep(1, length(covUrls));
@@ -1703,7 +1714,7 @@ prepareSashimi <- function
             strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
          exonLabelDF1$gr <- factor(exonLabelDF1$gr,
             levels=unique(exonLabelDF1$gr));
-         exonLabelDF <- renameColumn(exonLabelDF1,
+         exonLabelDF <- jamba::renameColumn(exonLabelDF1,
             from="groupBy",
             to="gr_sample");
          if (any(c("all", "covDF") %in% return_data)) {
@@ -1817,7 +1828,7 @@ prepareSashimi <- function
          strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
       exonLabelDF1$gr <- factor(exonLabelDF1$gr,
          levels=unique(exonLabelDF1$gr));
-      exonLabelDF <- renameColumn(exonLabelDF1,
+      exonLabelDF <- jamba::renameColumn(exonLabelDF1,
          from="groupBy",
          to="gr_sample");
       if (any(c("all", "covDF") %in% return_data)) {
@@ -1832,7 +1843,7 @@ prepareSashimi <- function
    ## Pre-existing junctions supplied as GRanges
    if (length(juncGR) > 0) {
       if (!"sample_id" %in% colnames(GenomicRanges::values(juncGR))) {
-         stop("juncGR must have 'sample_id' in colnames(values(juncGR)).");
+         stop("juncGR must have 'sample_id' in colnames(GenomicRanges::values(juncGR)).");
       }
       if (verbose) {
          jamba::printDebug("prepareSashimi(): ",
@@ -1843,7 +1854,7 @@ prepareSashimi <- function
          shiny::incProgress(3/4,
             detail=paste0("Preparing GR junction data for ", gene));
       }
-      juncGRuse <- juncGR[values(juncGR)[["sample_id"]] %in% sample_id];
+      juncGRuse <- juncGR[GenomicRanges::values(juncGR)[["sample_id"]] %in% sample_id];
       if (length(juncGRuse) == 0) {
          warning("Supplied junctions juncGR did not have names matching sample_id");
       } else {
@@ -1886,7 +1897,7 @@ prepareSashimi <- function
    if (!"scale_factor" %in% colnames(juncFilesDF)) {
       juncFilesDF$scale_factor <- rep(1, nrow(juncFilesDF));
    }
-   juncScaleFactors <- rmNA(naValue=1,
+   juncScaleFactors <- jamba::rmNA(naValue=1,
       jamba::nameVector(juncFilesDF[,c("scale_factor", "sample_id")]));
    if (verbose && length(juncScaleFactors) > 0) {
       jamba::printDebug("prepareSashimi(): ",
@@ -1974,7 +1985,7 @@ prepareSashimi <- function
          }
          ## Apply scale_factor
          if (length(bed1) > 0) {
-            values(bed1)$score <- values(bed1)$score * juncScaleFactors[iBedName];
+            GenomicRanges::values(bed1)$score <- GenomicRanges::values(bed1)$score * juncScaleFactors[iBedName];
          }
          bed1;
       });
@@ -1982,7 +1993,7 @@ prepareSashimi <- function
       if (length(juncBedList) == 0) {
          juncDF1 <- NULL;
       } else {
-         juncBedGR <- GRangesList(juncBedList)@unlistData;
+         juncBedGR <- GenomicRanges::GRangesList(juncBedList)@unlistData;
          # 23jan2022 bug with duplicate unlistData names in rare edge cases
          # causes problem when coercing with as.data.frame()
          names(juncBedGR) <- jamba::makeNames(names(juncBedGR));
@@ -2032,7 +2043,7 @@ prepareSashimi <- function
          length(juncDF1) > 0 &&
          length(dim(juncDF1)) > 1) {
       juncGR <- as(
-         renameColumn(juncDF1,
+         jamba::renameColumn(juncDF1,
             from="ref",
             to="seqnames"),
          "GRanges");
@@ -2063,7 +2074,7 @@ prepareSashimi <- function
          verbose=verbose,
          ...);
       if (!"sample_id" %in% colnames(juncDF)) {
-         juncDF <- renameColumn(juncDF,
+         juncDF <- jamba::renameColumn(juncDF,
             from="grl_name",
             to="sample_id");
       }
@@ -2097,13 +2108,13 @@ prepareSashimi <- function
       shrink_colnames <- intersect(c("x","y","score","junction_rank"),
          colnames(juncLabelDF1));
       ## Define junction placement at max position, in stranded fashion
-      juncLabelDF_y <- renameColumn(
+      juncLabelDF_y <- jamba::renameColumn(
          shrinkMatrix(juncLabelDF1[,"y",drop=FALSE],
             shrinkFunc=function(x){max(abs(x))*sign(max(x))},
             groupBy=juncLabelDF1[,"nameFromToSample"]),
          from="groupBy",
          to="nameFromToSample");
-      juncLabelDF <- renameColumn(
+      juncLabelDF <- jamba::renameColumn(
          shrinkMatrix(juncLabelDF1[,shrink_colnames,drop=FALSE],
             groupBy=juncLabelDF1[,"nameFromToSample"]),
          from="groupBy",
@@ -2289,7 +2300,7 @@ internal_junc_score <- function
          "scoreColname:",
          scoreColname);
    }
-   if (!scoreColname %in% colnames(values(juncGR))) {
+   if (!scoreColname %in% colnames(GenomicRanges::values(juncGR))) {
       if (length(minScore) > 0) {
          if (verbose) {
             jamba::printDebug("internal_junc_score(): ",
@@ -2298,7 +2309,7 @@ internal_junc_score <- function
                "' with minScore=",
                minScore);
          }
-         values(juncGR)[[scoreColname]] <- rep(minScore,
+         GenomicRanges::values(juncGR)[[scoreColname]] <- rep(minScore,
             length.out=length(juncGR));
       } else {
          stop(paste0("The score column ",
@@ -2307,9 +2318,11 @@ internal_junc_score <- function
       }
    }
    if (length(minScore) > 0) {
-      if (any(abs(values(juncGR)[[scoreColname]]) < abs(minScore))) {
-         values(juncGR)[[scoreColname]] <- jamba::noiseFloor(abs(values(juncGR)[[scoreColname]]),
-            minimum=abs(minScore)) * sign(values(juncGR)[[scoreColname]] + 1e-99);
+      if (any(abs(GenomicRanges::values(juncGR)[[scoreColname]]) < abs(minScore))) {
+         GenomicRanges::values(juncGR)[[scoreColname]] <- jamba::noiseFloor(
+            abs(GenomicRanges::values(juncGR)[[scoreColname]]),
+            minimum=abs(minScore)) *
+            sign(GenomicRanges::values(juncGR)[[scoreColname]] + 1e-99);
          if (verbose) {
             jamba::printDebug("internal_junc_score(): ",
                "Applied minScore:",
@@ -2322,16 +2335,17 @@ internal_junc_score <- function
          !sampleColname %in% colnames(GenomicRanges::values(juncGR))) {
       stop(paste0("The sampleColname '",
          sampleColname,
-         "' is not present in colnames(values(juncGR))."));
+         "' is not present in colnames(GenomicRanges::values(juncGR))."));
    }
    juncEndsGR <- c(
-      flank(juncGR[,c(scoreColname,sampleColname)],
+      GenomicRanges::flank(juncGR[,c(scoreColname,sampleColname)],
          start=TRUE,
          width=1),
-      flank(juncGR[,c(scoreColname,sampleColname)],
+      GenomicRanges::flank(juncGR[,c(scoreColname,sampleColname)],
          start=FALSE,
          width=1));
-   GenomicRanges::values(juncEndsGR)$side <- rep(c("start", "end"), each=length(juncGR));
+   GenomicRanges::values(juncEndsGR)$side <- rep(c("start", "end"),
+      each=length(juncGR));
    GenomicRanges::values(juncEndsGR)$id <- rep(seq_along(juncGR), 2);
    juncEndsDF <- as.data.frame(unname(juncEndsGR));
    juncGroupColnames <- intersect(
@@ -2384,7 +2398,7 @@ internal_junc_score <- function
             rep(0, length(juncGR)),
             names(juncGR));
       } else {
-         intScore <- rmNA(naValue=0,
+         intScore <- jamba::rmNA(naValue=0,
             max(
                S4Vectors::List(
                   split(fo1dfuse$sScore, fo1dfuse$q)

@@ -123,7 +123,6 @@ and to help speed the re-use of data within the R-shiny app:
 Other splicejam R-shiny functions: 
 \code{\link{launchSashimiApp}()},
 \code{\link{sashimiAppConstants}()},
-\code{\link{sashimiAppServer}()},
 \code{\link{sashimiAppUI}()}
 }
 \concept{splicejam R-shiny functions}

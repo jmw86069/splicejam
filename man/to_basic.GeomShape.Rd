@@ -7,9 +7,17 @@
 \method{to_basic}{GeomShape}(data, prestats_data, layout, params, p, ...)
 }
 \arguments{
-\item{data, prestats_data, layout, params, p, ...}{arguments provided
-by plotly during rendering, after stats have been applied.
-Currently only \code{data} is passed to \code{ggplot2::GeomPolygon}.}
+\item{data}{the data returned by \code{ggplot2::ggplot_build()}.}
+
+\item{prestats_data}{the data before statistics are computed.}
+
+\item{layout}{the panel layout.}
+
+\item{params}{parameters for the geom, statistic, and 'constant' aesthetics}
+
+\item{p}{a ggplot2 object (the conversion may depend on scales, for instance).}
+
+\item{...}{currently ignored}
 }
 \description{
 Support plotly for GeomShape
@@ -27,6 +35,8 @@ the \code{ggforce} package to assist plotly support.
 This function is exported, since otherwise it caused problems
 when invoking \code{plotly::ggplotly()} and this function was not
 consistently used in that process for some reason.
+
+Currently only \code{data} is passed to \code{ggplot2::GeomPolygon}.
 }
 \seealso{
 Other jam ggplot2 functions: 

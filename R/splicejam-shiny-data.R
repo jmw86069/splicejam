@@ -347,7 +347,7 @@ sashimiDataConstants <- function
          if (!"feature_type" %in% names(GenomicRanges::values(envir$cdsByTx@unlistData))) {
             GenomicRanges::values(envir$cdsByTx@unlistData)$feature_type <- "exon";
          }
-         if (!"subclass" %in% names(values(envir$cdsByTx@unlistData))) {
+         if (!"subclass" %in% names(GenomicRanges::values(envir$cdsByTx@unlistData))) {
             GenomicRanges::values(envir$cdsByTx@unlistData)$subclass <- "exon";
          }
       }

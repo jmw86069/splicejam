@@ -20,7 +20,7 @@ stackJunctions(
 \arguments{
 \item{gr}{GRanges object representing splice junctions.}
 
-\item{scoreColname}{character string matching one of \code{colnames(values(gr))}
+\item{scoreColname}{character string matching one of \code{colnames(GenomicRanges::values(gr))}
 that contains a numeric value representing the abundance of
 each splice junction observed.}
 
@@ -39,7 +39,7 @@ junctions at the start and end positions. By default \code{"nameFrom"}
 and \code{"nameTo"} are used, as output from \code{closestExonToJunctions()},
 which has the benefit of grouping junctions within the
 \code{spliceBuffer} distance from exon boundaries. If those values
-are not present \code{colnames(values(gr))} then the new
+are not present \code{colnames(GenomicRanges::values(gr))} then the new
 default \code{c("seqnames", "start", "strand")} is used for
 \code{matchFrom}, and \code{c("seqnames", "end", "strand")} is used
 for \code{matchTo}. That said, if \code{matchFrom} or \code{matchTo} are supplied,
@@ -116,7 +116,7 @@ names(grJunc) <- jamba::makeNames(rep("junc", length(grJunc)));
 
 # quick plot showing exons and junctions using rectangles
 grl <- c(
-   GRangesList(exons=grExons),
+   GenomicRanges::GRangesList(exons=grExons),
    split(grJunc, names(grJunc))
    );
 ggplot(grl2df(grl), aes(x=x, y=y, group=id, fill=feature_type)) +
@@ -163,7 +163,7 @@ ggplot(grlJunc2df2, aes(x=x, y=y, group=gr_name)) +
 grJunc_samples <- c(grJunc, grJunc);
 values(grJunc_samples)[,"sample_id"] <- rep(c("SampleA","SampleB"),
    each=length(grJunc));
-names(grJunc_samples) <- jamba::makeNames(values(grJunc_samples)[,"sample_id"]);
+names(grJunc_samples) <- jamba::makeNames(GenomicRanges::values(grJunc_samples)[,"sample_id"]);
 grlJunc2df_samples <- grl2df(grJunc_samples,
    scoreArcMinimum=20,
    shape="junction");

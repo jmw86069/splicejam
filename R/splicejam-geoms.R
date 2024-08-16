@@ -1,6 +1,6 @@
 #' splicejam extensions to ggforce
 #'
-#' ggforce makes heavy use of the ggproto class system to extend the
+#' ggforce makes heavy use of the `ggproto` class system to extend the
 #' functionality of ggplot2. In general the actual classes should be of little
 #' interest to users as the standard ggplot2 api of using geom_* and stat_*
 #' functions for building up the plot is encouraged.
@@ -74,14 +74,14 @@ NULL
 #' @family jam ggplot2 functions
 #'
 #' @export
-StatDiagonalWideArc <- ggproto('StatDiagonalWideArc', Stat,
-   setup_data = function(data, params) {
+StatDiagonalWideArc <- ggplot2::ggproto('StatDiagonalWideArc', ggplot2::Stat,
+   setup_data=function(data, params) {
       if (any(!table(data$group) %in% c(8))) {
          stop('Each group must consist of 8 points')
       }
       data
    },
-   compute_panel = function
+   compute_panel=function
    (data,
     scales,
     strength=0.5,
@@ -110,8 +110,10 @@ StatDiagonalWideArc <- ggproto('StatDiagonalWideArc', Stat,
          strength)
       lower <- ggforce::StatBezier$compute_panel(lower, scales, n)
       upper <- ggforce::StatBezier$compute_panel(upper, scales, n)
-      lower$group <- as.integer(gsub("_v[12]$", "", levels(new_group)[lower$group]));
-      upper$group <- as.integer(gsub("_v[12]$", "", levels(new_group)[upper$group]));
+      lower$group <- as.integer(gsub("_v[12]$", "",
+         levels(new_group)[lower$group]));
+      upper$group <- as.integer(gsub("_v[12]$", "",
+         levels(new_group)[upper$group]));
       lower <- lower[order(lower$group, lower$x),];
       upper <- upper[order(upper$group, -upper$x),];
       diagonals <- rbind(lower, upper);
@@ -139,7 +141,7 @@ stat_diagonal_wide_arc <- function
  inherit.aes=TRUE,
  ...)
 {
-   layer(
+   ggplot2::layer(
       stat = StatDiagonalWideArc,
       data = data,
       mapping = mapping,
@@ -172,12 +174,12 @@ geom_diagonal_wide_arc <- function
  inherit.aes = TRUE,
  ...)
 {
-   layer(
+   ggplot2::layer(
       data = data,
       mapping = mapping,
       stat = stat,
       #geom = ggforce::GeomShape,
-      geom = GeomPolygon,
+      geom = ggplot2::GeomPolygon,
       position = position,
       show.legend = show.legend,
       inherit.aes = inherit.aes,

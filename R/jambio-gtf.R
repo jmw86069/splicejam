@@ -36,7 +36,7 @@ readGtf <- function
          GTF);
    }
    if (jamba::igrepHas("[.]gz$", GTF) &&
-         !suppressPackageStartupMessages(require(R.utils))) {
+         !jamba::check_pkg_installed("R.utils")) {
       if (verbose) {
          jamba::printDebug("readGtf(): ",
             "using commandline call to ",
@@ -105,12 +105,12 @@ describeGtfAttrNames <- function
             rep(seq_along(iattrs), lengths(iattrs)))
       }
       ilist <- lapply(iattrs, function(iattr){
-         nameVector(jamba::rbindList(head(strsplit(iattr, "!!"), 20))[,2:1,drop=FALSE])
+         jamba::nameVector(jamba::rbindList(head(strsplit(iattr, "!!"), 20))[,2:1,drop=FALSE])
       })
       inames <- unique(unlist(lapply(ilist, names)))
       jdf <- data.frame(check.names=FALSE,
          jamba::rbindList(lapply(ilist, function(ivector){
-            nameVector(ivector[inames], inames)
+            jamba::nameVector(ivector[inames], inames)
          })))
       # as.data.frame(lapply(jamba::nameVectorN(jdf), function(icol){
       #    head(c(setdiff(jdf[[icol]], c(NA, "N/A", "NA")), rep(NA, 3)), 3)

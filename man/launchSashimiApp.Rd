@@ -124,7 +124,6 @@ include the variables defined in that environment.
 \seealso{
 Other splicejam R-shiny functions: 
 \code{\link{sashimiAppConstants}()},
-\code{\link{sashimiAppServer}()},
 \code{\link{sashimiAppUI}()},
 \code{\link{sashimiDataConstants}()}
 }

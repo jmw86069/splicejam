@@ -200,7 +200,6 @@ R-shiny UI. The content is displayed in the tab
 \seealso{
 Other splicejam R-shiny functions: 
 \code{\link{launchSashimiApp}()},
-\code{\link{sashimiAppServer}()},
 \code{\link{sashimiAppUI}()},
 \code{\link{sashimiDataConstants}()}
 }

@@ -1,4 +1,8 @@
 
+# @import shiny
+# @import shinydashboard
+# @import htmltools
+
 #' Sashimi Shiny app constants
 #'
 #' Sashimi Shiny app constants
@@ -117,9 +121,6 @@
 #'    `sashimiDataConstants()`. Note that if `envir` is supplied,
 #'    the data will be updated inside that environment.
 #'
-#' @import shiny
-#' @import shinydashboard
-#' @import htmltools
 #'
 #' @param ... additional arguments are passed to `sashimiDataConstants()`
 #' @param filesDF `data.frame` that contains at least these colnames:
@@ -286,7 +287,7 @@ sashimiAppConstants <- function
                " text.");
          }
          envir$aboutExtra <- htmltools::tags$p("Data is provided by the ",
-            strong("farrisdata"),
+            htmltools::strong("farrisdata"),
             " package, which provides mouse hippocampal subregion-
             and compartment-specific RNA-seq data described in
             Farris et al 2019. Each 'sample_id' represents the
@@ -326,90 +327,90 @@ sashimiAppConstants <- function
 
    # guides
    # define guides tab
-   envir$guidesTab <- fluidPage(
-      tags$style(type="text/css", "a{color:steelblue; font-weight:bold}"),
-      sidebarLayout(
-         mainPanel(
+   envir$guidesTab <- shiny::fluidPage(
+      htmltools::tags$style(type="text/css", "a{color:steelblue; font-weight:bold}"),
+      shiny::sidebarLayout(
+         shiny::mainPanel(
             width=7,
-            tabBox(
+            shinydashboard::tabBox(
                width=12,
-               tabPanel(
+               shiny::tabPanel(
                   title="About Sashimi Plots",
-                  uiOutput("sashimiplot_guide")
+                  shiny::uiOutput("sashimiplot_guide")
                ),
-               tabPanel(
+               shiny::tabPanel(
                   title="Creating a Sashimi Plot",
-                  uiOutput("sashimiplotviz_guide")
+                  shiny::uiOutput("sashimiplotviz_guide")
                )
             )
          ),
-         sidebarPanel(
+         shiny::sidebarPanel(
             width=5,
             "Sashimi viewer visualized sequence coverage
             data alongside splice junction-spanning sequence reads,
             using compressed intron genomic coordinates.",
-            tags$ul(
-               tags$li(
-                  strong(style="color:firebrick",
+            htmltools::tags$ul(
+               htmltools::tags$li(
+                  htmltools::strong(style="color:firebrick",
                      "The methods were developed in support of this publication"),
-                  br(),
-                  a("S. Farris, J. M. Ward, K.E. Carstens, M. Samadi, Y. Wang and S. M. Dudek. ",
+                  htmltools::br(),
+                  htmltools::a("S. Farris, J. M. Ward, K.E. Carstens, M. Samadi, Y. Wang and S. M. Dudek. ",
                      "Cell Reports 2019. ",
-                     em("Hippocampal subregions express distinct dendritic transcriptomes that reveal unexpected differences in mitochondrial function in CA2."),
+                     htmltools::em("Hippocampal subregions express distinct dendritic transcriptomes that reveal unexpected differences in mitochondrial function in CA2."),
                      href="https://github.com/jmw86069/jampack")
                ),
-               tags$li(
-                  strong(style="color:firebrick",
+               htmltools::tags$li(
+                  htmltools::strong(style="color:firebrick",
                      "Sashimi plots were originally envisioned by MISO:"),
-                  br(),
-                  a("Katz, Y, Wang ET, Silterra J, Schwartz S, Wong B, Thorvaldsdóttir H, Robinson JT, Mesirov JP, Airoldi EM, Burge, CB.:",
-                     em("Sashimi plots: Quantitative visualization of alternative isoform expression from RNA-seq data."),
+                  htmltools::br(),
+                  htmltools::a("Katz, Y, Wang ET, Silterra J, Schwartz S, Wong B, Thorvaldsdóttir H, Robinson JT, Mesirov JP, Airoldi EM, Burge, CB.:",
+                     htmltools::em("Sashimi plots: Quantitative visualization of alternative isoform expression from RNA-seq data."),
                      href="http://biorxiv.org/content/early/2014/02/11/002576")
                )
             ),
-            tags$p("Relevant R version info:"),
-            tags$ul(
-               tags$li(
-                  strong(style="color:black", R.version.string)
+            htmltools::tags$p("Relevant R version info:"),
+            htmltools::tags$ul(
+               htmltools::tags$li(
+                  htmltools::strong(style="color:black", R.version.string)
                ),
-               tags$li(
-                  strong(style="color:black", "jampack:"),
+               htmltools::tags$li(
+                  htmltools::strong(style="color:black", "jampack:"),
                   as.character(packageVersion("jampack"))
                ),
-               tags$li(
-                  strong(style="color:black", "splicejam:"),
+               htmltools::tags$li(
+                  htmltools::strong(style="color:black", "splicejam:"),
                   as.character(packageVersion("splicejam"))
                ),
-               tags$li(
-                  strong(style="color:black", "jamba:"),
+               htmltools::tags$li(
+                  htmltools::strong(style="color:black", "jamba:"),
                   as.character(packageVersion("jamba"))
                ),
-               tags$li(
-                  strong(style="color:black", "colorjam:"),
+               htmltools::tags$li(
+                  htmltools::strong(style="color:black", "colorjam:"),
                   as.character(packageVersion("colorjam"))
                ),
-               if(suppressPackageStartupMessages(require(farrisdata))) {
-                  tags$li(
-                     strong(style="color:black", "farrisdata:"),
+               if (jamba::check_pkg_installed("farrisdata")) {
+                  htmltools::tags$li(
+                     htmltools::strong(style="color:black", "farrisdata:"),
                      as.character(packageVersion("farrisdata"))
                   )
                } else {
-                  tags$li(
-                     strong(style="color:black", "farrisdata:"),
+                  htmltools::tags$li(
+                     htmltools::strong(style="color:black", "farrisdata:"),
                      as.character("not installed")
                   )
                },
-               tags$li(
-                  strong(style="color:black", "ggplot2:"),
+               htmltools::tags$li(
+                  htmltools::strong(style="color:black", "ggplot2:"),
                   as.character(packageVersion("ggplot2"))
                ),
-               tags$li(
-                  strong(style="color:black", "plotly:"),
+               htmltools::tags$li(
+                  htmltools::strong(style="color:black", "plotly:"),
                   as.character(packageVersion("plotly"))
                )
             ),
-            fluidRow(
-               column(
+            shiny::fluidRow(
+               shiny::column(
                   width=12,
                   style="padding:0px",
                   shinydashboardPlus::box(
@@ -428,33 +429,33 @@ sashimiAppConstants <- function
    );
 
    # sashimiplot_guide
-   envir$sashimiplot_guide <- fluidPage(
-      h1("About Sashimi Plots",
+   envir$sashimiplot_guide <- shiny::fluidPage(
+      htmltools::h1("About Sashimi Plots",
          style="color:firebrick"),
       shinydashboard::box(
          width=12,
          status="primary",
          style="background-color:aliceblue",
          aboutExtra,
-         tags$h3("The Sashimi Plot Tab"),
-         tags$p(
+         htmltools::tags$h3("The Sashimi Plot Tab"),
+         htmltools::tags$p(
             "The Sashimi Plot tab",
             " provides a visualization of
             gene transcript data from one or more biological samples,
             specific for RNA-seq (RNA sequencing of gene transcripts.)
             It combines several types of data important for insightful
             interpretation of the raw results:"),
-         tags$ul(
-            tags$li(
-               strong("Sequence coverage", style="color:navy"),
+         htmltools::tags$ul(
+            htmltools::tags$li(
+               htmltools::strong("Sequence coverage", style="color:navy"),
                " - a visual indication of the number of sequencing
                reads that overlap each position along the genome.
                Coverage data is presented as filled polygon, where
                the y-axis score is proportional to the number of
                normalized RNA-seq reads aligned."
             ),
-            tags$li(
-               strong("Splice junction reads", style="color:navy"),
+            htmltools::tags$li(
+               htmltools::strong("Splice junction reads", style="color:navy"),
                " - sequence reads that have a special gapped alignment
                across two separate genome locations, often defined during
                alignment to transcript (exon) sequences. Junctions are
@@ -462,10 +463,10 @@ sashimiAppConstants <- function
                arc is proportional to the number of normalized RNA-seq
                reads support the gapped alignment across this junction."
             ),
-            tags$li(
-               strong("Gene-transcript-exon model", style="color:navy"),
-               tags$ul(
-                  tags$li(
+            htmltools::tags$li(
+               htmltools::strong("Gene-transcript-exon model", style="color:navy"),
+               htmltools::tags$ul(
+                  htmltools::tags$li(
                      "The gene-exon model is defined for each gene locus, and is
                      visualized as a series of rectangles joined by thin lines,
                      where each rectangle is an 'exon' and each thin line is
@@ -475,7 +476,7 @@ sashimiAppConstants <- function
                      sub-section of an exon is given a letter suffix, for example:
                      exon1a, exon1b, exon2, exon3, exon4a, exon4b."
                   ),
-                  tags$li(
+                  htmltools::tags$li(
                      "The transcript-exon models are defined for each
                      transcript isoform annotated to the gene locus. A
                      subset are annotated 'detected' in order to hide
@@ -484,8 +485,8 @@ sashimiAppConstants <- function
                   )
                )
             ),
-            tags$li(
-               strong("Compressed intron coordinates", style="color:navy"),
+            htmltools::tags$li(
+               htmltools::strong("Compressed intron coordinates", style="color:navy"),
                " - the intron regions are visually compressed along the x-axis,
                because the purpose of this Sashimi plot is to visualize
                gene transcript data relative to transcript-scale features,
@@ -497,36 +498,36 @@ sashimiAppConstants <- function
       )
    );
 
-   envir$sashimiplotviz_guide <- fluidPage(
-      h1("Creating a Sashimi Plot",
+   envir$sashimiplotviz_guide <- shiny::fluidPage(
+      htmltools::h1("Creating a Sashimi Plot",
          style="color:firebrick"),
       shinydashboard::box(
          width=12,
          status="primary",
          style="background-color:aliceblue",
-         tags$p("The typical workflow for viewing a Sashimi plot is described
+         htmltools::tags$p("The typical workflow for viewing a Sashimi plot is described
             below:"),
-         tags$h3("Select the Sashimi Plot tab"),
-         tags$ul(
-            tags$li(
-               strong("Select a gene", style="color:navy"),
+         htmltools::tags$h3("Select the Sashimi Plot tab"),
+         htmltools::tags$ul(
+            htmltools::tags$li(
+               htmltools::strong("Select a gene", style="color:navy"),
                "- all detected genes are searchable",
-               tags$ul(
-                  tags$li(
-                     strong("Slider bar measurement"),
+               htmltools::tags$ul(
+                  htmltools::tags$li(
+                     htmltools::strong("Slider bar measurement"),
                      " - optionally define a smaller region for the x-axis range,
                      where 'coordinates' uses genome coordianates, and
                      'exon names' uses fixed gene-exon boundaries."
                   ),
-                  tags$li(
-                     strong("Show coverage by strand"),
+                  htmltools::tags$li(
+                     htmltools::strong("Show coverage by strand"),
                      " - optionally restrict the display of RNA-seq coverage
                      to a specific DNA strand, (+) refers to the top strand
                      for genes transcribed left-to-right, and (-) refers to
                      the bottom strand for genes transcribed right-to-left."
                   ),
-                  tags$li(
-                     strong("Minimum junction reads"),
+                  htmltools::tags$li(
+                     htmltools::strong("Minimum junction reads"),
                      " - optionally define a minimum threshold for junction
                      reads. This option is helpful to reduce the display of
                      spurious junctions that have very few supporting RNA-seq
@@ -534,10 +535,10 @@ sashimiAppConstants <- function
                   )
                )
             ),
-            tags$li(
-               strong("Click 'Update Sashimi Plots'", style="color:navy"),
-               tags$ul(
-                  tags$li(
+            htmltools::tags$li(
+               htmltools::strong("Click 'Update Sashimi Plots'", style="color:navy"),
+               htmltools::tags$ul(
+                  htmltools::tags$li(
                      " - when this button is enabled, clicking will begin
                      downloading and processing a new Sashimi plot. Data is
                      cached as it is produced, so the R-shiny app should
@@ -545,35 +546,37 @@ sashimiAppConstants <- function
                   )
                )
             ),
-            tags$li(strong("Click the icon '", style="color:navy"),
-               icon("info"),
-               strong("' for more visual options", style="color:navy"),
-               tags$ul(
-                  tags$li(
-                     strong("Height per panel"),
+            htmltools::tags$li(
+               htmltools::strong("Click the icon '",
+                  style="color:navy"),
+               shiny::icon("info"),
+               htmltools::strong("' for more visual options", style="color:navy"),
+               htmltools::tags$ul(
+                  htmltools::tags$li(
+                     htmltools::strong("Height per panel"),
                      " - define the pixel height of each Sashimi plot panel,
                      with one panel per biological sample."
                   ),
-                  tags$li(
-                     strong("Font sizing"),
+                  htmltools::tags$li(
+                     htmltools::strong("Font sizing"),
                      " - optionally scale up or down the overall font size"
                   ),
-                  tags$li(
-                     strong("Interactive plot"),
+                  htmltools::tags$li(
+                     htmltools::strong("Interactive plot"),
                      " - when checked, render using plotly with interactive
                      features. This feature is under active development to
                      enable as many useful features as possible. Uncheck
                      to view a static plot as created using ggplot."
                   ),
-                  tags$li(
-                     strong("Show gene-exon model"),
+                  htmltools::tags$li(
+                     htmltools::strong("Show gene-exon model"),
                      " - when checked, the flattened gene-exon model is
                      displayed below the Sashimi panels. When using
                      interactive plotting, and one column of panels, the
                      x-axis range can be zoomed by clicking and dragging."
                   ),
-                  tags$li(
-                     strong("Show transcript-exon model"),
+                  htmltools::tags$li(
+                     htmltools::strong("Show transcript-exon model"),
                      " - when checked, the transcript-exon model is
                      displayed below the Sashimi panels, including all
                      transcripts, or a subset of 'detected' transcripts.
@@ -581,8 +584,8 @@ sashimiAppConstants <- function
                      interpreting which transcript isoform may be
                      differentially regulated across biological samples."
                   ),
-                  tags$li(
-                     strong("Shared y-axis range"),
+                  htmltools::tags$li(
+                     htmltools::strong("Shared y-axis range"),
                      " - when checked, all Sashimi panels share the same
                      y-axis range, which helps visualize differences in
                      absolute gene expression levels. When unchecked, each
@@ -595,21 +598,23 @@ sashimiAppConstants <- function
       )
    );
 
-   envir$dataresources_guide <- fluidPage(
-      h1("Data Resources",
+   envir$dataresources_guide <- shiny::fluidPage(
+      htmltools::h1("Data Resources",
          style="color:firebrick"),
       shinydashboard::box(
          width=12,
          status="primary",
          style="background-color:aliceblue",
-         tags$ul(
-            tags$li(strong("List of data resources", style="color:dimgrey"),
+         htmltools::tags$ul(
+            htmltools::tags$li(
+               htmltools::strong("List of data resources",
+                  style="color:dimgrey"),
                " go here.")
          )
       )
    );
-   envir$nbsp <- HTML("&nbsp;");
-   envir$nbsp3 <- HTML("&nbsp;&nbsp;&nbsp;");
+   envir$nbsp <- htmltools::HTML("&nbsp;");
+   envir$nbsp3 <- htmltools::HTML("&nbsp;&nbsp;&nbsp;");
 
    return(invisible(envir))
 }

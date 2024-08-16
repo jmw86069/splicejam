@@ -1,10 +1,19 @@
 # TODO for splicejam
 
+## 16aug2024
+
+* Update `pkgdown` package documentation. Latest version of R used for
+testing is 4.2.3, although it should be equivalent for R-4.4.0.
+* Minimize R package dependencies?
+
+   * `plyr` is not called, and is implied by `dplyr` already.
+
+
 ## 17apr2024
 
-* Stop fully importing jamba, ggplot2
+* DONE. Stop fully importing jamba, ggplot2
 
-   * Use proper package prefixing `ggplot2::ggplot()` to avoid needing
+   * DONE. Use proper package prefixing `ggplot2::ggplot()` to avoid needing
    to import the full package and all functions.
 
 * DONE. General request for more flexible splice count label positions.

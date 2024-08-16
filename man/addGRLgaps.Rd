@@ -44,7 +44,7 @@ prior to adding gaps.}
 indicating the type and colname to populate in \code{values(grl@unlistData)}
 prior to adding gaps. When \code{feature_type_colname} is NULL,
 no action is taken. When \code{feature_type_colname} does not
-exist in \code{colnames(values(grl@unlistData))}, it is created
+exist in \code{colnames(GenomicRanges::values(grl@unlistData))}, it is created
 with values in \code{default_feature_type}. Also any colname
 defined by \code{newValues} that does not already exist is also
 created and populated with \code{default_feature_type}.}

@@ -1,3 +1,7 @@
+# import shiny
+# import shinydashboard
+# import shinydashboardPlus
+# import shinyWidgets
 
 #' Sashimi Shiny app UI
 #'
@@ -13,10 +17,6 @@
 #'
 #' @family splicejam R-shiny functions
 #'
-#' @import shiny
-#' @import shinydashboard
-#' @import shinydashboardPlus
-#' @import shinyWidgets
 #'
 #' @param ... additional arguments are ignored.
 #'
@@ -30,8 +30,8 @@ sashimiAppUI <- function
          shiny::icon("map"))
    );
    options("warn"=-1);
-   nbsp <- HTML("&nbsp;");
-   nbsp3 <- HTML("&nbsp;&nbsp;&nbsp;");
+   nbsp <- htmltools::HTML("&nbsp;");
+   nbsp3 <- htmltools::HTML("&nbsp;&nbsp;&nbsp;");
 
    jam_get <- function
    (name, default, envir, verbose=FALSE, ...)
@@ -276,7 +276,7 @@ sashimiAppUI <- function
                ),
                shiny::conditionalPanel(
                   condition="input.use_exon_names == 'coordinates'",
-                  tags$strong(shiny::textOutput("gene_coords_label",
+                  htmltools::tags$strong(shiny::textOutput("gene_coords_label",
                      inline=FALSE)),
                   shiny::sliderInput(
                      "gene_coords",
@@ -289,7 +289,7 @@ sashimiAppUI <- function
                      round=TRUE
                   )
                ),
-               actionButton(
+               shiny::actionButton(
                   inputId="calc_gene_params",
                   label="Update Sashimi Plots")
             )
@@ -331,7 +331,7 @@ sashimiAppUI <- function
                   background="#AAAAAA",
                   icon=shiny::icon("gear"),
                   htmltools::tagList(
-                     tags$b("Plot Style:"),
+                     htmltools::tags$b("Plot Style:"),
                      shinyWidgets::prettyCheckbox(
                         inputId="do_plotly",
                         value=FALSE,
@@ -349,7 +349,7 @@ sashimiAppUI <- function
                            icon=shiny::icon("check"),
                            status="primary",
                            label="Enable highlighting"),
-                        tags$br(),
+                        htmltools::tags$br(),
                         nbsp3,
                         nbsp3,
                         shinyWidgets::prettyCheckbox(
@@ -415,7 +415,7 @@ sashimiAppUI <- function
                         selected="100",
                         grid=TRUE
                      ),
-                     tags$b("Axis Settings:"),
+                     htmltools::tags$b("Axis Settings:"),
                      shinyWidgets::prettyCheckbox(
                         inputId="share_y_axis",
                         value=share_y_axis,
@@ -423,7 +423,7 @@ sashimiAppUI <- function
                         status="success",
                         label="Shared y-axis range"
                      ),
-                     tags$b("Exon Models:"),
+                     htmltools::tags$b("Exon Models:"),
                      shinyWidgets::prettyCheckbox(
                         inputId="show_gene_model",
                         value=show_gene_model,
@@ -463,7 +463,7 @@ sashimiAppUI <- function
                            grid=TRUE
                         )
                      ),
-                     tags$br(),
+                     htmltools::tags$br(),
                      shiny::conditionalPanel(
                         condition="input.do_plotly == false",
                         shinyWidgets::sliderTextInput(

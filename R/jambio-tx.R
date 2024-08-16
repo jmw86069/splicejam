@@ -1,5 +1,5 @@
-#' @import jamba
-NULL
+# @import jamba
+# NULL
 
 #' Make tx2gene data.frame from a GTF file
 #'
@@ -96,13 +96,13 @@ makeTx2geneFromGtf <- function
    ## Usually only "transcript" or "mRNA" are used, so either is acceptable
    ## by default.
    ##
-   if (suppressPackageStartupMessages(!require(data.table))) {
-      stop(paste0("makeTx2geneFromGtf() requires the data.table package ",
-         "to load the GTF file rapidly."));
-   }
-   if (suppressPackageStartupMessages(!require(jamba))) {
-      stop(paste0("makeTx2geneFromGtf() requires the jamba package."));
-   }
+   # if (suppressPackageStartupMessages(!require(data.table))) {
+   #    stop(paste0("makeTx2geneFromGtf() requires the data.table package ",
+   #       "to load the GTF file rapidly."));
+   # }
+   # if (suppressPackageStartupMessages(!require(jamba))) {
+   #    stop(paste0("makeTx2geneFromGtf() requires the jamba package."));
+   # }
    gtfDF <- readGtf(GTF=GTF,
       nrows=nrows,
       zcat_command=zcat_command,
@@ -425,15 +425,15 @@ tx2ale <- function
    ## Other R custom function dependencies:
    ## - annotateGRLfromGRL(), annotateGRfromGR()
    ## - assignGRLexonNames()
-   if (suppressPackageStartupMessages(!require(jamba))) {
-      stop("gencode2ale() requires the jamba package, installable with: devtools::install_github('jmw86069/jamba')");
-   }
-   if (suppressPackageStartupMessages(!require(GenomicRanges))) {
-      stop("gencode2ale() requires the GenomicRanges package.");
-   }
-   if (suppressPackageStartupMessages(!require(GenomicFeatures))) {
-      stop("gencode2ale() requires the GenomicFeatures package, GenomicFeatures::threeUTRsByTranscript()");
-   }
+   # if (suppressPackageStartupMessages(!require(jamba))) {
+   #    stop("gencode2ale() requires the jamba package, installable with: devtools::install_github('jmw86069/jamba')");
+   # }
+   # if (suppressPackageStartupMessages(!require(GenomicRanges))) {
+   #    stop("gencode2ale() requires the GenomicRanges package.");
+   # }
+   # if (suppressPackageStartupMessages(!require(GenomicFeatures))) {
+   #    stop("gencode2ale() requires the GenomicFeatures package, GenomicFeatures::threeUTRsByTranscript()");
+   # }
    retVals <- list();
    aleMethod <- match.arg(aleMethod);
 
@@ -497,7 +497,7 @@ tx2ale <- function
       if (verbose) {
          jamba::printDebug("gencode2ale(): ",
             "No detectedTx supplied, keeping all ",
-            formatInt(length(detectedTx)),
+            jamba::formatInt(length(detectedTx)),
             " transcripts.");
       }
    } else {
@@ -506,7 +506,7 @@ tx2ale <- function
       if (verbose) {
          jamba::printDebug("gencode2ale(): ",
             "Keeping ",
-            formatInt(length(detectedTx)),
+            jamba::formatInt(length(detectedTx)),
             " transcripts found in detectedTx.");
       }
    }
@@ -602,9 +602,9 @@ tx2ale <- function
    if (verbose) {
       jamba::printDebug("gencode2ale(): ",
          "Filtered ",
-         formatInt(length(threeUtrGRLdetGeneGRLred2)),
+         jamba::formatInt(length(threeUtrGRLdetGeneGRLred2)),
          " genes to ",
-         formatInt(length(GencodeALEmin2)),
+         jamba::formatInt(length(GencodeALEmin2)),
          " genes having multiple ranges.");
    }
    ## vector of genes containing multiple ALEs
@@ -621,7 +621,7 @@ tx2ale <- function
       GenomicRanges::values(subset(threeUtrGRLdetGeneGRLred2@unlistData,
          gene_name %in% GencodeALEmin2genes))[,c("transcript_id","ALE_name")]),
       ",");
-   tx2ale <- jamba::nameVector(list2df(ale2txL)[,c("item","value")]);
+   tx2ale <- jamba::nameVector(jamba::list2df(ale2txL)[,c("item","value")]);
    retVals$tx2ale <- tx2ale;
 
    ####################################################
@@ -956,7 +956,7 @@ defineDetectedTx <- function
             jamba::printDebug("defineDetectedTx(): ",
                "Calculating iMatrixTxTPMGrp.");
          }
-         iMatrixTxTPMGrp <- rowGroupMeans(iMatrixTxTPM,
+         iMatrixTxTPMGrp <- jamba::rowGroupMeans(iMatrixTxTPM,
             useMedian=useMedian,
             groups=groups);
       }
@@ -1182,9 +1182,9 @@ shrinkMatrix <- function
    ##
    ## DT <- data.table(d);
    ## rdataT <- system.time(DT[,list(.Internal(mean(x)), .Internal(mean(y))), by=list(grp1,grp2)]);
-   if (!suppressPackageStartupMessages(require(data.table))) {
-      stop("This method requires the data.table package.");
-   }
+   # if (!suppressPackageStartupMessages(require(data.table))) {
+   #    stop("This method requires the data.table package.");
+   # }
    returnClass <- match.arg(returnClass);
 
    ## Create DT object
@@ -1378,7 +1378,7 @@ jamCai <- function
    ## potentially allow setting the colname to use.
    ##
    sapply(x, function(i){
-      jamGeomean(rmNA(codonDF[dna2codon(i),"multiFreq"]));
+      jamGeomean(jamba::rmNA(codonDF[dna2codon(i),"multiFreq"]));
    });
 }
 
@@ -1504,7 +1504,7 @@ geomean <- function
 {
    ## Purpose is to calculate the classical geometric mean
    if (na.rm && any(is.na(x))) {
-      x <- rmNA(x,
+      x <- jamba::rmNA(x,
          naValue=naValue);
    }
    2 ^ mean(log2(x + offset), na.rm=na.rm) - offset;
@@ -1695,7 +1695,7 @@ factor2label <- function
       xValsL <- lapply(jamba::nameVectorN(valuesL), function(i){
          iL <- split(valuesL[[i]], x);
          sapply(iL, function(j){
-            paste(format(aggFun(rmNA(j)),
+            paste(format(aggFun(jamba::rmNA(j)),
                digits=digits,
                big.mark=big.mark,
                trim=TRUE),
@@ -1770,7 +1770,7 @@ getFirstStrandedFromGRL <- function
    ## It assumes each GRangesList element contains only one strand, such
    ## as with exons of a transcript.
    method <- match.arg(method);
-   if (suppressPackageStartupMessages(!require(GenomicRanges))) {
+   if (suppressPackageStartupMessages(!jamba::check_pkg_installed("GenomicRanges"))) {
       stop("getFirstStrandedFromGRL() requires the GenomicRanges Bioconductor package.");
    }
    ## First, ensure the GRangesList is sorted by strand, since we use that
@@ -1783,7 +1783,7 @@ getFirstStrandedFromGRL <- function
       verbose=verbose);
 
    # First check that each GRL has only one strand and seqname
-   if (any(lengths(unique(strand(grl))) > 1)) {
+   if (any(lengths(unique(GenomicRanges::strand(grl))) > 1)) {
       stop("Input GRangesList must contain only one strand per element.");
    }
    if (any(lengths(unique(GenomicRanges::seqnames(grl))) > 1)) {
@@ -1796,7 +1796,7 @@ getFirstStrandedFromGRL <- function
             "performing direct logic");
       }
       grl2 <- IRanges::heads(grl, 1);
-      is_minus <- as.vector(unlist(strand(range(grl)))) %in% "-";
+      is_minus <- as.vector(unlist(GenomicRanges::strand(range(grl)))) %in% "-";
       if (any(is_minus)) {
          grl2[is_minus] <- IRanges::tails(grl[is_minus], 1);
       }
@@ -1807,7 +1807,7 @@ getFirstStrandedFromGRL <- function
             "performing endoapply() logic");
       }
       grl2 <- S4Vectors::endoapply(grl, function(iGR){
-         if ("-" %in% as.vector(strand(iGR[1]))) {
+         if ("-" %in% as.vector(GenomicRanges::strand(iGR[1]))) {
             tail(iGR, 1);
          } else {
             head(iGR, 1);
@@ -1819,8 +1819,8 @@ getFirstStrandedFromGRL <- function
          jamba::printDebug("getFirstStrandedFromGRL(): ",
             "performing flank() logic");
       }
-      grlWidths1 <- width(IRanges::heads(grl, 1));
-      grlWidths2 <- width(IRanges::tails(grl, 1));
+      grlWidths1 <- GenomicRanges::width(IRanges::heads(grl, 1));
+      grlWidths2 <- GenomicRanges::width(IRanges::tails(grl, 1));
       if (verbose) {
          jamba::printDebug("getFirstStrandedFromGRL(): ",
             "applying range() function, class(grl):",
@@ -1838,7 +1838,8 @@ getFirstStrandedFromGRL <- function
          jamba::printDebug("getFirstStrandedFromGRL(): ",
             "applying ifelse() logic");
       }
-      grlFlankWidth <- ifelse(as.vector(unlist(strand(grlRanges))) %in% "+",
+      grlFlankWidth <- ifelse(as.vector(unlist(
+         GenomicRanges::strand(grlRanges))) %in% "+",
          unlist(grlWidths1),
          unlist(grlWidths2));
       if (verbose) {
@@ -1874,7 +1875,7 @@ getFirstStrandedFromGRL <- function
 #' @param splitColname intermediate colname used to split values
 #'    from GRanges to GRangesList. It only needs to be defined
 #'    if for some reason the default "splitColname" is already
-#'    in `colnames(values(GRL))`.
+#'    in `colnames(GenomicRanges::values(GRL))`.
 #' @param keep_order logical indicating whether to maintain the
 #'    input order of GRanges; `FALSE` will return GRangesList
 #'    ordered by the first sorted GRanges occurrence.
@@ -1907,7 +1908,7 @@ sortGRL <- function
    ## Purpose is to sort GRangesList by chromosome, using default sort(...)
    ## on the GRanges entries, then split back into GRangesList in consistent
    ## order
-   if (!suppressPackageStartupMessages(require(GenomicRanges))) {
+   if (!jamba::check_pkg_installed("GenomicRanges")) {
       stop("The GenomicRanges package is required for sortGRL()");
    }
    ## Ensure input GRL contains names
@@ -1915,12 +1916,15 @@ sortGRL <- function
       names(GRL) <- jamba::makeNames(rep("GRL", length(GRL)));
    }
 
-   GenomicRanges::values(GRL@unlistData)[,splitColname] <- factor(rep(names(GRL), IRanges::elementNROWS(GRL)),
+   GenomicRanges::values(GRL@unlistData)[,splitColname] <- factor(
+      rep(names(GRL), IRanges::elementNROWS(GRL)),
       levels=names(GRL));
    GR1 <- GenomicRanges::sort(GRL@unlistData);
    if (!keep_order) {
-      GenomicRanges::values(GR1)[[splitColname]] <- factor(GenomicRanges::values(GR1)[[splitColname]],
-         levels=as.character(unique(GenomicRanges::values(GR1)[[splitColname]])));
+      GenomicRanges::values(GR1)[[splitColname]] <- factor(
+         GenomicRanges::values(GR1)[[splitColname]],
+         levels=as.character(
+            unique(GenomicRanges::values(GR1)[[splitColname]])));
    }
    if (verbose) {
       jamba::printDebug("sortGRL(): ",
@@ -2077,7 +2081,7 @@ annotateGRfromGR <- function
  DEBUG=FALSE,
  ...)
 {
-   ## Purpose is to try a new faster method of annotating GR1 with values(GR2)
+   ## Purpose is to try a new faster method of annotating GR1 with GenomicRanges::values(GR2)
    ## than annotateGRfromGR()
    ##
    ## Note: this function assumes data is stored as character vectors
@@ -2155,9 +2159,9 @@ annotateGRfromGR <- function
    if (verbose) {
       jamba::printDebug("annotateGRfromGR(): ",
          "Running shrinkMatrix on ",
-         formatInt(sum(grOLtable > 1)),
+         jamba::formatInt(sum(grOLtable > 1)),
          " entries out of ",
-         formatInt(length(grOLtable)));
+         jamba::formatInt(length(grOLtable)));
    }
 
    ## Define the column types by inspecting data, and
@@ -2318,7 +2322,7 @@ annotateGRfromGR <- function
             if (jamba::igrepHas("list", class(GenomicRanges::values(GR2)[grOLs,iCol]))) {
                ## list column
                ## What was all this effort doing?
-               #iVals <- values(GR2)[grOLs,iCol];
+               #iVals <- GenomicRanges::values(GR2)[grOLs,iCol];
                #names(iVals) <- names(GR2)[grOLs];
                #iValsX <- unlist(iVals);
                #iValsXnames1 <- rep(grOLq,
@@ -2381,7 +2385,7 @@ annotateGRfromGR <- function
          if (verbose) {
             jamba::printDebug("annotateGRfromGR(): ",
                "   nrow(numShrunkDF):",
-               formatInt(nrow(numShrunkDF)),
+               jamba::formatInt(nrow(numShrunkDF)),
                " (before)");
          }
       }
@@ -2605,7 +2609,7 @@ annotateGRLfromGRL <- function
    if (!annoName1 %in% colnames(GenomicRanges::values(GRL1@unlistData))) {
       stop(paste0("Supplied annoName1:'",
          annoName1,
-         "' was not found in colnames(values(GRL1@unlistData))."));
+         "' was not found in colnames(GenomicRanges::values(GRL1@unlistData))."));
    }
    ## Validate annoName2
    annoName2 <- head(annoName2, 1);
@@ -2617,7 +2621,7 @@ annotateGRLfromGRL <- function
    if (!annoName2 %in% colnames(GenomicRanges::values(GRL2@unlistData))) {
       stop(paste0("Supplied annoName2:'",
          annoName2,
-         "' was not found in colnames(values(GRL2@unlistData))."));
+         "' was not found in colnames(GenomicRanges::values(GRL2@unlistData))."));
    }
    annoNames2 <- setdiff(colnames(GenomicRanges::values(GRL2@unlistData)), annoName2);
    if (verbose) {
@@ -2710,12 +2714,12 @@ findOverlapsGRL <- function
    ## separated by gene, then only returning entries which match the same
    ## gene.
    if (annoName1 %in% "name") {
-      GRLnames1 <- rep(names(GRL1), elementNROWS(GRL1));
+      GRLnames1 <- rep(names(GRL1), S4Vectors::elementNROWS(GRL1));
    } else {
       GRLnames1 <- GenomicRanges::values(GRL1@unlistData)[,annoName1];
    }
    if (annoName2 %in% "name") {
-      GRLnames2 <- rep(names(GRL2), elementNROWS(GRL2));
+      GRLnames2 <- rep(names(GRL2), S4Vectors::elementNROWS(GRL2));
    } else {
       GRLnames2 <- GenomicRanges::values(GRL2@unlistData)[,annoName2];
    }
@@ -2859,9 +2863,9 @@ assignGRLexonNames <- function
    ##
    checkDisjoin <- match.arg(checkDisjoin);
 
-   ## verify names(GRL) exists or values(GRL@unlistData) has geneSymbolColname
-   if (!geneSymbolColname %in% colnames(values(GRL))) {
-      if (!geneSymbolColname %in% colnames(values(GRL@unlistData))) {
+   ## verify names(GRL) exists or GenomicRanges::values(GRL@unlistData) has geneSymbolColname
+   if (!geneSymbolColname %in% colnames(GenomicRanges::values(GRL))) {
+      if (!geneSymbolColname %in% colnames(GenomicRanges::values(GRL@unlistData))) {
          if (length(names(GRL)) == 0) {
             stop(paste0(
                "Input GRangesList must have one of: ",
@@ -2878,20 +2882,20 @@ assignGRLexonNames <- function
          # assign names(GRL) from the first geneSymbolColname value in each GRanges
          use_idx <- unname(c(1,
             1 + head(cumsum(IRanges::elementNROWS(GRL)), -1)));
-         GRLnames <- values(GRL@unlistData)[[geneSymbolColname]][use_idx];
+         GRLnames <- GenomicRanges::values(GRL@unlistData)[[geneSymbolColname]][use_idx];
          names(GRL) <- jamba::makeNames(GRLnames);
          if (verbose) {
             jamba::printDebug("assignGRLexonNames(): ",
-               "Using geneSymbol values from values(GRL@unlistData)[[geneSymbolColname]].");
+               "Using geneSymbol values from GenomicRanges::values(GRL@unlistData)[[geneSymbolColname]].");
          }
       }
    } else {
       # assign names(GRL) from geneSymbolColname
-      GRLnames <- values(GRL)[[geneSymbolColname]];
+      GRLnames <- GenomicRanges::values(GRL)[[geneSymbolColname]];
       names(GRL) <- jamba::makeNames(GRLnames);
       if (verbose) {
          jamba::printDebug("assignGRLexonNames(): ",
-            "Using geneSymbol values from values(GRL)[[geneSymbolColname]].");
+            "Using geneSymbol values from GenomicRanges::values(GRL)[[geneSymbolColname]].");
       }
    }
 
@@ -2973,7 +2977,8 @@ assignGRLexonNames <- function
          "geneSymbolColname values:",
          head(GenomicRanges::values(GRLred@unlistData)[,geneSymbolColname], 10));
    }
-   GRLredStrand <- jamba::cPasteS(as.list(unique(strand(GRLred))));
+   GRLredStrand <- jamba::cPasteS(as.list(unique(
+      GenomicRanges::strand(GRLred))));
    GRLredStrandP <- grep("[+]", GRLredStrand);
    GRLredStrandN <- setdiff(seq_along(GRLredStrand),
       GRLredStrandP);
@@ -3029,7 +3034,8 @@ assignGRLexonNames <- function
       jamba::printDebug("assignGRLexonNames(): ",
          "Completed annotateGRLfromGRL().");
    }
-   GRLnewStrand <- jamba::cPasteS(as.list(unique(strand(GRLnew))));
+   GRLnewStrand <- jamba::cPasteS(as.list(unique(
+      GenomicRanges::strand(GRLnew))));
    GRLnewStrandP <- grep("[+]", GRLnewStrand);
    GRLnewStrandN <- setdiff(seq_along(GRLnewStrand),
       GRLnewStrandP);
@@ -3166,9 +3172,9 @@ ale2violin <- function
    ## Purpose is to take an ALE expression matrix, and create
    ## a tall version suitable for plotting in ggplot2 to create
    ## a violin plot, connected by gene_Region
-   if (suppressPackageStartupMessages(!require(ggplot2))) {
-      stop("ale2violin() requires the ggplot2 package.");
-   }
+   # if (suppressPackageStartupMessages(!require(ggplot2))) {
+   #    stop("ale2violin() requires the ggplot2 package.");
+   # }
    retVals <- list();
 
    if (length(iMatrixAleGrp) == 0) {
@@ -3178,7 +3184,7 @@ ale2violin <- function
       iMatrixAle <- iMatrixAle[,names(groups),drop=FALSE];
       ## Calculate group mean expression values
       iDiffAle <- data.frame(check.names=FALSE,
-         rowGroupMeans(iMatrixAle,
+         jamba::rowGroupMeans(iMatrixAle,
             useMedian=FALSE,
             groups=groups));
    } else {
@@ -3235,14 +3241,14 @@ ale2violin <- function
       );
 
    iDiffAleWideUse <- iDiffAleWide[iDiffAleWideMGMkeep,,drop=FALSE];
-   iDiffAleWideUse[,aleCols] <- noiseFloor(iDiffAleWideUse[,aleCols,drop=FALSE],
+   iDiffAleWideUse[,aleCols] <- jamba::noiseFloor(iDiffAleWideUse[,aleCols,drop=FALSE],
       minimum=maxGroupMeanFloor);
    #minimum=maxGroupMeanALE);
 
    if (verbose) {
       jamba::printDebug("ale2violin(): ",
-         "keeping ", formatInt(sum(iDiffAleWideMGMkeep)),
-         " out of ", formatInt(length(iDiffAleWideMGMkeep)),
+         "keeping ", jamba::formatInt(sum(iDiffAleWideMGMkeep)),
+         " out of ", jamba::formatInt(length(iDiffAleWideMGMkeep)),
          " rows.");
    }
    if (returnAll) {
@@ -3256,7 +3262,7 @@ ale2violin <- function
       }
       geneListsDF <- geneLists[,c("gene_name","geneList"),drop=FALSE];
    } else {
-      geneListsDF <- renameColumn(list2df(geneLists),
+      geneListsDF <- jamba::renameColumn(jamba::list2df(geneLists),
          from=c("item","value"),
          to=c("geneList","gene_name"));
       geneListsDF$geneList <- factor(geneListsDF$geneList,
@@ -3280,9 +3286,9 @@ ale2violin <- function
       iDiffAleWide2$CellType <- gsub("^.+_", "", iDiffAleWide2$sampleGroup);
       iGeneListRegionL <- lapply(split(iDiffAleWide2[,c("gene_name","CellType")],
          jamba::pasteByRow(iDiffAleWide2[,c("geneList","Region")])), function(i){
-            names(tcount(i$gene_name, minCount=2))
+            names(jamba::tcount(i$gene_name, minCount=2))
          });
-      iGeneListRegionDF <- list2df(iGeneListRegionL);
+      iGeneListRegionDF <- jamba::list2df(iGeneListRegionL);
       iGeneListRegionDF$geneList <- gsub("_.+", "", iGeneListRegionDF$item);
       iGeneListRegionDFuniq <- unique(iGeneListRegionDF[,c("name","geneList")]);
       iGeneListRegionDFuniqL <- split(iGeneListRegionDFuniq$name, iGeneListRegionDFuniq$geneList);
@@ -3348,15 +3354,16 @@ ale2violin <- function
          jamba::printDebug("ale2violin(): ",
             "Preparing violin including all groups.");
       }
-      ggAle1 <- ggplot(iDiffAleTall2ctr,
-            aes(y=intensity, x=ALE, fill=geneList)) +
-         geom_violin(draw_quantiles=c(0.5), scale="width") +
+      ggAle1 <- ggplot2::ggplot(iDiffAleTall2ctr,
+         ggplot2::aes(y=intensity, x=ALE, fill=geneList)) +
+         ggplot2::geom_violin(draw_quantiles=c(0.5), scale="width") +
          #geom_violin(draw_quantiles=c(0.5), scale="count") +
-         geom_line(aes(group=Line), alpha=lineAlpha) +
-         facet_grid(as.formula(paste0(facet_name, "~geneList"))) +
-         ylab("log2 difference from ale1") +
+         ggplot2::geom_line(ggplot2::aes(group=Line), alpha=lineAlpha) +
+         ggplot2::facet_grid(as.formula(paste0(facet_name, "~geneList"))) +
+         ggplot2::ylab("log2 difference from ale1") +
          #ylim(c(-10,10)) +
-         theme_jam() + scale_fill_manual(values=colorSubGeneLists);
+         colorjam::theme_jam() +
+         ggplot2::scale_fill_manual(values=colorSubGeneLists);
       retVals$ggAle1 <- ggAle1;
    }
 
@@ -3381,14 +3388,15 @@ ale2violin <- function
          jamba::printDebug("ale2violin(): ",
             "Preparing violin using mean region values.");
       }
-      ggAle2 <- ggplot(iDiffAleTall2ctrFacet,
-         aes(y=intensity, x=ALE, fill=geneList)) +
-         geom_violin(draw_quantiles=c(0.5), scale="width") +
-         geom_line(aes(group=gene_name), alpha=lineAlpha) +
-         facet_grid(as.formula(paste0(facet_name, "~geneList"))) +
-         ylab("log2 mean difference from ale1") +
-         xlab("Alternative last 3'UTR") +
-         theme_jam() + scale_fill_manual(values=colorSubGeneLists);
+      ggAle2 <- ggplot2::ggplot(iDiffAleTall2ctrFacet,
+         ggplot2::aes(y=intensity, x=ALE, fill=geneList)) +
+         ggplot2::geom_violin(draw_quantiles=c(0.5), scale="width") +
+         ggplot2::geom_line(ggplot2::aes(group=gene_name), alpha=lineAlpha) +
+         ggplot2::facet_grid(as.formula(paste0(facet_name, "~geneList"))) +
+         ggplot2::ylab("log2 mean difference from ale1") +
+         ggplot2::xlab("Alternative last 3'UTR") +
+         colorjam::theme_jam() +
+         ggplot2::scale_fill_manual(values=colorSubGeneLists);
       retVals$ggAle2 <- ggAle2;
    }
    return(retVals);
@@ -3416,7 +3424,7 @@ ale2violin <- function
 #'
 #' These steps are run in order:
 #'
-#' * `limma:voom()` (Optional.) This step is enabled with
+#' * `limma::voom()` (Optional.) This step is enabled with
 #'    the argument `useVoom=TRUE` and should only be used when `iMatrixTx`
 #'    contains count or pseudocount data. When using TPM or FPKM values,
 #'    set `useVoom=FALSE`.
@@ -3629,15 +3637,15 @@ runDiffSplice <- function
    if (verbose) {
       jamba::printDebug("runDiffSplice(): ",
          "Started with ",
-         formatInt(length(detectedTx)),
+         jamba::formatInt(length(detectedTx)),
          " entries representing ",
-         formatInt(iTxGeneCt),
+         jamba::formatInt(iTxGeneCt),
          " genes.");
       jamba::printDebug("runDiffSplice(): ",
          "  Ended with ",
-         formatInt(length(detectedTxUse)),
+         jamba::formatInt(length(detectedTxUse)),
          " entries representing ",
-         formatInt(length(iGeneCt2)),
+         jamba::formatInt(length(iGeneCt2)),
          " multi-entry genes.");
    }
 
@@ -3668,7 +3676,7 @@ runDiffSplice <- function
          jamba::printDebug("runDiffSplice(): ",
             "Running voom().");
       }
-      v <- voom(iMatrixTxES,
+      v <- limma::voom(iMatrixTxES,
          design=iDesign,
          plot=FALSE);
       if (verbose) {
@@ -3677,17 +3685,17 @@ runDiffSplice <- function
       }
       #fit <- lmFit(v,
       #   design=iDesign);
-      exprs(iMatrixTxES) <- log2(1+exprs(iMatrixTxES));
-      fit <- lmFit(iMatrixTxES,
+      Biobase::exprs(iMatrixTxES) <- log2(1 + Biobase::exprs(iMatrixTxES));
+      fit <- limma::lmFit(iMatrixTxES,
          weights=v$weights,
          design=iDesign);
    } else {
-      exprs(iMatrixTxES) <- log2(1+exprs(iMatrixTxES));
+      Biobase::exprs(iMatrixTxES) <- log2(1 + Biobase::exprs(iMatrixTxES));
       if (verbose) {
          jamba::printDebug("runDiffSplice(): ",
             "Running lmFit().");
       }
-      fit <- lmFit(iMatrixTxES,
+      fit <- limma::lmFit(iMatrixTxES,
          design=iDesign);
    }
    ## Add transcript back to the output data
@@ -3700,7 +3708,7 @@ runDiffSplice <- function
       jamba::printDebug("runDiffSplice(): ",
          "Running contrasts.fit().");
    }
-   fit2 <- contrasts.fit(fit,
+   fit2 <- limma::contrasts.fit(fit,
       iContrasts);
    retVals$fit2 <- fit2;
 
@@ -3710,7 +3718,7 @@ runDiffSplice <- function
       jamba::printDebug("runDiffSplice(): ",
          "Running diffSplice().");
    }
-   splice <- diffSplice(fit2,
+   splice <- limma::diffSplice(fit2,
       geneid=geneColname,
       exonid=txColname);
    retVals$splice <- splice;
@@ -3726,7 +3734,7 @@ runDiffSplice <- function
       iGroupMeans <- coefficients(fit)[,iCoefGroups,drop=FALSE];
       iGroupMeansDF <- data.frame(
          setNames(data.frame(rownames(iGroupMeans)), txColname),
-         renameColumn(iGroupMeans,
+         jamba::renameColumn(iGroupMeans,
             from=colnames(iGroupMeans),
             to=paste("groupMean",
                colnames(iGroupMeans),
@@ -3817,7 +3825,7 @@ getGRgaps <- function
    ## except to return only the gaps between features on the same
    ## chromosome and strand
    ##
-   ## keepValues=TRUE will keep values(GR) colnames, but will fill with NA
+   ## keepValues=TRUE will keep GenomicRanges::values(GR) colnames, but will fill with NA
    ## so the resulting object can be appended to the original GR.
    ##
    #GRDF <- as.data.frame(GR);
@@ -3871,7 +3879,7 @@ getGRLgaps <- function
    ## grl <- grlGria1;strand(grl@unlistData)[3:4] <- "-";
    ## seqnames(grl@unlistData)[3:4] <- "chr7";
    if (!strandSpecific) {
-      strand(grl) <- "*";
+      GenomicRanges::strand(grl) <- "*";
    }
    isMultiStrand <- any(lengths(unique(GenomicRanges::strand(grl))) > 1);
    isMultiSeqname <- any(lengths(unique(GenomicRanges::seqnames(grl))) > 1);
@@ -3900,14 +3908,17 @@ getGRLgaps <- function
       jamba::printDebug("getGRLgaps(): ",
          "Began gaps logic.");
    }
+   # Todo: verify this conversion as() works without loading IRanges
    IRL <- as(grl, "IRangesList");
+
    gapsIRL <- IRanges::gaps(IRL);
    irlName <- rep(names(gapsIRL),
       S4Vectors::elementNROWS(gapsIRL));
    grlName <- gsub(":!:.*$", "", irlName);
    grlName <- factor(grlName,
       levels=unique(c(grlNames, grlName)));
-   grNew <- GRanges(seqnames=rep(as.character(GenomicRanges::seqnames(range(grl))),
+   grNew <- GenomicRanges::GRanges(
+      seqnames=rep(as.character(GenomicRanges::seqnames(range(grl))),
       S4Vectors::elementNROWS(gapsIRL)),
       range=IRanges::IRanges(start=IRanges::start(gapsIRL@unlistData),
          end=IRanges::end(gapsIRL@unlistData)),
@@ -4085,9 +4096,9 @@ flattenExonsBy <- function
  verbose=FALSE)
 {
    ##
-   if (!suppressPackageStartupMessages(require(GenomicRanges))) {
-      stop("The GenomicRanges package is required.");
-   }
+   # if (!suppressPackageStartupMessages(require(GenomicRanges))) {
+   #    stop("The GenomicRanges package is required.");
+   # }
    if (!jamba::igrepHas("data.frame|tibble|tbl|dataframe", class(tx2geneDF))) {
       stop("tx2geneDF must be a form of data.frame or related class.");
    }
@@ -4191,7 +4202,7 @@ flattenExonsBy <- function
    if ("gene" %in% by) {
       GenomicRanges::values(iGeneExonsDisGRL@unlistData)[,geneColname] <- rep(
          names(iGeneExonsDisGRL),
-         elementNROWS(iGeneExonsDisGRL));
+         S4Vectors::elementNROWS(iGeneExonsDisGRL));
    }
 
    ## Optionally subdivide by CDS boundary if supplied
@@ -4204,7 +4215,7 @@ flattenExonsBy <- function
          txMatch <- match(names(cdsByTx), tx2geneDF[[txColname]]);
          GenomicRanges::values(cdsByTx@unlistData)[,geneColname] <- rep(
             tx2geneDF[txMatch,geneColname],
-            elementNROWS(cdsByTx));
+            S4Vectors::elementNROWS(cdsByTx));
       }
       if ("gene" %in% by) {
          cdsByGene <- GenomicRanges::reduce(GenomicRanges::GRangesList(
@@ -4214,7 +4225,7 @@ flattenExonsBy <- function
          cdsByGene <- cdsByTx;
          GenomicRanges::values(cdsByGene@unlistData)[,txColname] <- rep(
             names(cdsByGene),
-            elementNROWS(cdsByGene)
+            S4Vectors::elementNROWS(cdsByGene)
          );
       }
       if (verbose) {
@@ -4493,7 +4504,7 @@ addGRgaps <- function
 #'    indicating the type and colname to populate in `values(grl@unlistData)`
 #'    prior to adding gaps. When `feature_type_colname` is NULL,
 #'    no action is taken. When `feature_type_colname` does not
-#'    exist in `colnames(values(grl@unlistData))`, it is created
+#'    exist in `colnames(GenomicRanges::values(grl@unlistData))`, it is created
 #'    with values in `default_feature_type`. Also any colname
 #'    defined by `newValues` that does not already exist is also
 #'    created and populated with `default_feature_type`.
@@ -4545,7 +4556,7 @@ addGRLgaps <- function
       GenomicRanges::values(grl@unlistData)[[feature_type_colname]] <- rep(default_feature_type,
          length.out=length(grl@unlistData));
    }
-   ## Populate colnames(values(grl@unlistData))
+   ## Populate colnames(GenomicRanges::values(grl@unlistData))
    ## using names(newValues) when they are not already present
    if (length(newValues) > 0 &&
          length(names(newValues)) > 0 &&
@@ -4660,7 +4671,7 @@ closestExonToJunctions <- function
    updateColnames <- c("distFrom", "distTo", "nameFrom", "nameTo",
       "genesDiffer", "genesMatch", "tooFarFrom", "tooFarTo", "tooFar");
    if (any(updateColnames %in% colnames(GenomicRanges::values(spliceGRgene)))) {
-      keepColnames <- setdiff(colnames(values(spliceGRgene)),
+      keepColnames <- setdiff(colnames(GenomicRanges::values(spliceGRgene)),
          updateColnames);
       GenomicRanges::values(spliceGRgene) <-
          GenomicRanges::values(spliceGRgene)[,keepColnames,drop=FALSE];
@@ -4708,7 +4719,7 @@ closestExonToJunctions <- function
    spliceStartExonEndDactual <- spliceStartExonEndDactual1 - sign(spliceStartExonEndDactual1);
 
    ## Flip the direction when strand is negative
-   spliceGRgeneNeg <- as.vector(strand(spliceGRgene)) %in% "-";
+   spliceGRgeneNeg <- as.vector(GenomicRanges::strand(spliceGRgene)) %in% "-";
    if (any(spliceGRgeneNeg)) {
       spliceStartExonEndDactual[spliceGRgeneNeg] <- spliceStartExonEndDactual[spliceGRgeneNeg] * -1;
    }
@@ -4816,7 +4827,7 @@ closestExonToJunctions <- function
             "switchCols2:",
             switchCols2);
       }
-      negStrand <- (as.vector(strand(spliceGRgene)) %in% "-");
+      negStrand <- (as.vector(GenomicRanges::strand(spliceGRgene)) %in% "-");
       if (any(negStrand)) {
          GenomicRanges::values(spliceGRgene)[negStrand,switchCols1] <-
             GenomicRanges::values(spliceGRgene)[negStrand,switchCols2];
@@ -4825,25 +4836,25 @@ closestExonToJunctions <- function
 
    ## Optionally append distance to the name when spliceBuffer is supplied
    if (length(spliceBuffer) > 0) {
-      ext_from <- (abs(values(spliceGRgene)$distFrom) > spliceBuffer);
-      ext_to <- (abs(values(spliceGRgene)$distTo) > spliceBuffer);
+      ext_from <- (abs(GenomicRanges::values(spliceGRgene)$distFrom) > spliceBuffer);
+      ext_to <- (abs(GenomicRanges::values(spliceGRgene)$distTo) > spliceBuffer);
       ext_fromto <- (ext_from | ext_to);
       if (any(ext_from)) {
-         values(spliceGRgene)[ext_from,"nameFrom"] <- paste0(
-            values(spliceGRgene)$nameFrom[ext_from],
+         GenomicRanges::values(spliceGRgene)[ext_from,"nameFrom"] <- paste0(
+            GenomicRanges::values(spliceGRgene)$nameFrom[ext_from],
             ".",
-            values(spliceGRgene)$distFrom[ext_from])
+            GenomicRanges::values(spliceGRgene)$distFrom[ext_from])
       }
       if (any(ext_to)) {
-         values(spliceGRgene)[ext_to,"nameTo"] <- paste0(
-            values(spliceGRgene)$nameTo[ext_to],
+         GenomicRanges::values(spliceGRgene)[ext_to,"nameTo"] <- paste0(
+            GenomicRanges::values(spliceGRgene)$nameTo[ext_to],
             ".",
-            values(spliceGRgene)$distTo[ext_to])
+            GenomicRanges::values(spliceGRgene)$distTo[ext_to])
       }
       if (any(ext_fromto)) {
-         values(spliceGRgene)[ext_fromto | ext_to,"nameFromTo"] <- paste(
-            values(spliceGRgene)$nameFrom[ext_fromto],
-            values(spliceGRgene)$nameTo[ext_fromto]);
+         GenomicRanges::values(spliceGRgene)[ext_fromto | ext_to,"nameFromTo"] <- paste(
+            GenomicRanges::values(spliceGRgene)$nameFrom[ext_fromto],
+            GenomicRanges::values(spliceGRgene)$nameTo[ext_fromto]);
       }
    }
 
@@ -4936,8 +4947,8 @@ spliceGR2junctionDF <- function
    ## TODO: snap coordinates to the exon in cases where it is within the spliceBuffer distance
    ##
    ## Quick method to review strandedness -- note that all entries had perfectly matched strandFrom and strandTo
-   #   values(spliceGRgene)[!eitherNA,"strandFrom"] <- as.vector(strand(exonsGR[spliceStartExonEnd]));
-   #   values(spliceGRgene)[!eitherNA,"strandTo"] <- as.vector(strand(exonsGR[(spliceEndExonStart)]));
+   #   GenomicRanges::values(spliceGRgene)[!eitherNA,"strandFrom"] <- as.vector(strand(exonsGR[spliceStartExonEnd]));
+   #   GenomicRanges::values(spliceGRgene)[!eitherNA,"strandTo"] <- as.vector(strand(exonsGR[(spliceEndExonStart)]));
    #   table(strandFrom=values(spliceGRgene)[!eitherNA,"strandFrom"], strandTo=values(spliceGRgene)[!eitherNA,"strandTo"]);
    #   table(strandSplice=as.vector(strand(spliceGRgene[!eitherNA])), strandTo=values(spliceGRgene)[!eitherNA,"strandTo"]);
    sampleColname <- intersect(sampleColname, colnames(GenomicRanges::values(spliceGRgene)));
@@ -4970,11 +4981,11 @@ spliceGR2junctionDF <- function
    numGenesDiffer <- (length(spliceGRgene) - numGenesMatch);
    if (verbose && numGenesMatch > 0) {
       jamba::printDebug("spliceGR2junctionDF(): ",
-         formatInt(numGenesMatch),
+         jamba::formatInt(numGenesMatch),
          " entries out of ",
-         formatInt(length(spliceGRgene)),
+         jamba::formatInt(length(spliceGRgene)),
          " had the same gene for splice start and end, excepting ",
-         formatInt(numGenesDiffer),
+         jamba::formatInt(numGenesDiffer),
          " entries.");
    }
 
@@ -4992,7 +5003,7 @@ spliceGR2junctionDF <- function
    numTooFar <- sum(GenomicRanges::values(spliceGRgene)[,"tooFar"]);
    if (verbose && numTooFar > 0) {
       jamba::printDebug("spliceGR2junctionDF(): ",
-         formatInt(numTooFar),
+         jamba::formatInt(numTooFar),
          " entries were farther from the nearest exon than spliceBuffer:",
          spliceBuffer);
    }
@@ -5064,15 +5075,15 @@ spliceGR2junctionDF <- function
    if (verbose) {
       jamba::printDebug("spliceGR2junctionDF(): ",
          "Using ", ifelse(length(toUse) == length(spliceGRgene), "all ", ""),
-         formatInt(length(toUse)),
+         jamba::formatInt(length(toUse)),
          " entries out of ",
-         formatInt(length(spliceGRgene)),
+         jamba::formatInt(length(spliceGRgene)),
          " to create a data.frame of junction counts by exon.");
    }
    if (verbose && length(toUse) != length(spliceGRgene)) {
       jamba::printDebug("spliceGR2junctionDF(): ",
          "Note: ",
-         formatInt(length(spliceGRgene) - length(toUse)),
+         jamba::formatInt(length(spliceGRgene) - length(toUse)),
          " entries did not meet the criteria.");
    }
 
@@ -5093,7 +5104,7 @@ spliceGR2junctionDF <- function
       jamba::printDebug("spliceGR2junctionDF(): ",
          "Shrinking matrix to combine counts spanning the same junctions.");
    }
-   spliceCountsDFshrunk <- renameColumn(
+   spliceCountsDFshrunk <- jamba::renameColumn(
       shrinkMatrix(spliceCountsDF[,scoreColname,drop=FALSE],
          groupBy=spliceCountsDF[,"nameFromToSample"],
          shrinkFunc=sum),
