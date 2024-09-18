@@ -15,30 +15,30 @@ combineGRcoverage(
 )
 }
 \arguments{
-\item{gr}{GRanges object containing coverage data in columns
+\item{gr}{\code{GRanges} object containing coverage data in columns
 containing NumericList class data.}
 
-\item{covNames}{character vector of \code{colnames(GenomicRanges::values(gr))}
+\item{covNames}{\code{character} vector of \code{colnames(GenomicRanges::values(gr))}
 representing columns in \code{gr} that contain coverage data
 in NumericList format, for example data prepared
 with \code{getGRcoverageFromBw()}.}
 
-\item{covName}{character vector with length equal to
+\item{covName}{\code{character} vector with length equal to
 \code{length(covNames)} representing the \code{sample_id} for each
 \code{covNames} entry.}
 
-\item{strands}{character vector, or NULL, indicating the strand
+\item{strands}{\code{character} vector, or NULL, indicating the strand
 for which the coverage data was obtained. When \code{NULL} the strand
 is inferred by the presence of any negative values.}
 
-\item{scaleFactors}{numeric vector length equal to \code{length(covNames)}
+\item{scaleFactors}{\code{numeric} vector length equal to \code{length(covNames)}
 or expanded to that length. Values are multiplied by each
 coverage data result, intended to apply a normalization
 to each coverage value. A \code{-1} value can also be used
 to flip the score of negative strand data, in the event the
 source coverage data is scored only using positive values.}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
 }

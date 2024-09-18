@@ -528,7 +528,7 @@ compressPolygonM <- function
          shrinkFunc=function(x){median(x, na.rm=TRUE)})$x;
    } else {
       data_style <- "fortify";
-      idrows <- jamba::pasteByRow(polyM[,c("cov","gr")]);
+      idrows <- jamba::pasteByRow(polyM[, c("cov", "gr"), drop=FALSE]);
       idrows <- factor(idrows, levels=unique(idrows));
       polyML <- split(polyM, idrows);
       polyMratios <- unlist(lapply(polyML, function(i){
@@ -567,8 +567,8 @@ compressPolygonM <- function
    polyDFLnew <- lapply(jamba::nameVector(whichComp), function(k){
       iDF <- polyDFL[[k]];
       baseline <- iDF[1,"y"];
-      iDF <- iDF[!is.na(iDF[,1]),,drop=FALSE];
-      iDFu <- iDF[match(unique(iDF$x), iDF$x),,drop=FALSE];
+      iDF <- iDF[!is.na(iDF[,1]), , drop=FALSE];
+      iDFu <- iDF[match(unique(iDF$x), iDF$x), , drop=FALSE];
 
       iRange <- range(iDF$x, na.rm=TRUE);
       iRangeNew <- range(iDF$newX, na.rm=TRUE);
@@ -619,8 +619,9 @@ compressPolygonM <- function
          cov=head(iDF$cov, 1));
    });
    newPolyDFL <- list();
-   newPolyDFL[names(polyDFL)[whichNorm]] <- lapply(jamba::nameVector(whichNorm), function(k){
-      polyDFL[[k]][,c("x","y","cov","gr"),drop=FALSE];
+   newPolyDFL[names(polyDFL)[whichNorm]] <- lapply(jamba::nameVector(whichNorm),
+      function(k){
+      polyDFL[[k]][, c("x", "y", "cov", "gr"), drop=FALSE];
    });
    newPolyDFL[names(polyDFLnew)] <- polyDFLnew;
    newPolyDFL <- newPolyDFL[jamba::mixedSort(names(newPolyDFL))];
@@ -1211,25 +1212,25 @@ getGRcoverageFromBw <- function
 #' @family jam GRanges functions
 #' @family jam RNA-seq functions
 #'
-#' @param gr GRanges object containing coverage data in columns
+#' @param gr `GRanges` object containing coverage data in columns
 #'    containing NumericList class data.
-#' @param covNames character vector of `colnames(GenomicRanges::values(gr))`
+#' @param covNames `character` vector of `colnames(GenomicRanges::values(gr))`
 #'    representing columns in `gr` that contain coverage data
 #'    in NumericList format, for example data prepared
 #'    with `getGRcoverageFromBw()`.
-#' @param covName character vector with length equal to
+#' @param covName `character` vector with length equal to
 #'    `length(covNames)` representing the `sample_id` for each
 #'    `covNames` entry.
-#' @param strands character vector, or NULL, indicating the strand
+#' @param strands `character` vector, or NULL, indicating the strand
 #'    for which the coverage data was obtained. When `NULL` the strand
 #'    is inferred by the presence of any negative values.
-#' @param scaleFactors numeric vector length equal to `length(covNames)`
+#' @param scaleFactors `numeric` vector length equal to `length(covNames)`
 #'    or expanded to that length. Values are multiplied by each
 #'    coverage data result, intended to apply a normalization
 #'    to each coverage value. A `-1` value can also be used
 #'    to flip the score of negative strand data, in the event the
 #'    source coverage data is scored only using positive values.
-#' @param verbose logical indicating whether to print verbose output.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
 #' @export
@@ -1302,8 +1303,9 @@ combineGRcoverage <- function
       if (length(strands) == 0) {
          strands <- factor(sapply(seq_along(covNames), function(i){
             iCov <- covNames[[i]];
-            ifelse(any(any(GenomicRanges::values(gr)[[iCov]] * scaleFactors[i] < 0) &
-                  all(GenomicRanges::values(gr)[[iCov]] * scaleFactors[i] <= 0)),
+            ifelse(any(
+               any(GenomicRanges::values(gr)[[iCov]] * scaleFactors[i] < 0) &
+               all(GenomicRanges::values(gr)[[iCov]] * scaleFactors[i] <= 0)),
                "-",
                "+")
          }), levels=c("+", "-"));
@@ -1339,7 +1341,7 @@ combineGRcoverage <- function
    ## Remove the original coverage data columns from the output
    keep_gr_colnames <- setdiff(colnames(GenomicRanges::values(gr)),
       covNames);
-   gr <- gr[,keep_gr_colnames];
+   gr <- gr[, keep_gr_colnames];
 
    if (length(covName) > 0) {
       if (exists("covNamesL")) {
@@ -1594,16 +1596,24 @@ prepareSashimi <- function
       filesDF$sample_id %in% sample_id,,drop=FALSE];
    ## Subset by filename if include_strand is not "both"
    if (!"both" %in% include_strand) {
-      if (jamba::igrepHas("pos|[+]|plus", bwFilesDF$url)) {
+      if (any(grepl("pos|[+]|plus", ignore.case=TRUE, bwFilesDF$url))) {
          if ("+" %in% include_strand) {
-            bwFilesDF <- bwFilesDF[jamba::igrep("pos|[+]|plus", bwFilesDF$url),,drop=FALSE];
+            bwFilesDF <- subset(bwFilesDF,
+               grepl("pos|[+]|plus",
+                  ignore.case=TRUE,
+                  basename(url)));
          } else {
-            bwFilesDF <- bwFilesDF[jamba::unigrep("pos|[+]|plus", bwFilesDF$url),,drop=FALSE];
+            bwFilesDF <- subset(bwFilesDF,
+               !grepl("pos|[+]|plus",
+                  ignore.case=TRUE,
+                  basename(url)));
          }
       }
    }
-   bwUrls <- jamba::nameVector(bwFilesDF[,c("url","url")]);
-   bwSamples <- jamba::nameVector(bwFilesDF[,c("sample_id","url")]);
+   bwUrls <- jamba::nameVector(
+      bwFilesDF[, c("url","url"), drop=FALSE]);
+   bwSamples <- jamba::nameVector(
+      bwFilesDF[, c("sample_id", "url"), drop=FALSE]);
    bwUrlsL <- split(bwUrls, unname(bwSamples));
    if (!"scale_factor" %in% colnames(bwFilesDF)) {
       bwFilesDF$scale_factor <- rep(1, nrow(bwFilesDF));
@@ -1654,16 +1664,19 @@ prepareSashimi <- function
                filesDF$url %in% colnames(GenomicRanges::values(covGR)) &
                filesDF$sample_id %in% sample_id,,drop=FALSE];
          if (nrow(covfilesDF) == 0) {
-            stop("Supplied coverage covGR does not have colnames in filesDF$url with filesDF$type == 'coverage_gr'");
+            stop(paste0("Supplied coverage covGR does not have colnames ",
+               "in filesDF$url with filesDF$type == 'coverage_gr'"));
          }
-         covUrls <- jamba::nameVector(covfilesDF[,c("url","url")]);
-         covSamples <- jamba::nameVector(covfilesDF[,c("sample_id","url")]);
-         covGRuse <- covGRuse[,covUrls];
+         covUrls <- jamba::nameVector(
+            covfilesDF[, c("url", "url"), drop=FALSE]);
+         covSamples <- jamba::nameVector(
+            covfilesDF[, c("sample_id", "url"), drop=FALSE]);
+         covGRuse <- covGRuse[, covUrls];
          if ("scale_factor" %in% colnames(covfilesDF)) {
             covScaleFactors <- jamba::rmNA(naValue=1,
                covfilesDF$scale_factor);
          } else {
-            covScaleFactors <- rep(1, length(covUrls));
+            covScaleFactors <- rep(1, length.out=length(covUrls));
          }
 
          ## Combine coverage per strand
@@ -1707,10 +1720,11 @@ prepareSashimi <- function
          ########################################
          ## Optional exon labels
          covDFsub <- (as.character(covDF$gr) %in% names(gr));
-         covDFlab <- covDF[covDFsub,,drop=FALSE];
+         covDFlab <- covDF[covDFsub, , drop=FALSE];
 
-         exonLabelDF1 <- shrinkMatrix(covDFlab[,c("x","y")],
-            groupBy=jamba::pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
+         exonLabelDF1 <- shrinkMatrix(covDFlab[, c("x", "y"), drop=FALSE],
+            groupBy=jamba::pasteByRowOrdered(
+               covDFlab[, c("gr", "sample_id"), drop=FALSE], sep=":!:"),
             shrinkFunc=function(x){mean(range(x))});
          exonLabelDF1[,c("gr","sample_id")] <- jamba::rbindList(
             strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
@@ -1821,10 +1835,11 @@ prepareSashimi <- function
       ########################################
       ## Optional exon labels
       covDFsub <- (as.character(covDF$gr) %in% names(gr));
-      covDFlab <- covDF[covDFsub,,drop=FALSE];
+      covDFlab <- covDF[covDFsub, , drop=FALSE];
 
-      exonLabelDF1 <- shrinkMatrix(covDFlab[,c("x","y")],
-         groupBy=jamba::pasteByRowOrdered(covDFlab[,c("gr", "sample_id")], sep=":!:"),
+      exonLabelDF1 <- shrinkMatrix(covDFlab[, c("x", "y"), drop=FALSE],
+         groupBy=jamba::pasteByRowOrdered(
+            covDFlab[,c("gr", "sample_id"), drop=FALSE], sep=":!:"),
          shrinkFunc=function(x){mean(range(x))});
       exonLabelDF1[,c("gr","sample_id")] <- jamba::rbindList(
          strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
@@ -1892,15 +1907,19 @@ prepareSashimi <- function
    ## Junctions available from filesDF type %in% "junction"
    ##
    juncFilesDF <- filesDF[filesDF$type %in% "junction" &
-      filesDF$sample_id %in% sample_id,c("url", "sample_id", "scale_factor"),drop=FALSE];
-   juncUrls <- jamba::nameVector(juncFilesDF[,c("url", "sample_id")]);
-   juncSamples <- jamba::nameVector(juncFilesDF[,c("sample_id", "sample_id")]);
+      filesDF$sample_id %in% sample_id,
+      c("url", "sample_id", "scale_factor"), drop=FALSE];
+   juncUrls <- jamba::nameVector(
+      juncFilesDF[, c("url", "sample_id"), drop=FALSE]);
+   juncSamples <- jamba::nameVector(
+      juncFilesDF[, c("sample_id", "sample_id"), drop=FALSE]);
    juncUrlsL <- split(juncUrls, juncSamples);
    if (!"scale_factor" %in% colnames(juncFilesDF)) {
       juncFilesDF$scale_factor <- rep(1, nrow(juncFilesDF));
    }
    juncScaleFactors <- jamba::rmNA(naValue=1,
-      jamba::nameVector(juncFilesDF[,c("scale_factor", "sample_id")]));
+      jamba::nameVector(
+         juncFilesDF[, c("scale_factor", "sample_id"), drop=FALSE]));
    if (verbose && length(juncScaleFactors) > 0) {
       jamba::printDebug("prepareSashimi(): ",
          "juncScaleFactors: ",
@@ -1987,7 +2006,8 @@ prepareSashimi <- function
          }
          ## Apply scale_factor
          if (length(bed1) > 0) {
-            GenomicRanges::values(bed1)$score <- GenomicRanges::values(bed1)$score * juncScaleFactors[iBedName];
+            GenomicRanges::values(bed1)$score <- (
+               GenomicRanges::values(bed1)$score * juncScaleFactors[iBedName]);
          }
          bed1;
       });
@@ -2049,7 +2069,8 @@ prepareSashimi <- function
             from="ref",
             to="seqnames"),
          "GRanges");
-      names(juncGR) <- jamba::makeNames(GenomicRanges::values(juncGR)[,"nameFromToSample"]);
+      names(juncGR) <- jamba::makeNames(
+         GenomicRanges::values(juncGR)[, "nameFromToSample"]);
 
       if (length(baseline) == 0) {
          baseline <- 0;
@@ -2084,7 +2105,7 @@ prepareSashimi <- function
          jamba::printDebug("prepareSashimi(): ",
             "dim(juncDF):", dim(juncDF));
       }
-      juncDF <- juncDF[,!colnames(juncDF) %in% c("grl_name"),drop=FALSE];
+      juncDF <- juncDF[, !colnames(juncDF) %in% c("grl_name"), drop=FALSE];
       ## Enforce ordered factor levels for sample_id
       ## which also forces empty factor levels if applicable
       juncDF$sample_id <- factor(
@@ -2105,27 +2126,28 @@ prepareSashimi <- function
          shiny::setProgress(3.95/4,
             detail=paste0("Preparing junction label coordinates for ", gene));
       }
-      juncLabelDF1 <- subset(plyr::mutate(juncDF, id_name=jamba::makeNames(id)),
+      juncLabelDF1 <- subset(
+         plyr::mutate(juncDF, id_name=jamba::makeNames(id)),
          grepl("_v1_v[23]$", id_name));
-      shrink_colnames <- intersect(c("x","y","score","junction_rank"),
+      shrink_colnames <- intersect(c("x", "y", "score", "junction_rank"),
          colnames(juncLabelDF1));
       ## Define junction placement at max position, in stranded fashion
       juncLabelDF_y <- jamba::renameColumn(
-         shrinkMatrix(juncLabelDF1[,"y",drop=FALSE],
+         shrinkMatrix(juncLabelDF1[, "y", drop=FALSE],
             shrinkFunc=function(x){max(abs(x))*sign(max(x))},
-            groupBy=juncLabelDF1[,"nameFromToSample"]),
+            groupBy=juncLabelDF1[, "nameFromToSample"]),
          from="groupBy",
          to="nameFromToSample");
       juncLabelDF <- jamba::renameColumn(
-         shrinkMatrix(juncLabelDF1[,shrink_colnames,drop=FALSE],
-            groupBy=juncLabelDF1[,"nameFromToSample"]),
+         shrinkMatrix(juncLabelDF1[, shrink_colnames, drop=FALSE],
+            groupBy=juncLabelDF1[, "nameFromToSample"]),
          from="groupBy",
          to="nameFromToSample");
       juncLabelDF$y <- juncLabelDF_y$y;
-      juncLabelDF[,c("nameFromTo","sample_id")] <- jamba::rbindList(
-         strsplit(juncLabelDF[,"nameFromToSample"], ":!:"));
+      juncLabelDF[, c("nameFromTo", "sample_id")] <- jamba::rbindList(
+         strsplit(juncLabelDF[, "nameFromToSample"], ":!:"));
       juncLabelDF[,c("nameFrom", "nameTo")] <- jamba::rbindList(
-         strsplit(juncLabelDF[,"nameFromTo"], " "));
+         strsplit(juncLabelDF[, "nameFromTo"], " "));
       ## Enforce ordered factor levels for sample_id
       ## which also forces empty factor levels if applicable
       juncLabelDF$sample_id <- factor(
@@ -2150,7 +2172,8 @@ prepareSashimi <- function
    ## exon coverage
    if (exists("covDF") && length(covDF) > 0) {
       covDF$type <- "coverage";
-      covDF$name <- jamba::pasteByRow(covDF[,c("gr", "cov", "sample_id")], sep=" ");
+      covDF$name <- jamba::pasteByRow(
+         covDF[, c("gr", "cov", "sample_id"), drop=FALSE], sep=" ");
       covDF$feature <- covDF$gr;
       covDF$row <- seq_len(nrow(covDF));
       ## define name as factor to maintain the drawing order
@@ -2163,7 +2186,8 @@ prepareSashimi <- function
    ## exon labels
    if (exists("exonLabelDF") && length(exonLabelDF) > 0) {
       exonLabelDF$type <- "exon_label";
-      exonLabelDF$name <- jamba::pasteByRow(exonLabelDF[,c("gr","sample_id")], sep=" ");
+      exonLabelDF$name <- jamba::pasteByRow(
+         exonLabelDF[, c("gr", "sample_id"), drop=FALSE], sep=" ");
       exonLabelDF$feature <- exonLabelDF$gr;
       exonLabelDF$row <- seq_len(nrow(exonLabelDF));
       exonLabelDF$color_by <- NA;
@@ -2176,12 +2200,15 @@ prepareSashimi <- function
    ## junctions
    if (exists("juncDF") && length(juncDF) > 0) {
       juncDF$type <- "junction";
-      juncDF$name <- jamba::pasteByRow(juncDF[,c("nameFromTo", "sample_id")], sep=" ");
+      juncDF$name <- jamba::pasteByRow(
+         juncDF[, c("nameFromTo", "sample_id"), drop=FALSE], sep=" ");
       juncDF$feature <- juncDF$nameFromTo;
       juncDF$row <- seq_len(nrow(juncDF));
       junction_spans <- abs(
-         shrinkMatrix(juncDF$x, groupBy=juncDF$name, min, returnClass="matrix") -
-            shrinkMatrix(juncDF$x, groupBy=juncDF$name, max, returnClass="matrix"))[,1];
+         shrinkMatrix(juncDF$x,
+            groupBy=juncDF$name, min, returnClass="matrix") -
+         shrinkMatrix(juncDF$x,
+            groupBy=juncDF$name, max, returnClass="matrix"))[,1];
       juncDF$junction_span <- junction_spans[as.character(juncDF$name)];
       ## order the name column using junction_rank
       ## has affect on drawing order, making lower junction_rank
@@ -2200,7 +2227,8 @@ prepareSashimi <- function
    ## junction labels
    if (exists("juncLabelDF") && length(juncLabelDF) > 0) {
       juncLabelDF$type <- "junction_label";
-      juncLabelDF$name <- jamba::pasteByRow(juncLabelDF[,c("nameFromTo", "sample_id")], sep=" ");
+      juncLabelDF$name <- jamba::pasteByRow(
+         juncLabelDF[, c("nameFromTo", "sample_id"), drop=FALSE], sep=" ");
       juncLabelDF$feature <- juncLabelDF$nameFromTo;
       juncLabelDF$row <- seq_len(nrow(juncLabelDF));
       ## define name as factor to maintain the drawing order
@@ -2235,7 +2263,7 @@ prepareSashimi <- function
    na_ct <- apply(cjDF, 2, function(i){
       sum(is.na(i))
    });
-   cjDF <- cjDF[,order(na_ct),drop=FALSE];
+   cjDF <- cjDF[, order(na_ct), drop=FALSE];
 
    ## Add ref2c as an attribute to cjDF just to help keep it available
    attr(cjDF, "ref2c") <- ref2c;

@@ -1196,6 +1196,13 @@ stackJunctions <- function
    order2rev <- match(names(gr), yRow_df$x);
    GenomicRanges::values(gr)[,"yEnd"] <- yEnd_df$x[order2rev] + baselineV[exonsTo];
 
+   ## Experimental "fix" for negative strand using flipped stacking
+   if (any(as.character(GenomicRanges::strand(gr)) %in% "-")) {
+      is_neg <- (as.character(GenomicRanges::strand(gr)) %in% "-");
+      GenomicRanges::values(gr)[is_neg, c("yEnd", "yStart")] <- (
+         GenomicRanges::values(gr)[is_neg, c("yStart", "yEnd")]);
+   }
+
    ## Bonus points
    ## rank junctions by score at the exonsFrom and exonsTo position
    ## so the rank can be used to colorize dominant junctions

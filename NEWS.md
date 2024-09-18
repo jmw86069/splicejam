@@ -18,7 +18,15 @@
       refreshing the data from the server.
       * Disconnection from the server that provides coverage
       and junction data.
+   
+   * Miscellaneous minor updates to ensure `data.frame` subsets all
+   include `drop=FALSE` where relevant. Minor, but may help with
+   odd cases where server data is not as expected.
 
+* `grl2df()`
+
+   * Finally fixed the junction stacking for negative strands, see Nectin3
+   using default farrisdata.
 
 # splicejam 0.0.79.900
 
