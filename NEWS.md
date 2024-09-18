@@ -1,3 +1,25 @@
+# splicejam 0.0.80.900
+
+## bug fixes
+
+* Updates to address Shiny app error: `"object 'covNameL' not found"`
+
+   * This bug occurs when there is no coverage, and seems to occur
+   when the connection to the server coverage files is not available.
+   * `combineGRcoverage()` was updated to sidestep the `covNameL` error,
+   although it may not fully resolve the underlying problem of missing
+   coverage data. Tests are ongoing, since the underlying problem
+   is difficult to reproduce. Theories:
+   
+      * Server file cache reached its maximum and no longer permits
+      new cache files from being stored.
+      * Previously saved cache file may be corrupted, although errors
+      are intended to cause the cache to be invalidated, therefore
+      refreshing the data from the server.
+      * Disconnection from the server that provides coverage
+      and junction data.
+
+
 # splicejam 0.0.79.900
 
 The method of labeling exons was updated to enforce placement below

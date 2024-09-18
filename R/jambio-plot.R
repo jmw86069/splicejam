@@ -1341,10 +1341,12 @@ combineGRcoverage <- function
       covNames);
    gr <- gr[,keep_gr_colnames];
 
-   if (exists("covNamesL")) {
-      attr(gr, "covNames") <- names(covNamesL);
+   if (length(covName) > 0) {
+      if (exists("covNamesL")) {
+         attr(gr, "covNames") <- names(covNamesL);
+      }
+      attr(gr, "covName") <- jamba::cPasteU(covNameL);
    }
-   attr(gr, "covName") <- jamba::cPasteU(covNameL);
    attr(gr, "some_null") <- some_null;
    return(gr);
 }

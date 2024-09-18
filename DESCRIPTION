@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.79.900
+Version: 0.0.80.900
 Authors@R: c(
     person(given="James M.",
        family="Ward",
@@ -20,9 +20,9 @@ Description: Jam Bioinformatics methods for RNA-seq and other genomics
     methods for manipulating gene expression data.
 Depends: R (>= 3.0.0)
 biocViews:
-Imports: jamba(>= 0.0.41.900),
-    jamma(>= 0.0.13.900),
-    colorjam(>= 0.0.12.900),
+Imports: jamba(>= 0.0.102.900),
+    jamma(>= 0.0.33.900),
+    colorjam(>= 0.0.28.900),
     data.table,
     GenomicRanges,
     GenomicFeatures,
@@ -46,7 +46,7 @@ Imports: jamba(>= 0.0.41.900),
     cowplot,
     plotly,
     DT,
-    memoise(>= 1.1.0.9000),
+    memoise(>= 2.0.1.9000),
     testthat(>= 3.0.0),
     R.utils
 Suggests: 
