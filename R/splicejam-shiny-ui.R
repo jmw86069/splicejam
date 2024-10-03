@@ -547,8 +547,6 @@ sashimiAppUI <- function
    # dashboard body
    body <- shinydashboard::dashboardBody(
       shinyjs::useShinyjs(),
-      shinyWidgets::setShadow(class="box"),
-      shinyWidgets::setShadow(class="boxPlus"),
       shinydashboard::tabItems(
          shinydashboard::tabItem(tabName="guides", guidesTab),
          shinydashboard::tabItem(tabName="sashimiplot", sashimiplotTab),

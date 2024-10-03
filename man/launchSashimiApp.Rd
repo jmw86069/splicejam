@@ -115,6 +115,55 @@ required data.
 When the R-shiny app is created, the \code{ui} and \code{server} components
 have their environments set to \code{envir} - so their context will
 include the variables defined in that environment.
+\subsection{Troubleshooting}{
+\enumerate{
+\item Error \code{"SSL peer certificate or SSH remote key was not OK"} or
+\code{"SSL certificate problem: unable to get local issuer certificate"}
+seen in the console output of the R shiny app.
+\itemize{
+\item This error occurs when \code{launchSashimiApp()} references
+coverage data on an external web server, for example when
+using \code{farrisdata} example data. The remote web server
+certificates used with \code{https} web address are using
+a certificate whose issuer is not recognized.
+\item It means the authority that signed the certificate
+is not recognized as an approved authority.
+\item There may be two workarounds to this issue:
+}
+\enumerate{
+\item If the certificate authority should be approved, sometimes
+on linux hosts it is enough to add certificate extensions,
+for example on Ubuntu, or Ubuntu Docker images, one may run
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{apt-get ca-certificates
+# or
+sudo apt-get ca-certificates
+}\if{html}{\out{</div>}}
+
+Other linux systems may require a different installation.
+\item The certificate verification can be skipped temporarily.
+Define this option within the same R session:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{httr::set_config(httr::config(ssl_verifypeer=FALSE))
+}\if{html}{\out{</div>}}
+
+Of course, this option should only be used in trusted
+circumstances, for example when accessing a local and trusted
+host.
+}
+\item Error \code{"covNames must be in colnames(GenomicRanges::values(gr))"},
+or other error related to \code{names(covNames)} or \code{names(covNamesL)}.
+\itemize{
+\item These errors ultimately mean there was no available coverage data,
+which is usually caused by inability to access the coverage
+file itself. The web server may be offline, or may be denying
+connection. The path to the file may be incorrect.
+\item Typically the coverage data is obtained from memoise cached data,
+and only when the cache is not available, or somehow incorrect,
+the data is retrieved from the file or remote server.
+}
+}
+}
 }
 \examples{
 # Note: disabled for web page examples

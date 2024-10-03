@@ -79,6 +79,50 @@
 #' have their environments set to `envir` - so their context will
 #' include the variables defined in that environment.
 #'
+#' ## Troubleshooting
+#'
+#' 1. Error `"SSL peer certificate or SSH remote key was not OK"` or
+#' `"SSL certificate problem: unable to get local issuer certificate"`
+#' seen in the console output of the R shiny app.
+#'
+#'    * This error occurs when `launchSashimiApp()` references
+#'    coverage data on an external web server, for example when
+#'    using `farrisdata` example data. The remote web server
+#'    certificates used with `https` web address are using
+#'    a certificate whose issuer is not recognized.
+#'    * It means the authority that signed the certificate
+#'    is not recognized as an approved authority.
+#'    * There may be two workarounds to this issue:
+#'
+#'    1. If the certificate authority should be approved, sometimes
+#'       on linux hosts it is enough to add certificate extensions,
+#'       for example on Ubuntu, or Ubuntu Docker images, one may run
+#'       ```
+#'       apt-get ca-certificates
+#'       # or
+#'       sudo apt-get ca-certificates
+#'       ```
+#'       Other linux systems may require a different installation.
+#'    2. The certificate verification can be skipped temporarily.
+#'       Define this option within the same R session:
+#'       ```
+#'       httr::set_config(httr::config(ssl_verifypeer=FALSE))
+#'       ```
+#'       Of course, this option should only be used in trusted
+#'       circumstances, for example when accessing a local and trusted
+#'       host.
+#'
+#' 2. Error `"covNames must be in colnames(GenomicRanges::values(gr))"`,
+#' or other error related to `names(covNames)` or `names(covNamesL)`.
+#'
+#'    * These errors ultimately mean there was no available coverage data,
+#'    which is usually caused by inability to access the coverage
+#'    file itself. The web server may be offline, or may be denying
+#'    connection. The path to the file may be incorrect.
+#'    * Typically the coverage data is obtained from memoise cached data,
+#'    and only when the cache is not available, or somehow incorrect,
+#'    the data is retrieved from the file or remote server.
+#'
 #' @family splicejam R-shiny functions
 #'
 #' @return output from `shiny::shinyApp()` which is an object of

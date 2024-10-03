@@ -1,5 +1,20 @@
 # TODO for splicejam
 
+## 03oct2024
+
+* Consider adding workaround when web security certificate fails the initial
+check.
+
+   * Apparent possible workaround is to update `httr` option like this:
+   `httr::set_config(httr::config(ssl_verifypeer=FALSE))`
+   * The change causes the SSL verification to be skipped, which should
+   only be done when the risks are mitigated, for example when
+   using an internal host within a firewall for example.
+
+* DONE. Remove warning `"setShadow is deprecated and will be removed..."`
+* DONE. Fix issue with `width()` function not found, caused by not having
+proper package prefix, `GenomicRanges::width()` or `Biobase::width()`.
+
 ## 16aug2024
 
 * Update `pkgdown` package documentation. Latest version of R used for

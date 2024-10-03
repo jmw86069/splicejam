@@ -1,3 +1,19 @@
+# splicejam 0.0.81.900
+
+## bug fixes
+
+* Removed `shinyWidgets::setShadow()` to prevent the warning message
+saying this function is being deprecated.
+* Fixed bug `"width() not found"` caused by missing package prefix.
+
+## other changes
+
+* Help docs for `launchSashimiApp()` now include **Troubleshooting**
+
+   * It includes two potential workarounds for errors caused by
+   failure to download the coverage file from a remote server.
+
+
 # splicejam 0.0.80.900
 
 ## bug fixes

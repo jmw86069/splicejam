@@ -30,7 +30,7 @@ cov_values <- c(250, 200, 180, 250);
 values(test_cov_gr)[,"sample_A"] <- NumericList(
    lapply(seq_along(test_exon_gr), function(i){
       cov_values[i] +
-         round(rnorm(width(test_exon_gr)[i])*7)
+         round(rnorm(GenomicRanges::width(test_exon_gr)[i])*7)
    }));
 test_cov_gr;
 

@@ -3100,7 +3100,7 @@ jam_isDisjoint <- function
 (x)
 {
    input_width <- sum(GenomicRanges::width(x));
-   reduced_width <- sum(width(GenomicRanges::reduce(x)));
+   reduced_width <- sum(GenomicRanges::width(GenomicRanges::reduce(x)));
    return(reduced_width < input_width);
 }
 
