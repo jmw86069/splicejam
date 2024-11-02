@@ -141,7 +141,10 @@ getGRcoverageFromBw <- function
             bwUrl,
             "', returning NULL.");
          jamba::printDebug(warnText);
+         # print the error
          print(e);
+         # print any associated warnings
+         print(warnings());
          warning(warnText);
          NULL;
       });

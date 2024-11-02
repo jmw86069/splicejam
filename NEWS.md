@@ -3,7 +3,12 @@
 ## changes
 
 * Moved functions into separate files for better code review.
+* `getGRcoverageFromBw()`
 
+   * When it fails to download a bigwig file, it prints the error
+   which is not always informative. Now it also prints the warning,
+   which can tell whether the URL was available, or another error
+   was caused by this step.
 
 # splicejam 0.0.81.900
 
