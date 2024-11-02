@@ -1,5 +1,9 @@
 # TODO for splicejam
 
+## 29oct2024
+
+* Debug error `"covNames must be colnames(GenomicRanges::values(gr))"`
+
 ## 03oct2024
 
 * Consider adding workaround when web security certificate fails the initial

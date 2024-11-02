@@ -1,3 +1,10 @@
+# splicejam 0.0.82.900
+
+## changes
+
+* Moved functions into separate files for better code review.
+
+
 # splicejam 0.0.81.900
 
 ## bug fixes
