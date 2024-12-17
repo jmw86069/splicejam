@@ -1,3 +1,10 @@
+# splicejam 0.0.83.900
+
+## bug fixes
+
+* `sashimiDataConstants()` error `verbose` not found, fixed by repairing
+the variable after assigning to the custom environment.
+
 # splicejam 0.0.82.900
 
 ## changes

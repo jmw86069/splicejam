@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.82.900
+Version: 0.0.83.900
 Authors@R: c(
     person(given="James M.",
        family="Ward",

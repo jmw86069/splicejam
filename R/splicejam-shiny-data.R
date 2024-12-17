@@ -131,6 +131,7 @@ sashimiDataConstants <- function
          envir=envir)
    }
    rm(list=params);
+   verbose <- envir$verbose;
    #envir <- attach(envir, name="sashimi_env");
    #on.exit(detach(name="sashimi_env"));
 
