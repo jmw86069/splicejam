@@ -617,7 +617,10 @@ gene2gg <- function
    if (!grid::is.unit(exonLabelSize)) {
       exonLabelSize <- grid::unit(exonLabelSize, "pt");
    }
-   exonLabelMm <- grid::convertUnit(exonLabelSize, "mm", valueOnly=TRUE);
+   # 72.27pt = 25.4mm - we can avoid this conversion step
+   # pt / 2.85 => mm
+   # exonLabelMm <- grid::convertUnit(exonLabelSize, "mm", valueOnly=TRUE);
+   exonLabelMm <- as.numeric(exonLabelSize) / 2.85;
 
    if (length(flatExonsByGene) > 0 && length(gene) > 0) {
       if (!any(gene %in% names(flatExonsByGene))) {
@@ -651,13 +654,22 @@ gene2gg <- function
          }
       }
       if (length(tx) > 0) {
-         grl1 <- GenomicRanges::GRangesList(c(grl1,
-            flatExonsByTx[names(flatExonsByTx) %in% tx]))
-         GenomicRanges::values(grl1)[,geneSymbolColname] <- tx2geneDF[match(names(grl1),
-            tx2geneDF$transcript_id),geneSymbolColname];
-         GenomicRanges::values(grl1@unlistData)[,geneSymbolColname] <- rep(
-            GenomicRanges::values(grl1)[,geneSymbolColname],
-            S4Vectors::elementNROWS(grl1));
+         ## 0.0.83.900 - subset the results above instead of appending
+         if (length(grl1) > 0) {
+            grl1 <- subset(grl1, names(grl1) %in% tx);
+         } else {
+            grl1 <- subset(flatExonsByTx, names(flatExonsByTx) %in% tx);
+         }
+         if (!geneSymbolColname %in% colnames(GenomicRanges::values(grl1))) {
+            GenomicRanges::values(grl1)[, geneSymbolColname] <- tx2geneDF[
+               match(names(grl1), tx2geneDF$transcript_id), geneSymbolColname];
+         }
+         if (!geneSymbolColname %in%
+               colnames(GenomicRanges::values(grl1@unlistData))) {
+            GenomicRanges::values(grl1@unlistData)[, geneSymbolColname] <- rep(
+               GenomicRanges::values(grl1)[, geneSymbolColname],
+               S4Vectors::elementNROWS(grl1));
+         }
          GenomicRanges::values(grl1)$transcript_id <- names(grl1);
          GenomicRanges::values(grl1@unlistData)$transcript_id <- rep(
             GenomicRanges::values(grl1)$transcript_id,
@@ -712,7 +724,7 @@ gene2gg <- function
    if (verbose) {
       jamba::printDebug("grl2df(): ",
          names(gc),
-         fgText=list("orange", setTextContrastColor(gc)),
+         fgText=list("orange", jamba::setTextContrastColor(gc)),
          bgText=list(NA, gc));
    }
    colorColname <- head(

@@ -33,3 +33,10 @@ gtf or gff3 file.
 \description{
 read gtf/gff3 file
 }
+\seealso{
+Other jam gtf functions: 
+\code{\link{describeGtfAttrNames}()},
+\code{\link{getGtfAttrs}()},
+\code{\link{makeTx2geneFromGtf}()}
+}
+\concept{jam gtf functions}

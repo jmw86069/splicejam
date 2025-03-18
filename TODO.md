@@ -1,5 +1,44 @@
 # TODO for splicejam
 
+## 17mar2025
+
+* `makeTx2geneFromGtf()`
+
+   * DONE. Consider adding: `chr`, `start`, `end`, `strand`
+   * PARTIAL. Consider gene-level ranges, may not be feasible with >50
+   disjoint ranges for some snRNA like 7S rRNA for example.
+   For now, `gene_id` always has a unique range, although `gene_name`
+   may be shared across numerous `gene_id` for some reason.
+   * Consider option to reduce gene ranges to retain only disjoint
+   ranges.
+   * Consider helper function to predict "best TSS" using expression data
+   with `tximport::summarizeToGene()` using gene_start as the key, to
+   determine the highest-abundance isoforms by TSS as a measure of most
+   likely "primary TSS". Bonus points for optionally calculating
+   "best TTS" using only isoforms compatible with that TSS. Otherwise,
+   from experience, there are one or two genes whose highest-signal TSS
+   is slightly downstream the highest-signal TTS, and this is not what
+   we want.
+   * Consider adding example GTF to show utility, input, and output.
+
+* Consider revisiting the ALE-related functions, clarify documentation,
+add example data and output.
+
+## 12feb2025
+
+* `sashimiDataConstants()`
+
+   * DONE. Argument `gtf` using `curl::curl_download()` only works properly
+   when it is a URL, with `http://` or `file://` prefix.
+   Using a local file causes an error, to be fixed.
+   * Fix error when `"jampack"` package is not installed, caused by
+   `packageVersion("jampack")` which throws an error.
+
+* Investigate warnings during processing. Should be resolved.
+
+   * "Removed 135 rows containing missing values or values outside
+   the scale range (`geom_text_repel()`)"
+
 ## 29oct2024
 
 * Debug error `"covNames must be colnames(GenomicRanges::values(gr))"`

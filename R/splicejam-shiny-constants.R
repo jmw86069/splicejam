@@ -375,7 +375,7 @@ sashimiAppConstants <- function
                ),
                htmltools::tags$li(
                   htmltools::strong(style="color:black", "jampack:"),
-                  as.character(packageVersion("jampack"))
+                  as.character(tryCatch(packageVersion("jampack"), error=function(e)"NA"))
                ),
                htmltools::tags$li(
                   htmltools::strong(style="color:black", "splicejam:"),

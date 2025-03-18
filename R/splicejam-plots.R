@@ -599,9 +599,9 @@ bgaPlotly3d <- function
       ),
       hoverlabel=list(
          bgcolor=dfSampleLinesDF$color,
-         bordercolor=setTextContrastColor(dfSampleLinesDF$color),
+         bordercolor=jamba::setTextContrastColor(dfSampleLinesDF$color),
          font=list(
-            color=setTextContrastColor(dfSampleLinesDF$color)
+            color=jamba::setTextContrastColor(dfSampleLinesDF$color)
          )
       ),
       marker=list(
@@ -641,9 +641,9 @@ bgaPlotly3d <- function
          opacity=centroidAlpha
          #hoverlabel=list(
          #   bgcolor=dfSampleLinesDF$color,
-         #   bordercolor=setTextContrastColor(dfSampleLinesDF$color),
+         #   bordercolor=jamba::setTextContrastColor(dfSampleLinesDF$color),
          #   font=list(
-         #      color=setTextContrastColor(dfSampleLinesDF$color))),
+         #      color=jamba::setTextContrastColor(dfSampleLinesDF$color))),
          #marker=list(
          #   size=dfSampleLinesDF$size,
          #   color=dfSampleLinesDF$color),
@@ -674,9 +674,9 @@ bgaPlotly3d <- function
          opacity=geneAlpha,
          hoverlabel=list(
             bgcolor=dfVgLDF$color,
-            bordercolor=setTextContrastColor(dfVgLDF$color),
+            bordercolor=jamba::setTextContrastColor(dfVgLDF$color),
             font=list(
-               color=setTextContrastColor(dfVgLDF$color))),
+               color=jamba::setTextContrastColor(dfVgLDF$color))),
          marker=list(
             size=dfVgLDF$size,
             color=dfVgLDF$color),
@@ -770,9 +770,9 @@ bgaPlotly3d <- function
             text=iGroup,
             hoverlabel=list(
                bgcolor=iGroupColor,
-               bordercolor=setTextContrastColor(iGroupColor),
+               bordercolor=jamba::setTextContrastColor(iGroupColor),
                font=list(
-                  color=setTextContrastColor(iGroupColor))),
+                  color=jamba::setTextContrastColor(iGroupColor))),
             flatshading=FALSE,
             #vertexcolor=iEllipseDF$color,
             vertexcolor=~color,

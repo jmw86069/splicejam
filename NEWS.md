@@ -1,9 +1,50 @@
 # splicejam 0.0.83.900
 
+## changes
+* Bumped jamba dependency to CRAN! Woot.
+* Bumped version dependencies for jamma, colorjam.
+* `makeTx2geneFromGtf()`
+
+   * refactored `getGtfAttrs()` into a separate function.
+   * Added capability to include chr, start, end, strand, or a composite
+   column "range" in format: `"chromosome:start-end:strand"`. It keeps track
+   of "gene_range" and "tx_range" independently where applicable.
+   * New argument `matchMethod="single"` retains default regexp behavior,
+   or `matchMethod="multi"` splits the key-value pairs, pivots to wide
+   format. Only in rare cases where a key is present twice (e.g. "tag")
+   will this option return different results. Potentially slightly
+   faster, but only about 10%, not the huge boost that was expected.
+
+## new functions
+
+* `getGtfAttrs()` convenient method to extract one or more known
+attributes, found as key-value pairs in column 9 of GTF or GFF3 format.
+It also recognizes chr,start,end,strand and "range" which creates
+a field in format: `"chromosome:start-end:strand"`.
+
 ## bug fixes
 
-* `sashimiDataConstants()` error `verbose` not found, fixed by repairing
-the variable after assigning to the custom environment.
+* `sashimiDataConstants()`
+
+   * error `verbose` not found, fixed by repairing
+   the variable after assigning to the custom environment.
+   * Fixed bug when given a local file for `gtf` causing an
+   error with `curl_download()` when it didn't have `"file://"`
+   prefix. Now, if `file.exists(gtf)` is `TRUE`, it uses the
+   file in-place without copying to the local directory.
+   However when preparing other files `tx2gene` and `txdb`,
+   it will store those files in the current directory, in order
+   to avoid trying to write to the `gtf` directory which may
+   not be writable.
+   * Help docs were updated to be more descriptive about the data
+   dependencies that can be provided upfront.
+
+* Added missing package prefixes for `jamba::setTextContrastColor()`.
+* `gene2gg()`
+
+   * fixed bug when providing both `gene` and `tx`, which
+   caused unintended duplication of some transcripts.
+   * removed conversion of `pt` to `mm` units
 
 # splicejam 0.0.82.900
 

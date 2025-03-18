@@ -18,11 +18,11 @@ Description: Jam Bioinformatics methods for RNA-seq and other genomics
     analysis methods. Sashimi coverage plots for RNA-seq, transcript isoform
     analysis methods to define detected isoforms from RNA-seq data, supporting
     methods for manipulating gene expression data.
-Depends: R (>= 3.0.0)
+Depends: R (>= 3.5.0)
 biocViews:
-Imports: jamba(>= 0.0.102.900),
+Imports: jamba(>= 1.0.0),
     jamma(>= 0.0.33.900),
-    colorjam(>= 0.0.28.900),
+    colorjam(>= 0.0.30.900),
     data.table,
     GenomicRanges,
     GenomicFeatures,
@@ -62,7 +62,7 @@ Suggests:
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-Remotes: github::jmw86069/jamba,
+Remotes:
     github::jmw86069/colorjam,
     github::jmw86069/jamma,
     github::jmw86069/farrisdata,
@@ -71,5 +71,5 @@ Remotes: github::jmw86069/jamba,
 URL: http://github.com/jmw86069/splicejam
 BugReports: http://github.com/jmw86069/splicejam/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr

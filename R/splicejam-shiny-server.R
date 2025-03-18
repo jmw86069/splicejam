@@ -18,12 +18,12 @@
 #'
 #' @family splicejam R-shiny functions
 #'
-#' # @import jamba
-#' # @import dplyr
-#' # @import ggplot2
-#' # @import plotly
-#' # @importFrom plotly subplot
-#' # @import GenomicRanges
+#' ## @import jamba
+#' ## @import dplyr
+#' ## @import ggplot2
+#' ## @import plotly
+#' ## @importFrom plotly subplot
+#' ## @import GenomicRanges
 #' @importFrom magrittr %>%
 #'
 #' @export
@@ -1042,7 +1042,7 @@ sashimiAppServer <- function
                ),
                color=DT::styleEqual(
                   levels=names(color_sub),
-                  values=setTextContrastColor(color_sub)
+                  values=jamba::setTextContrastColor(color_sub)
                )
             );
          }

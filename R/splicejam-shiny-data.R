@@ -67,12 +67,36 @@
 #'
 #' @param gtf,txdb,tx2geneDF,exonsByTx,cdsByTx objects used to define
 #'    the overall set of genes, transcripts, and associated exons and
-#'    CDS exons. See this function
-#'    description for more detail.
+#'    CDS exons. See this function description for more detail.
+#'    Notes:
+#'    * `gtf` can be a local file, in which case it will be loaded
+#'    from its current path without copying to the current directory,
+#'    as long as `file.exists(gtf)` is `TRUE`, which also means
+#'    it would not have the prefix `"file://"`.
+#'    However, when it has the prefix `"file://"` it will use
+#'    `curl::curl_download()` which will copy it to the current
+#'    directory.
+#'    In either case, when other files are derived, such as
+#'    `tx2gene` or `txdb`, those files are stored in the current
+#'    directory.
+#'    * `tx2geneDF` is a `data.frame` with at minimum two columns:
+#'    `gene_name` and `transcript_id`. It is possible to customize
+#'    these column names, however it is easiest to use these defaults.
+#'    * `exonsByTx` and `cdsByTx` are `GRangesList` objects, and
+#'    they are used to derive `flatExonsByTx` and `flatExonsByGene`
+#'    when those objects are not already provided.
+#'    Also, `exonsByTx` and `cdsByTx` are derived using `gtf` or `txdb`
+#'    when necessary to derive `flatExonsByTx` and `flatExonsByGene`.
 #' @param detectedTx,detectedGenes,flatExonsByGene,flatExonsByTx
 #'    objects used to derive a specific subset of gene-exon models
 #'    using only detected transcripts or genes. See this function
 #'    description for more detail.
+#'    * `detectedTx` and `detectedGenes` are `character` vectors.
+#'    * `flatExonsByTx` and `flatExonsByGene` are `GRangesList`,
+#'    where each `GRanges` element contains disjoint (non-overlapping)
+#'    ranges. When not provided, they are derived from `exonsByTx`
+#'    and `cdsByTx`, which also requires `tx2geneDF` and either
+#'    `gtf` or `txdb`.
 #' @param default_gene `character` string indicating the default
 #'    gene to use for the initial R-shiny figure.
 #' @param envir `environment` where data will be prepared, or when
@@ -204,7 +228,12 @@ sashimiDataConstants <- function
       }
       ## tx2geneDF
       if (length(envir$gtf) > 0) {
-         gtfBase <- basename(envir$gtf);
+         # Checkif envir$gtf is already a local file to use in place
+         gtfBase <- gtf;
+         gtfStem <- basename(gtfBase);
+         if (!file.exists(envir$gtf)) {
+            gtfBase <- gtfStem;
+         }
          if (!file.exists(gtfBase)) {
             jamba::printDebug("sashimiDataConstants(): ",
                "Downloading gtf: '", envir$gtf,
@@ -215,13 +244,13 @@ sashimiDataConstants <- function
          if (length(envir$tx2geneDF) == 0) {
             tx2geneFile <- gsub("[.](gff|gff3|gtf).*$",
                ".tx2geneDF.txt",
-               gtfBase,
+               gtfStem,
                ignore.case=TRUE);
             if (!file.exists(tx2geneFile)) {
                if (verbose) {
                   jamba::printDebug("sashimiDataConstants(): ",
                      "Deriving tx2geneDF from gtf: '",
-                     gtfBase,
+                     gtfStem,
                      "' then storing: '",
                      tx2geneFile, "'");
                }
@@ -264,12 +293,12 @@ sashimiDataConstants <- function
          } else {
             localDb <- gsub("[.](gff|gff3|gtf).*$",
                ".txdb",
-               gtfBase,
+               gtfStem,
                ignore.case=TRUE);
             if (!file.exists(localDb)) {
                jamba::printDebug("sashimiDataConstants(): ",
                   "Deriving txdb from gtf: '",
-                  gtfBase,
+                  gtfStem,
                   "' to store as: '",
                   localDb, "'");
                envir$txdb <- GenomicFeatures::makeTxDbFromGFF(gtfBase);

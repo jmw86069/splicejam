@@ -24,12 +24,40 @@ sashimiDataConstants(
 \arguments{
 \item{gtf, txdb, tx2geneDF, exonsByTx, cdsByTx}{objects used to define
 the overall set of genes, transcripts, and associated exons and
-CDS exons. See this function
-description for more detail.}
+CDS exons. See this function description for more detail.
+Notes:
+\itemize{
+\item \code{gtf} can be a local file, in which case it will be loaded
+from its current path without copying to the current directory,
+as long as \code{file.exists(gtf)} is \code{TRUE}, which also means
+it would not have the prefix \code{"file://"}.
+However, when it has the prefix \code{"file://"} it will use
+\code{curl::curl_download()} which will copy it to the current
+directory.
+In either case, when other files are derived, such as
+\code{tx2gene} or \code{txdb}, those files are stored in the current
+directory.
+\item \code{tx2geneDF} is a \code{data.frame} with at minimum two columns:
+\code{gene_name} and \code{transcript_id}. It is possible to customize
+these column names, however it is easiest to use these defaults.
+\item \code{exonsByTx} and \code{cdsByTx} are \code{GRangesList} objects, and
+they are used to derive \code{flatExonsByTx} and \code{flatExonsByGene}
+when those objects are not already provided.
+Also, \code{exonsByTx} and \code{cdsByTx} are derived using \code{gtf} or \code{txdb}
+when necessary to derive \code{flatExonsByTx} and \code{flatExonsByGene}.
+}}
 
 \item{detectedTx, detectedGenes, flatExonsByGene, flatExonsByTx}{objects used to derive a specific subset of gene-exon models
 using only detected transcripts or genes. See this function
-description for more detail.}
+description for more detail.
+\itemize{
+\item \code{detectedTx} and \code{detectedGenes} are \code{character} vectors.
+\item \code{flatExonsByTx} and \code{flatExonsByGene} are \code{GRangesList},
+where each \code{GRanges} element contains disjoint (non-overlapping)
+ranges. When not provided, they are derived from \code{exonsByTx}
+and \code{cdsByTx}, which also requires \code{tx2geneDF} and either
+\code{gtf} or \code{txdb}.
+}}
 
 \item{envir}{\code{environment} where data will be prepared, or when
 \code{envir=NULL} a new environment will be created and returned.}

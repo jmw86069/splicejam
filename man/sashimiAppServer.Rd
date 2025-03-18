@@ -25,4 +25,21 @@ calls \code{shiny::shinyApp()}, using arguments \code{server}, \code{ui},
 \code{onStart}, and \code{options}. This function fulfills the
 argument \code{server}.
 }
-\concept{splicejam R-shiny functions@import jamba@import dplyr@import ggplot2@import plotly@importFrom plotly subplot@import GenomicRanges}
+\concept{splicejam R-shiny functions
+\subsection{@import jamba}{
+}
+
+\subsection{@import dplyr}{
+}
+
+\subsection{@import ggplot2}{
+}
+
+\subsection{@import plotly}{
+}
+
+\subsection{@importFrom plotly subplot}{
+}
+
+\subsection{@import GenomicRanges}{
+}}

@@ -2,18 +2,75 @@
 % Please edit documentation in R/jambio-gtf.R
 \name{describeGtfAttrNames}
 \alias{describeGtfAttrNames}
-\title{describe gtf/gff3 attribute names}
+\title{describe gtf/gff3 attribute names by feature type}
 \usage{
 describeGtfAttrNames(
   GTF,
   geneFeatureType = "gene",
   txFeatureType = c("transcript", "mRNA"),
   nrows = 10000,
+  maxNper = 10,
+  maxAttrs = 50,
   zcat_command = "zcat",
   verbose = FALSE,
   ...
 )
 }
-\description{
-describe gtf/gff3 attribute names
+\arguments{
+\item{GTF}{\code{character} path to GTF or GFF3 file, or \code{data.frame}
+containing GTF or GFF3 data.}
+
+\item{geneFeatureType, txFeatureType}{\code{character} vectors with values in
+column 3 of the GTF or GFF3 file, used to subset then split the
+output data.
+\itemize{
+\item Return all feature types by providing any of these terms:
+".", "any", "all"
+}}
+
+\item{nrows}{\code{integer} max number of rows to process. For this purpose,
+summarizing the type of data seen for each feature type, a subset
+of rows is usually sufficient.}
+
+\item{maxNper}{\code{integer} default 10,  number of entries retained
+within each feature type. Set to \code{Inf} to retain all data.
+As a brief summary, 10 is sufficient to show typical content.}
+
+\item{maxAttrs}{\code{integer} default 50, maximum attributes to retain
+for each entry. Only in rare cases are more than 50 attributes
+present for one record, and typicaly these are the rare cases
+where those attributes were not necessary for annotation purposes.}
+
+\item{zcat_command}{\code{character} name or path to the \code{zcat} command or
+equivalent, used only when the R package 'R.utils' is not installed,
+and the input GTF has \code{.gz} file extension.}
+
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
+
+\item{...}{additional arguments are ignored.}
 }
+\value{
+\code{list} named by \verb{c(geneFeatureType, txFeatureType} with
+\code{data.frame} objects which have split the name/value pairs
+into columns. Each \code{data.frame} may have different columns,
+using the observed name/value pair data.
+}
+\description{
+describe gtf/gff3 attribute names by feature type
+}
+\details{
+\itemize{
+\item Note that when the "name" in a name/value pair is repeated,
+the first instance retains the name, while subsequent instances
+are versioned by \code{jamba::makeNames(x, renameFirst=FALSE)}.
+For example \code{"tag"} may appear multiple times, the resulting colnames
+will become: \code{c("tag", "tag_v1", "tag_v2")}.
+}
+}
+\seealso{
+Other jam gtf functions: 
+\code{\link{getGtfAttrs}()},
+\code{\link{makeTx2geneFromGtf}()},
+\code{\link{readGtf}()}
+}
+\concept{jam gtf functions}
