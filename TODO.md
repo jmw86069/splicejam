@@ -1,5 +1,60 @@
 # TODO for splicejam
 
+## 19mar2026
+
+* **Make a proper vignette describing the key steps!**
+* Add `testthat` unit tests.
+* `launchSashimiApp()`
+
+   * DONE. Enable multi-column gene-exon plot.
+   * Add options:
+   
+      * DONE. Hide junction label
+      * DEFER. Hide exon label. (See gene: TTN, Ttn).
+      ggrepel already hides labels when there are too many,
+      but junction counts sometimes aren't useful.
+      * DEFER. Option to zoom y-axis range?
+      Defer, since interactive plot should provide similar relief.
+      * DONE. Focus y-axis range based on display coordinates.
+
+   * PARTIAL. Enable more custom defaults: panel_height, share_y_axis,
+   junction_arc_factor, default_gene (already works, use as a model).
+   * Consider option to flatten exons by gene as needed, when not
+   provided up-front. It only requires 'txdb'.
+   * Add "bookmarks" to store per-gene settings, like exon range.
+   * Consider option to have **no gene** load at startup.
+
+* DEFER. Debug slow processing on Windows, and
+`simpleError in seqinfo(con): UCSC library operation failed`
+even though `seqinfo()` isn't called directly.
+
+   * The only workaround is to have bigwig files local on Windows.
+   * Apparently known issue on Windows, cannot load remote bigwig files.
+   `import.bw()` calls `seqinfo(bw)` which calls `expandPath()` then
+   `expandURL()` for remote files, and that process calls
+   `GET()` with `nobody=1` which retrieves the entire file then
+   discards the content body, which for bigwig files defeats the purpose
+   of using a position-indexed file.
+   That process is used simply to verify the URI.
+   `GET(uri, config)$url` pulls the entire bigwig to get the url.
+   Perhaps linux hosts correctly use only HEAD? Windows gets everything.
+   Workaround is to use local files, though that's just silly.
+   * Speed is reasonably good with local bigwig files.
+
+* Check memoise cache steps, when no coverage, it tries to repair.
+What if there is no coverage, it spends time trying to repair coverage.
+* Simplify the workflow.
+
+   * Consider SplicejamData object to contain the elements needed,
+   making it clear how to prepare data, and confirm it is ready to use.
+
+
+## 06nov2025
+
+* Confirm ggplot2-4.0.0 are compatible with splicejam.
+* Consider 'Gviz' as an alternate visual output.
+* Rewrite vignette "How-to" for people to use splicejam.
+
 ## 17mar2025
 
 * `makeTx2geneFromGtf()`

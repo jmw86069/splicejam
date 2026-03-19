@@ -191,7 +191,7 @@ bgaPlotly3d <- function
  paper_bgcolor="#dddddd",
  sampleGroups=NULL,
  debug=FALSE,
- verbose=TRUE,
+ verbose=FALSE,
  ...)
 {
    ## Purpose is to take BGA data and create a 3D plotly visualization

@@ -33,6 +33,8 @@ sashimiAppUI <- function
    nbsp <- htmltools::HTML("&nbsp;");
    nbsp3 <- htmltools::HTML("&nbsp;&nbsp;&nbsp;");
 
+   verbose <- getOption("verbose", FALSE)
+
    jam_get <- function
    (name, default, envir, verbose=FALSE, ...)
    {
@@ -72,6 +74,10 @@ sashimiAppUI <- function
          }
          return(get(name));
       }
+      if (verbose) {
+         jamba::printDebug("jam_get(): ",
+            "defined ", name, " from '", "default", "'");
+      }
       return(default);
    }
    jam_as_logical <- function(x) {
@@ -87,19 +93,24 @@ sashimiAppUI <- function
       100,
       verbose=TRUE,
       ...);
-   if (length(flatExonsByGene) > 0) {
-      exon_range_choices_default <- jamba::mixedSort(
-         jamba::vigrep("_exon",
-         #jamba::provigrep(unique(gsub("exon.*$", "exon", exon_range_selected)),
-               GenomicRanges::values(flatExonsByGene@unlistData)$gene_nameExon));
+   if (length(flatExonsByGene) == 0) {
+      stop("flatExonsByGene is required.");
+      # exon_range_choices_default <- jamba::mixedSort(
+      #    jamba::middle(
+      #    jamba::vigrep("_exon",
+      #          GenomicRanges::values(flatExonsByGene@unlistData)$gene_nameExon)),
+      #    100);
    }
-   if (exists("gene") && length(gene) == 1 && nchar(gene) > 0) {
-      exon_range_choices_default <- GenomicRanges::values(flatExonsByGene[[gene]])$gene_nameExon;
-      #exon_range_choices_default <- jamba::mixedSort(
-      #   jamba::vigrep(paste0("^", gene, "_"),
-      #      exon_range_choices_default));
-   } else if (exists("default_gene") && length(default_gene) == 1 && nchar(default_gene) > 0) {
-      exon_range_choices_default <- GenomicRanges::values(flatExonsByGene[[default_gene]])$gene_nameExon;
+   if (exists("gene") &&
+         length(gene) == 1 &&
+         nchar(gene) > 0) {
+      exon_range_choices_default <- GenomicRanges::values(
+         flatExonsByGene[[gene]])$gene_nameExon;
+   } else if (exists("default_gene") &&
+         length(default_gene) == 1 &&
+         nchar(default_gene) > 0) {
+      exon_range_choices_default <- GenomicRanges::values(
+         flatExonsByGene[[default_gene]])$gene_nameExon;
       gene <- default_gene;
    }
    if (exists("gene")) {
@@ -126,6 +137,7 @@ sashimiAppUI <- function
    #   file="debug_output.txt");
 
    layout_ncol <- jam_get("layout_ncol", 1, verbose=TRUE, ...);
+   # include_strand <- jam_get("include_strand", "both", verbose=TRUE, ...);
    include_strand <- jam_get("layout_ncol", "both", verbose=TRUE, ...);
    use_exon_names <- jam_get("use_exon_names", "coordinates", verbose=TRUE, ...);
    share_y_axis <- jam_as_logical(jam_get("share_y_axis", TRUE, verbose=TRUE, ...));
@@ -160,6 +172,10 @@ sashimiAppUI <- function
             icon=shiny::icon("info"))
       )
    );
+   if (verbose) {
+      jamba::printDebug("shinyAppUI(): ",
+         "defined sidebar")
+   }
 
    # define Sashimi Plot tab
    sashimiplotTab <- shiny::fluidPage(
@@ -224,8 +240,9 @@ sashimiAppUI <- function
                         status="primary",
                         choices=c("coordinates", "exon names"),
                         selected=use_exon_names,
-                        checkIcon = list(
-                           yes=shiny::icon("ok", lib="glyphicon")
+                        checkIcon=list(
+                           # yes=shiny::icon("ok", lib="glyphicon")
+                           yes=shiny::icon("check")
                         ),
                         #width="90%",
                         label="Slider bar measurement"
@@ -241,7 +258,9 @@ sashimiAppUI <- function
                         selected=include_strand,
                         status="primary",
                         checkIcon=list(
-                           yes=shiny::icon("ok", lib="glyphicon"))
+                           # yes=shiny::icon("ok", lib="glyphicon")
+                           yes=shiny::icon("check")
+                        )
                      )
                   ),
                   shiny::column(
@@ -360,6 +379,12 @@ sashimiAppUI <- function
                            status="primary",
                            label="Display filter legend")
                      ),
+                     shinyWidgets::prettyCheckbox(
+                        inputId="label_junctions",
+                        value=FALSE,
+                        icon=shiny::icon("check"),
+                        status="primary",
+                        label="Label junction counts?"),
                      shinyWidgets::sliderTextInput(
                         inputId="panel_height",
                         label="Height per panel:",

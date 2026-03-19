@@ -58,14 +58,14 @@
 #'    used to match `filesDF$sample_id`. When not supplied,
 #'    colors are defined by `colorjam::group2colors()` and
 #'    `unique(filesDF$sample_id)`.
-#' * **txdb**: `TranscriptDb` object used to derive `exonsByTx`
+#' * **txdb**: `TxDb` class object used to derive `exonsByTx`
 #'    and `cdsByTx` if either object does not already exist. If `txdb`
 #'    is not supplied, it is derived from `gtf` using
-#'    `GenomicFeatures::makeTxDbFromGFF()`.
+#'    `txdbmaker::makeTxDbFromGFF()`.
 #' * **tx2geneDF**: `data.frame` with colnames: `"transcript_id"` and
 #'    `"gene_name"`.
 #' * **gtf**: `character` path to a GTF/GFF/GFF3 file, suitable for
-#'    `GenomicFeatures::makeTxDbFromGFF()`. The `gtf` is only used
+#'    `txdbmaker::makeTxDbFromGFF()`. The `gtf` is only used
 #'    if `tx2geneDF` or `exonsByTx` are not supplied. Note that
 #'    when `gtf` points to a remote server, the file is copied to
 #'    the current working directory for more rapid use.

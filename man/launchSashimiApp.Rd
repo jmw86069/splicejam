@@ -8,7 +8,7 @@ launchSashimiApp(
   ...,
   envir = globalenv(),
   options = list(width = 1200),
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

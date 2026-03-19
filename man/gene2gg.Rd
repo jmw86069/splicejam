@@ -24,6 +24,7 @@ gene2gg(
   compressGaps = TRUE,
   tx2geneDF = NULL,
   label_coords = NULL,
+  layout_ncol = 1,
   verbose = FALSE,
   ...
 )
@@ -108,6 +109,10 @@ genomic coordinates to restrict labels, so labels are not
 arranged by \code{ggrepel::geom_text_repel()} even when \code{coord_cartesian()}
 is used to zoom into a specific x-axis range.}
 
+\item{layout_ncol}{\code{numeric} default 1, the number of columns
+output, intended to help align gene model with multi-column
+sashimi plot output using \code{ggplot2::facet_wrap()}.}
+
 \item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are passed to relevant functions
@@ -136,6 +141,9 @@ test_flatExonsByGene <- GenomicRanges::split(test_exon_wide_gr,
 
 # The most basic plot of exons
 gene2gg(gene="TestGene1", flatExonsByGene=test_flatExonsByGene);
+
+# The most basic plot of exons, layout_ncol=2
+gene2gg(gene="TestGene1", layout_ncol=2, flatExonsByGene=test_flatExonsByGene);
 
 # You can be fancy and number the exons
 test_flatExonsByGene <- assignGRLexonNames(test_flatExonsByGene,

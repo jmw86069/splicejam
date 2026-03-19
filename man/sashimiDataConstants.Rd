@@ -104,11 +104,11 @@ Data derived by this function \code{sashimiDataConstants()}:
 \item \strong{txdb}: \code{TranscriptDb} object used to derive \code{exonsByTx}
 and \code{cdsByTx} if either object does not already exist. If \code{txdb}
 is not supplied, it is derived from \code{gtf} using
-\code{GenomicFeatures::makeTxDbFromGFF()}.
+\code{txdbmaker::makeTxDbFromGFF()}.
 \item \strong{tx2geneDF}: \code{data.frame} with colnames: \code{"transcript_id"} and
 \code{"gene_name"}.
 \item \strong{gtf}: \code{character} path to a GTF/GFF/GFF3 file, suitable for
-\code{GenomicFeatures::makeTxDbFromGFF()}. The \code{gtf} is only used
+\code{txdbmaker::makeTxDbFromGFF()}. The \code{gtf} is only used
 if \code{tx2geneDF} or \code{exonsByTx} are not supplied. Note that
 when \code{gtf} points to a remote server, the file is copied to
 the current working directory for more rapid use.

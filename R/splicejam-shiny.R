@@ -153,7 +153,7 @@ launchSashimiApp <- function
 (...,
  envir=globalenv(),
  options=list(width=1200),
- verbose=TRUE)
+ verbose=FALSE)
 {
 
    # retrieve an environment that contains the required data

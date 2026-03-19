@@ -36,7 +36,7 @@ bgaPlotly3d(
   paper_bgcolor = "#dddddd",
   sampleGroups = NULL,
   debug = FALSE,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }

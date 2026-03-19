@@ -17,25 +17,45 @@ import_juncs_from_bed(
 )
 }
 \arguments{
-\item{iBed}{path or URL to one BED file containing splice
-junction data. The score is expected to be stored in the
+\item{iBed}{\code{character} path or URL to one BED file containing splice
+junction data. The score is typially expected to be stored in the
 name column (column 3), primarily because the score column
-is sometimes restricted to maximum value 1000. However if
-the name column cannot be converted to numeric without
-creating NA values, then the score column will be used.}
+is restricted to maximum value 1000 when used for UCSC tracks.
 
-\item{juncNames}{the name of the junction source file}
+This process also recognizes names in the form "JUNC000000_1234"
+where the read depth/score is interpreted as "1234". When all
+entries have this name convention, the values are converted to
+numeric and used to populate the "score" column.
+
+If not all values in the "name" column can be converted to numeric
+without introducing NA values, the "score" column is used as-is.
+
+If you see scores with maximum value "1000" the "name" field is
+probably not being used properly as a numeric score.}
+
+\item{juncNames}{\code{character} the name of the junction source file}
 
 \item{sample_id}{character string representing the sample
 identifier.}
 
-\item{scale_factor}{numeric value used to adjust the raw
+\item{scale_factor}{\code{numeric} value used to adjust the raw
 score, applied by multiplying the scale_factor by each score.}
 
-\item{gr}{GRanges representing the overall range for which
+\item{use_memoise}{\code{logical} default FALSE, whether to cache data
+using memoise.}
+
+\item{memoise_junction_path}{\code{character} default 'junctions_memoise'
+with default subdirectory for memoise cache files, used only
+when \code{use_memoise=TRUE}.}
+
+\item{gr}{\code{GRanges} representing the overall range for which
 junction data will be retrieved. Note that any junctions
 that span this range, but do not start or end inside this
 range, will be removed.}
+
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
+
+\item{...}{additional arguments are ignored.}
 }
 \description{
 Import splice junction data from BED or SJ.out.tab file

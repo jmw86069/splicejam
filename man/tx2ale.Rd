@@ -18,10 +18,10 @@ tx2ale(
 }
 \arguments{
 \item{gtf}{character path to a GTF file, used to import gene models
-using Bioconductor \code{GenomicFeatures::makeTxDbFromGFF()}
+using Bioconductor \code{txdbmaker::makeTxDbFromGFF()}
 to create a transcriptDb object. If supplied, and if \code{tx2geneDF}
 is NULL, then \code{tx2geneDF} will be created using
-\code{makeTx2geneFromGtf}.}
+\code{makeTx2geneFromGtf()}.}
 
 \item{txdb}{a \code{TxDb} object as defined by Bioconductor
 package \code{GenomicFeatures}. Note that when reloading an R session,

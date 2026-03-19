@@ -537,6 +537,9 @@ grl2df <- function
 #'    genomic coordinates to restrict labels, so labels are not
 #'    arranged by `ggrepel::geom_text_repel()` even when `coord_cartesian()`
 #'    is used to zoom into a specific x-axis range.
+#' @param layout_ncol `numeric` default 1, the number of columns
+#'    output, intended to help align gene model with multi-column
+#'    sashimi plot output using `ggplot2::facet_wrap()`.
 #' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are passed to relevant functions
 #'    as needed, including `make_ref2compressed()`.
@@ -549,6 +552,9 @@ grl2df <- function
 #'
 #' # The most basic plot of exons
 #' gene2gg(gene="TestGene1", flatExonsByGene=test_flatExonsByGene);
+#'
+#' # The most basic plot of exons, layout_ncol=2
+#' gene2gg(gene="TestGene1", layout_ncol=2, flatExonsByGene=test_flatExonsByGene);
 #'
 #' # You can be fancy and number the exons
 #' test_flatExonsByGene <- assignGRLexonNames(test_flatExonsByGene,
@@ -598,6 +604,7 @@ gene2gg <- function
  compressGaps=TRUE,
  tx2geneDF=NULL,
  label_coords=NULL,
+ layout_ncol=1,
  verbose=FALSE,
  ...)
 {
@@ -810,6 +817,28 @@ gene2gg <- function
          ((labelExons*1) * length(grl1a1))/2);
    ymin <- -0.5;
 
+   ## layout_ncol > 1 for non-df return_type
+   layout_ncol <- round(layout_ncol);
+   if (layout_ncol > 1 && !"df" %in% return_type) {
+      # simplest approach is to duplicate the df, facet by colnum
+      grl1a1df <- jamba::rbindList(lapply(seq_len(layout_ncol), function(icol){
+         data.frame(check.names=FALSE,
+            grl1a1df,
+            layout_colnum=icol)
+      }))
+      exonLabelDF <- jamba::rbindList(lapply(seq_len(layout_ncol),
+         function(icol){
+         data.frame(check.names=FALSE,
+            exonLabelDF,
+            layout_colnum=icol)
+      }))
+   }
+
+   # return data.frame early to save time
+   if ("df" %in% return_type) {
+      return(grl1a1df);
+   }
+
    ## Put it together
    grl1a1gg <- ggplot2::ggplot(grl1a1df,
          ggplot2::aes(x=x,
@@ -838,10 +867,14 @@ gene2gg <- function
          limits=c(ymin, length(grl1a1)-0.5),
          expand=ggplot2::expansion(mult=c(labelExons * 2, 0)),
          labels=names(grl1a1));
+
+   # Apply custom ref2c compressed axis
    if (length(ref2c) > 0) {
       grl1a1gg <- grl1a1gg +
          ggplot2::scale_x_continuous(trans=ref2c$trans_grc);
    }
+
+   # Add exon labels if relevant
    if (labelExons && length(exonLabelDF) > 0 && nrow(exonLabelDF) > 0) {
       if (1 || length(ref2c) == 0) {
          grl1a1gg <- grl1a1gg +
@@ -880,12 +913,19 @@ gene2gg <- function
       }
    }
 
+   ## Optionally facet by colnum, then hide the strip labels
+   if ("layout_colnum" %in% colnames(grl1a1df)) {
+      grl1a1gg <- grl1a1gg +
+         ggplot2::facet_wrap(~layout_colnum,
+            ncol=layout_ncol) +
+         ggplot2::theme(
+            strip.text=ggplot2::element_blank(),
+            strip.background=ggplot2::element_blank());
+   }
+
    if (length(gene) > 0) {
       grl1a1gg <- grl1a1gg +
          ggplot2::ggtitle(paste0(jamba::cPaste(gene), " exon model"));
-   }
-   if ("df" %in% return_type) {
-      return(grl1a1df);
    }
    if (length(ref2c) > 0) {
       attr(grl1a1gg, "ref2c") <- ref2c;
@@ -1618,6 +1658,8 @@ plotSashimi <- function
          ## Todo: nudge_y to adjust labels consistently above the ribbon
          max_junc_y <- max(subset(cjDF, type %in% "junction_label")$y,
             na.rm=TRUE);
+         jamba::printDebug("plotSashimi(): ",
+            "VERBOSE: Adding junction labels.");
          gg_sashimi <- gg_sashimi +
             ggrepel::geom_text_repel(
                data=. %>% dplyr::filter(type %in% "junction_label" &

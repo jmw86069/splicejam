@@ -15,11 +15,11 @@
 #' * **txdb**: `TranscriptDb` object used to derive `exonsByTx`
 #'    and `cdsByTx` if either object does not already exist. If `txdb`
 #'    is not supplied, it is derived from `gtf` using
-#'    `GenomicFeatures::makeTxDbFromGFF()`.
+#'    `txdbmaker::makeTxDbFromGFF()`.
 #' * **tx2geneDF**: `data.frame` with colnames: `"transcript_id"` and
 #'    `"gene_name"`.
 #' * **gtf**: `character` path to a GTF/GFF/GFF3 file, suitable for
-#'    `GenomicFeatures::makeTxDbFromGFF()`. The `gtf` is only used
+#'    `txdbmaker::makeTxDbFromGFF()`. The `gtf` is only used
 #'    if `tx2geneDF` or `exonsByTx` are not supplied. Note that
 #'    when `gtf` points to a remote server, the file is copied to
 #'    the current working directory for more rapid use.
@@ -287,7 +287,7 @@ sashimiDataConstants <- function
       ## Now make TxDb in order to derive exonsByTx and cdsByTx
       #if (length(exonsByTx) == 0 || length(cdsByTx) == 0) {
       if (length(envir$exonsByTx) == 0) {
-         if (length(envir$txdb) > 0) {
+         if (length(envir$txdb) > 0 && inherits(envir$txdb, "TxDb")) {
             jamba::printDebug("sashimiDataConstants(): ",
                "Using supplied txdb.");
          } else {
@@ -301,7 +301,7 @@ sashimiDataConstants <- function
                   gtfStem,
                   "' to store as: '",
                   localDb, "'");
-               envir$txdb <- GenomicFeatures::makeTxDbFromGFF(gtfBase);
+               envir$txdb <- txdbmaker::makeTxDbFromGFF(gtfBase);
                AnnotationDbi::saveDb(x=envir$txdb,
                   file=localDb);
             } else {

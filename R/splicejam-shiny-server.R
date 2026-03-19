@@ -145,7 +145,7 @@ sashimiAppServer <- function
       }
       input$junction_alpha;
    });
-   junction_alpha_d <- debounce(junction_alpha, debounce_ms);
+   junction_alpha_d <- shiny::debounce(junction_alpha, debounce_ms);
    junction_arc_factor <- shiny::reactive({
       arcValues <- c(
          `-2 flat`=0,
@@ -159,7 +159,7 @@ sashimiAppServer <- function
       }
       arcValues[input$junction_arc_factor]
    });
-   junction_arc_factor_d <- debounce(junction_arc_factor, debounce_ms);
+   junction_arc_factor_d <- shiny::debounce(junction_arc_factor, debounce_ms);
 
    junction_arc_minimum <- shiny::reactive({
       if (length(input$junction_arc_minimum) == 0) {
@@ -167,35 +167,35 @@ sashimiAppServer <- function
       }
       as.numeric(input$junction_arc_minimum);
    });
-   junction_arc_minimum_d <- debounce(junction_arc_minimum, debounce_ms);
+   junction_arc_minimum_d <- shiny::debounce(junction_arc_minimum, debounce_ms);
    share_y_axis <- shiny::reactive({
       if (length(input$share_y_axis) == 0) {
          return(TRUE);
       }
       return(input$share_y_axis);
    });
-   share_y_axis_d <- debounce(share_y_axis, debounce_ms);
+   share_y_axis_d <- shiny::debounce(share_y_axis, debounce_ms);
    show_gene_model <- shiny::reactive({
       if (length(input$show_gene_model) == 0) {
          return(TRUE)
       }
       input$show_gene_model
    });
-   show_gene_model_d <- debounce(show_gene_model, debounce_ms);
+   show_gene_model_d <- shiny::debounce(show_gene_model, debounce_ms);
    show_tx_model <- shiny::reactive({
       if (length(input$show_tx_model) == 0) {
          return(TRUE)
       }
       input$show_tx_model
    });
-   show_tx_model_d <- debounce(show_tx_model, debounce_ms);
+   show_tx_model_d <- shiny::debounce(show_tx_model, debounce_ms);
    show_detected_tx <- shiny::reactive({
       if (length(input$show_detected_tx) == 0) {
          return(TRUE)
       }
       input$show_detected_tx;
    });
-   show_detected_tx_d <- debounce(show_detected_tx, debounce_ms);
+   show_detected_tx_d <- shiny::debounce(show_detected_tx, debounce_ms);
    exon_label_size <- shiny::reactive({
       font_sizing <- input$exon_label_size;
       if (length(font_sizing) == 0) {
@@ -215,21 +215,21 @@ sashimiAppServer <- function
       );
       base_font_size;
    });
-   exon_label_size_d <- debounce(exon_label_size, debounce_ms);
+   exon_label_size_d <- shiny::debounce(exon_label_size, debounce_ms);
    panel_height <- shiny::reactive({
       if (length(input$panel_height) == 0) {
          return(200)
       }
       input$panel_height;
    });
-   panel_height_d <- debounce(panel_height, debounce_ms);
+   panel_height_d <- shiny::debounce(panel_height, debounce_ms);
    gene_panel_height <- shiny::reactive({
       if (length(input$gene_panel_height) == 0) {
          return(200)
       }
       input$gene_panel_height;
    });
-   gene_panel_height_d <- debounce(gene_panel_height, debounce_ms);
+   gene_panel_height_d <- shiny::debounce(gene_panel_height, debounce_ms);
    font_sizing <- shiny::reactive({
       font_sizing <- input$font_sizing;
       if (length(font_sizing) == 0) {
@@ -249,21 +249,29 @@ sashimiAppServer <- function
       );
       base_font_size * 1.5;
    });
-   font_sizing_d <- debounce(font_sizing, debounce_ms);
+   font_sizing_d <- shiny::debounce(font_sizing, debounce_ms);
    do_plotly <- shiny::reactive({
       if (length(input$do_plotly) == 0) {
          return(FALSE)
       }
       input$do_plotly;
    });
-   do_plotly_d <- debounce(do_plotly, debounce_ms);
+   do_plotly_d <- shiny::debounce(do_plotly, debounce_ms);
+   label_junctions <- shiny::reactive({
+      if (length(input$label_junctions) == 0) {
+         return(FALSE)
+      }
+      input$label_junctions;
+   });
+   label_junctions_d <- shiny::debounce(label_junctions, debounce_ms);
+
    enable_highlights <- shiny::reactive({
       if (length(input$enable_highlights) == 0) {
          return(FALSE)
       }
       input$enable_highlights;
    });
-   enable_highlights_d <- debounce(enable_highlights, debounce_ms);
+   enable_highlights_d <- shiny::debounce(enable_highlights, debounce_ms);
 
 
    # update the "Update" button when something has changed
@@ -761,7 +769,9 @@ sashimiAppServer <- function
       ## Obtain the baseline ggplot object
       display_coords <- get_display_coords();
       gg_sashimi <- plotSashimi(sashimi_data,
-         show=c("coverage", "junction", "junctionLabels"),
+         show=jamba::rmNA(c("coverage",
+            "junction",
+            ifelse(label_junctions_d(), "junctionLabels", NA))),
          color_sub=color_sub,
          do_highlight=do_plotly_d(),
          facet_scales=facet_scales,
@@ -776,7 +786,7 @@ sashimiAppServer <- function
          # change from facet_grid to facet_wrap()
          if (verbose) {
             jamba::printDebug("sashimiAppServer(): ",
-               "Applying facet_wrap() with ncol:",
+               "Applying facet_wrap() with layout_ncol:",
                layout_ncol);
          }
          gg_sashimi <- gg_sashimi +
@@ -798,11 +808,16 @@ sashimiAppServer <- function
                   jamba::printDebug("preparing to show detected transcripts:",
                      length(flatExonsByTx[names(flatExonsByTx) %in% detectedTx]));
                   if (length(flatExonsByTx[names(flatExonsByTx) %in% detectedTx]) == 0) {
-                     jamba::printDebug("No transcripts in flatExonsByTx matched detectedTx. Showing head(names(flatExonsByTx)), then head(flatExonsByTx):");
+                     jamba::printDebug(paste(
+                        "No transcripts in flatExonsByTx matched detectedTx.",
+                        "Showing head(names(flatExonsByTx)),",
+                        "then head(flatExonsByTx):"));
                      print(head(names(flatExonsByTx)));
                      print(head(flatExonsByTx));
                   } else {
-                     print(head(subset(flatExonsByTx[names(flatExonsByTx) %in% detectedTx]@unlistData, gene_name %in% gene)));
+                     print(head(
+                        subset(flatExonsByTx[names(flatExonsByTx) %in%
+                              detectedTx]@unlistData, gene_name %in% gene)));
                   }
                }
                gg_gene <- gene2gg(gene=gene,
@@ -810,6 +825,7 @@ sashimiAppServer <- function
                   flatExonsByTx=flatExonsByTx[names(flatExonsByTx) %in% detectedTx],
                   label_coords=display_coords,
                   ref2c=ref2c,
+                  layout_ncol=layout_ncol,
                   exonLabelSize=14 + exon_label_size_d() + font_sizing_d());
             } else {
                # TODO: recalculate flat exons for the gene using all transcripts
@@ -818,6 +834,7 @@ sashimiAppServer <- function
                   flatExonsByTx=flatExonsByTx,
                   label_coords=display_coords,
                   ref2c=ref2c,
+                  layout_ncol=layout_ncol,
                   exonLabelSize=14 + exon_label_size_d() + font_sizing_d());
             }
          } else {
@@ -825,6 +842,7 @@ sashimiAppServer <- function
                flatExonsByGene=flatExonsByGene1,
                label_coords=display_coords,
                ref2c=ref2c,
+               layout_ncol=layout_ncol,
                exonLabelSize=14 + exon_label_size_d() + font_sizing_d());
          }
          # why is this statement here?
@@ -872,6 +890,20 @@ sashimiAppServer <- function
                "Preparing plotly output.");
          }
          display_coords <- get_display_coords();
+
+         ## 0.0.84.900: determine y-axis range when xlim is provided
+         use_ylim <- NULL;
+         # share_y_axis_d()
+         if (share_y_axis_d() && inherits(gg_sashimi$data, "data.frame")) {
+            ## Take observed y-axis values
+            ## Todo: Decide whether to take only coverage or junction arcs,
+            ## since sometimes the arc may be far above the coverage.
+            use_ylim <- range(c(0, subset(gg_sashimi$data, !is.na(x) &
+                  x >= min(display_coords) &
+                  x <= max(display_coords))$y), na.rm=TRUE);
+            # jamba::printDebug("Calculated use_ylim: ", use_ylim);# debug
+         }
+
          if (show_gene_model_d()) {
             ## use plotly, showing gene model
             ggly1 <- plotly::ggplotly(
@@ -879,7 +911,9 @@ sashimiAppServer <- function
                   colorjam::theme_jam(base_size=base_size) +
                   ggplot2::theme(axis.text.x=ggplot2::element_blank()) +
                   ggplot2::xlab(NULL) +
-                  ggplot2::coord_cartesian(xlim=display_coords),
+                  ggplot2::coord_cartesian(
+                     xlim=display_coords,
+                     ylim=use_ylim),
                tooltip="text",
                plot_height=plot_heights[1])
                # %>% plotly::style(hoveron="fill")
@@ -911,7 +945,10 @@ sashimiAppServer <- function
                gg_sashimi +
                   colorjam::theme_jam(base_size=base_size) +
                   ggplot2::xlab(ref_name) +
-                  ggplot2::coord_cartesian(xlim=get_display_coords()),
+                  ggplot2::coord_cartesian(
+                     # xlim=get_display_coords(),
+                     xlim=display_coords,
+                     use_ylim),
                tooltip="text",
                height=plot_height
             )
@@ -940,6 +977,7 @@ sashimiAppServer <- function
          return(plotly_out);
       } else {
          ##########################################################
+         # Non-Plotly, use ggplot2 static figure
          if (verbose) {
             jamba::printDebug("sashimiAppServer(): ",
                "Preparing ggplot output.");
@@ -953,8 +991,20 @@ sashimiAppServer <- function
          }
          if (length(display_coords) > 0) {
             #if (length(reactive_gene_coords$xlim) == 0) {
-               reactive_gene_coords$xlim <- display_coords;
+            reactive_gene_coords$xlim <- display_coords;
             #}
+            ## 0.0.84.900: determine y-axis range when xlim is provided
+            use_ylim <- NULL;
+            if (share_y_axis_d() && inherits(gg_sashimi$data, "data.frame")) {
+               ## Take observed y-axis values
+               ## Todo: Decide whether to take only coverage or junction arcs,
+               ## since sometimes the arc may be far above the coverage.
+               use_ylim <- range(c(0, subset(gg_sashimi$data, !is.na(x) &
+                     x >= min(display_coords) &
+                     x <= max(display_coords))$y), na.rm=TRUE);
+               # jamba::printDebug("Calculated use_ylim: ", use_ylim);# debug
+            }
+
             if (show_gene_model_d()) {
                ## With gene-transcript-exon model
                cp <- cowplot::plot_grid(
@@ -962,12 +1012,15 @@ sashimiAppServer <- function
                      colorjam::theme_jam(base_size=base_size) +
                      ggplot2::theme(axis.text.x=ggplot2::element_blank()) +
                      ggplot2::xlab(NULL) +
-                     ggplot2::coord_cartesian(xlim=reactive_gene_coords$xlim),
+                     ggplot2::coord_cartesian(
+                        xlim=reactive_gene_coords$xlim,
+                        ylim=use_ylim),
                   gg_gene +
                      colorjam::theme_jam(base_size=base_size) +
                      ggplot2::ggtitle(NULL) +
                      ggplot2::xlab(ref_name) +
-                     ggplot2::coord_cartesian(xlim=reactive_gene_coords$xlim),
+                     ggplot2::coord_cartesian(
+                        xlim=reactive_gene_coords$xlim),
                   ncol=1,
                   align="v",
                   axis="lr",

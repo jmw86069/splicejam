@@ -748,7 +748,20 @@ exoncov2polygon <- function
          colnames(GenomicRanges::values(gr)));
    }
    if (length(covNames) == 0) {
-      stop("covNames must be colnames(GenomicRanges::values(gr)).");
+      # Condition occurs when no coverage is available,
+      # often when bigwig files are not accessible at all.
+      stop_msg <- paste0("Empty covnames suggests coverage data ",
+         "are not available or do not match ",
+         "colnames(GenomicRanges::values(gr)): ",
+         jamba::cPaste(colnames(GenomicRanges::values(gr))));
+      if (verbose) {
+         jamba::printDebug(stop_msg);
+      }
+      stop(stop_msg);
+      ## 0.0.84.900: return NULL instead of stop()
+      ## to allow subsequent steps to succeeed.
+      ## Edge case: Let it display only junctions, without coverage.
+      return(NULL);
    }
    retVals <- list();
 
@@ -1290,29 +1303,34 @@ prepareSashimi <- function
             ...);
          ## Enforce ordered factor levels for sample_id
          ## which also forces empty factor levels if applicable
-         covDF$sample_id <- factor(
-            as.character(covDF$sample_id),
-            levels=unique(sample_id)
-         );
+         if (length(covDF) > 0) {
+            covDF$sample_id <- factor(
+               as.character(covDF$sample_id),
+               levels=unique(sample_id)
+            );
+         }
          if (any(c("all", "covDF") %in% return_data)) {
             retVals$covDF <- covDF;
          }
          ########################################
          ## Optional exon labels
-         covDFsub <- (as.character(covDF$gr) %in% names(gr));
-         covDFlab <- covDF[covDFsub, , drop=FALSE];
+         exonLabelDF <- NULL;
+         if (length(covDF) > 0 && nrow(covDF) > 0) {
+            covDFsub <- (as.character(covDF$gr) %in% names(gr));
+            covDFlab <- subset(covDF, covDFsub);
 
-         exonLabelDF1 <- shrinkMatrix(covDFlab[, c("x", "y"), drop=FALSE],
-            groupBy=jamba::pasteByRowOrdered(
-               covDFlab[, c("gr", "sample_id"), drop=FALSE], sep=":!:"),
-            shrinkFunc=function(x){mean(range(x))});
-         exonLabelDF1[,c("gr","sample_id")] <- jamba::rbindList(
-            strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
-         exonLabelDF1$gr <- factor(exonLabelDF1$gr,
-            levels=unique(exonLabelDF1$gr));
-         exonLabelDF <- jamba::renameColumn(exonLabelDF1,
-            from="groupBy",
-            to="gr_sample");
+            exonLabelDF1 <- shrinkMatrix(covDFlab[, c("x", "y"), drop=FALSE],
+               groupBy=jamba::pasteByRowOrdered(
+                  covDFlab[, c("gr", "sample_id"), drop=FALSE], sep=":!:"),
+               shrinkFunc=function(x){mean(range(x))});
+            exonLabelDF1[,c("gr","sample_id")] <- jamba::rbindList(
+               strsplit(as.character(exonLabelDF1$groupBy), ":!:"));
+            exonLabelDF1$gr <- factor(exonLabelDF1$gr,
+               levels=unique(exonLabelDF1$gr));
+            exonLabelDF <- jamba::renameColumn(exonLabelDF1,
+               from="groupBy",
+               to="gr_sample");
+         }
          if (any(c("all", "covDF") %in% return_data)) {
             retVals$exonLabelDF <- exonLabelDF;
          }
@@ -2049,21 +2067,37 @@ internal_junc_score <- function
 #'
 #' @family jam data import functions
 #'
-#' @param iBed path or URL to one BED file containing splice
-#'    junction data. The score is expected to be stored in the
+#' @param iBed `character` path or URL to one BED file containing splice
+#'    junction data. The score is typially expected to be stored in the
 #'    name column (column 3), primarily because the score column
-#'    is sometimes restricted to maximum value 1000. However if
-#'    the name column cannot be converted to numeric without
-#'    creating NA values, then the score column will be used.
-#' @param juncNames the name of the junction source file
+#'    is restricted to maximum value 1000 when used for UCSC tracks.
+#'
+#'    This process also recognizes names in the form "JUNC000000_1234"
+#'    where the read depth/score is interpreted as "1234". When all
+#'    entries have this name convention, the values are converted to
+#'    numeric and used to populate the "score" column.
+#'
+#'    If not all values in the "name" column can be converted to numeric
+#'    without introducing NA values, the "score" column is used as-is.
+#'
+#'    If you see scores with maximum value "1000" the "name" field is
+#'    probably not being used properly as a numeric score.
+#' @param juncNames `character` the name of the junction source file
 #' @param sample_id character string representing the sample
 #'    identifier.
-#' @param scale_factor numeric value used to adjust the raw
+#' @param scale_factor `numeric` value used to adjust the raw
 #'    score, applied by multiplying the scale_factor by each score.
-#' @param gr GRanges representing the overall range for which
+#' @param use_memoise `logical` default FALSE, whether to cache data
+#'    using memoise.
+#' @param memoise_junction_path `character` default 'junctions_memoise'
+#'    with default subdirectory for memoise cache files, used only
+#'    when `use_memoise=TRUE`.
+#' @param gr `GRanges` representing the overall range for which
 #'    junction data will be retrieved. Note that any junctions
 #'    that span this range, but do not start or end inside this
 #'    range, will be removed.
+#' @param verbose `logical` indicating whether to print verbose output.
+#' @param ... additional arguments are ignored.
 #'
 #' @import data.table
 #'
@@ -2102,7 +2136,8 @@ import_juncs_from_bed <- function
             score=bed_df[,7]
          )
       } else {
-         colnames(bed_df) <- head(c("seqnames",
+         k <- seq_len(min(c(ncol(bed_df), 12)))
+         colnames(bed_df)[k] <- c("seqnames",
             "start",
             "end",
             "name",
@@ -2113,8 +2148,7 @@ import_juncs_from_bed <- function
             "itemRgb",
             "blockCount",
             "blockSizes",
-            "blockStarts"),
-            ncol(bed_df));
+            "blockStarts")[k];
          # remove rows with score==0
          if ("score" %in% colnames(bed_df)) {
             bed_df <- subset(bed_df, !score %in% 0);
@@ -2212,11 +2246,35 @@ import_juncs_from_bed <- function
    ## By default if name has numeric values, use them as scores,
    ## since the score column is sometimes restricted to integer
    ## values with a maximum value 1000.
+   ##
+   ## 10mar2026: try to repair entries using JUNC000001_123 format
+   ## which is interpreted as 123.
+   if ("name" %in% colnames(GenomicRanges::values(bed1)) &&
+         all(grepl("^JUNC[0-9.]+_[0-9.]+$",
+            as.character(GenomicRanges::values(bed1)$name)))) {
+      if (isTRUE(verbose)) {
+         jamba::printDebug("import_juncs_from_bed(): ",
+            "Converting JUNC000001_123 to 123 for score");
+      }
+      GenomicRanges::values(bed1)$score <- as.numeric(
+         gsub("^JUNC[0-9.]+_", "",
+            as.character(GenomicRanges::values(bed1)$name)));
+   }
    if ("name" %in% colnames(GenomicRanges::values(bed1)) &&
          !any(is.na(as.numeric(as.character(GenomicRanges::values(bed1)$name))))) {
-      GenomicRanges::values(bed1)$score <- as.numeric(as.character(GenomicRanges::values(bed1)$name)) * scale_factor;
+      if (isTRUE(verbose)) {
+         jamba::printDebug("import_juncs_from_bed(): ",
+            "Converting name directly to score");
+      }
+      GenomicRanges::values(bed1)$score <- as.numeric(
+         as.character(GenomicRanges::values(bed1)$name)) * scale_factor;
    } else {
-      GenomicRanges::values(bed1)$score <- as.numeric(as.character(GenomicRanges::values(bed1)$score)) * scale_factor;
+      if (isTRUE(verbose)) {
+         jamba::printDebug("import_juncs_from_bed(): ",
+            "Using score as-is.");
+      }
+      GenomicRanges::values(bed1)$score <- as.numeric(
+         as.character(GenomicRanges::values(bed1)$score)) * scale_factor;
    }
    ## Assign annotation values
    GenomicRanges::values(bed1)[,c("juncNames")] <- juncNames;
@@ -2226,8 +2284,10 @@ import_juncs_from_bed <- function
    if (length(gr) > 0) {
       bed1 <- subset(bed1,
          (
-            IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=TRUE), range(gr)) |
-            IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=FALSE), range(gr))
+            IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=TRUE),
+               range(gr)) |
+            IRanges::overlapsAny(GenomicRanges::flank(bed1, -1, start=FALSE),
+               range(gr))
          )
       );
    }

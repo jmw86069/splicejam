@@ -65,10 +65,10 @@
 #' \code{annotateGRfromGR()}, and \code{assignGRLexonNames()}.
 
 #' @param gtf character path to a GTF file, used to import gene models
-#'    using Bioconductor \code{GenomicFeatures::makeTxDbFromGFF()}
-#'    to create a transcriptDb object. If supplied, and if \code{tx2geneDF}
-#'    is NULL, then \code{tx2geneDF} will be created using
-#'    \code{makeTx2geneFromGtf}.
+#'    using Bioconductor `txdbmaker::makeTxDbFromGFF()`
+#'    to create a transcriptDb object. If supplied, and if `tx2geneDF`
+#'    is NULL, then `tx2geneDF` will be created using
+#'    `makeTx2geneFromGtf()`.
 #' @param txdb a \code{TxDb} object as defined by Bioconductor
 #'    package \code{GenomicFeatures}. Note that when reloading an R session,
 #'    these objects usually become defunct, since they refer internally to
@@ -223,7 +223,7 @@ tx2ale <- function
             "Creating txdb from gtf.");
       }
       #{startTimer();
-      txdb <- makeTxDbFromGFF(gtf);
+      txdb <- txdbmaker::makeTxDbFromGFF(gtf);
       retVals$txdb <- txdb;
       #stopTimer();}
       ## Extract 3'UTR

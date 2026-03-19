@@ -1,3 +1,33 @@
+# splicejam 0.0.84.900
+
+## Dependencies
+
+* Now requires ggplot2-4.0.0 or higher.
+* Bumped version dependencies for some jam packages, minor issue.
+* Added dependencies: txdbmaker, caTools
+
+## Bug fixes
+
+* `import_juncs_from_bed()` accepts name format 'JUNC100000_1234' and
+converts the score to numeric '1234'.
+
+## Changes to existing functions
+
+* `gene2gg()` new argument `layout_ncol` enables multi-column output,
+so it can align to sashimi plots when also shown with multi-columns.
+* `sashimiAppServer()`
+
+   * now passes `layout_ncol` to `gene2gg()`.
+   * Now calculates ylim based upon the display coordinates, 
+   but only when y-axis ranges are shared.
+   Improves the range when zooming into specific exon ranges with lower
+   coverage. Previously, it used the max value for each sample_id.
+
+* `exoncov2polygons()` now returns NULL when coverage is empty,
+previously it called `stop()` and forced other functions to avoid
+the error. Also prevented displaying only junctions, or an empty plot.
+* `gencode2ale()` uses `txdbmaker::makeTxDbFromGFF()`
+
 # splicejam 0.0.83.900
 
 ## changes
