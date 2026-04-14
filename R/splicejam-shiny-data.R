@@ -144,20 +144,28 @@ sashimiDataConstants <- function
    params <- setdiff(names(formals(sashimiDataConstants)),
       c("...", "envir"));
    for (param in params) {
-      if (verbose > 1) {
-         jamba::printDebug("sashimiDataConstants(): ",
-            "Assigning param: ", param);
+      param_value <- get_fn_envir(param,
+         envir=envir,
+         verbose=verbose - 1);
+      if (verbose >= 1) {
+         if (inherits(param_value,
+            c("logical", "character", "numeric",
+               "data.frame", "GRanges", "GRangesList"))) {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Assigning param: ", param,
+               ", head(param_value):", head(param_value));
+         } else {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Assigning param: ", param,
+               ", class(param_value):", class(param_value));
+         }
       }
       assign(x=param,
-         value=get_fn_envir(param,
-            envir=envir,
-            verbose=verbose - 1),
+         value=param_value,
          envir=envir)
    }
    rm(list=params);
    verbose <- envir$verbose;
-   #envir <- attach(envir, name="sashimi_env");
-   #on.exit(detach(name="sashimi_env"));
 
 
    # Logic flow:
@@ -206,7 +214,7 @@ sashimiDataConstants <- function
    if (length(envir$tx2geneDF) == 0 || length(envir$exonsByTx) == 0) {
       if (verbose) msg("length(tx2geneDF) == 0 || length(exonsByTx) == 0");
       if ((!exists("gtf", envir=envir) || length(envir$gtf) == 0) && length(envir$txdb) == 0) {
-         if (envir$empty_uses_farrisdata) {
+         if (isTRUE(envir$empty_uses_farrisdata)) {
             # use default GTF file if not defined
             envir$gtf <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M12/gencode.vM12.annotation.gtf.gz";
             jamba::printDebug("sashimiDataConstants(): ",
@@ -322,7 +330,7 @@ sashimiDataConstants <- function
          jamba::printDebug("sashimiDataConstants(): ",
             c("Deriving ","exonsByTx"," from txdb"), sep="");
          #suppressPackageStartupMessages(require(GenomicFeatures));
-         if (use_memoise) {
+         if (isTRUE(envir$use_memoise)) {
             exonsBy_m <- memoise::memoise(GenomicFeatures::exonsBy,
                cache=memoise::cache_filesystem("exonsBy_memoise"));
             exonsBy_m_cached <- memoise::has_cache(exonsBy_m)(
@@ -354,7 +362,7 @@ sashimiDataConstants <- function
          jamba::printDebug("sashimiDataConstants(): ",
             "Deriving cdsByTx from txdb.");
          #suppressPackageStartupMessages(require(GenomicFeatures));
-         if (use_memoise) {
+         if (isTRUE(envir$use_memoise)) {
             cdsBy_m <- memoise::memoise(GenomicFeatures::cdsBy,
                cache=memoise::cache_filesystem("cdsBy_memoise"));
             cdsBy_m_cached <- memoise::has_cache(cdsBy_m)(
@@ -478,7 +486,7 @@ sashimiDataConstants <- function
 
    ## Define flatExonsByGene
    ## define memoised function
-   if (use_memoise) {
+   if (isTRUE(envir$use_memoise)) {
       flattenExonsBy_m <- memoise::memoise(flattenExonsBy,
          cache=memoise::cache_filesystem("flattenExonsBy_memoise"));
    } else {
@@ -490,7 +498,7 @@ sashimiDataConstants <- function
       jamba::printDebug("sashimiDataConstants(): ",
          "Deriving flatExonsByGene using: ",
          c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
-      if (verbose && use_memoise) {
+      if (verbose && isTRUE(envir$use_memoise)) {
          jamba::printDebug("sdim(envir):");
          print(jamba::sdim(envir));
          flattenExonsByGene_m_cached <- memoise::has_cache(flattenExonsBy_m)(
@@ -518,7 +526,7 @@ sashimiDataConstants <- function
       jamba::printDebug("sashimiDataConstants(): ",
          "Derived flatExonsByTx using: ",
          c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
-      if (verbose && use_memoise) {
+      if (verbose && isTRUE(envir$use_memoise)) {
          flattenExonsByTx_m_cached <- memoise::has_cache(flattenExonsBy_m)(
             exonsByTx=envir$exonsByTx,
             cdsByTx=envir$cdsByTx,

@@ -4308,24 +4308,36 @@ addGRLgaps <- function
    ## Purpose is to add gaps as GRanges elements between the
    ## GRanges elements given, applied to each element in the
    ## GRangesList.
-
+   ##
    ## Populate feature_type_colname with default_feature_type
    ## if the colname does not already exist
    if (length(feature_type_colname) > 0 &&
-         !feature_type_colname %in% colnames(GenomicRanges::values(grl@unlistData)) &&
-         length(default_feature_type) > 0) {
-      GenomicRanges::values(grl@unlistData)[[feature_type_colname]] <- rep(default_feature_type,
+         !feature_type_colname %in%
+         colnames(GenomicRanges::values(grl@unlistData)) &&
+      length(default_feature_type) > 0) {
+      if (verbose) {
+         jamba::printDebug("addGRLgaps(): ",
+            "Populating feature_type_colname '", feature_type_colname,
+            "' with default_feature_type '", default_feature_type, "'")
+      }
+      GenomicRanges::values(grl@unlistData)[[feature_type_colname]] <- rep(
+         default_feature_type,
          length.out=length(grl@unlistData));
    }
    ## Populate colnames(GenomicRanges::values(grl@unlistData))
    ## using names(newValues) when they are not already present
    if (length(newValues) > 0 &&
-         length(names(newValues)) > 0 &&
-         length(default_feature_type)) {
+         length(names(newValues)) > 0) {
+         # length(default_feature_type) > 0) {
+      # 07apr2026: propagate what is in the feature_type column,
+      # which should have already used the default value
       for (i in names(newValues)) {
          if (!i %in% colnames(GenomicRanges::values(grl@unlistData))) {
-            GenomicRanges::values(grl@unlistData)[[i]] <- rep(default_feature_type,
-               length.out=length(grl@unlistData));
+            GenomicRanges::values(grl@unlistData)[[i]] <- (
+               GenomicRanges::values(grl@unlistData)[[feature_type_colname]]);
+            # GenomicRanges::values(grl@unlistData)[[i]] <- rep(
+            #    default_feature_type,
+            #    length.out=length(grl@unlistData));
          }
       }
    }
@@ -4348,7 +4360,8 @@ addGRLgaps <- function
    }
    if (length(newValues) > 0) {
       for (newValueName in names(newValues)) {
-         GenomicRanges::values(grlGaps@unlistData)[[newValueName]] <- rep(newValues[[newValueName]],
+         GenomicRanges::values(grlGaps@unlistData)[[newValueName]] <- rep(
+            newValues[[newValueName]],
             length(grlGaps@unlistData));
       }
    }

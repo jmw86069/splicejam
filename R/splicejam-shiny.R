@@ -9,6 +9,16 @@
 #' The R objects required to prepare sashimi plots are
 #' defined by the function `sashimiAppConstants()`, which
 #' documents each R object required and how it is used.
+#'
+#' In general, if you have any of `txdb`, `tx2geneDF`, `filesDF`,
+#' `gtf` (optional) defined, this function will populate the
+#' other objects for you as needed. It looks into the `parent.frame()`
+#' which is the environment calling `launchSashimiApp()`,
+#' unless you provide specific environment `envir`.
+#'
+#' It will also populate the new objects inside this environment,
+#' unless you pass `assign_global=FALSE`.
+#'
 #' The `sashimiAppConstants()` function returns an `environment`
 #' in which the required sashimi plot data is stored and
 #' used by the R-shiny app. The default environment is `globalenv()`
@@ -16,11 +26,33 @@
 #' with `myenv <- new.env()`.
 #'
 #' The most straightforward way to run a new Sashimi R-shiny
-#' app is to define `filesDF` and `gtf` in the global environment,
-#' or define `filesDF` and `gtf` inside a custom environment.
-#' The required data will be derived from the GTF file `gtf`.
-#' This step is somewhat slow the first time (10 minutes) and
-#' saves intermediate files for rapid re-use.
+#' app is to define: `filesDF` and `gtf`;
+#' or: `filesDF`, `txdb`, `tx2geneDF`.
+#' You may define them in the current environment,
+#' or in a custom environment
+#' and pass the environment using argument `envir`.
+#'
+#' When providing `gtf` it will create `txdb` and `tx2geneDF`
+#' as needed. If providing `txdb` and `tx2geneDF` it will use
+#' that data asis. It caches the necessary intermediate files
+#' when `use_memoise=TRUE` (default) so the time spent is
+#' usually first-time cost only.
+#'
+#' If no data are defined, the default `empty_uses_farrisdata=TRUE`
+#' will cause the app to use Farris et al 2019 data.
+#'
+#' ## Running in shiny-server
+#'
+#' Create a file `app.R` and include lines which define the
+#' data above (gtf, filesDF; or txdb, tx2geneDF, filesDF)
+#' then call `launchSashimiApp()` at the end.
+#'
+#' If no data are defined, the default `empty_uses_farrisdata=TRUE`
+#' will cause the app to use Farris et al 2019 data
+#' together with the `farrisdata` R package, and will run the
+#' Shiny App using that data.
+#'
+#' ## Data Preparation
 #'
 #' The data derived from the GTF file is listed below. Any data object
 #' that already exists in the `environment` is used in subsequent steps:
@@ -125,15 +157,20 @@
 #'
 #' @family splicejam R-shiny functions
 #'
+#' @returns `shiny::shiny.appobj` which is a Shiny App object,
+#'    suitable to run an R-shiny app by printing to console.
+#'
 #' @return output from `shiny::shinyApp()` which is an object of
 #'    class "shiny.appobj", whose default print method is to run
 #'    the app.
 #'
-#' @param envir `environment` that contains data needed for sashimi plots.
-#'    If `envir=NULL` by default it will use `globalenv()`. Otherwise,
-#'    call `sashimiDataConstants()` or `sashimiAppConstants()`
-#'    to prepare data inside a specific environment that can be
-#'    used by this function.
+#' @param envir `environment` default `parent.frame()` uses the environment
+#'    which called this function.
+#'    The environment contains data needed for sashimi plots.
+#'    If `envir=NULL` by default it will use `parent.frame()`.
+#'    Otherwise  call `sashimiDataConstants()` or `sashimiAppConstants()`
+#'    which returns an `environment` with the necessary data objects,
+#'    and that can be passed to this function.
 #' @param options `list` of R-shiny app options, for example two
 #'    common options are: `host` to indicate the host or IP address
 #'    the R-shiny app will bind to respond to requests; and
@@ -151,7 +188,7 @@
 #' @export
 launchSashimiApp <- function
 (...,
- envir=globalenv(),
+ envir=parent.frame(),
  options=list(width=1200),
  verbose=FALSE)
 {
@@ -168,14 +205,17 @@ launchSashimiApp <- function
    environment(ui) <- envir;
    environment(server) <- envir;
 
+   if (length(options) == 0) {
+      options <- list();
+   } else if (!is.list(options)) {
+      options <- as.list(options);
+   }
+   if (!"width" %in% names(options)) {
+      options$width <- 1200;
+   }
    ##
    shiny::shinyApp(ui=ui,
       server=server,
       options=options
    );
-   #shiny::shinyApp(ui=ui,#sashimiAppUI,
-   #   server=sashimiAppServer,
-   #   onStart=sashimiAppConstants,
-   #   options=options
-   #);
 }

@@ -641,9 +641,11 @@ gene2gg <- function
    } else {
       grl1a <- NULL;
    }
-   if (length(flatExonsByTx) > 0 && jamba::igrepHas("GRanges", class(flatExonsByTx))) {
+   if (length(flatExonsByTx) > 0 &&
+         inherits(flatExonsByTx, c("GRanges", "GRangesList"))) {
       grl1 <- NULL;
       if (length(gene) > 0) {
+         # Todo: use gene_name, transcript_id columns in unlistData
          if (geneSymbolColname %in% colnames(GenomicRanges::values(flatExonsByTx))) {
             if (verbose) {
                jamba::printDebug("gene2gg(): ",
@@ -711,6 +713,7 @@ gene2gg <- function
    ## Convert to tall data.frame
    grl1a1df <- grl2df(grl1a1,
       newValues=newValues,
+      verbose=verbose,
       ...);
 
    ## Refactor to colorization

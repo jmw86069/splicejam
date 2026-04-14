@@ -6,7 +6,7 @@
 \usage{
 launchSashimiApp(
   ...,
-  envir = globalenv(),
+  envir = parent.frame(),
   options = list(width = 1200),
   verbose = FALSE
 )
@@ -14,11 +14,13 @@ launchSashimiApp(
 \arguments{
 \item{...}{additional arguments are passed to \code{sashimiAppConstants()}.}
 
-\item{envir}{\code{environment} that contains data needed for sashimi plots.
-If \code{envir=NULL} by default it will use \code{globalenv()}. Otherwise,
-call \code{sashimiDataConstants()} or \code{sashimiAppConstants()}
-to prepare data inside a specific environment that can be
-used by this function.}
+\item{envir}{\code{environment} default \code{parent.frame()} uses the environment
+which called this function.
+The environment contains data needed for sashimi plots.
+If \code{envir=NULL} by default it will use \code{parent.frame()}.
+Otherwise  call \code{sashimiDataConstants()} or \code{sashimiAppConstants()}
+which returns an \code{environment} with the necessary data objects,
+and that can be passed to this function.}
 
 \item{options}{\code{list} of R-shiny app options, for example two
 common options are: \code{host} to indicate the host or IP address
@@ -30,6 +32,9 @@ to the current machine, whether by host name, or any valid
 IP address; and \code{port=8080} will only listen to port 8080.}
 }
 \value{
+\code{shiny::shiny.appobj} which is a Shiny App object,
+suitable to run an R-shiny app by printing to console.
+
 output from \code{shiny::shinyApp()} which is an object of
 class "shiny.appobj", whose default print method is to run
 the app.
@@ -44,6 +49,16 @@ R-shiny app.
 The R objects required to prepare sashimi plots are
 defined by the function \code{sashimiAppConstants()}, which
 documents each R object required and how it is used.
+
+In general, if you have any of \code{txdb}, \code{tx2geneDF}, \code{filesDF},
+\code{gtf} (optional) defined, this function will populate the
+other objects for you as needed. It looks into the \code{parent.frame()}
+which is the environment calling \code{launchSashimiApp()},
+unless you provide specific environment \code{envir}.
+
+It will also populate the new objects inside this environment,
+unless you pass \code{assign_global=FALSE}.
+
 The \code{sashimiAppConstants()} function returns an \code{environment}
 in which the required sashimi plot data is stored and
 used by the R-shiny app. The default environment is \code{globalenv()}
@@ -51,11 +66,33 @@ however any custom environment can be used, for example
 with \code{myenv <- new.env()}.
 
 The most straightforward way to run a new Sashimi R-shiny
-app is to define \code{filesDF} and \code{gtf} in the global environment,
-or define \code{filesDF} and \code{gtf} inside a custom environment.
-The required data will be derived from the GTF file \code{gtf}.
-This step is somewhat slow the first time (10 minutes) and
-saves intermediate files for rapid re-use.
+app is to define: \code{filesDF} and \code{gtf};
+or: \code{filesDF}, \code{txdb}, \code{tx2geneDF}.
+You may define them in the current environment,
+or in a custom environment
+and pass the environment using argument \code{envir}.
+
+When providing \code{gtf} it will create \code{txdb} and \code{tx2geneDF}
+as needed. If providing \code{txdb} and \code{tx2geneDF} it will use
+that data asis. It caches the necessary intermediate files
+when \code{use_memoise=TRUE} (default) so the time spent is
+usually first-time cost only.
+
+If no data are defined, the default \code{empty_uses_farrisdata=TRUE}
+will cause the app to use Farris et al 2019 data.
+\subsection{Running in shiny-server}{
+
+Create a file \code{app.R} and include lines which define the
+data above (gtf, filesDF; or txdb, tx2geneDF, filesDF)
+then call \code{launchSashimiApp()} at the end.
+
+If no data are defined, the default \code{empty_uses_farrisdata=TRUE}
+will cause the app to use Farris et al 2019 data
+together with the \code{farrisdata} R package, and will run the
+Shiny App using that data.
+}
+
+\subsection{Data Preparation}{
 
 The data derived from the GTF file is listed below. Any data object
 that already exists in the \code{environment} is used in subsequent steps:
@@ -115,6 +152,8 @@ required data.
 When the R-shiny app is created, the \code{ui} and \code{server} components
 have their environments set to \code{envir} - so their context will
 include the variables defined in that environment.
+}
+
 \subsection{Troubleshooting}{
 \enumerate{
 \item Error \code{"SSL peer certificate or SSH remote key was not OK"} or

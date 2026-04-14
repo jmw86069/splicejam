@@ -1,3 +1,17 @@
+# splicejam 0.0.85.900
+
+## Changes to existing functions
+
+* `launchSashimiApp()`
+
+   * New default `envir=parent.frame()` to fix error when running inside
+   shiny-server, where the previous default `envir=globalenv()` was
+   not valid since each shiny app can run inside its own environment.
+   The new default actually uses global environment when run interactively,
+   since in that case `parent.frame()` is the user environment (`.GlobalEnv`).
+   However, when run inside shiny-server, as inside `app.R` for example,
+   it will use the environment defiend inside `app.R`.
+
 # splicejam 0.0.84.900
 
 ## Dependencies

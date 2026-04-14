@@ -215,9 +215,6 @@ sashimiAppConstants <- function
          "Using environment ", env_name);
       print(ls(envir=envir));
    }
-   ## Quietly load an otherwise loud package dependency
-   # 15jul2021: commented out for testing
-   #suppressPackageStartupMessages(require(GenomicFeatures));
 
    envir$aboutExtra <- get_fn_envir("aboutExtra",
       envir=envir);

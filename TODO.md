@@ -1,5 +1,21 @@
 # TODO for splicejam
 
+## 07apr2026
+
+* Consider a way to specify gene/transcript order in `gene2gg()`.
+
+   * One example is with neighboring genes: MT1L, MT1E, MT1A.
+   It "works" by showing all genes and transcripts, but all genes
+   are shown together, then all transcripts are shown together,
+   they are not ordered to keep transcripts with gene.
+   * Transcripts are ordered alphanumerically, it might be useful
+   to specify a particular order. (Can limits be used here?)
+
+## 31mar2026
+
+* `launchSashimiApp()` Consider methods for user authentication.
+* Revisit app layout, shiny UI components, packages, etc.
+
 ## 19mar2026
 
 * **Make a proper vignette describing the key steps!**
