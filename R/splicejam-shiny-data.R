@@ -237,7 +237,7 @@ sashimiDataConstants <- function
       ## tx2geneDF
       if (length(envir$gtf) > 0) {
          # Checkif envir$gtf is already a local file to use in place
-         gtfBase <- gtf;
+         gtfBase <- envir$gtf;
          gtfStem <- basename(gtfBase);
          if (!file.exists(envir$gtf)) {
             gtfBase <- gtfStem;

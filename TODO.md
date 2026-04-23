@@ -1,5 +1,30 @@
 # TODO for splicejam
 
+## 14apr2026
+
+* Cleaner workflow:
+
+   * `assembleSashimiData()`? - does the work of `sashimiDataConstants()`,
+   returns an environment to be used in other functions.
+   * `plotSashimiGene()`
+   
+      * does work of `prepareSashimi()`, `plotSashimi()`
+      * adds gene panel using `gene2gg()`
+      * uses patchwork as needed
+      * zoom by coordinate or by exon name, as with the Shiny app.
+
+* Move BGA plot functions to another smaller R package.
+
+   * Dedicated package for PCA/BGA-like features?
+   * Or add to something like: jamma, jamses, or platjam
+   * Consider supporting more than just BGA, preferably "any PCA" type.
+   
+      * Ability to define and calculate group centroids dynamically;
+      optionally connect supergroups.
+
+* Support the addition of non-gene/transcript features to the gene panel
+
+
 ## 07apr2026
 
 * Consider a way to specify gene/transcript order in `gene2gg()`.
