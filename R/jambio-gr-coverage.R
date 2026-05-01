@@ -174,15 +174,9 @@ getGRcoverageFromBw <- function
       bwUrl <- bwUrls[[iBw]];
       iBwNum <- match(iBw, names(bwUrls));
       iBwPct <- iBwNum / length(bwUrls);
-      if (do_shiny_progress && !is.na(iBwPct)) {
-         shiny::setProgress(
-            value=0/2 + iBwPct/2,
-            detail=paste0("Importing coverage (",
-               iBwNum,
-               " of ",
-               length(bwUrls),
-               ")"));
-      }
+      progress_value <- 0/2 + iBwPct/2;
+      progress_of <- paste0("(", iBwNum, " of ",
+         length(bwUrls), ")");
       if (verbose) {
          jamba::printDebug("getGRcoverageFromBw(): ",
             "Importing bwUrl:",
@@ -192,10 +186,23 @@ getGRcoverageFromBw <- function
          if (verbose) {
             jamba::printDebug("bwUrl:");
             print(bwUrl);
+            # added check in case this step stalls
+            if (do_shiny_progress && !is.na(iBwPct)) {
+               shiny::setProgress(
+                  value=progress_value,
+                  detail=paste0("Checking cov cache ",
+                     progress_of));
+            }
             cov_has_cache <- memoise::has_cache(import_or_null_m)(
                bwUrl,
                gr=gr);
             jamba::printDebug("   cov_has_cache:", cov_has_cache);
+         }
+         if (do_shiny_progress && !is.na(iBwPct)) {
+            shiny::setProgress(
+               value=progress_value,
+               detail=paste0("Importing coverage ",
+                  progress_of));
          }
          cov1 <- import_or_null_m(
             bwUrl,
@@ -209,17 +216,20 @@ getGRcoverageFromBw <- function
             }
             if (do_shiny_progress && !is.na(iBwPct)) {
                shiny::setProgress(
-                  value=0/2 + iBwPct/2,
+                  value=progress_value,
                   detail=paste0("Repairing cov cache (",
-                     iBwNum,
-                     " of ",
-                     length(bwUrls),
-                     ")"));
+                     progress_of));
             }
             cov_has_cache <- memoise::has_cache(import_or_null_m)(
                bwUrl,
                gr=gr);
             if (cov_has_cache) {
+               if (do_shiny_progress && !is.na(iBwPct)) {
+                  shiny::setProgress(
+                     value=progress_value,
+                     detail=paste0("Dropping cov cache (",
+                        progress_of));
+               }
                cov1 <- tryCatch({
                   memoise::drop_cache(import_or_null_m)(
                      bwUrl,
@@ -228,8 +238,19 @@ getGRcoverageFromBw <- function
                      bwUrl,
                      gr=gr);
                }, error=function(e){
+                  if (do_shiny_progress && !is.na(iBwPct)) {
+                     shiny::setProgress(
+                        value=progress_value,
+                        detail=paste0("Drop failed, loading cov (",
+                           progress_of));
+                  }
                   jamba::printDebug("getGRcoverageFromBw(): ",
-                     "Error calling memoise::drop_cache(), calling import_or_null() directly.");
+                     c("Error calling ",
+                        "memoise::drop_cache()",
+                        ", calling ",
+                        "import_or_null()",
+                        " directly."),
+                     sep="");
                   import_or_null(
                      bwUrl,
                      gr=gr);
@@ -242,16 +263,19 @@ getGRcoverageFromBw <- function
                   fgText=c("darkorange", "red"));
                if (do_shiny_progress && !is.na(iBwPct)) {
                   shiny::setProgress(
-                     value=0/2 + iBwPct/2,
-                     detail=paste0("Failed repair cov cache (",
-                        iBwNum,
-                        " of ",
-                        length(bwUrls),
-                        ")"));
+                     value=progress_value,
+                     detail=paste0("Failed repair, skipping cov (",
+                        progress_of));
                }
             }
          }
       } else {
+         if (do_shiny_progress && !is.na(iBwPct)) {
+            shiny::setProgress(
+               value=progress_value,
+               detail=paste0("Importing no cache ",
+                  progress_of));
+         }
          cov1 <- import_or_null(bwUrl,
             gr=gr);
       }

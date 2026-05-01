@@ -52,11 +52,13 @@ and \code{envir=NULL} a new environment is created using
 thereby preventing it from searching \code{globalenv()} for
 variables not defined in its own environment.}
 
-\item{assign_global}{\code{logical} indicating whether the default
+\item{assign_global}{\code{logical} default TRUE, used only when
+\code{envir} is not provided, indicating whether the default
 environment should be \code{globalenv()}. Note this is not
 typically recommended, however it can be convenient to
-operate using only the user global environment, and is
-the default approach.}
+operate using only the user global environment.
+Note that running under shiny-server, the app environment
+is not a direct child of the server global environment.}
 
 \item{use_memoise}{\code{logical} indicating whether to use \code{memoise}
 to cache intermediate data files for exons, flattened exons,

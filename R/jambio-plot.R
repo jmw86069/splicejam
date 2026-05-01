@@ -1623,7 +1623,7 @@ prepareSashimi <- function
                "running spliceGR2junctionDF for juncBedGR()");
          }
          if (do_shiny_progress) {
-            shiny::setProgress(3.8/4,
+            shiny::setProgress(3.7/4,
                detail=paste0("Combining junction data for ", gene));
          }
          juncDF1f <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
@@ -1678,7 +1678,7 @@ prepareSashimi <- function
             "calling grl2df() on juncGR");
       }
       if (do_shiny_progress) {
-         shiny::setProgress(3.9/4,
+         shiny::setProgress(3.8/4,
             detail=paste0("Calculating junction stacking for ", gene));
       }
       ## Convert junctions to polygons usable by geom_diagonal_wide()
@@ -1721,7 +1721,7 @@ prepareSashimi <- function
       #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=jamba::makeNames(id)), grepl("_v1_v3$", id_name));
       if (do_shiny_progress) {
          ##
-         shiny::setProgress(3.95/4,
+         shiny::setProgress(3.9/4,
             detail=paste0("Preparing junction label coordinates for ", gene));
       }
       juncLabelDF1 <- subset(
@@ -2124,6 +2124,15 @@ import_juncs_from_bed <- function
 
    # helper function to convert data.frame to junctions GRanges
    df_to_junc_gr <- function(bed_df){
+      bed_gr <- GenomicRanges::GRanges(
+         seqnames="chr1",
+         ranges=IRanges::IRanges(
+            start=1, end=2),
+         strand="*",
+         score=1)[0];
+      if (nrow(bed_df) == 0) {
+         return(bed_gr);
+      }
       if (ncol(bed_df) == 9) {
          bed_df <- subset(bed_df, !bed_df[,7] %in% 0);
          bed_gr <- GenomicRanges::GRanges(
@@ -2149,11 +2158,29 @@ import_juncs_from_bed <- function
             "blockCount",
             "blockSizes",
             "blockStarts")[k];
+         # check strand/score columns are switched
+         if (!all(bed_df$strand %in% c("+", "-", "*")) &&
+               all(bed_df$score %in% c("+", "-", "*")) &&
+               all(is.numeric(bed_df$strand))) {
+            bed_df[, c("score", "strand")] <- bed_df[, c("strand", "score"),
+               drop=FALSE];
+         }
+         # spot-check the strand column
+         is_strand <- apply(head(bed_df, 200), 2, function(i){
+            all(i %in% c("*", "+", "-"))})
+         if (!"strand" %in% names(which(is_strand))) {
+            stop("Strand is not in the correct BED column.");
+            # is_strand_k <- head(which(is_strand), 1) + c(0, 1);
+            # bed_df <- jamba::renameColumn(bed_df,
+            #    from=colnames(bed_df)[is_strand_k],
+            #    to=colnames(bed_df)[rev(is_strand_k)])
+         }
+         # convert to GRanges
+         bed_gr <- as(bed_df, "GRanges")
          # remove rows with score==0
          if ("score" %in% colnames(bed_df)) {
-            bed_df <- subset(bed_df, !score %in% 0);
+            bed_gr <- subset(bed_gr, !score %in% 0);
          }
-         bed_gr <- as(bed_df, "GRanges")
       }
       return(bed_gr)
    }

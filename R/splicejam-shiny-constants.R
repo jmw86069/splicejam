@@ -143,11 +143,13 @@
 #'    `new.env(parent=emptyenv())` so there is no parent environment,
 #'    thereby preventing it from searching `globalenv()` for
 #'    variables not defined in its own environment.
-#' @param assign_global `logical` indicating whether the default
+#' @param assign_global `logical` default TRUE, used only when
+#'    `envir` is not provided, indicating whether the default
 #'    environment should be `globalenv()`. Note this is not
 #'    typically recommended, however it can be convenient to
-#'    operate using only the user global environment, and is
-#'    the default approach.
+#'    operate using only the user global environment.
+#'    Note that running under shiny-server, the app environment
+#'    is not a direct child of the server global environment.
 #' @param use_memoise `logical` indicating whether to use `memoise`
 #'    to cache intermediate data files for exons, flattened exons,
 #'    transcript-gene data, and so on. This mechanism reduces
@@ -266,7 +268,9 @@ sashimiAppConstants <- function
          envir$filesDF <- farrisdata::farris_sashimi_files_df;
       } else {
          envir$empty_uses_farrisdata <- FALSE;
-         stop("filesDF must be provided, or set empty_uses_farrisdata=TRUE to use Farris et al. data from Github R package 'jmw86069/farrisdata'");
+         stop(paste0("filesDF must be provided, or set ",
+            "empty_uses_farrisdata=TRUE to use Farris et al. ",
+            "data from Github R package 'jmw86069/farrisdata'"));
       }
    }
    if (!all(c("sample_id", "url", "type") %in% colnames(envir$filesDF))) {
@@ -299,33 +303,55 @@ sashimiAppConstants <- function
    }
 
    ## Define color_sub
-   if (length(envir$color_sub) == 0 &&
-         envir$empty_uses_farrisdata &&
-         nchar(system.file(package="farrisdata")) > 0) {
-      envir$color_sub <- farrisdata::colorSub;
-      if (!all(envir$filesDF$sample_id %in% names(envir$color_sub))) {
-         color_sub_new <- colorjam::group2colors(unique(envir$filesDF$sample_id));
-         is_new <- setdiff(names(color_sub_new), names(envir$color_sub))
-         envir$color_sub[is_new] <- color_sub_new[is_new];
+   use_sample_ids <- unique(envir$filesDF$sample_id);
+   if (length(envir$color_sub) == 0) {
+      envir$color_sub <- character(0);
+   }
+   # assign colors if some are not already assigned by use_sample_ids
+   if (!all(use_sample_ids %in% names(envir$color_sub))) {
+      new_sample_ids <- setdiff(use_sample_ids, names(envir$color_sub));
+      # Check empty_uses_farrisdata for farrisdata colors
+      if (isTRUE(envir$empty_uses_farrisdata)) {
+         # if any names match, use them and fill the rest
+         if (any(new_sample_ids %in% names(farrisdata::colorSub))) {
+            add_sample_ids <- intersect(new_sample_ids,
+               names(farrisdata::colorSub));
+            envir$color_sub[add_sample_ids] <- farrisdata::colorSub[
+               add_sample_ids];
+            # update what may be needed now
+            new_sample_ids <- setdiff(use_sample_ids,
+               names(envir$color_sub));
+         }
+      }
+      if (length(new_sample_ids) > 0) {
+         # use add_colors() to find distinctively different colors
+         # Todo: Consider how to pass preset='ryb' for example
+         add_color_sub <- unname(colorjam::add_colors(
+            given_colors=unname(envir$color_sub),
+            n=length(new_sample_ids),
+            ...))
+         names(add_color_sub) <- new_sample_ids;
+         envir$color_sub[new_sample_ids] <- add_color_sub
       }
    }
-   if (length(envir$color_sub) == 0 && nrow(envir$filesDF) > 0) {
-      envir$color_sub <- colorjam::group2colors(unique(envir$filesDF$sample_id));
-      if (verbose) {
-         jamba::printDebug("sashimiAppConstants(): ",
-            "Defined new color_sub for unique sample_id:\n",
-            names(color_sub),
-            fgText=list("darkorange", "dodgerblue",
-               jamba::setTextContrastColor(color_sub)),
-            bgText=list(NA, NA, color_sub));
-      }
-   }
+   # if (length(envir$color_sub) == 0 && nrow(envir$filesDF) > 0) {
+   #    envir$color_sub <- colorjam::group2colors(unique(envir$filesDF$sample_id));
+   #    if (verbose) {
+   #       jamba::printDebug("sashimiAppConstants(): ",
+   #          "Defined new color_sub for unique sample_id:\n",
+   #          names(color_sub),
+   #          fgText=list("darkorange", "dodgerblue",
+   #             jamba::setTextContrastColor(color_sub)),
+   #          bgText=list(NA, NA, color_sub));
+   #    }
+   # }
 
 
    # guides
    # define guides tab
    envir$guidesTab <- shiny::fluidPage(
-      htmltools::tags$style(type="text/css", "a{color:steelblue; font-weight:bold}"),
+      htmltools::tags$style(type="text/css",
+         "a{color:steelblue; font-weight:bold}"),
       shiny::sidebarLayout(
          shiny::mainPanel(
             width=7,
@@ -351,17 +377,25 @@ sashimiAppConstants <- function
                   htmltools::strong(style="color:firebrick",
                      "The methods were developed in support of this publication"),
                   htmltools::br(),
-                  htmltools::a("S. Farris, J. M. Ward, K.E. Carstens, M. Samadi, Y. Wang and S. M. Dudek. ",
-                     "Cell Reports 2019. ",
-                     htmltools::em("Hippocampal subregions express distinct dendritic transcriptomes that reveal unexpected differences in mitochondrial function in CA2."),
+                  htmltools::a(paste0("S. Farris, J. M. Ward, ",
+                     "K.E. Carstens, M. Samadi, Y. Wang and S. M. Dudek. ",
+                     "Cell Reports 2019. "),
+                     htmltools::em(paste0("Hippocampal subregions express ",
+                        "distinct dendritic transcriptomes that reveal ",
+                        "unexpected differences in mitochondrial ",
+                        "function in CA2.")),
                      href="https://github.com/jmw86069/jampack")
                ),
                htmltools::tags$li(
                   htmltools::strong(style="color:firebrick",
                      "Sashimi plots were originally envisioned by MISO:"),
                   htmltools::br(),
-                  htmltools::a("Katz, Y, Wang ET, Silterra J, Schwartz S, Wong B, Thorvaldsdóttir H, Robinson JT, Mesirov JP, Airoldi EM, Burge, CB.:",
-                     htmltools::em("Sashimi plots: Quantitative visualization of alternative isoform expression from RNA-seq data."),
+                  htmltools::a(paste0("Katz, Y, Wang ET, Silterra J, ",
+                     "Schwartz S, Wong B, Thorvaldsdóttir H, Robinson JT, ",
+                     "Mesirov JP, Airoldi EM, Burge, CB.:"),
+                     htmltools::em(paste0("Sashimi plots: ",
+                        "Quantitative visualization of alternative ",
+                        "isoform expression from RNA-seq data.")),
                      href="http://biorxiv.org/content/early/2014/02/11/002576")
                )
             ),
@@ -612,6 +646,11 @@ sashimiAppConstants <- function
    );
    envir$nbsp <- htmltools::HTML("&nbsp;");
    envir$nbsp3 <- htmltools::HTML("&nbsp;&nbsp;&nbsp;");
+
+   if (verbose) {
+      jamba::printDebug("sashimiAppConstants(): ",
+         "Complete.");
+   }
 
    return(invisible(envir))
 }

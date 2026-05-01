@@ -1,5 +1,15 @@
 # TODO for splicejam
 
+## 30apr2026
+
+* Make `GRanges` utility functions more prominent for wider usefulness.
+
+   * `annotateGRfromGR()` - annotate `GRanges` from another.
+   * `annotateGRLfromGRL()` - annotate `GRangesList` from another, keeping
+   list elements distinct. E.g. exons within a transcript, exons within a gene.
+   Good when operating on a sub-grouping, then keeping the original parent
+   annotations.
+
 ## 14apr2026
 
 * Cleaner workflow:

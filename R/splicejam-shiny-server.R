@@ -595,8 +595,8 @@ sashimiAppServer <- function
          return(NULL);
       }
 
-      withProgress(
-         message="Preparing Sashimi data.",
+      shiny::withProgress(
+         message="Preparing Sashimi.",
          value=0,
          {
             if (verbose && use_memoise) {
@@ -644,8 +644,8 @@ sashimiAppServer <- function
                "sashimi_data some_null:",
                some_null);
          }
-         withProgress(
-            message="Repeating Sashimi steps",
+         shiny::withProgress(
+            message="Repeating Sashimi.",
             value=0,
             {
                ## Some underlying data was NULL, therefore try to repair

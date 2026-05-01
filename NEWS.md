@@ -1,3 +1,31 @@
+# splicejam 0.0.86.900
+
+* Minor edits in progress to improve the R-shiny experience.
+
+## Changes to existing functions
+
+* `shinyServer()`
+
+   * Shortened the progress bar label "Preparing Sashimi."
+
+* `shinyDataConstants()`
+
+   * Prints "Complete." when verbose.
+   * Reworded some verbose output to be specific when data is reloaded
+   from cache, or created anew.
+
+* `shinyAppConstants()`
+
+   * assigns `color_sub` when not provided, by calling
+   `colorjam::add_colors()`. It now assigns colors as needed.
+   * now prints "Complete." when verbose.
+
+* `import_juncs_from_bed()`
+
+   * junction BED format checks whether strand and score columns are switched.
+   * junction BED format confirms the strand column only contains
+   '-', '+', '*'.
+
 # splicejam 0.0.85.900
 
 ## Changes to existing functions

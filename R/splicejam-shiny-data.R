@@ -327,8 +327,6 @@ sashimiDataConstants <- function
          }
 
          # First obtain exons by transcript
-         jamba::printDebug("sashimiDataConstants(): ",
-            c("Deriving ","exonsByTx"," from txdb"), sep="");
          #suppressPackageStartupMessages(require(GenomicFeatures));
          if (isTRUE(envir$use_memoise)) {
             exonsBy_m <- memoise::memoise(GenomicFeatures::exonsBy,
@@ -337,9 +335,16 @@ sashimiDataConstants <- function
                envir$txdb,
                by="tx",
                use.names=TRUE);
-            jamba::printDebug("exonsBy_m_cached:",
-               exonsBy_m_cached);
+            if (isTRUE(exonsBy_m_cached)) {
+               jamba::printDebug("sashimiDataConstants(): ",
+                  c("Reloading cached ","exonsByTx"," from txdb"), sep="");
+            } else {
+               jamba::printDebug("sashimiDataConstants(): ",
+                  c("Preparing cached ","exonsByTx"," from txdb"), sep="");
+            }
          } else {
+            jamba::printDebug("sashimiDataConstants(): ",
+               c("Deriving ","exonsByTx"," from txdb"), sep="");
             exonsBy_m <- GenomicFeatures::exonsBy;
          }
          envir$exonsByTx <- exonsBy_m(
@@ -359,8 +364,6 @@ sashimiDataConstants <- function
 
       ## create cdsByTx
       if (length(envir$cdsByTx) == 0 && exists("txdb", envir=envir, inherits=FALSE)) {
-         jamba::printDebug("sashimiDataConstants(): ",
-            "Deriving cdsByTx from txdb.");
          #suppressPackageStartupMessages(require(GenomicFeatures));
          if (isTRUE(envir$use_memoise)) {
             cdsBy_m <- memoise::memoise(GenomicFeatures::cdsBy,
@@ -369,12 +372,18 @@ sashimiDataConstants <- function
                envir$txdb,
                by="tx",
                use.names=TRUE);
-            jamba::printDebug("cdsBy_m_cached:",
-               cdsBy_m_cached);
+            if (isTRUE(cdsBy_m_cached)) {
+               jamba::printDebug("sashimiDataConstants(): ",
+                  c("Reloading cached ","cdsByTx"," from txdb"), sep="");
+            } else {
+               jamba::printDebug("sashimiDataConstants(): ",
+                  c("Preparing cached ","cdsByTx"," from txdb"), sep="");
+            }
          } else {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Deriving cdsByTx from txdb.");
             cdsBy_m <- GenomicFeatures::cdsBy;
          }
-
          envir$cdsByTx <- cdsBy_m(
             envir$txdb,
             by="tx",
@@ -382,6 +391,7 @@ sashimiDataConstants <- function
          GenomicRanges::values(envir$cdsByTx@unlistData)$feature_type <- "cds";
          GenomicRanges::values(envir$cdsByTx@unlistData)$subclass <- "cds";
       } else {
+         # validate annotation columns
          if (!"feature_type" %in% names(GenomicRanges::values(envir$cdsByTx@unlistData))) {
             GenomicRanges::values(envir$cdsByTx@unlistData)$feature_type <- "exon";
          }
@@ -495,12 +505,9 @@ sashimiDataConstants <- function
 
 
    if (length(envir$flatExonsByGene) == 0) {
-      jamba::printDebug("sashimiDataConstants(): ",
-         "Deriving flatExonsByGene using: ",
-         c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
-      if (verbose && isTRUE(envir$use_memoise)) {
-         jamba::printDebug("sdim(envir):");
-         print(jamba::sdim(envir));
+      if (isTRUE(envir$use_memoise)) {
+         # jamba::printDebug("sdim(envir):");
+         # print(jamba::sdim(envir));
          flattenExonsByGene_m_cached <- memoise::has_cache(flattenExonsBy_m)(
             exonsByTx=envir$exonsByTx,
             cdsByTx=envir$cdsByTx,
@@ -508,9 +515,19 @@ sashimiDataConstants <- function
             by="gene",
             tx2geneDF=envir$tx2geneDF,
             verbose=FALSE);
+         if (isTRUE(flattenExonsByGene_m_cached)) {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Reloading cached flatExonsByGene using: ",
+               c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
+         } else {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Deriving cache flatExonsByGene using: ",
+               c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
+         }
+      } else {
          jamba::printDebug("sashimiDataConstants(): ",
-            "flattenExonsByGene_m_cached:",
-            flattenExonsByGene_m_cached);
+            "Deriving flatExonsByGene using: ",
+            c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
       }
       envir$flatExonsByGene <- flattenExonsBy_m(
          exonsByTx=envir$exonsByTx,
@@ -523,10 +540,7 @@ sashimiDataConstants <- function
 
    ## Define flatExonsByTx
    if (length(envir$flatExonsByTx) == 0) {
-      jamba::printDebug("sashimiDataConstants(): ",
-         "Derived flatExonsByTx using: ",
-         c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
-      if (verbose && isTRUE(envir$use_memoise)) {
+      if (isTRUE(envir$use_memoise)) {
          flattenExonsByTx_m_cached <- memoise::has_cache(flattenExonsBy_m)(
             exonsByTx=envir$exonsByTx,
             cdsByTx=envir$cdsByTx,
@@ -537,6 +551,19 @@ sashimiDataConstants <- function
          jamba::printDebug("sashimiDataConstants(): ",
             "flattenExonsByTx_m_cached:",
             flattenExonsByTx_m_cached);
+         if (isTRUE(flattenExonsByTx_m_cached)) {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Reloading cached flatExonsByTx using: ",
+               c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
+         } else {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Deriving cache flatExonsByTx using: ",
+               c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
+         }
+      } else {
+         jamba::printDebug("sashimiDataConstants(): ",
+            "Deriving flatExonsByTx using: ",
+            c("exonsByTx", "cdsByTx", "detectedTx", "tx2geneDF"));
       }
       envir$flatExonsByTx <- flattenExonsBy_m(
          exonsByTx=envir$exonsByTx,
@@ -560,6 +587,10 @@ sashimiDataConstants <- function
             "."),
             detectedGenes),
          1);
+   }
+   if (verbose) {
+      jamba::printDebug("sashimiDataConstants(): ",
+         "Complete.")
    }
 
    return(envir)
