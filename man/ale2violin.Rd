@@ -82,8 +82,8 @@ to the output data, then returns a tall data.frame sufficient
 for viewing as a violin plot using \code{ggplot2::geom_violin()}.
 }
 \seealso{
-Other jam ALE-specific RNA-seq functions: 
-\code{\link{getFirstStrandedFromGRL}()},
-\code{\link{tx2ale}()}
+Other jam ALE-specific RNA-seq functions:
+\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
+\code{\link[=tx2ale]{tx2ale()}}
 }
 \concept{jam ALE-specific RNA-seq functions}

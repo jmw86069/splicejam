@@ -136,8 +136,8 @@ This function depends upon custom functions: \code{annotateGRLfromGRL()},
 \code{annotateGRfromGR()}, and \code{assignGRLexonNames()}.
 }
 \seealso{
-Other jam ALE-specific RNA-seq functions: 
-\code{\link{ale2violin}()},
-\code{\link{getFirstStrandedFromGRL}()}
+Other jam ALE-specific RNA-seq functions:
+\code{\link[=ale2violin]{ale2violin()}},
+\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}}
 }
 \concept{jam ALE-specific RNA-seq functions}

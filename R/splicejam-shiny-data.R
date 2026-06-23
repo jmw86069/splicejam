@@ -146,14 +146,20 @@ sashimiDataConstants <- function
    for (param in params) {
       param_value <- get_fn_envir(param,
          envir=envir,
-         verbose=verbose - 1);
+         verbose=verbose - 1,
+         ...);
       if (verbose >= 1) {
          if (inherits(param_value,
-            c("logical", "character", "numeric",
-               "data.frame", "GRanges", "GRangesList"))) {
+            c("logical", "character", "numeric"))) {
             jamba::printDebug("sashimiDataConstants(): ",
                "Assigning param: ", param,
                ", head(param_value):", head(param_value));
+         } else if (inherits(param_value,
+            c("data.frame", "GRanges", "GRangesList"))) {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Assigning param: ", param,
+               ", head(param_value):");
+            print(head(param_value, 3));
          } else {
             jamba::printDebug("sashimiDataConstants(): ",
                "Assigning param: ", param,
@@ -596,19 +602,33 @@ sashimiDataConstants <- function
    return(envir)
 }
 
-#' Get value from function call or specific environment
+#' Get value from function arguments or specific environment
 #'
-#' Get value from function call or specific environment in that order
+#' Get value from function ellipses, parent function, or
+#' specific environment, in that order
 #'
 #' This function is a helper function intended to return a
 #' variable value, if it exists and is not NULL, by searching
 #' these locations in order:
-#'
-#' 1. The calling function, which is the environment of the
-#' function that called `get_fn_envir()`.
-#' 2. The environment or environments provided in `envir`.
-#' 3. It returns `NULL` if the previous steps do not find
+#' 
+#' 1. Any passed function arguments in '...' ellipses, if present.
+#' 2. The calling function, which is the environment of the
+#' function that called `get_fn_envir()` defined by
+#' `parent.frame(1)`.
+#' 3. The environment or environments provided in `envir`.
+#' 
+#' It returns `NULL` if the previous steps do not find
 #' the object named by `x`.
+#' 
+#' As of version 0.0.87.900, argument `inherits=FALSE` is the new
+#' default, which means this function will not use data in
+#' successive parent environments until it finds a matching
+#' result. In most cases for the Splicejam Shiny App, running
+#' one instance of the Shiny App meant this distinction had no
+#' effect. However, while using `inherits=FALSE` it should be
+#' possible to configure two distinct Shiny Apps, in separate
+#' environments, without risk that existing variables may be
+#' re-used by the second environmnt created.
 #'
 #' @return object represented by variable name given in `x` from either
 #'    the calling function, or the environment `envir`, or `NULL`
@@ -661,11 +681,32 @@ sashimiDataConstants <- function
 #' @export
 get_fn_envir <- function(x,
  envir=NULL,
+ enable_parent_1=TRUE,
+ inherits=FALSE,
  verbose=FALSE,
  ...)
 {
-   #jamba::printDebug("get_fn_envir_value(): ", "search():\n", search());
-   if (exists(x, envir=parent.frame(1)) && length(get(x, envir=parent.frame(1))) > 0) {
+   ## Todo:
+   # - change exists() to exists(..., inherits=FALSE)
+   # - consider recognizing '...' specifically instead of parent.frame(1)
+   if (length(x) == 0) {
+      return(NULL)
+   }
+   if (!is.character(x) || !length(x) == 1) {
+      stop("x must be single character value.");
+   }
+   arglist <- list(...);
+
+   # Recognize '...' as priority
+   if (x %in% names(arglist)) {
+      if (verbose) {
+         jamba::printDebug("get_fn_envir(): ",
+            "Variable '", x, "' found in ", "'...' ellipses.");
+      }
+      x <- arglist[[x]];
+   } else if (isTRUE(enable_parent_1) &&
+      exists(x, inherits=inherits, envir=parent.frame(1)) &&
+      length(get(x, inherits=inherits, envir=parent.frame(1))) > 0) {
       if (verbose) {
          jamba::printDebug("get_fn_envir(): ",
             "Variable '", x, "' found in ", "parent.frame(1)");
@@ -677,8 +718,8 @@ get_fn_envir <- function(x,
       }
       for (i in seq_along(envir)) {
          if (is.environment(envir[[i]]) &&
-               exists(x, envir=envir[[i]]) &&
-               length(get(x, envir=envir[[i]])) > 0) {
+               exists(x, inherits=inherits, envir=envir[[i]]) &&
+               length(get(x, inherits=inherits, envir=envir[[i]])) > 0) {
             if (verbose) {
                jamba::printDebug("get_fn_envir(): ",
                   "Variable '", x, "' found in the provided ",
@@ -692,7 +733,9 @@ get_fn_envir <- function(x,
    } else {
       if (verbose) {
          jamba::printDebug("get_fn_envir(): ",
-            "Variable '", x, "' not found");
+            "Variable '", x, "' not found",
+            fgText=c("darkorange1", "dodgerblue",
+               "darkorange1", "firebrick"));
       }
    }
    return(NULL);

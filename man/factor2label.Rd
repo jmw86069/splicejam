@@ -61,13 +61,13 @@ factor2label(x);
 
 }
 \seealso{
-Other jam plot functions: 
-\code{\link{bgaPlotly3d}()},
-\code{\link{gene2gg}()},
-\code{\link{grl2df}()},
-\code{\link{jitter_norm}()},
-\code{\link{plotSashimi}()},
-\code{\link{prepareSashimi}()},
-\code{\link{stackJunctions}()}
+Other jam plot functions:
+\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
+\code{\link[=gene2gg]{gene2gg()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=jitter_norm]{jitter_norm()}},
+\code{\link[=plotSashimi]{plotSashimi()}},
+\code{\link[=prepareSashimi]{prepareSashimi()}},
+\code{\link[=stackJunctions]{stackJunctions()}}
 }
 \concept{jam plot functions}

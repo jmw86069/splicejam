@@ -55,7 +55,7 @@ gg3 +
       alpha=0.6)
 }
 \seealso{
-Other splicejam data: 
+Other splicejam data:
 \code{\link{test_cov_wide_gr}},
 \code{\link{test_exon_gr}},
 \code{\link{test_exon_wide_gr}},

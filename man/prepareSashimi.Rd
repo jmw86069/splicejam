@@ -202,38 +202,38 @@ plotSashimi(sh1);
 
 }
 \seealso{
-Other jam RNA-seq functions: 
-\code{\link{assignGRLexonNames}()},
-\code{\link{closestExonToJunctions}()},
-\code{\link{combineGRcoverage}()},
-\code{\link{defineDetectedTx}()},
-\code{\link{detectedTxInfo}()},
-\code{\link{exoncov2polygon}()},
-\code{\link{flattenExonsBy}()},
-\code{\link{getGRcoverageFromBw}()},
-\code{\link{groups2contrasts}()},
-\code{\link{internal_junc_score}()},
-\code{\link{makeTx2geneFromGtf}()},
-\code{\link{make_ref2compressed}()},
-\code{\link{runDiffSplice}()},
-\code{\link{sortSamples}()},
-\code{\link{spliceGR2junctionDF}()}
+Other jam RNA-seq functions:
+\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
+\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=defineDetectedTx]{defineDetectedTx()}},
+\code{\link[=detectedTxInfo]{detectedTxInfo()}},
+\code{\link[=exoncov2polygon]{exoncov2polygon()}},
+\code{\link[=flattenExonsBy]{flattenExonsBy()}},
+\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
+\code{\link[=groups2contrasts]{groups2contrasts()}},
+\code{\link[=internal_junc_score]{internal_junc_score()}},
+\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
+\code{\link[=make_ref2compressed]{make_ref2compressed()}},
+\code{\link[=runDiffSplice]{runDiffSplice()}},
+\code{\link[=sortSamples]{sortSamples()}},
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
 
-Other jam plot functions: 
-\code{\link{bgaPlotly3d}()},
-\code{\link{factor2label}()},
-\code{\link{gene2gg}()},
-\code{\link{grl2df}()},
-\code{\link{jitter_norm}()},
-\code{\link{plotSashimi}()},
-\code{\link{stackJunctions}()}
+Other jam plot functions:
+\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
+\code{\link[=factor2label]{factor2label()}},
+\code{\link[=gene2gg]{gene2gg()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=jitter_norm]{jitter_norm()}},
+\code{\link[=plotSashimi]{plotSashimi()}},
+\code{\link[=stackJunctions]{stackJunctions()}}
 
-Other splicejam core functions: 
-\code{\link{exoncov2polygon}()},
-\code{\link{gene2gg}()},
-\code{\link{grl2df}()},
-\code{\link{make_ref2compressed}()},
-\code{\link{plotSashimi}()}
+Other splicejam core functions:
+\code{\link[=exoncov2polygon]{exoncov2polygon()}},
+\code{\link[=gene2gg]{gene2gg()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=make_ref2compressed]{make_ref2compressed()}},
+\code{\link[=plotSashimi]{plotSashimi()}}
 }
 \concept{jam RNA-seq functions}
 \concept{jam plot functions}

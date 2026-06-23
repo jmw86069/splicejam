@@ -177,35 +177,35 @@ ggplot(grlJunc2df_samples, aes(x=x, y=y, group=gr_name, fill=gr_name)) +
 
 }
 \seealso{
-Other jam plot functions: 
-\code{\link{bgaPlotly3d}()},
-\code{\link{factor2label}()},
-\code{\link{gene2gg}()},
-\code{\link{grl2df}()},
-\code{\link{jitter_norm}()},
-\code{\link{plotSashimi}()},
-\code{\link{prepareSashimi}()}
+Other jam plot functions:
+\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
+\code{\link[=factor2label]{factor2label()}},
+\code{\link[=gene2gg]{gene2gg()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=jitter_norm]{jitter_norm()}},
+\code{\link[=plotSashimi]{plotSashimi()}},
+\code{\link[=prepareSashimi]{prepareSashimi()}}
 
-Other jam GRanges functions: 
-\code{\link{addGRLgaps}()},
-\code{\link{addGRgaps}()},
-\code{\link{annotateGRLfromGRL}()},
-\code{\link{annotateGRfromGR}()},
-\code{\link{assignGRLexonNames}()},
-\code{\link{closestExonToJunctions}()},
-\code{\link{combineGRcoverage}()},
-\code{\link{exoncov2polygon}()},
-\code{\link{findOverlapsGRL}()},
-\code{\link{flattenExonsBy}()},
-\code{\link{getFirstStrandedFromGRL}()},
-\code{\link{getGRLgaps}()},
-\code{\link{getGRcoverageFromBw}()},
-\code{\link{getGRgaps}()},
-\code{\link{grl2df}()},
-\code{\link{jam_isDisjoint}()},
-\code{\link{make_ref2compressed}()},
-\code{\link{sortGRL}()},
-\code{\link{spliceGR2junctionDF}()}
+Other jam GRanges functions:
+\code{\link[=addGRLgaps]{addGRLgaps()}},
+\code{\link[=addGRgaps]{addGRgaps()}},
+\code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
+\code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
+\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
+\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=exoncov2polygon]{exoncov2polygon()}},
+\code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
+\code{\link[=flattenExonsBy]{flattenExonsBy()}},
+\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
+\code{\link[=getGRLgaps]{getGRLgaps()}},
+\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
+\code{\link[=getGRgaps]{getGRgaps()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
+\code{\link[=make_ref2compressed]{make_ref2compressed()}},
+\code{\link[=sortGRL]{sortGRL()}},
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
 }
 \concept{jam GRanges functions}
 \concept{jam plot functions}

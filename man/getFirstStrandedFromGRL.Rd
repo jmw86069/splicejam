@@ -60,30 +60,30 @@ getFirstStrandedFromGRL(grl)
 
 }
 \seealso{
-Other jam ALE-specific RNA-seq functions: 
-\code{\link{ale2violin}()},
-\code{\link{tx2ale}()}
+Other jam ALE-specific RNA-seq functions:
+\code{\link[=ale2violin]{ale2violin()}},
+\code{\link[=tx2ale]{tx2ale()}}
 
-Other jam GRanges functions: 
-\code{\link{addGRLgaps}()},
-\code{\link{addGRgaps}()},
-\code{\link{annotateGRLfromGRL}()},
-\code{\link{annotateGRfromGR}()},
-\code{\link{assignGRLexonNames}()},
-\code{\link{closestExonToJunctions}()},
-\code{\link{combineGRcoverage}()},
-\code{\link{exoncov2polygon}()},
-\code{\link{findOverlapsGRL}()},
-\code{\link{flattenExonsBy}()},
-\code{\link{getGRLgaps}()},
-\code{\link{getGRcoverageFromBw}()},
-\code{\link{getGRgaps}()},
-\code{\link{grl2df}()},
-\code{\link{jam_isDisjoint}()},
-\code{\link{make_ref2compressed}()},
-\code{\link{sortGRL}()},
-\code{\link{spliceGR2junctionDF}()},
-\code{\link{stackJunctions}()}
+Other jam GRanges functions:
+\code{\link[=addGRLgaps]{addGRLgaps()}},
+\code{\link[=addGRgaps]{addGRgaps()}},
+\code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
+\code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
+\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
+\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=exoncov2polygon]{exoncov2polygon()}},
+\code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
+\code{\link[=flattenExonsBy]{flattenExonsBy()}},
+\code{\link[=getGRLgaps]{getGRLgaps()}},
+\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
+\code{\link[=getGRgaps]{getGRgaps()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
+\code{\link[=make_ref2compressed]{make_ref2compressed()}},
+\code{\link[=sortGRL]{sortGRL()}},
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
+\code{\link[=stackJunctions]{stackJunctions()}}
 }
 \concept{jam ALE-specific RNA-seq functions}
 \concept{jam GRanges functions}

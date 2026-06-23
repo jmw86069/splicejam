@@ -52,7 +52,7 @@ gg1 <- ggplot(junc_df, aes(x=x, y=y, group=id, fill=gr_name)) +
 print(gg1);
 }
 \seealso{
-Other splicejam data: 
+Other splicejam data:
 \code{\link{test_cov_gr}},
 \code{\link{test_cov_wide_gr}},
 \code{\link{test_exon_gr}},

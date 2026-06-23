@@ -200,9 +200,9 @@ R-shiny UI. The content is displayed in the tab
 \code{"About Sashimi Plots"} at the top of the app.
 }
 \seealso{
-Other splicejam R-shiny functions: 
-\code{\link{launchSashimiApp}()},
-\code{\link{sashimiAppUI}()},
-\code{\link{sashimiDataConstants}()}
+Other splicejam R-shiny functions:
+\code{\link[=launchSashimiApp]{launchSashimiApp()}},
+\code{\link[=sashimiAppUI]{sashimiAppUI()}},
+\code{\link[=sashimiDataConstants]{sashimiDataConstants()}}
 }
 \concept{splicejam R-shiny functions}

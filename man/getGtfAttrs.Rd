@@ -74,9 +74,9 @@ an attribute name is not present, it is silently ignored.
 However, to see available attribute names, try \code{describeGtfAttrNames()}.
 }
 \seealso{
-Other jam gtf functions: 
-\code{\link{describeGtfAttrNames}()},
-\code{\link{makeTx2geneFromGtf}()},
-\code{\link{readGtf}()}
+Other jam gtf functions:
+\code{\link[=describeGtfAttrNames]{describeGtfAttrNames()}},
+\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
+\code{\link[=readGtf]{readGtf()}}
 }
 \concept{jam gtf functions}

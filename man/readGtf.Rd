@@ -34,9 +34,9 @@ gtf or gff3 file.
 read gtf/gff3 file
 }
 \seealso{
-Other jam gtf functions: 
-\code{\link{describeGtfAttrNames}()},
-\code{\link{getGtfAttrs}()},
-\code{\link{makeTx2geneFromGtf}()}
+Other jam gtf functions:
+\code{\link[=describeGtfAttrNames]{describeGtfAttrNames()}},
+\code{\link[=getGtfAttrs]{getGtfAttrs()}},
+\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}}
 }
 \concept{jam gtf functions}

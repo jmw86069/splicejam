@@ -168,27 +168,27 @@ ggGria1 <- gene2gg("Gria1",
 
 }
 \seealso{
-Other jam plot functions: 
-\code{\link{bgaPlotly3d}()},
-\code{\link{factor2label}()},
-\code{\link{grl2df}()},
-\code{\link{jitter_norm}()},
-\code{\link{plotSashimi}()},
-\code{\link{prepareSashimi}()},
-\code{\link{stackJunctions}()}
+Other jam plot functions:
+\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
+\code{\link[=factor2label]{factor2label()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=jitter_norm]{jitter_norm()}},
+\code{\link[=plotSashimi]{plotSashimi()}},
+\code{\link[=prepareSashimi]{prepareSashimi()}},
+\code{\link[=stackJunctions]{stackJunctions()}}
 
-Other jam ggplot2 functions: 
-\code{\link{geom_diagonal_wide_arc}()},
-\code{\link{plotSashimi}()},
+Other jam ggplot2 functions:
+\code{\link[=geom_diagonal_wide_arc]{geom_diagonal_wide_arc()}},
+\code{\link[=plotSashimi]{plotSashimi()}},
 \code{\link{splicejam-extensions}},
-\code{\link{to_basic.GeomShape}()}
+\code{\link[=to_basic.GeomShape]{to_basic.GeomShape()}}
 
-Other splicejam core functions: 
-\code{\link{exoncov2polygon}()},
-\code{\link{grl2df}()},
-\code{\link{make_ref2compressed}()},
-\code{\link{plotSashimi}()},
-\code{\link{prepareSashimi}()}
+Other splicejam core functions:
+\code{\link[=exoncov2polygon]{exoncov2polygon()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=make_ref2compressed]{make_ref2compressed()}},
+\code{\link[=plotSashimi]{plotSashimi()}},
+\code{\link[=prepareSashimi]{prepareSashimi()}}
 }
 \concept{jam ggplot2 functions}
 \concept{jam plot functions}

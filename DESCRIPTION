@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.86.900
+Version: 0.0.87.900
 Authors@R: c(
     person(given="James M.",
        family="Ward",
@@ -50,7 +50,8 @@ Imports: jamba(>= 1.0.0),
     caTools,
     memoise(>= 2.0.1.9000),
     testthat(>= 3.0.0),
-    R.utils
+    R.utils,
+    cpp11bigwig(>= 0.3.0.9000)
 Suggests: 
     made4,
     openxlsx,
@@ -70,9 +71,10 @@ Remotes:
     github::jmw86069/farrisdata,
     github::r-lib/memoise,
     github::RinteRface/shinydashboardPlus,
-    github::Yang-Tang/shinyjqui
+    github::Yang-Tang/shinyjqui,
+    github::rnabioco/cpp11bigwig
 URL: http://github.com/jmw86069/splicejam
 BugReports: http://github.com/jmw86069/splicejam/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

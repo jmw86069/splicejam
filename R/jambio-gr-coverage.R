@@ -77,6 +77,11 @@
 #' @param do_shiny_progress logical indicating whether to update
 #'    shiny progress bar, using `shiny::setProgress()`. It assumes
 #'    the progress bar is already initiated.
+#' @param dev_method `character` string with API method to use:
+#'    * 'cpp11bigwig' (default): Uses `cpp11bigwig::read_bigwig()`
+#'    * `rtracklayer`: Uses `rtracklayer::import.bw()` and may
+#'    fail or take extreme time to return data for remote files,
+#'    and/or on Windows client machines.
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
@@ -91,6 +96,9 @@ getGRcoverageFromBw <- function
  use_memoise=FALSE,
  memoise_coverage_path="coverage_memoise",
  do_shiny_progress=FALSE,
+ dev_method=c(
+    "cpp11bigwig",
+    "rtracklayer"),
  verbose=FALSE,
  ...)
 {
@@ -100,6 +108,15 @@ getGRcoverageFromBw <- function
    ##
    ## TODO: consider splitting bwUrls into bwUrlsPos, bwUrlsNeg
    ## in order to allow strand-specificity
+   dev_method <- match.arg(dev_method);
+   if ("cpp11bigwig" %in% dev_method &&
+      !requireNamespace("cpp11bigwig", quietly=TRUE)) {
+      if (verbose) {
+         jamba::printDebug("getGRcoverageFromBw(): ",
+            "reverting dev_method from 'cpp11bigwig' to 'rtracklayer'.");
+      }
+      dev_method <- "rtracklayer";
+   }
    if (!jamba::igrepHas("GRanges", class(gr))) {
       stop("gr must be a GRanges object.");
    }
@@ -126,7 +143,7 @@ getGRcoverageFromBw <- function
          newValues=newValues,
          ...);
    }
-   import_or_null <- function
+   import_or_null_rtracklayer <- function
    (bwUrl,
       gr) {
       cov1 <- tryCatch({
@@ -150,10 +167,57 @@ getGRcoverageFromBw <- function
       });
       cov1;
    }
+   # alternative which uses cpp11bigwig
+   # - returns RleList instead of NumericList (for now)
+   import_or_null_cpp11bigwig <- function
+   (bwUrl,
+    gr) {
+      # iterate each gr range: get coverage, convert to NumericList
+      cov1 <- tryCatch({
+         rlecov <- cpp11bigwig::read_bigwig(
+            bwfile=bwUrl,
+            as="Rle",
+            chrom=gr)
+         if (length(names(gr)) > 0) {
+            names(rlecov) <- names(gr);
+         }
+         IRanges::NumericList(rlecov)
+      }, error=function(e){
+         ## Note: errors occur most commonly when the file is not available
+         warnText <- paste0("getGRcoverageFromBw():",
+            "import_or_null_cpp11bigwig() error:",
+            bwUrl,
+            "', returning NULL.");
+         jamba::printDebug(warnText);
+         # print the error
+         print(e);
+         # print any associated warnings
+         # print(warnings());
+         warning(warnText);
+         NULL;
+      });
+      cov1;
+   }
+   import_or_null <- NULL;
+   import_or_null_m <- NULL;
+   if ("cpp11bigwig" %in% dev_method) {
+      if (verbose) {
+         jamba::printDebug("getGRcoverageFromBw(): ",
+            "using dev_method: ", dev_method);
+      }
+      import_or_null <- import_or_null_cpp11bigwig;
+   } else {
+      if (verbose) {
+         jamba::printDebug("getGRcoverageFromBw(): ",
+            "using dev_method: ", dev_method);
+      }
+      import_or_null <- import_or_null_rtracklayer;
+   }
    if (use_memoise) {
       import_or_null_m <- memoise::memoise(import_or_null,
          cache=memoise::cache_filesystem(memoise_coverage_path));
    }
+
    ## version 0.0.68.900
    ## - fix issue with rtracklayer::import.bw() returning in bigWig
    ##    chromosome index order and not the input order

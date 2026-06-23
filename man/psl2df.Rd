@@ -36,7 +36,7 @@ psl2df(textConnection(psls), verbose=TRUE)
 
 }
 \seealso{
-Other jam data import functions: 
-\code{\link{import_juncs_from_bed}()}
+Other jam data import functions:
+\code{\link[=import_juncs_from_bed]{import_juncs_from_bed()}}
 }
 \concept{jam data import functions}

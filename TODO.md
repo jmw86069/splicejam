@@ -1,5 +1,12 @@
 # TODO for splicejam
 
+## 16jun2026
+
+* DONE! Fix bigwig load failures/slowness with remote URLs.
+* Add unit tests for all the various core processing steps.
+* Add visual unit tests (vdiffr) for sashimi plot output, which
+also covers the range of intermediate steps.
+
 ## 30apr2026
 
 * Make `GRanges` utility functions more prominent for wider usefulness.

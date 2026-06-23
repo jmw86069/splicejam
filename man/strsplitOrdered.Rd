@@ -55,8 +55,8 @@ strsplitOrdered(iGroups, "_");
 
 }
 \seealso{
-Other jam string functions: 
-\code{\link{escapeWhitespaceRegexp}()},
-\code{\link{sortSamples}()}
+Other jam string functions:
+\code{\link[=escapeWhitespaceRegexp]{escapeWhitespaceRegexp()}},
+\code{\link[=sortSamples]{sortSamples()}}
 }
 \concept{jam string functions}

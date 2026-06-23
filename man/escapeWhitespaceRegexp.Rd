@@ -39,8 +39,8 @@ data.frame(input=paste0('"', x, '"'),
 
 }
 \seealso{
-Other jam string functions: 
-\code{\link{sortSamples}()},
-\code{\link{strsplitOrdered}()}
+Other jam string functions:
+\code{\link[=sortSamples]{sortSamples()}},
+\code{\link[=strsplitOrdered]{strsplitOrdered()}}
 }
 \concept{jam string functions}

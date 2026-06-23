@@ -41,10 +41,10 @@ compressed coordinate space, using the runmax across the window of
 coverages compressed to this value.
 }
 \seealso{
-Other jam spatial functions: 
-\code{\link{bgaPlotly3d}()},
-\code{\link{dfWide2segments}()},
-\code{\link{simplifyXY}()},
-\code{\link{spline3d}()}
+Other jam spatial functions:
+\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
+\code{\link[=dfWide2segments]{dfWide2segments()}},
+\code{\link[=simplifyXY]{simplifyXY()}},
+\code{\link[=spline3d]{spline3d()}}
 }
 \concept{jam spatial functions}

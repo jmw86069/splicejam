@@ -227,20 +227,20 @@ The \code{"bet"} contents are described below, assuming the results of
 }
 }
 \seealso{
-Other jam plot functions: 
-\code{\link{factor2label}()},
-\code{\link{gene2gg}()},
-\code{\link{grl2df}()},
-\code{\link{jitter_norm}()},
-\code{\link{plotSashimi}()},
-\code{\link{prepareSashimi}()},
-\code{\link{stackJunctions}()}
+Other jam plot functions:
+\code{\link[=factor2label]{factor2label()}},
+\code{\link[=gene2gg]{gene2gg()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=jitter_norm]{jitter_norm()}},
+\code{\link[=plotSashimi]{plotSashimi()}},
+\code{\link[=prepareSashimi]{prepareSashimi()}},
+\code{\link[=stackJunctions]{stackJunctions()}}
 
-Other jam spatial functions: 
-\code{\link{compressPolygonM}()},
-\code{\link{dfWide2segments}()},
-\code{\link{simplifyXY}()},
-\code{\link{spline3d}()}
+Other jam spatial functions:
+\code{\link[=compressPolygonM]{compressPolygonM()}},
+\code{\link[=dfWide2segments]{dfWide2segments()}},
+\code{\link[=simplifyXY]{simplifyXY()}},
+\code{\link[=spline3d]{spline3d()}}
 }
 \concept{jam plot functions}
 \concept{jam spatial functions}

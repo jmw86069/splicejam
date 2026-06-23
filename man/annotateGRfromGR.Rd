@@ -163,25 +163,25 @@ annotateGRLfromGRL(grl1, grl2);
 
 }
 \seealso{
-Other jam GRanges functions: 
-\code{\link{addGRLgaps}()},
-\code{\link{addGRgaps}()},
-\code{\link{annotateGRLfromGRL}()},
-\code{\link{assignGRLexonNames}()},
-\code{\link{closestExonToJunctions}()},
-\code{\link{combineGRcoverage}()},
-\code{\link{exoncov2polygon}()},
-\code{\link{findOverlapsGRL}()},
-\code{\link{flattenExonsBy}()},
-\code{\link{getFirstStrandedFromGRL}()},
-\code{\link{getGRLgaps}()},
-\code{\link{getGRcoverageFromBw}()},
-\code{\link{getGRgaps}()},
-\code{\link{grl2df}()},
-\code{\link{jam_isDisjoint}()},
-\code{\link{make_ref2compressed}()},
-\code{\link{sortGRL}()},
-\code{\link{spliceGR2junctionDF}()},
-\code{\link{stackJunctions}()}
+Other jam GRanges functions:
+\code{\link[=addGRLgaps]{addGRLgaps()}},
+\code{\link[=addGRgaps]{addGRgaps()}},
+\code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
+\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
+\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=exoncov2polygon]{exoncov2polygon()}},
+\code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
+\code{\link[=flattenExonsBy]{flattenExonsBy()}},
+\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
+\code{\link[=getGRLgaps]{getGRLgaps()}},
+\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
+\code{\link[=getGRgaps]{getGRgaps()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
+\code{\link[=make_ref2compressed]{make_ref2compressed()}},
+\code{\link[=sortGRL]{sortGRL()}},
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
+\code{\link[=stackJunctions]{stackJunctions()}}
 }
 \concept{jam GRanges functions}

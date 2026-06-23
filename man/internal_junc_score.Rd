@@ -54,21 +54,21 @@ can be defined higher in order to minimize junction arc
 overlaps.
 }
 \seealso{
-Other jam RNA-seq functions: 
-\code{\link{assignGRLexonNames}()},
-\code{\link{closestExonToJunctions}()},
-\code{\link{combineGRcoverage}()},
-\code{\link{defineDetectedTx}()},
-\code{\link{detectedTxInfo}()},
-\code{\link{exoncov2polygon}()},
-\code{\link{flattenExonsBy}()},
-\code{\link{getGRcoverageFromBw}()},
-\code{\link{groups2contrasts}()},
-\code{\link{makeTx2geneFromGtf}()},
-\code{\link{make_ref2compressed}()},
-\code{\link{prepareSashimi}()},
-\code{\link{runDiffSplice}()},
-\code{\link{sortSamples}()},
-\code{\link{spliceGR2junctionDF}()}
+Other jam RNA-seq functions:
+\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
+\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=defineDetectedTx]{defineDetectedTx()}},
+\code{\link[=detectedTxInfo]{detectedTxInfo()}},
+\code{\link[=exoncov2polygon]{exoncov2polygon()}},
+\code{\link[=flattenExonsBy]{flattenExonsBy()}},
+\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
+\code{\link[=groups2contrasts]{groups2contrasts()}},
+\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
+\code{\link[=make_ref2compressed]{make_ref2compressed()}},
+\code{\link[=prepareSashimi]{prepareSashimi()}},
+\code{\link[=runDiffSplice]{runDiffSplice()}},
+\code{\link[=sortSamples]{sortSamples()}},
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
 }
 \concept{jam RNA-seq functions}

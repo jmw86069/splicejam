@@ -2,9 +2,16 @@
 % Please edit documentation in R/splicejam-shiny-data.R
 \name{get_fn_envir}
 \alias{get_fn_envir}
-\title{Get value from function call or specific environment}
+\title{Get value from function arguments or specific environment}
 \usage{
-get_fn_envir(x, envir = NULL, verbose = FALSE, ...)
+get_fn_envir(
+  x,
+  envir = NULL,
+  enable_parent_1 = TRUE,
+  inherits = FALSE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{\code{character} string indicating the name of an R object.}
@@ -25,19 +32,33 @@ the calling function, or the environment \code{envir}, or \code{NULL}
 if not defined in either case.
 }
 \description{
-Get value from function call or specific environment in that order
+Get value from function ellipses, parent function, or
+specific environment, in that order
 }
 \details{
 This function is a helper function intended to return a
 variable value, if it exists and is not NULL, by searching
 these locations in order:
 \enumerate{
+\item Any passed function arguments in '...' ellipses, if present.
 \item The calling function, which is the environment of the
-function that called \code{get_fn_envir()}.
+function that called \code{get_fn_envir()} defined by
+\code{parent.frame(1)}.
 \item The environment or environments provided in \code{envir}.
-\item It returns \code{NULL} if the previous steps do not find
-the object named by \code{x}.
 }
+
+It returns \code{NULL} if the previous steps do not find
+the object named by \code{x}.
+
+As of version 0.0.87.900, argument \code{inherits=FALSE} is the new
+default, which means this function will not use data in
+successive parent environments until it finds a matching
+result. In most cases for the Splicejam Shiny App, running
+one instance of the Shiny App meant this distinction had no
+effect. However, while using \code{inherits=FALSE} it should be
+possible to configure two distinct Shiny Apps, in separate
+environments, without risk that existing variables may be
+re-used by the second environmnt created.
 }
 \examples{
 x <- 10;

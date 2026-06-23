@@ -84,7 +84,7 @@ this step, to prevent propagation of junctions with
 zero counts.
 }
 \seealso{
-Other jam data import functions: 
-\code{\link{psl2df}()}
+Other jam data import functions:
+\code{\link[=psl2df]{psl2df()}}
 }
 \concept{jam data import functions}

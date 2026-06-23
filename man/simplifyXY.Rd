@@ -44,10 +44,10 @@ legend("topleft", pch=c(1, 20, 17),# box.col="black", border="black",
 
 }
 \seealso{
-Other jam spatial functions: 
-\code{\link{bgaPlotly3d}()},
-\code{\link{compressPolygonM}()},
-\code{\link{dfWide2segments}()},
-\code{\link{spline3d}()}
+Other jam spatial functions:
+\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
+\code{\link[=compressPolygonM]{compressPolygonM()}},
+\code{\link[=dfWide2segments]{dfWide2segments()}},
+\code{\link[=spline3d]{spline3d()}}
 }
 \concept{jam spatial functions}

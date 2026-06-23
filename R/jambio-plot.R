@@ -714,7 +714,7 @@ compressPolygonM <- function
 #'    colorjam::scale_fill_jam() +
 #'    colorjam::scale_color_jam();
 #' print(gg3);
-#'
+#' 
 #' @export
 exoncov2polygon <- function
 (gr,
@@ -1562,7 +1562,7 @@ prepareSashimi <- function
          if (verbose) {
             jamba::printDebug("prepareSashimi(): ",
                "progress:", format(digits=2, 3/4 + iBedPct/6),
-               "Importing bed:",
+               " Importing bed:",
                iBed,
                " with scale_factor:",
                format(digits=1, juncScaleFactors[iBedName]),
@@ -2134,6 +2134,7 @@ import_juncs_from_bed <- function
          return(bed_gr);
       }
       if (ncol(bed_df) == 9) {
+         # SJ.out format
          bed_df <- subset(bed_df, !bed_df[,7] %in% 0);
          bed_gr <- GenomicRanges::GRanges(
             seqnames=c(bed_df[,1]),
@@ -2185,17 +2186,80 @@ import_juncs_from_bed <- function
       return(bed_gr)
    }
 
+   ######################################################################
+   ## import_junc similar to import_or_null used for bigwig coverage
+   # For files/URLs ending 'bb' or 'bigbed' it uses cpp11bigwig
+   # for the range requested in gr.
+   # Otherwise data.table::fread() for the whole file.
+   bed_is_bigbed <- grepl("bb|bigbed$",ignore.case=TRUE, iBed);
+   import_junc_or_null <- function(bed, gr=NULL) {
+      if (grepl("(bb|bigbed)$",ignore.case=TRUE, bed)) {
+         # use cpp11bigwig
+         # use unique() to permit multiple gr to return duplicates
+         # the other option is to use range(gr)
+         junc_df <- unique(data.frame(check.names=FALSE,
+            cpp11bigwig::read_bigbed(bbfile=bed,
+               chrom=gr)))
+               # chrom=GenomicRanges::range(gr)))
+      } else {
+         junc_df <- data.table::fread(file=bed,
+            data.table=FALSE,
+            showProgress=FALSE)
+      }
+      if (ncol(junc_df) < 4) {
+         warn_msg <- paste(sep="\n",
+            "Junction file only contains 3 columns. It is expected to have",
+            "12 columns, in bed12 format.",
+            "For bigbed files, the autoSql schema must be encoded",
+            "into the file, for example like this:",
+            "bedToBigBed -as=bed12.as junc.bed chromsizes.txt junc.bb",
+            "",
+            "An example bed12.as file is shown below:",
+            'table bed12',
+            '"Browser extensible data, with extended fields for detail page"',
+            '    (',
+            '    string chrom;      "Reference sequence chromosome or scaffold"',
+            '    uint   chromStart; "Start position in chromosome"',
+            '    uint   chromEnd;   "End position in chromosome"',
+            '    string name;       "Short Name of item"',
+            '    uint   score;      "Score from 0-1000"',
+            '    char[1] strand;    "+ or -"',
+            '    uint thickStart;   "Start of where display should be thick (start codon)"',
+            '    uint thickEnd;     "End of where display should be thick (stop codon)"',
+            '    uint reserved;     "Used as itemRgb as of 2004-11-22"',
+            '    int blockCount;    "Number of blocks"',
+            '    int[blockCount] blockSizes; "Comma separated list of block sizes"',
+            '    int[blockCount] chromStarts; "Start positions relative to chromStart"'
+         )
+         warning(warn_msg);
+         junc_df <- NULL;
+      }
+      return(junc_df);
+   }
+
+   bed_df <- NULL;
    if (use_memoise) {
+      # function(x){data.table::fread(x, data.table=FALSE, showProgress=FALSE)},
       import_m <- memoise::memoise(
-         function(x){data.table::fread(x, data.table=FALSE, showProgress=FALSE)},
+         import_junc_or_null,
          cache=memoise::cache_filesystem(memoise_junction_path));
-      import_has_cache <- memoise::has_cache(import_m)(iBed);
+      # for bigbed we include GR in the cache
+      # otherwise we cache the whole file anyway
+      if (isTRUE(bed_is_bigbed)) {
+         import_has_cache <- memoise::has_cache(import_m)(iBed, gr=gr);
+      } else {
+         import_has_cache <- memoise::has_cache(import_m)(iBed, gr=NULL);
+      }
       if (verbose) {
          jamba::printDebug("import_juncs_from_bed():",
             "import_has_cache:", import_has_cache);
       }
       bed_df <- tryCatch({
-         import_m(iBed);
+         if (isTRUE(bed_is_bigbed)) {
+            import_m(iBed, gr=gr);
+         } else {
+            import_m(iBed, gr=NULL)
+         }
       }, error=function(e){
          warnText <- paste0(
             "import_juncs_from_bed() error:",
@@ -2213,51 +2277,48 @@ import_juncs_from_bed <- function
                "Repairing junction cache.",
                fgText=c("darkorange","seagreen3"));
          }
-         if (compareVersion(as.character(packageVersion("memoise")), "1.1.0.900") >= 0) {
-            #import_has_cache <- memoise::has_cache(import_m)(iBed);
-            memoise::drop_cache(import_m)(iBed);
-            bed_df <- tryCatch({
-               import_m(iBed);
-            }, error=function(e){
-               warnText <- paste0(
-                  "import_juncs_from_bed() error:",
-                  "file not accessible during repair junction step: '",
-                  iBed,
-                  "', returning NULL.");
-               print(warnText);
-               print(e);
-               warning(warnText);
-               NULL;
-            })
+         if (isTRUE(bed_is_bigbed)) {
+            memoise::drop_cache(iBed, gr=gr);
          } else {
-            bed_df <- tryCatch({
-               data.table::fread(iBed, data.table=FALSE);
-            }, error=function(e){
-               NULL;
-            });
+            memoise::drop_cache(iBed, gr=NULL)
          }
+         bed_df <- tryCatch({
+            if (isTRUE(bed_is_bigbed)) {
+               import_m(iBed, gr=gr);
+            } else {
+               import_m(iBed, gr=NULL)
+            }   
+         }, error=function(e){
+            warnText <- paste0(
+               "import_juncs_from_bed() error:",
+               "file not accessible during repair junction step: '",
+               iBed,
+               "', returning NULL.");
+            print(warnText);
+            print(e);
+            warning(warnText);
+            NULL;
+         })
          if (length(bed_df) == 0) {
             jamba::printDebug("import_juncs_from_bed(): ",
                "Failed to Repair junction cache.",
                fgText=c("darkorange","red"));
          }
       }
-      if (length(bed_df) > 0) {
-         bed1 <- df_to_junc_gr(bed_df);
-      } else {
-         bed1 <- NULL;
-      }
    } else {
       bed_df <- tryCatch({
-         data.table::fread(iBed, data.table=FALSE);
+         suppressMessages({
+            import_junc_or_null(iBed, gr=gr)
+         })
       }, error=function(e){
          NULL;
       });
-      if (length(bed_df) > 0) {
-         bed1 <- df_to_junc_gr(bed_df);
-      } else {
-         bed1 <- NULL;
-      }
+   }
+   # convert to junction GRanges
+   if (length(bed_df) > 0) {
+      bed1 <- df_to_junc_gr(bed_df);
+   } else {
+      bed1 <- NULL;
    }
    if (length(bed1) == 0) {
       return(NULL)
@@ -2303,6 +2364,7 @@ import_juncs_from_bed <- function
       GenomicRanges::values(bed1)$score <- as.numeric(
          as.character(GenomicRanges::values(bed1)$score)) * scale_factor;
    }
+   
    ## Assign annotation values
    GenomicRanges::values(bed1)[,c("juncNames")] <- juncNames;
    GenomicRanges::values(bed1)[,c("sample_id")] <- sample_id;

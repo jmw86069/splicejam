@@ -152,8 +152,8 @@ curateVtoDF(x, curationL);
 
 }
 \seealso{
-Other jam design functions: 
-\code{\link{curateDFtoDF}()},
-\code{\link{groups2contrasts}()}
+Other jam design functions:
+\code{\link[=curateDFtoDF]{curateDFtoDF()}},
+\code{\link[=groups2contrasts]{groups2contrasts()}}
 }
 \concept{jam design functions}

@@ -14,6 +14,7 @@ getGRcoverageFromBw(
   use_memoise = FALSE,
   memoise_coverage_path = "coverage_memoise",
   do_shiny_progress = FALSE,
+  dev_method = c("cpp11bigwig", "rtracklayer"),
   verbose = FALSE,
   ...
 )
@@ -62,6 +63,14 @@ working directory.}
 shiny progress bar, using \code{shiny::setProgress()}. It assumes
 the progress bar is already initiated.}
 
+\item{dev_method}{\code{character} string with API method to use:
+\itemize{
+\item 'cpp11bigwig' (default): Uses \code{cpp11bigwig::read_bigwig()}
+\item \code{rtracklayer}: Uses \code{rtracklayer::import.bw()} and may
+fail or take extreme time to return data for remote files,
+and/or on Windows client machines.
+}}
+
 \item{verbose}{logical indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
@@ -106,43 +115,43 @@ possible the cache will be invalidated by the addition of names
 to \code{gr}, though unclear exactly how deeply memoise checks such things.
 }
 \seealso{
-Other jam GRanges functions: 
-\code{\link{addGRLgaps}()},
-\code{\link{addGRgaps}()},
-\code{\link{annotateGRLfromGRL}()},
-\code{\link{annotateGRfromGR}()},
-\code{\link{assignGRLexonNames}()},
-\code{\link{closestExonToJunctions}()},
-\code{\link{combineGRcoverage}()},
-\code{\link{exoncov2polygon}()},
-\code{\link{findOverlapsGRL}()},
-\code{\link{flattenExonsBy}()},
-\code{\link{getFirstStrandedFromGRL}()},
-\code{\link{getGRLgaps}()},
-\code{\link{getGRgaps}()},
-\code{\link{grl2df}()},
-\code{\link{jam_isDisjoint}()},
-\code{\link{make_ref2compressed}()},
-\code{\link{sortGRL}()},
-\code{\link{spliceGR2junctionDF}()},
-\code{\link{stackJunctions}()}
+Other jam GRanges functions:
+\code{\link[=addGRLgaps]{addGRLgaps()}},
+\code{\link[=addGRgaps]{addGRgaps()}},
+\code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
+\code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
+\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
+\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=exoncov2polygon]{exoncov2polygon()}},
+\code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
+\code{\link[=flattenExonsBy]{flattenExonsBy()}},
+\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
+\code{\link[=getGRLgaps]{getGRLgaps()}},
+\code{\link[=getGRgaps]{getGRgaps()}},
+\code{\link[=grl2df]{grl2df()}},
+\code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
+\code{\link[=make_ref2compressed]{make_ref2compressed()}},
+\code{\link[=sortGRL]{sortGRL()}},
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
+\code{\link[=stackJunctions]{stackJunctions()}}
 
-Other jam RNA-seq functions: 
-\code{\link{assignGRLexonNames}()},
-\code{\link{closestExonToJunctions}()},
-\code{\link{combineGRcoverage}()},
-\code{\link{defineDetectedTx}()},
-\code{\link{detectedTxInfo}()},
-\code{\link{exoncov2polygon}()},
-\code{\link{flattenExonsBy}()},
-\code{\link{groups2contrasts}()},
-\code{\link{internal_junc_score}()},
-\code{\link{makeTx2geneFromGtf}()},
-\code{\link{make_ref2compressed}()},
-\code{\link{prepareSashimi}()},
-\code{\link{runDiffSplice}()},
-\code{\link{sortSamples}()},
-\code{\link{spliceGR2junctionDF}()}
+Other jam RNA-seq functions:
+\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
+\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=defineDetectedTx]{defineDetectedTx()}},
+\code{\link[=detectedTxInfo]{detectedTxInfo()}},
+\code{\link[=exoncov2polygon]{exoncov2polygon()}},
+\code{\link[=flattenExonsBy]{flattenExonsBy()}},
+\code{\link[=groups2contrasts]{groups2contrasts()}},
+\code{\link[=internal_junc_score]{internal_junc_score()}},
+\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
+\code{\link[=make_ref2compressed]{make_ref2compressed()}},
+\code{\link[=prepareSashimi]{prepareSashimi()}},
+\code{\link[=runDiffSplice]{runDiffSplice()}},
+\code{\link[=sortSamples]{sortSamples()}},
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
 }
 \concept{jam GRanges functions}
 \concept{jam RNA-seq functions}

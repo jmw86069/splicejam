@@ -210,9 +210,9 @@ the data is retrieved from the file or remote server.
 
 }
 \seealso{
-Other splicejam R-shiny functions: 
-\code{\link{sashimiAppConstants}()},
-\code{\link{sashimiAppUI}()},
-\code{\link{sashimiDataConstants}()}
+Other splicejam R-shiny functions:
+\code{\link[=sashimiAppConstants]{sashimiAppConstants()}},
+\code{\link[=sashimiAppUI]{sashimiAppUI()}},
+\code{\link[=sashimiDataConstants]{sashimiDataConstants()}}
 }
 \concept{splicejam R-shiny functions}

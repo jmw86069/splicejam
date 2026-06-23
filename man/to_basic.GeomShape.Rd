@@ -39,10 +39,10 @@ consistently used in that process for some reason.
 Currently only \code{data} is passed to \code{ggplot2::GeomPolygon}.
 }
 \seealso{
-Other jam ggplot2 functions: 
-\code{\link{gene2gg}()},
-\code{\link{geom_diagonal_wide_arc}()},
-\code{\link{plotSashimi}()},
+Other jam ggplot2 functions:
+\code{\link[=gene2gg]{gene2gg()}},
+\code{\link[=geom_diagonal_wide_arc]{geom_diagonal_wide_arc()}},
+\code{\link[=plotSashimi]{plotSashimi()}},
 \code{\link{splicejam-extensions}}
 }
 \concept{jam ggplot2 functions}

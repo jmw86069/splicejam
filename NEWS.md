@@ -1,6 +1,35 @@
+# splicejam 0.0.87.900
+
+* Major change from 'rtracklayer' to 'rnabioco/cpp11bigwig' to
+load bigwig coverage!
+Many thanks to @jayhesselberth, amazingly generous with his
+time, even adding features for remote bigwig access.
+It functions on linux/MacOS/Windows, and it blazing fast!
+
+## Changes to existing functions
+
+* `getGRcoverageFromBr()` argument 'dev_method' with new default
+'cpp11bigwig', and fallback 'rtracklayer'. The rtracklayer method
+was stalling/lagging (extreme hours lag) for remote files, and/or
+on Windows client machines.
+* `import_juncs_from_bed()` now recognizes `bigbed` format, also
+thanks to `cpp11bigwig::read_bigbed()`. Note that bed12 files
+must be encoded using autoSql schema, using bedToBigBed with
+argument '-as=bed12.as'.
+* `sashimiAppConstants()` now by default does not look in parent
+environments, with new argument 'inherits=FALSE' passed to `exists()`
+and `get()`. Now possible to have multiple independent configurations.
+* `get_fn_envir()` uses '...' then `parent.frame(1)` then `envir`
+to return the requested variable name, and new argument 'inherits=FALSE'
+also by default does not search parent environments, which previously
+eventually included `globalenv()`.
+
 # splicejam 0.0.86.900
 
 * Minor edits in progress to improve the R-shiny experience.
+* Note: R-4.4.2 causes dependency issue with 'arules' that requires R-4.5.0.
+Resolve with: `pak::pkg_install("arules@1.7-10")`.
+* Failed to build 'restfulr' (what needs that)?
 
 ## Changes to existing functions
 

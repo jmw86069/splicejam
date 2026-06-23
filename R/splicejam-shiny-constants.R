@@ -214,12 +214,14 @@ sashimiAppConstants <- function
    }
    if (verbose) {
       jamba::printDebug("sashimiAppConstants(): ",
-         "Using environment ", env_name);
+         "Using environment ", env_name, " with objects:");
       print(ls(envir=envir));
    }
 
    envir$aboutExtra <- get_fn_envir("aboutExtra",
-      envir=envir);
+      envir=envir,
+      verbose=verbose - 1,
+      ...);
    # if present, include aboutExtra
    if (length(envir$aboutExtra) > 0) {
       if (!inherits(envir$aboutExtra, c("shiny.tag", "shiny.tag.list"))) {
@@ -246,15 +248,31 @@ sashimiAppConstants <- function
       verbose=verbose,
       envir=envir,
       ...);
+
    params <- c("filesDF",
       "color_sub");
-   for (i in params) {
-      assign(i,
-         value=get_fn_envir(i,
-            envir=envir,
-            verbose=verbose - 1),
-         envir=envir);
-   }
+   for (param in params) {
+      param_value <- get_fn_envir(param,
+         envir=envir,
+         verbose=verbose - 1,
+         ...);
+      if (verbose >= 1) {
+         if (inherits(param_value,
+            c("logical", "character", "numeric",
+               "data.frame", "GRanges", "GRangesList"))) {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Assigning param: ", param,
+               ", head(param_value):", head(param_value));
+         } else {
+            jamba::printDebug("sashimiDataConstants(): ",
+               "Assigning param: ", param,
+               ", class(param_value):", class(param_value));
+         }
+      }   
+      assign(x=param,
+         value=param_value,
+         envir=envir)
+      }
 
    # assert filesDF is available with proper colnames
    if (length(envir$filesDF) == 0 ||

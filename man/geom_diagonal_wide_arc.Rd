@@ -182,22 +182,10 @@ ggplot(data) +
 
 }
 \seealso{
-Other jam ggplot2 functions: 
-\code{\link{gene2gg}()},
-\code{\link{plotSashimi}()},
+Other jam ggplot2 functions:
+\code{\link[=gene2gg]{gene2gg()}},
+\code{\link[=plotSashimi]{plotSashimi()}},
 \code{\link{splicejam-extensions}},
-\code{\link{to_basic.GeomShape}()}
-
-Other jam ggplot2 functions: 
-\code{\link{gene2gg}()},
-\code{\link{plotSashimi}()},
-\code{\link{splicejam-extensions}},
-\code{\link{to_basic.GeomShape}()}
-
-Other jam ggplot2 functions: 
-\code{\link{gene2gg}()},
-\code{\link{plotSashimi}()},
-\code{\link{splicejam-extensions}},
-\code{\link{to_basic.GeomShape}()}
+\code{\link[=to_basic.GeomShape]{to_basic.GeomShape()}}
 }
 \concept{jam ggplot2 functions}
