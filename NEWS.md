@@ -1,3 +1,9 @@
+# splicejam 0.0.87.950
+
+* Hotfix `import_juncs_from_bed()` for bigbed file input when
+also being provided `gr` GRanges input, it now calls `range()`
+to pick up all junctions in the region.
+
 # splicejam 0.0.87.900
 
 * Major change from 'rtracklayer' to 'rnabioco/cpp11bigwig' to

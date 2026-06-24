@@ -2122,6 +2122,12 @@ import_juncs_from_bed <- function
    # - determine BED or SJ.out.tab format
    # - call appropriate method
 
+   # If given GRangesList, use the GRanges portion.
+   # - design decision -- the other option is error,
+   #   since this is unexpected input.
+   if (length(gr) > 0 && inherits(gr, "GRangesList")) {
+      gr <- gr@unlistData;
+   }
    # helper function to convert data.frame to junctions GRanges
    df_to_junc_gr <- function(bed_df){
       bed_gr <- GenomicRanges::GRanges(
@@ -2193,13 +2199,14 @@ import_juncs_from_bed <- function
    # Otherwise data.table::fread() for the whole file.
    bed_is_bigbed <- grepl("bb|bigbed$",ignore.case=TRUE, iBed);
    import_junc_or_null <- function(bed, gr=NULL) {
+      # accept bigbed format
       if (grepl("(bb|bigbed)$",ignore.case=TRUE, bed)) {
          # use cpp11bigwig
          # use unique() to permit multiple gr to return duplicates
          # the other option is to use range(gr)
          junc_df <- unique(data.frame(check.names=FALSE,
             cpp11bigwig::read_bigbed(bbfile=bed,
-               chrom=gr)))
+               chrom=range(gr))))
                # chrom=GenomicRanges::range(gr)))
       } else {
          junc_df <- data.table::fread(file=bed,
@@ -2307,10 +2314,19 @@ import_juncs_from_bed <- function
       }
    } else {
       bed_df <- tryCatch({
+         if (verbose) {
+            jamba::printDebug("import_juncs_from_bed(): ",
+               "Calling import_junc_or_null()",
+               fgText=c("darkorange","seagreen3"));
+            print(class(iBed));# debug
+            print(class(gr));# debug
+         }
          suppressMessages({
-            import_junc_or_null(iBed, gr=gr)
+            import_junc_or_null(bed=iBed, gr=gr)
          })
       }, error=function(e){
+         jamba::printDebug("Error in import_junc_or_null():");
+         print(e);
          NULL;
       });
    }
@@ -2324,7 +2340,7 @@ import_juncs_from_bed <- function
       return(NULL)
    }
 
-   if (length(bed1) > 0 && length(gr) > 0) {
+   if (FALSE && length(bed1) > 0 && length(gr) > 0) {
       bed1 <- IRanges::subsetByOverlaps(bed1,
          ranges=range(gr));
    }

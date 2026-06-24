@@ -1,5 +1,15 @@
 # TODO for splicejam
 
+## 24jun2026
+
+* Optimize `exoncov2polygon()`, which has now become rate-limiting.
+* Consider refactoring splicejam 'df' format for polycon coordinates
+as list on each row. Candidate types:
+
+   * coverage: one row per polygon point, roughly 300-400 rows could be
+   one row with a `list` of coordinate values. 110k rows!
+   * junctions: 9 rows per arc.
+
 ## 16jun2026
 
 * DONE! Fix bigwig load failures/slowness with remote URLs.
