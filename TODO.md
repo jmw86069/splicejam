@@ -2,6 +2,12 @@
 
 ## 24jun2026
 
+* Add some wrapper function to do the steps wrapped inside
+the Splicejam Shiny app, specifically range of exons or range
+of genome coordinates to display. See 14apr2026 note below.
+* `prepareSashimi()` update to permit coordinate range input.
+* Consider accepting `SJ.out` format directly, validate using
+junctionBed bed12-format from the same file.
 * Optimize `exoncov2polygon()`, which has now become rate-limiting.
 * Consider refactoring splicejam 'df' format for polycon coordinates
 as list on each row. Candidate types:
@@ -10,16 +16,17 @@ as list on each row. Candidate types:
    one row with a `list` of coordinate values. 110k rows!
    * junctions: 9 rows per arc.
 
+* Add visual unit tests (vdiffr) for sashimi plot output, to cover
+the range of intermediate steps altogether.
+* Add unit tests for all the various core processing steps.
+
 ## 16jun2026
 
-* DONE! Fix bigwig load failures/slowness with remote URLs.
-* Add unit tests for all the various core processing steps.
-* Add visual unit tests (vdiffr) for sashimi plot output, which
-also covers the range of intermediate steps.
+* DONE. Fix bigwig load failures/slowness with remote URLs.
 
 ## 30apr2026
 
-* Make `GRanges` utility functions more prominent for wider usefulness.
+* DEFER. Make `GRanges` utility functions more prominent for wider usefulness.
 
    * `annotateGRfromGR()` - annotate `GRanges` from another.
    * `annotateGRLfromGRL()` - annotate `GRangesList` from another, keeping
@@ -40,17 +47,17 @@ also covers the range of intermediate steps.
       * uses patchwork as needed
       * zoom by coordinate or by exon name, as with the Shiny app.
 
-* Move BGA plot functions to another smaller R package.
+* Consider moving BGA plot functions to another smaller R package,
+accept other PCA objects. Consider tSNE/UMAP.
 
-   * Dedicated package for PCA/BGA-like features?
+   * Dedicated R package for PCA/BGA-like features?
    * Or add to something like: jamma, jamses, or platjam
-   * Consider supporting more than just BGA, preferably "any PCA" type.
-   
-      * Ability to define and calculate group centroids dynamically;
-      optionally connect supergroups.
+   * Consider dynamic group centroid calculations, with optional
+   supergroups as with BGA.
 
-* Support the addition of non-gene/transcript features to the gene panel
-
+* Support non-gene/transcript features/tracks within the "gene panel".
+The gene panel could include suitable "tracks".
+* Ideal world: Insert Splicejam into something like plotgardner.
 
 ## 07apr2026
 
