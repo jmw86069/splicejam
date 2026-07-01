@@ -591,7 +591,7 @@ sashimiDataConstants <- function
             "^[A-Za-z]{4}",
             "^[A-Za-z]{3}",
             "."),
-            detectedGenes),
+            envir$detectedGenes),
          1);
    }
    if (verbose) {

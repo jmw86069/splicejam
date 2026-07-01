@@ -1,3 +1,12 @@
+# splicejam 0.0.88.900
+
+## Updates
+
+* `plotSashimi()` new argument 'junc_fontsize' to control the
+junction count label size.
+* `sashimiDataConstants()` uses envir properly for detectedGenes,
+which would affect Splicejam Shiny app.
+
 # splicejam 0.0.87.950
 
 * Hotfix `import_juncs_from_bed()` for bigbed file input when

@@ -1373,6 +1373,8 @@ stackJunctions <- function
 #'    This threshold is controlled by
 #'    `ggrepel::geom_text_repel(..., min.segment.length=0.5)` and
 #'    is not configurable at this time.
+#' @param junc_fontsize `numeric` default 12, the text font size
+#'    used when show includes 'junctionLabels' as is default.
 #' @param fill_scheme character string for how the exon coverages
 #'    will be color-filled: `"exon"` will define colors for each
 #'    distinct exon, using the GRanges names from `flatExonsByGene`;
@@ -1438,6 +1440,7 @@ plotSashimi <- function
  junc_alpha=0.8,
  junc_accuracy=1,
  junc_nudge_pct=0.05,
+ junc_fontsize=12,
  fill_scheme=c("sample_id", "exon"),
  color_sub=NULL,
  ylabel="read depth",
@@ -1668,6 +1671,7 @@ plotSashimi <- function
                data=. %>% dplyr::filter(type %in% "junction_label" &
                      x >= min(label_coords) & x <= max(label_coords)),
                angle=90,
+               size=junc_fontsize / ggplot2::.pt,
                vjust=0.5,
                direction="y",
                point.padding=0,

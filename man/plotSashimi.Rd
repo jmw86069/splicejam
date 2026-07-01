@@ -14,6 +14,7 @@ plotSashimi(
   junc_alpha = 0.8,
   junc_accuracy = 1,
   junc_nudge_pct = 0.05,
+  junc_fontsize = 12,
   fill_scheme = c("sample_id", "exon"),
   color_sub = NULL,
   ylabel = "read depth",
@@ -80,6 +81,9 @@ This threshold is controlled by
 \code{ggrepel::geom_text_repel(..., min.segment.length=0.5)} and
 is not configurable at this time.
 }}
+
+\item{junc_fontsize}{\code{numeric} default 12, the text font size
+used when show includes 'junctionLabels' as is default.}
 
 \item{fill_scheme}{character string for how the exon coverages
 will be color-filled: \code{"exon"} will define colors for each
