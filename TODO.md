@@ -1,5 +1,14 @@
 # TODO for splicejam
 
+## 02jul2026
+
+* Create method to validate that the splicejam environment
+has what it needs to create sashimi plots: flat exons,
+tx2geneDF, detectedGenes/detectedTx as needed.
+* Refactor prepareSashimi(), plotSashimi() to accept 'envir'
+as input as alternative to multiple objects.
+* Consider replacing 'envir' with proper S4/S7 object.
+
 ## 24jun2026
 
 * Add some wrapper function to do the steps wrapped inside

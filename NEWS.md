@@ -1,3 +1,8 @@
+# splicejam 0.0.88.950
+
+* Hotfix: drop_cache() caused warning when junction cache failed,
+improper syntax was used to drop the cache, now fixed.
+
 # splicejam 0.0.88.900
 
 ## Updates

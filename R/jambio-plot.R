@@ -437,9 +437,9 @@ simplifyXY <- function
    }
    yRle <- S4Vectors::Rle(xyAngle);
 
-   if (any(runLength(yRle) >= minN)) {
-      rl <- runLength(yRle);
-      rv <- runValue(yRle);
+   if (any(S4Vectors::runLength(yRle) >= minN)) {
+      rl <- S4Vectors::runLength(yRle);
+      rv <- S4Vectors::runValue(yRle);
       rlDF <- data.frame(start=cumsum(c(1, head(rl, -1))),
          end=cumsum(rl),
          rl=rl,
@@ -2285,9 +2285,9 @@ import_juncs_from_bed <- function
                fgText=c("darkorange","seagreen3"));
          }
          if (isTRUE(bed_is_bigbed)) {
-            memoise::drop_cache(iBed, gr=gr);
+            memoise::drop_cache(import_m)(iBed, gr=gr);
          } else {
-            memoise::drop_cache(iBed, gr=NULL)
+            memoise::drop_cache(import_m)(iBed, gr=NULL)
          }
          bed_df <- tryCatch({
             if (isTRUE(bed_is_bigbed)) {
