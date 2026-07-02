@@ -56,8 +56,10 @@ sashimiAppServer <- function
    ##  gene_choices
    get_gene_choices <- shiny::reactive({
       search_genelist <- input$search_genelist;
-      if (length(search_genelist) > 0 && jamba::igrepHas("detected", search_genelist)) {
-         gene_choices <- detectedGenes;
+      if (length(search_genelist) > 0 &&
+         exists("detectedGenes") &&
+         jamba::igrepHas("detected", search_genelist)) {
+         gene_choices <- get("detectedGenes");
       } else {
          gene_choices <- jamba::mixedSort(unique(
             tx2geneDF$gene_name));
@@ -73,7 +75,7 @@ sashimiAppServer <- function
          return(default_gene);
       }
       if (exists("detectedGenes")) {
-         gene_choices <- detectedGenes;
+         gene_choices <- get("detectedGenes");
       } else {
          gene_choices <- jamba::mixedSort(unique(tx2geneDF$gene_name));
       }
@@ -101,7 +103,7 @@ sashimiAppServer <- function
       return(default_gene);
    }
 
-   observe({
+   shiny::observe({
       #search_genelist <- input$search_genelist;
       gene_choices <- get_gene_choices();
       default_gene <- get_default_gene();
@@ -122,7 +124,7 @@ sashimiAppServer <- function
       "length(detectedGenes):",
       jamba::formatInt(length(detectedGenes)));
    default_gene <- get_default_gene();
-   updateSelectizeInput(session,
+   shiny::updateSelectizeInput(session,
       "gene",
       choices=unique(c("blank", detectedGenes)),
       selected=default_gene,
@@ -275,7 +277,7 @@ sashimiAppServer <- function
 
 
    # update the "Update" button when something has changed
-   observe({
+   shiny::observe({
       gene <- input$gene;
       sample_order <- input$selectionto_order;
       min_junction_reads <- input$min_junction_reads;
@@ -311,7 +313,7 @@ sashimiAppServer <- function
    });
 
    # Update the slider bar for each gene, or when slider type is changed
-   observe({
+   shiny::observe({
       gene <- input$gene;
       if (verbose) {
          jamba::printDebug("sashimiAppServer(): ",
@@ -1217,7 +1219,7 @@ sashimiAppServer <- function
       )
    );
    # event of clicking the samples_df table
-   observeEvent(input$samplesdf_cell_clicked, {
+   shiny::observeEvent(input$samplesdf_cell_clicked, {
       selected_rows <- input$samplesdf_rows_selected;
       if (verbose > 1) {
          jamba::printDebug("selected_rows:", selected_rows);
