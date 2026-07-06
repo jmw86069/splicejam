@@ -1,3 +1,44 @@
+# splicejam 0.0.89.900
+
+* Coverage data in `prepareSashimi()` stored as `list` column,
+more efficient object size, more optimization in future.
+* New main function `splicejamFigure()`.
+* Several functions use `environment` input, as created by
+`sashimiDataConstants()` to prepare all required data.
+* 'README.Rmd' and vignettes not yet updated with the new workflow.
+* Added patchwork as new dependency, likely to replace cowplot.
+
+## New functions
+
+* `splicejamFigure()`
+
+   * Provides common features in a nicer interface, similar
+   to steps provided by `launchSashimiApp()`.
+   * Combines gene/transcript/exon model from `gene2gg()` with
+   coverage/junction data from `prepareSashimi()` and `plotSashimi()`.
+   * Multiple genes are partly supported, currently only when
+   on the same strand.
+   * Fixed a visual glitch with multiple-column output to ensure
+   x-axes align, seen with `layout_ncol=2` or higher. It splits
+   the ggplot2 facets into separate plots, so patchwork or cowplot
+   can align axis ranges; patchwork has better visual spacing,
+   may replace cowplot in future.
+
+## Changes to existing functions
+
+* `make_ref2compressed()`
+
+   * Several changes to how breaks and minor breaks are created.
+   Minor breaks are more likely to be drawn at every boundary.
+   * Gaps are created with 'ignore.strand=TRUE' to accommodate
+   multiple genes or features on different strands, in progress.
+
+* `prepareSashimi()` new argument 'sjenv' with `environment`
+containing the prepared data objects.
+* `gene2gg()` new argument 'sjenv' with `environment`
+containing the prepared data objects.
+
+
 # splicejam 0.0.88.950
 
 * Hotfix: drop_cache() caused warning when junction cache failed,
