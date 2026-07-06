@@ -479,6 +479,14 @@ grl2df <- function
 #' @param tx `character` vector of the transcripts to plot, useful
 #'    when specifying specific transcripts. Values are matched with
 #'    `names(flatExonsByTx)`.
+#' @param sjenv `environment` default NULL, used as convenient way
+#'    to pass arguments such as 'flatExonsByGene' and 'flatExonsByTx'.
+#'    It will use function arguments when provided, and recognizes
+#'    the following variables:
+#'    * 'flatExonsByGene'
+#'    * 'flatExonsByTx'
+#'    * 'filesDF'
+#'    * 'ref2c' (optional)
 #' @param flatExonsByGene,flatExonsByTx `GRangesList` objects, named
 #'    by `"gene_name"` or `"transcript_id"` respectively, containing
 #'    disjoint (non-overlapping) exons within each GRangesList
@@ -581,6 +589,7 @@ grl2df <- function
 gene2gg <- function
 (gene=NULL,
  tx=NULL,
+ sjenv=NULL,
  flatExonsByGene=NULL,
  flatExonsByTx=NULL,
  geneColor="dodgerblue",
@@ -619,6 +628,25 @@ gene2gg <- function
    }
    gene_order <- match.arg(gene_order);
    return_type <- match.arg(return_type);
+
+   if (inherits(sjenv, "environment")) {
+      if ('flatExonsByGene' %in% ls(sjenv) &
+         length(flatExonsByGene) == 0) {
+         flatExonsByGene <- sjenv$flatExonsByGene;
+      }
+      if ('flatExonsByTx' %in% ls(sjenv) &
+         length(flatExonsByTx) == 0) {
+            flatExonsByTx <- sjenv$flatExonsByTx;
+      }
+      if ('tx2geneDF' %in% ls(sjenv) &
+         length(tx2geneDF) == 0) {
+            tx2geneDF <- sjenv$tx2geneDF;
+      }
+      if ('ref2c' %in% ls(sjenv) &
+         length(ref2c) == 0) {
+            ref2c <- sjenv$ref2c;
+      }
+   }
 
    ## Convert exonLabelSize to have proper units, default "pt"
    if (!grid::is.unit(exonLabelSize)) {
@@ -1607,12 +1635,17 @@ plotSashimi <- function
          jamba::printDebug("plotSashimi(): ",
             "Including coverage and splice junctions.");
       }
+      # cjDF2 <- subset(cjDF, type %in% "junction")
+      # cjDF2$x <- unlist(cjDF2$x);
+      # cjDF2$y <- unlist(cjDF2$y);
       gg_sashimi <- gg_sashimi +
-         #geom_polygon(
          ggforce::geom_shape(
+            stat="unpack_polygon",
             data=. %>% dplyr::filter(type %in% "coverage"),
             show.legend=FALSE) +
          geom_diagonal_wide_arc(
+            # stat="unpack_polygon",
+            ggplot2::aes(x=unlist(x), y=unlist(y)),
             data=. %>% dplyr::filter(type %in% "junction"),
             show.legend=FALSE,
             alpha=junc_alpha,
@@ -1623,8 +1656,8 @@ plotSashimi <- function
             "Including coverage without splice junctions.");
       }
       gg_sashimi <- gg_sashimi +
-         #geom_polygon(
          ggforce::geom_shape(
+            stat="unpack_polygon",
             data=. %>% dplyr::filter(type %in% "coverage"),
             show.legend=FALSE
          );
@@ -1635,6 +1668,7 @@ plotSashimi <- function
       }
       gg_sashimi <- gg_sashimi +
          geom_diagonal_wide_arc(
+            ggplot2::aes(x=unlist(x), y=unlist(y)),
             data=. %>% dplyr::filter(type %in% "junction"),
             show.legend=FALSE,
             alpha=junc_alpha,
@@ -1658,30 +1692,35 @@ plotSashimi <- function
          }
          if (length(label_coords) == 0) {
             label_coords <- range(
-               subset(cjDF,type %in% "junction_label")$x,
+               unlist(subset(cjDF, type %in% "junction_label")$x),
                na.rm=TRUE);
          }
          ## Todo: nudge_y to adjust labels consistently above the ribbon
-         max_junc_y <- max(subset(cjDF, type %in% "junction_label")$y,
-            na.rm=TRUE);
-         jamba::printDebug("plotSashimi(): ",
-            "VERBOSE: Adding junction labels.");
+         max_junc_y <- max(na.rm=TRUE,
+            unlist(subset(cjDF, type %in% "junction_label")$y));
+         # jamba::printDebug("plotSashimi(): ",
+         #    "VERBOSE: Adding junction labels.");
+         # cjDF1 <- subset(cjDF, type %in% "junction_label");
+         # cjDF1$x <- unlist(cjDF1$x);
+         # cjDF1$y <- unlist(cjDF1$y);
          gg_sashimi <- gg_sashimi +
             ggrepel::geom_text_repel(
-               data=. %>% dplyr::filter(type %in% "junction_label" &
-                     x >= min(label_coords) & x <= max(label_coords)),
+               mapping=ggplot2::aes(
+                  x=unlist(x),
+                  y=unlist(y),
+                  label=scales::comma(score,
+                     accuracy=junc_accuracy)),
+               data=. %>% dplyr::filter(type %in% "junction_label") %>%
+                  dplyr::filter(unlist(x) >= min(label_coords)) %>%
+                  dplyr::filter(unlist(x) <= max(label_coords)),
                angle=90,
                size=junc_fontsize / ggplot2::.pt,
                vjust=0.5,
                direction="y",
                point.padding=0,
-               color="black",
                nudge_y=(max_junc_y * junc_nudge_pct),
                #fill="transparent",
-               ggplot2::aes(
-                  label=scales::comma(score,
-                     accuracy=junc_accuracy)
-               )
+               color="black"
             );
       }
    }
@@ -1689,7 +1728,8 @@ plotSashimi <- function
    ## Determine an appropriate x-axis label
    if (length(xlabel) == 0) {
       if (length(xlabel_ref) > 0 && xlabel_ref) {
-         xlabel <- as.character(unique(seqnames(attr(sashimi$ref2c, "gr"))));
+         xlabel <- as.character(unique(
+            GenomicRanges::seqnames(attr(sashimi$ref2c, "gr"))));
       } else {
          xlabel <- "";
       }
@@ -1765,4 +1805,140 @@ to_basic.GeomShape <- function
 {
    plotly:::prefix_class(data, "GeomPolygon");
 }
+
+#' Stat for unpacking list-column polygon coordinates
+#'
+#' `stat_unpack_polygon()` expands compact list-column coordinates
+#' stored as numeric vectors in `x` and `y` columns into long format
+#' suitable for `geom_polygon()` and `geom_shape()`.
+#'
+#' This stat is designed for memory-efficient storage of polygon
+#' coordinates where each polygon occupies a single row, with `x`
+#' and `y` columns containing numeric vectors of coordinates.
+#' It unpacks these into the long format expected by ggplot2
+#' polygon geoms during the statistical transformation layer.
+#'
+#' The stat requires a grouping column (typically `id` or similar)
+#' to distinguish between separate polygons when multiple polygons
+#' are present in a single dataset. If no grouping is provided, each
+#' row is treated as a separate polygon.
+#'
+#' @section Aesthetics:
+#' `stat_unpack_polygon()` requires the following aesthetics:
+#' * `x` — numeric vector (list-column) or numeric values
+#' * `y` — numeric vector (list-column) or numeric values
+#'
+#' It can accept any aesthetics supported by `geom_polygon()` or
+#' `geom_shape()`, such as `fill`, `colour`, `size`, `alpha`, `linetype`.
+#'
+#' @param na.rm logical. If `TRUE`, missing values are removed.
+#'    Default is `TRUE`.
+#' @param ... Additional arguments passed to the base stat.
+#'
+#' @family jam ggplot2 functions
+#'
+#' @examples
+#' # Create compact polygon data with list-column coordinates
+#' polygon_data <- data.frame(
+#'   id = c(1, 2),
+#'   x = list(c(0, 1, 1, 0), c(2, 3, 3.5, 2)),
+#'   y = list(c(0, 0, 1, 1), c(0, 0, 1.5, 1)),
+#'   fill = c("red", "blue")
+#' )
+#'
+#' # Plot with stat_unpack_polygon
+#' # ggplot(polygon_data, aes(x = x, y = y, fill = fill)) +
+#' #   geom_polygon(stat = "unpack_polygon") +
+#' #   coord_fixed()
+#'
+#' @export
+stat_unpack_polygon <- function
+(mapping = NULL,
+ data = NULL,
+ geom = "polygon",
+ position = "identity",
+ na.rm = TRUE,
+ show.legend = NA,
+ inherit.aes = TRUE, ...)
+{
+   ggplot2::layer(
+      stat = StatUnpackPolygon,
+      data = data,
+      mapping = mapping,
+      geom = geom,
+      position = position,
+      show.legend = show.legend,
+      inherit.aes = inherit.aes,
+      params = list(na.rm = na.rm, ...)
+   )
+}
+
+#' @rdname stat_unpack_polygon
+#' @format NULL
+#' @usage NULL
+#' @export
+StatUnpackPolygon <- ggplot2::ggproto("StatUnpackPolygon", ggplot2::Stat,
+   required_aes=c("x", "y"),
+   compute_group=function(self, data, scales, na.rm=TRUE) {
+      # Handle case where x and y are already numeric (long format)
+      # by checking if they're atomic vectors, not list-columns
+      if (is.atomic(data$x) && is.atomic(data$y)) {
+         return(data)
+      }
+
+      # Unpack list-column coordinates into long format
+      # For each row, expand x and y from list-columns into separate rows
+      unpacked_list <- lapply(seq_len(nrow(data)), function(i) {
+         row <- data[i, , drop=FALSE]
+
+         # Get x and y values, coerce to numeric if needed
+         x_vals <- tryCatch({
+            as.numeric(row$x[[1]])
+         }, error=function(e) {
+            as.numeric(row$x)
+         })
+
+         y_vals <- tryCatch({
+         as.numeric(row$y[[1]])
+         }, error=function(e) {
+         as.numeric(row$y)
+         })
+
+         # Ensure equal length
+         if (length(x_vals) != length(y_vals)) {
+            warning("x and y have different lengths in row ", i, "; truncating to shorter length")
+            min_len <- min(length(x_vals), length(y_vals))
+            x_vals <- x_vals[seq_len(min_len)]
+            y_vals <- y_vals[seq_len(min_len)]
+         }
+
+         # Create expanded data frame for this polygon
+         n_pts <- length(x_vals)
+         expanded <- data[rep(i, n_pts), , drop=FALSE]
+         expanded$x <- x_vals
+         expanded$y <- y_vals
+
+         return(expanded)
+      })
+
+      # Combine all unpacked rows
+      result <- do.call(rbind, unpacked_list)
+      rownames(result) <- NULL
+
+      # Remove NAs if requested
+      if (isTRUE(na.rm) && any(is.na(result$x) | is.na(result$y))) {
+         result <- subset(result, !is.na(x) & !is.na(y))
+      }
+
+      # Apply scale transformations if available
+      if (!is.null(scales$x)) {
+         result$x <- scales$x$transform(result$x)
+      }
+      if (!is.null(scales$y)) {
+         result$y <- scales$y$transform(result$y)
+      }
+
+      return(result)
+   }
+)
 

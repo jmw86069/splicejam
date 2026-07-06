@@ -206,7 +206,8 @@ Other splicejam core functions:
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=make_ref2compressed]{make_ref2compressed()}},
 \code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}}
+\code{\link[=prepareSashimi]{prepareSashimi()}},
+\code{\link[=splicejamFigure]{splicejamFigure()}}
 }
 \concept{jam GRanges functions}
 \concept{jam plot functions}

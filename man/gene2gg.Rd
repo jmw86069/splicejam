@@ -7,6 +7,7 @@
 gene2gg(
   gene = NULL,
   tx = NULL,
+  sjenv = NULL,
   flatExonsByGene = NULL,
   flatExonsByTx = NULL,
   geneColor = "dodgerblue",
@@ -36,6 +37,17 @@ with \code{names(flatExonsByGene)} and \code{values(flatExonsByTx)$gene_name}.}
 \item{tx}{\code{character} vector of the transcripts to plot, useful
 when specifying specific transcripts. Values are matched with
 \code{names(flatExonsByTx)}.}
+
+\item{sjenv}{\code{environment} default NULL, used as convenient way
+to pass arguments such as 'flatExonsByGene' and 'flatExonsByTx'.
+It will use function arguments when provided, and recognizes
+the following variables:
+\itemize{
+\item 'flatExonsByGene'
+\item 'flatExonsByTx'
+\item 'filesDF'
+\item 'ref2c' (optional)
+}}
 
 \item{flatExonsByGene, flatExonsByTx}{\code{GRangesList} objects, named
 by \code{"gene_name"} or \code{"transcript_id"} respectively, containing
@@ -181,6 +193,7 @@ Other jam ggplot2 functions:
 \code{\link[=geom_diagonal_wide_arc]{geom_diagonal_wide_arc()}},
 \code{\link[=plotSashimi]{plotSashimi()}},
 \code{\link{splicejam-extensions}},
+\code{\link[=stat_unpack_polygon]{stat_unpack_polygon()}},
 \code{\link[=to_basic.GeomShape]{to_basic.GeomShape()}}
 
 Other splicejam core functions:
@@ -188,7 +201,8 @@ Other splicejam core functions:
 \code{\link[=grl2df]{grl2df()}},
 \code{\link[=make_ref2compressed]{make_ref2compressed()}},
 \code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}}
+\code{\link[=prepareSashimi]{prepareSashimi()}},
+\code{\link[=splicejamFigure]{splicejamFigure()}}
 }
 \concept{jam ggplot2 functions}
 \concept{jam plot functions}

@@ -1,7 +1,15 @@
 # TODO for splicejam
 
-## 02jul2026
+## 06jul2026
 
+* Update 'README.Rmd' and vignettes with more simplified
+workflow, using `sashimiDataConstants()`.
+* Update `splicejamFigure()` with 'use_memoise=TRUE'
+the same as with `launchSashimiApp()`.
+* When applying 'junc_color' only for fill_scheme='exon',
+also apply the light-to-dark shading as used with
+fill_scheme='sample_id'.
+* `gene2gg()` method to specify the gene/transcript order.
 * Create method to validate that the splicejam environment
 has what it needs to create sashimi plots: flat exons,
 tx2geneDF, detectedGenes/detectedTx as needed.

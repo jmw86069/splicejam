@@ -1466,7 +1466,7 @@ factor2label <- function
    } else {
       xValsL <- NULL;
    }
-   x1L <- rmNULL(c(list(xVals1), xValsL));
+   x1L <- jamba::rmNULL(c(list(xVals1), xValsL));
    x1 <- do.call(paste, c(x1L, sep="; "));
    x2 <- paste0(xNames, " (", x1, ")");
    names(x2) <- xNames;
@@ -2993,6 +2993,9 @@ ale2violin <- function
    ## - rowMax at or above threshold
    ## - non-empty ale2
    ## - empty ale3
+   rowMaxs <- function(x){
+      apply(x, 1, max, rm.na=TRUE)
+   }
    iDiffAleWideMGMkeep <- (
       rowMaxs(iDiffAleWideM, na.rm=TRUE) > maxGroupMeanALE &
       !is.na(iDiffAleWideM[,"ale2"]) &
@@ -3085,7 +3088,7 @@ ale2violin <- function
       iDFsub <- subset(iDiffAleTall2ctr,
          !ALE %in% "ale1");
       listGroups <- c("Region","geneList","ALE");
-      listSizes <- sdim(split(iDFsub,
+      listSizes <- jamba::sdim(split(iDFsub,
          jamba::pasteByRowOrdered(iDFsub[,listGroups,drop=FALSE],
          #pasteByRow(iDFsub[,c("Group","geneList","ALE")],
             sep="!")));

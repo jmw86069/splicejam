@@ -138,7 +138,8 @@ sashimiDataConstants <- function
          jamba::printDebug("sashimiDataConstants(): ",
             "Assigning new.env() because envir was empty");
       }
-      envir <- new.env(parent=emptyenv());
+      # envir <- new.env(parent=emptyenv());
+      envir <- new.env();
    }
 
    params <- setdiff(names(formals(sashimiDataConstants)),

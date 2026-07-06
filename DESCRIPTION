@@ -51,7 +51,8 @@ Imports: jamba(>= 1.0.0),
     memoise(>= 2.0.1.9000),
     testthat(>= 3.0.0),
     R.utils,
-    cpp11bigwig(>= 0.3.0.9000)
+    cpp11bigwig(>= 0.3.0.9000),
+    patchwork
 Suggests: 
     made4,
     openxlsx,

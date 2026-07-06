@@ -13,32 +13,43 @@ make_ref2compressed(
   downstream = 50000,
   downstreamGapWidth = gapWidth * 3,
   nBreaks = 7,
+  ignore.strand = TRUE,
   verbose = FALSE,
   ...
 )
 }
 \arguments{
-\item{gr}{GRanges object containing regions not to compress. Regions
+\item{gr}{\code{GRanges} object containing regions not to compress. Regions
 which are unstranded gaps are compressed to fixed width.}
 
 \item{gapWidth}{integer value used for fixed gap width, or when
 NULL the gap width is defined as 3 times the median feature width.}
 
-\item{keepValues}{logical indicating whether to keep feature values
-in the GRanges data.}
+\item{keepValues}{\code{logical} indicating whether to keep feature values
+in the GRanges data, default FALSE.}
 
-\item{upstream, downstream, upstreamGapWidth, downstreamGapWidth}{used
-to define the compression of coordinates upstream and downstream
-the supplied GRanges. In reality, the upstream range and upstream
-gap width defines a multiplier, and all upstream coordinates are
-compressed through zero. Similarly, all downstream coordinates
-are compressed to 10 billion, which is roughly 3 times the size
-of the human genome.}
+\item{upstream, downstream, upstreamGapWidth, downstreamGapWidth}{\code{integer} number of bases to extend upstream and downstream the
+overall range of features, and the number of bases to compress
+that extended range, respectively. Any coordinates upstream
+by the 'upstream' amount will be compressed into 'upstreamGapWidth'
+bases in visual space. This ratio represents a visual compression
+multiplier. The compression is applied to upstream coordinate zero,
+and to downstream coordinate 10 billion.
+Defaults are 50000 for upstream and downstream, and three times
+the gap width \code{3 * gapWidth}.}
 
-\item{nBreaks}{the default number of x-axis coordinate breaks used
-in ggplot labeling.}
+\item{nBreaks}{\code{integer} number of x-axis coordinate breaks used
+in ggplot labeling, default 7.}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{ignore.strand}{\code{logical} default TRUE, new as of 0.0.89.900,
+will create compressed coordinates by ignoring strand-specificity.
+Use FALSE for previous behavior, although it would be limited
+to scenarios where two features on opposite strands should not
+be used to produce one common set of "gaps" between the genome
+region features. In most cases, typical splicejam functionality
+is unaffected, but implies gaps should ignore strandedness.}
+
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
 }
@@ -119,7 +130,8 @@ Other splicejam core functions:
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=grl2df]{grl2df()}},
 \code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}}
+\code{\link[=prepareSashimi]{prepareSashimi()}},
+\code{\link[=splicejamFigure]{splicejamFigure()}}
 
 Other jam RNA-seq functions:
 \code{\link[=assignGRLexonNames]{assignGRLexonNames()}},

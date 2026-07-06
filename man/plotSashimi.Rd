@@ -173,6 +173,7 @@ Other jam ggplot2 functions:
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=geom_diagonal_wide_arc]{geom_diagonal_wide_arc()}},
 \code{\link{splicejam-extensions}},
+\code{\link[=stat_unpack_polygon]{stat_unpack_polygon()}},
 \code{\link[=to_basic.GeomShape]{to_basic.GeomShape()}}
 
 Other splicejam core functions:
@@ -180,7 +181,8 @@ Other splicejam core functions:
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=grl2df]{grl2df()}},
 \code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}}
+\code{\link[=prepareSashimi]{prepareSashimi()}},
+\code{\link[=splicejamFigure]{splicejamFigure()}}
 }
 \concept{jam ggplot2 functions}
 \concept{jam plot functions}

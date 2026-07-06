@@ -5,6 +5,7 @@
 \title{Prepare Sashimi plot data}
 \usage{
 prepareSashimi(
+  sjenv = NULL,
   flatExonsByGene = NULL,
   filesDF = NULL,
   gene,
@@ -41,42 +42,74 @@ prepareSashimi(
 )
 }
 \arguments{
-\item{flatExonsByGene}{GRangesList named by gene, whose GRanges
-elements are flattened, disjoint, non-overlapping genomic ranges
-per gene.}
+\item{sjenv}{\code{environment} (or \code{list}) containing argument values
+indicated below. This input is intended to be compatible with
+output from \code{sashimiDataConstants()}. It currently recognizes
+the following, although function arguments take priority when
+provided.
+\itemize{
+\item 'flatExonsByGene'
+\item 'ref2c' (optional)
+\item 'filesDF'
+}}
 
-\item{filesDF}{data.frame with columns \code{url}, \code{sample_id}, \code{type},
-where: \code{url} is any valid file path or URL compatible with
-\code{base::read.table()}; \code{sample_id} is an identified representing
-a biological sample, used to group common files together;
-\code{type} is one of \code{"bw"} for bigWig coverage, \code{"junction"} for
-BED12 format splice junctions.}
+\item{flatExonsByGene}{\code{GRangesList} named by gene, specifically
+named by 'gene_name' as in the 'tx2geneDF' \code{data.frame}.
+\code{GRanges} elements are disjoint, non-overlapping genomic ranges
+per gene and should represent only exon regions. All non-exon
+regions are assumed to be introns or gaps.}
 
-\item{gene}{character string of the gene to prepare, which must be
+\item{filesDF}{\code{data.frame} with columns:
+\itemize{
+\item \code{url}: any valid path compatible with \code{data.table::fread()}
+\item \code{sample_id}: \code{character} string representing a biological sample,
+and often may be used for sample grouping, to combine coverage
+and/or junction read counts for all samples in the group.
+\item \code{type}: \code{character} string with 'bw' for bigwig coverage,
+'junction' for BED12 splice junctions, or 'coverageGR' when
+coverage data are supplied as \code{GRanges} objects named by 'sample_id',
+using argument 'covGR'.
+}}
+
+\item{gene}{\code{character} string of the gene to prepare, which must be
 present in \code{names(flatExonsByGene)}.}
 
-\item{gapWidth}{numeric value of the fixed width to use for
+\item{sample_id}{\code{character} default NULL, used to subset entries
+in 'filesDF' to include only specific matching sample_id entries.
+When NULL, it uses all entries.}
+
+\item{minJunctionScore}{\code{numeric} default 10, to require junctions
+to have at least this total score per sample_id to be displayed.
+This filter it useful to hide spurious junction counts which may
+only have very few supporting read counts, and is typically
+adjusted relative to the total coverage of the gene.
+For example, 'GAPDH' gene often has extremely high coverage,
+and may be associated with numerous spurious junctions with
+10 to 50 reads, which are not useful to display when coverage
+is in the 10,000 order of magnitude.}
+
+\item{gapWidth}{\code{numeric} value of the fixed width to use for
 gaps (introns) between exon features. If \code{NULL} then
 \code{getGRgaps()} will use the default based upon the median exon
 width.}
 
-\item{addGaps}{logical indicating whether to include gap regions
+\item{addGaps}{\code{logical} default TRUE, whether to include gap regions
 in the coverage plot, for example including introns or intergenic
 regions. When \code{compressGR=TRUE} then gaps regions are
 down-sampled using running maximum signal with roughly the same
 x-axis resolution as uncompressed regions.}
 
-\item{baseline}{numeric vector named by \code{names(flatExonsByGene)}
+\item{baseline}{\code{numeric} vector named by \code{names(flatExonsByGene)}
 where baseline is used to adjust the y-axis baseline position
-above or below zero.}
+above or below zero. Default zero 0 for all practical purposes.}
 
-\item{compressGR}{logical indicating whether to compress GRanges
+\item{compressGR}{\code{logical} default TRUE, whether to compress GRanges
 coordinates in the output data, where gaps/introns are set
 to a fixed width. When \code{ref2c} is not supplied, and
 \code{compressGR=TRUE}, then \code{ref2c} is created using
 \code{make_ref2compressed()}.}
 
-\item{compress_introns}{logical indicating whether to compress
+\item{compress_introns}{\code{logical}default TRUE, whether to compress
 the coverage polygon coordinates to approximately the same
 number of pixels per inch as the exon polygons. This option
 greatly reduces the size of the polygon, since introns are
@@ -86,49 +119,140 @@ to a fixed width on the x-axis. The data has many more
 x-axis coordinates than the data visualization, this argument
 is intended to reduce the intron coordinates accordingly.}
 
-\item{ref2c}{list object output from \code{make_ref2compressed()} used
-to compress axis coordinates, to compress polygon coverage
+\item{ref2c}{\code{list} object output from \code{make_ref2compressed()}
+used to compress axis coordinates, to compress polygon coverage
 data in compressed regions, and to adjust splice junction arcs
 using compressed coordinates.}
 
-\item{gap_feature_type}{the default feature_type value to use for
-gaps when \code{addGaps=TRUE}.}
+\item{gap_feature_type}{\code{character} string, default 'intron',
+with the feature_type representing gaps when \code{addGaps=TRUE}.}
 
-\item{include_strand}{character value, one of \code{"both"}, \code{"+"},
-\code{"-"} indicating the strandedness of coverage and junctions
-to display. The default \code{"both"} shows coverage on both strands,
-otherwise coverage is filtered either by filename (presence of
-\code{"pos"}, \code{"+"}, or \code{"plus"} indicates positive strand), or
-by detecting strandedness by positive/negative coverage scores.
-Detecting by filename is intended to avoid retrieving coverage
-in the R-shiny app, to help efficiency.}
+\item{default_feature_type}{\code{character} string, default 'exon'
+with the default feature_type representing non-gap regions.}
 
-\item{doStackJunctions}{logical indicating whether to stack
+\item{feature_type_colname}{\code{character} string with the column
+name of \code{values()} to represent the feature type (exon/intron).}
+
+\item{exon_label_type}{\code{character} string indicating the type
+of label for exons:
+\itemize{
+\item 'none' (default): no exon label is displayed
+\item 'repel': use ggrepel to display the exon label
+\item 'mark': use \code{ggforce::geom_mark_rect()} to display exon label
+}}
+
+\item{junc_label_type}{\code{character} string indicating the type
+of label for junction counts:
+\itemize{
+\item 'repel' (default): use ggrepel to display the exon label
+\item 'mark': use \code{ggforce::geom_mark_rect()} to display exon label
+\item 'none': no exon label is displayed
+}}
+
+\item{return_data}{\code{character} string, default 'df', with format
+of data to return: 'df' is \code{data.frame} and 'ref2c' returns
+only the 'ref2c' axis compression as \code{list}. Typically only 'df'
+is used.}
+
+\item{include_strand}{\code{character} string, default 'both' with
+strandedness of data to include. Coverage strandedness is
+determined by filename, assuming some substring which matches
+'plus|pos|+' represents positive strand. By convention in
+splicejam, scores are negative for negative strand coverage,
+and negative strand junction counts, however not required.
+\itemize{
+\item \code{"both"}: include coverage and junctions from both strands,
+\item \code{"+"}: include coverage and junctions from only the '+' strand,
+\item \code{"-"}: include coverage and junctions from only the '-' strand.
+}}
+
+\item{junc_color, junc_fill}{\code{character} valid R colors used for
+junction ribbon arcs. The alpha transparency is maintained,
+and when junctions are stacked, the actual color is slightly
+adjusted to vary from light to dark in order of stacked
+junction read counts. Default uses 'goldenrod3' border, and
+'goldenrod1' for the fill color.}
+
+\item{doStackJunctions}{\code{logical} default TRUE, whether to stack
 junction arcs at each end, this argument is passed to
-\code{grl2df()} which calls \code{stackJunctions()}.}
+\code{grl2df()} which calls \code{stackJunctions()}.
+The purpose of stacking junctions is to place each ribbon
+junction arc starting above the previous ribbon arc, for each
+junction start, and junction end. In this way, the total
+height of junction ribbon widths should represent the total
+junction read count/score at each junction boundary.}
 
-\item{covGR}{GRanges object containing coverage data in columns
-stored as NumericList class, where \code{colnames(GenomicRanges::values(covGR))}
-are present in \code{filesDF$url} when \code{files$type \%in\% "coverage_gr"}.}
+\item{coord_method}{\code{character} string indicating how the x-axis
+coordinates are represented for use in ggplot2 plot functions.
+\itemize{
+\item 'coord' (default): stores coordinates unchanged, without
+regard to intron/gap compression. It allows the axis to be
+displayed using ggplot2 techniques, optionally using 'ref2c'
+to compress introns/gaps visually, keeping numeric values as-is.
+\item 'scale': stores numeric coordinates after compression when
+'compressGR=TRUE', which means these values are not genome
+coordinates, instead are display coordinates. The ggplot2
+axis labels are expected to be adjusted using 'ref2c' for
+display purposes.
+\item 'none': genome coordinates are stored as-is with no anticipated
+modifications by 'ref2c'. This approach is effectively
+equivalent to 'coord'.
+}}
 
-\item{juncGR}{GRanges object containing splice junctions, where
-\code{"score"} is used for the abundance of splice junction reads,
-and \code{"sample_id"} is used to define the biological \code{sample_id}.}
+\item{scoreFactor}{\code{numeric} default 1, scalar multiplied by each
+score, expected to be provided as named \code{numeric} vector
+named by 'sample_id'.}
 
-\item{do_shiny_progress}{logical indicating whether to send
-progress updates to a running shiny app, using the
+\item{scoreArcFactor}{\code{numeric} default 0.2, used to adjust the
+magnitude of splice ribbon arc curvature. Use higher values to
+increase the height of the midpoint of the ribbon arc relative
+to each end of the ribbon. This value is a scalar, roughly applied
+as '1 + scoreArcFactor' such that 0.2 has the effect of
+'score * 1.2', a 20\% addition.}
+
+\item{scoreArcMinimum}{\code{numeric} default 100, the minimum height of
+the midpoint of the junction ribbon arc above the flat mean value
+between the start and end of the ribbon. It is used as minimum,
+when the \code{scoreArcFactor} provide too low a value. Useful when
+there may be intermediate coverage, or intervening exon, to have
+the arc curve above the coverage.}
+
+\item{covGR}{\code{GRanges} default NULL, optional coverage data in columns
+stored as \code{NumericList}, where \code{colnames(GenomicRanges::values(covGR))}
+are present in 'filesDF' for rows with
+\code{filesDF$type \%in\% "coverage_gr"}. The name should match 'url' or
+'sample_id' in 'filesDF'.}
+
+\item{juncGR}{\code{GRanges} default NULL, optional splice junctions,
+\code{'score'} is used for the abundance of splice junction reads,
+and \code{'sample_id'} is used to define the biological sample
+as defined in 'filesDF'.}
+
+\item{use_memoise}{\code{logical} default FALSE, passed to
+\code{getGRcoverageFromBw()} and \code{import_juncs_from_bed()} as needed,
+indicating whether to use memoise to cache intermediate data
+results. Default is TRUE for \code{launchSashimiApp()} and FALSE
+otherwise. In general, TRUE would be a valid default option.}
+
+\item{memoise_coverage_path, memoise_junction_path}{\code{character}
+string with default folder path to store memoise cache files,
+used with \code{use_memoise=TRUE}.}
+
+\item{do_shiny_progress}{\code{logical} default FALSE, whether to send
+progress updates to a running shiny app using the
 \code{shiny::withProgress()} and \code{shiny::setProgress()} methods.
-This function only calls \code{shiny::setProgress()} and
-assumes the \code{shiny::withProgress()} has already been
-initialized.}
+This function calls \code{shiny::setProgress()} and
+assumes that \code{shiny::withProgress()} has already been
+initialized. It also does not close the progress, instead
+pushes that responsibility to the calling function.}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} whether to print verbose output.}
 
 \item{...}{additional arguments are passed to \code{make_ref2compressed()},
 \code{getGRcoverageFromBw()}, \code{exoncov2polygon()}.}
 }
 \value{
-list containing \code{ggSashimi} a ggplot2 graphical object
+\code{list} containing \code{ggSashimi} a ggplot2 graphical object
 containing a full Sashimi plot; \code{ggCov} the RNA-seq coverage
 subset of the Sashimi plot; \code{ggJunc} the splice junction
 subsset of the Sashimi plot; \code{ref2c} the output of
@@ -233,7 +357,8 @@ Other splicejam core functions:
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=grl2df]{grl2df()}},
 \code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=plotSashimi]{plotSashimi()}}
+\code{\link[=plotSashimi]{plotSashimi()}},
+\code{\link[=splicejamFigure]{splicejamFigure()}}
 }
 \concept{jam RNA-seq functions}
 \concept{jam plot functions}

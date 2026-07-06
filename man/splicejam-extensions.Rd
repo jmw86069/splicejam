@@ -15,6 +15,7 @@ Other jam ggplot2 functions:
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=geom_diagonal_wide_arc]{geom_diagonal_wide_arc()}},
 \code{\link[=plotSashimi]{plotSashimi()}},
+\code{\link[=stat_unpack_polygon]{stat_unpack_polygon()}},
 \code{\link[=to_basic.GeomShape]{to_basic.GeomShape()}}
 }
 \concept{jam ggplot2 functions}

@@ -78,11 +78,41 @@
 #' data(test_cov_gr);
 #' # prepare polygon coordinates
 #' exondf <- exoncov2polygon(test_cov_gr, covNames="sample_A");
+#' 
+#' # for testing, make bigger introns
+#' toadd <- c(0, 4000, 8000, 16000) + rep(c(0, 20000, 40000, 60000), each=4)
+#' test_cov_gr2 <- GenomicRanges::GRanges(
+#'    seqnames=rep(seqnames(test_cov_gr), length.out=length(toadd)),
+#'    ranges=IRanges::IRanges(start=start(test_cov_gr) + toadd, end=end(test_cov_gr) + toadd))
+#' names(test_cov_gr2) <- paste0("exon", jamba::padInteger(seq_along(toadd)))
+#' GenomicRanges::values(test_cov_gr2)$sample_A <- GenomicRanges::values(test_cov_gr)$sample_A;
+#' 
+#' # for testing, add gap coverage
+#' test_cov_gr_gaps <- getGRgaps(test_cov_gr2);
+#' names(test_cov_gr_gaps) <- paste0("intron", jamba::padInteger(seq_along(test_cov_gr_gaps)));
+#' GenomicRanges::values(test_cov_gr_gaps)$sample_A <- IRanges::NumericList(
+#'    lapply(width(test_cov_gr_gaps), function(n){sample(1:15, replace=TRUE, size=n)}))
+#' test_cov_gr2 <- sort(c(test_cov_gr2, test_cov_gr_gaps))
+#' # for testing, add more "samples"
+#' GenomicRanges::values(test_cov_gr2)$sample_B <- GenomicRanges::values(test_cov_gr2)$sample_A;
+#' GenomicRanges::values(test_cov_gr2)$sample_C <- GenomicRanges::values(test_cov_gr2)$sample_A;
+#' 
+#' # ref2c
+#' ref2c <- make_ref2compressed(gr=test_cov_gr2[grep("exon", names(test_cov_gr2))])
+#' 
+#' exondf2a <- exoncov2polygon(test_cov_gr2, covNames=c("sample_A", "sample_B", "sample_C"))
+#' exondf2 <- exoncov2polygon(test_cov_gr2, covNames=c("sample_A", "sample_B", "sample_C"), ref2c=ref2c)
+#' profvis::profvis({exondf2 <- exoncov2polygon(test_cov_gr2, covNames=c("sample_A", "sample_B", "sample_C"))})
+#' profvis::profvis({exondf2 <- exoncov2polygon(test_cov_gr2, covNames=c("sample_A", "sample_B", "sample_C"), ref2c=ref2c)})
+#' 
+#' 
 #' # create a ggplot
-#' gg3 <- ggplot(exondf,
-#'       aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
+#' gg3 <- ggplot2::ggplot(exondf2,
+#'       ggplot2::aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
 #'    ggforce::geom_shape(alpha=0.8) +
 #'    colorjam::theme_jam() +
+#'    ggplot2::facet_wrap(~cov, ncol=1) +
+#'    ggplot2::scale_x_continuous(trans=ref2c$trans_grc) +
 #'    colorjam::scale_fill_jam() +
 #'    colorjam::scale_color_jam();
 #' print(gg3);
@@ -98,6 +128,7 @@ exoncov2polygon <- function
  coord_style=c("fortify", "base", "list", "all"),
  ref2c=NULL,
  compress_introns=TRUE,
+ doSimplify=TRUE,
  verbose=FALSE,
  ...)
 {
@@ -162,43 +193,60 @@ exoncov2polygon <- function
          "covNames:",
          covNames);
    }
-   covPolyL <- lapply(jamba::nameVector(covNames), function(iName){
-      polyL <- lapply(jamba::nameVectorN(gr), function(iGRname){
-         yVals1a <- unlist(GenomicRanges::values(gr[iGRname])[[iName]]);
-         iBase <- baselineV[iGRname];
-         yVals1 <- yVals1a + iBase;
-         ## Note: we define xVals1 width using yVals1 width,
-         ## because this GRanges might have compressed coordinates
-         ## and therefore the width(gr) is not an accurate measure
-         ## of the actual width of coverage data
-         xVals1 <- seq(from=GenomicRanges::start(gr[iGRname]),
-            to=GenomicRanges::end(gr[iGRname]),
-            length.out=length(yVals1));
-         xVals <- c(rep(head(xVals1, 1), 2) - 0.5,
-            xVals1,
-            rep(tail(xVals1, 1), 2) + 0.5,
-            head(xVals1, 1) - 0.5);
-         yVals <- c(iBase,
-            head(yVals1, 1),
-            yVals1,
-            tail(yVals1, 1),
-            iBase,
-            iBase);
-         if (length(xVals) != length(yVals) && verbose) {
-            jamba::printDebug("length(xVals):", length(xVals));
-            jamba::printDebug("length(yVals):", length(yVals));
-         }
-         ## TODO: compress coordinates where y-value doesn't change
-         if (length(xVals) > 0 && length(yVals) > 0) {
-            xy <- cbind(x=xVals, y=yVals);
-            ## Simplify the coordinates, typically removing up to 90% rows
-            xy <- simplifyXY(xy,
-               restrictDegrees=c(0,180));
-         } else {
-            xy <- cbind(x=0, y=0)[0,,drop=FALSE];
-         }
+   if (TRUE) {
+      covPolyL <- lapply(jamba::nameVector(covNames), function(iName){
+         polyL <- lapply(jamba::nameVectorN(gr), function(iGRname){
+            yVals1a <- unlist(GenomicRanges::values(gr[iGRname])[[iName]]);
+            iBase <- baselineV[iGRname];
+            yVals1 <- yVals1a + iBase;
+            ## Note: we define xVals1 width using yVals1 width,
+            ## because this GRanges might have compressed coordinates
+            ## and therefore the width(gr) is not an accurate measure
+            ## of the actual width of coverage data
+            xVals1 <- seq(from=GenomicRanges::start(gr[iGRname]),
+               to=GenomicRanges::end(gr[iGRname]),
+               length.out=length(yVals1));
+            xVals <- c(
+               rep(head(xVals1, 1), 2) - 0.5,
+               xVals1,
+               rep(tail(xVals1, 1), 2) + 0.5,
+               head(xVals1, 1) - 0.5);
+            yVals <- c(
+               iBase,
+               head(yVals1, 1),
+               yVals1,
+               tail(yVals1, 1),
+               iBase,
+               iBase);
+            if (length(xVals) != length(yVals) && verbose) {
+               jamba::printDebug("length(xVals):", length(xVals));
+               jamba::printDebug("length(yVals):", length(yVals));
+            }
+            ## TODO: compress coordinates where y-value doesn't change
+            if (length(xVals) > 0 && length(yVals) > 0) {
+               xy <- cbind(x=xVals, y=yVals);
+               ## Simplify the coordinates,
+               # removes up to 90% rows when coverage is flat
+               if (isTRUE(doSimplify)) {
+                  xy <- simplifyXY(xy,
+                     restrictDegrees=c(0, 180));
+               }
+            } else {
+               xy <- cbind(x=0, y=0)[0,,drop=FALSE];
+            }
+            ## fortify uses list columns
+            if (nrow(xy) > 0 && "fortify" %in% coord_style) {
+               xy <- data.frame(check.names=FALSE,
+                  x=I(list(xy[, "x"])),
+                  y=I(list(xy[, "y"])),
+                  cov=iName,
+                  gr=iGRname)
+            }
+            xy
+         });
       });
-   });
+   }
+   # jamba::printDebug("sdim(covPolyL):");print(jamba::sdim(covPolyL));# debug
    if ("list" %in% coord_style) {
       return(covPolyL);
    }
@@ -216,17 +264,23 @@ exoncov2polygon <- function
       return(covPolyML);
    }
    if ("fortify" %in% coord_style) {
-      covPolyML <- lapply(jamba::nameVectorN(covPolyL), function(iN){
-         iL <- covPolyL[[iN]];
-         jamba::rbindList(lapply(jamba::nameVectorN(iL), function(iN2){
-            iM <- iL[[iN2]];
-            data.frame(check.names=FALSE,
-               stringsAsFactors=FALSE,
-               iM,
-               cov=iN,
-               gr=iN2);
-         }));
-      });
+      if (TRUE) {
+         covPolyML <- lapply(jamba::nameVectorN(covPolyL), function(iN){
+            jamba::rbindList(covPolyL[[iN]])
+         })
+      } else {
+         covPolyML <- lapply(jamba::nameVectorN(covPolyL), function(iN){
+            iL <- covPolyL[[iN]];
+            jamba::rbindList(lapply(jamba::nameVectorN(iL), function(iN2){
+               iM <- iL[[iN2]];
+               data.frame(check.names=FALSE,
+                  stringsAsFactors=FALSE,
+                  iM,
+                  cov=iN,
+                  gr=iN2);
+            }));
+         });
+      }
       retVals$covPolyML <- covPolyML;
 
       ## Compress polygon
@@ -245,7 +299,6 @@ exoncov2polygon <- function
                format(t2 - t1));
          }
          retVals$compCovPolyML <- compCovPolyML;
-         #return(compCovPolyML);
          covPolyML <- compCovPolyML;
       }
 
