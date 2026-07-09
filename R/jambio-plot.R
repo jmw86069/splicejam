@@ -1846,8 +1846,11 @@ prepareSashimi <- function
             })
          }
          # cjDF <- jamba::mergeAllXY(cjL, by=NULL);
+         cjDF$sample_id <- factor(cjDF$sample_id,
+            levels=unique(sample_id))
          cjDF <- jamba::mixedSortDF(cjDF,
-            byCols=c("type","row"));
+            byCols=c("sample_id", "type", "row"));
+        jamba::printDebug("table(cjDF[, c('sample_id', 'type')]):");print(table(cjDF[, c('sample_id', 'type')]));# debug
       })
       if (verbose) jamba::printDebug("", "elapsed ", indent=19, asSeconds(st14["elapsed"]));
    }

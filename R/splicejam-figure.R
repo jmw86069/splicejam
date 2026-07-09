@@ -197,10 +197,11 @@ splicejamFigure <- function
 
    # prepareSashimi()
    st0 <- 0;
-   st1 <- list(elapsed=0);
+   st1 <- c(elapsed=0);
    if (length(gene_sd) == 0) {
       if (verbose) jamba::printDebug("splicejamFigure(): ", "prepareSashimi()");
       st1 <- system.time({
+      if (isFALSE(use_memoise)) {
          gene_sd <- prepareSashimi(
             gene=gene,
             sample_id=sample_id,
@@ -212,6 +213,79 @@ splicejamFigure <- function
             use_memoise=use_memoise,
             verbose=verbose > 1,
             ...)
+      } else {
+         # shiny::withProgress(
+         #    message="Preparing Sashimi.",
+         #    value=0,
+         {
+            # create memoise-ready function
+            # Todo: Allow custom memoise path
+            prepareSashimi_m <- memoise::memoise(prepareSashimi,
+               cache=memoise::cache_filesystem("sashimidata_memoise"));
+   
+            if (verbose) {
+               include_strand <- c("both")
+               if ("include_strand" %in% names(arglist)) {
+                  include_strand <- arglist[["include_strand"]];
+               }
+               scoreArcMinimum <- 100;
+               if ("scoreArcMinimum" %in% names(arglist)) {
+                  scoreArcMinimum <- arglist[["scoreArcMinimum"]];
+               }
+               gene_has_cache <- memoise::has_cache(prepareSashimi_m)(
+                  gene=gene,
+                  flatExonsByGene=sjenv$flatExonsByGene[gene],
+                  minJunctionScore=minJunctionScore,
+                  sample_id=sample_id,
+                  filesDF=use_filesDF,
+                  include_strand=include_strand,
+                  verbose=verbose > 1,
+                  use_memoise=use_memoise,
+                  scoreArcFactor=scoreArcFactor,
+                  scoreArcMinimum=scoreArcMinimum,
+                  do_shiny_progress=FALSE)
+               # args shown below from shiny-server
+                  # gene=gene,
+                  # flatExonsByGene=flatExonsByGene1,
+                  # minJunctionScore=min_junction_reads,
+                  # sample_id=sample_id,
+                  # filesDF=filesDF,
+                  # include_strand=include_strand,
+                  # verbose=verbose,
+                  # use_memoise=use_memoise,
+                  # do_shiny_progress=TRUE);
+               jamba::printDebug("",
+                  indent=19,
+                  "gene:",
+                  gene,
+                  ", gene_has_cache:",
+                  gene_has_cache);
+            }
+            gene_sd <- prepareSashimi_m(
+               gene=gene,
+               flatExonsByGene=sjenv$flatExonsByGene[gene],
+               minJunctionScore=minJunctionScore,
+               sample_id=sample_id,
+               filesDF=use_filesDF,
+               include_strand=include_strand,
+               verbose=verbose > 1,
+               use_memoise=use_memoise,
+               scoreArcFactor=scoreArcFactor,
+               scoreArcMinimum=scoreArcMinimum,
+               do_shiny_progress=FALSE)
+               # gene=gene,
+               # scoreArcFactor=junction_arc_factor_d(),
+               # scoreArcMinimum=junction_arc_minimum_d(),
+               # flatExonsByGene=flatExonsByGene1,
+               # minJunctionScore=min_junction_reads,
+               # sample_id=sample_id,
+               # filesDF=filesDF,
+               # include_strand=include_strand,
+               # verbose=verbose,
+               # use_memoise=use_memoise,
+               # do_shiny_progress=TRUE);
+         }
+      }
       })
    } else {
       # Todo: Check output and subset for matching sample_id.
@@ -455,10 +529,14 @@ splicejamFigure <- function
       panel_names <- names(table(gene_sd$df$sample_id))
       st4a <- system.time({
          for (ipanel in panel_names) {
+            current_xlim <- cp_sashimi_list[[ipanel]]$coordinates$limits$x;
             suppressMessages({
                cp_sashimi_list[[ipanel]] <- cp_sashimi_list[[ipanel]] +
+                  ggplot2::coord_cartesian(
+                     xlim=current_xlim,
+                     ylim=use_ylim[[ipanel]]) +
                   ggplot2::scale_y_continuous(
-                     limits=use_ylim[[ipanel]],
+                     # limits=use_ylim[[ipanel]],
                      labels=scales::comma,
                      name="read depth")
             })

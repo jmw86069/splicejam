@@ -1,3 +1,15 @@
+# splicejam 0.0.89.950
+
+## Changes
+
+* Fixed issue in `prepareSashimi()` that lost the correct order
+for 'sample_id' panels.
+* `splicejamFigure()`
+
+   * 'use_memoise' now enables sashimi data cache.
+   * 'use_ylim' now uses `coord_cartesian()` to prevent clipping
+   points from polygons.
+
 # splicejam 0.0.89.900
 
 * Coverage data in `prepareSashimi()` stored as `list` column,
