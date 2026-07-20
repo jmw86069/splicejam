@@ -283,6 +283,7 @@ sashimiAppServer <- function
       min_junction_reads <- input$min_junction_reads;
       include_strand <- input$include_strand;
       layout_ncol <- input$layout_ncol;
+      # exon_range <- req(input$exon_range);
       exon_range <- input$exon_range;
       gene_coords <- input$gene_coords;
       if (!"blank" %in% gene) {
@@ -386,7 +387,10 @@ sashimiAppServer <- function
 
    # assemble all gene query values into a list when "Update" button pressed
    get_active_gene <- shiny::reactive({
-      input$calc_gene_params;
+      ## Dependency on calc_gene_params
+      # req(input$calc_gene_params)
+      input$calc_gene_params
+
       # get isolated variable values
       gene <- shiny::isolate(input$gene);
       use_exon_names <- shiny::isolate(input$use_exon_names);
@@ -539,6 +543,136 @@ sashimiAppServer <- function
       }
       gene_coords;
    })
+
+   ## 0.0.90.900 - bypass get_sashimi_data() called by sashimiplot_output
+   get_sashimi_plot <- shiny::reactive({
+      # Handle first-time run
+      if (!(
+         exists("flatExonsByGene") &&
+         exists("filesDF"))) {
+         return(NULL);
+      }
+
+      if (!exists("use_memoise")) {
+         use_memoise <- TRUE;
+      }
+
+      ## Prepare gene-exon data - reacts to "Update" button click
+      # it also calls get_active_gene() which returns:
+      # gene, use_exon_names, gene_coords, exon_range,
+      # min_junction_reads, include_strand
+      flat_list <- get_flat_gene_exons_plot();
+      flatExonsByGene1 <- flat_list$flatExonsByGene;
+      gene_vals <- flat_list$gene_vals;
+      gene <- gene_vals$gene;
+      use_exon_names <- gene_vals$use_exon_names;
+      exon_range <- gene_vals$exon_range;
+      
+      gene_coords <- gene_vals$gene_coords;
+      min_junction_reads <- gene_vals$min_junction_reads;
+      include_strand <- gene_vals$include_strand;
+
+      ## Define sample_id from sample selection
+      sample_id_list <- get_sample_id_dt();
+      sample_id <- sample_id_list$sample_id;
+      layout_ncol <- sample_id_list$layout_ncol;
+
+      ## Display coords
+      use_display_coords <- get_display_coords();
+
+      ## Label junctions
+      use_label_junctions <- label_junctions_d();
+      
+      # Todo: Consider wrapping splicejamFigure() in memoise?
+      gene_panel_height <- gene_panel_height_d();
+      use_gene_panel_height <- gene_panel_height * show_gene_model_d();
+      font_exp <- 1/3;
+      use_panel_height <- panel_height_d();
+      base_font_size <- 16 + 1.0 * font_sizing_d();
+      use_base_size <- base_font_size * (use_panel_height^font_exp)/(250^font_exp);
+      use_exonLabelSize <- 14 + exon_label_size_d() + font_sizing_d()
+
+      use_facet_scales <- "free_y";
+      if (share_y_axis_d()) {
+         use_facet_scales <- "fixed";
+      } else {
+         use_facet_scales <- "free_y";
+      }
+
+      # Todo: Add option to hide gene and/or tx exon model
+      # show_gene_model <- show_gene_model_d()
+      # show_tx_model <- show_tx_model_d()
+      # show_detected_tx <- show_detected_tx_d()
+      show_gene_model <- TRUE;
+      show_tx_model <- TRUE;
+      show_detected_tx <- TRUE;
+
+      use_panel_method <- "patchwork";
+      if (isTRUE(do_plotly_d())) {
+         use_panel_method <- "plotly";
+      }
+
+      env_where <- function(name, env = parent.frame()) {
+         while (!identical(env, emptyenv())) {
+            if (exists(name, envir = env, inherits = FALSE)) {
+               return(env)
+            }
+            env <- parent.env(env)
+         }
+         NULL
+      }
+
+      progressr::withProgressShiny({
+         sjfig <- splicejamFigure(
+            sjenv=parent.env(parent.env(parent.env(environment()))),
+            # sjenv=environment(),
+            gene=gene,
+            sample_id=sample_id,
+            # exon_range=get('exon_range'),
+            display_coords=use_display_coords, # confirm
+            minJunctionScore=min_junction_reads,
+            junction_alpha=junction_alpha_d(),
+            scoreArcFactor=junction_arc_factor_d(),
+            scoreArcMinimum=junction_arc_minimum_d(),
+            base_size=use_base_size,             # confirm
+            exonLabelSize=use_exonLabelSize,     # confirm
+            label_junctions=use_label_junctions, # confirm
+            layout_ncol=layout_ncol,
+            gene_panel_height=use_gene_panel_height / use_panel_height,
+            do_plot=FALSE,        # to review whether to plot here
+            use_memoise=use_memoise,
+            panel_method=use_panel_method,
+            facet_scales=use_facet_scales,
+            # use_ylim=use_ylim, # future capability, y-lim per panel
+            verbose=TRUE)
+         },
+         message="Preparing Shiny Figure",
+         detail="Starting...",
+         inputs=list(
+            message="sticky_message",
+            detail="message"),
+         value=0
+      )
+      # }, error=function(e){
+      #    cat(paste0("Error: ", conditionMessage(e), "\n"),
+      #       file="sashimidata_memoise/tempout.txt", append=TRUE)
+      #    cat(paste0(capture.output(sys.calls()), collapse="\n"),
+      #       file="sashimidata_memoise/tempout.txt", append=TRUE)
+      #    NULL;
+      # })
+      if (length(sjfig) == 0) {
+         return(NULL)
+      }
+      
+      # plot height
+      use_layout_nrow <- sjfig$layout_nrow;
+      plot_heights <- c(sashimi=use_panel_height * use_layout_nrow,
+         gene=use_gene_panel_height * show_gene_model);
+      use_plot_height <- sum(plot_heights);
+      attr(sjfig$cp, "plot_height") <- use_plot_height;
+   
+      return(sjfig$cp)
+      })
 
    # the main function to prepare sashimi data for display
    # when gene is empty, "" or "blank" it returns NULL
@@ -712,8 +846,8 @@ sashimiAppServer <- function
 
    # main Sashimi plot render function
    output$sashimiplot_output <- shiny::renderUI({
-      sashimi_data_list <- get_sashimi_data();
 
+      ## Blank plot output if needed
       render_blank_plot <- function() {
          jamba::printDebug("sashimiAppServer(): ",
             "Rendering blank panel for ",
@@ -723,6 +857,50 @@ sashimiAppServer <- function
             ggplot2::ggplot() + ggplot2::theme_void()
          )));
       }
+
+      ## 0.0.90.900 - new method splicejamFigure()
+      # if (TRUE) {
+         sjfig_cp <- get_sashimi_plot()
+         if (length(sjfig_cp) == 0) {
+            # NULL output, do nothing
+            return(render_blank_plot())
+         }
+         use_plot_height <- attr(sjfig_cp, "plot_height");
+         if (dodebug) assign("sjfig_cp", value=sjfig_cp, envir=globalenv());
+         # NULL means no data yet
+         if (length(sjfig_cp) == 0) {
+            return(render_blank_plot())
+         }
+
+         ## Check plotly output
+         if (inherits(sjfig_cp, "plotly")) {
+            # Try converting to plotlyOutput to define a fixed plot height
+            output$plotly <- plotly::renderPlotly({
+               plotly::layout(sjfig_cp,
+                  margin=list(r=100, l=70, t=20, b=70))
+            });
+            plotly_out <- plotly::plotlyOutput(
+               "plotly",
+               height=use_plot_height
+            );
+            return(plotly_out);
+         }
+
+         ## Non-plotly output
+         output[["sashimi_plot"]] <- shiny::renderPlot(
+            height=use_plot_height,
+            sjfig_cp
+         )
+         htmltag_output <- htmltools::tagList(shiny::plotOutput("sashimi_plot",
+            height=paste0(use_plot_height, "px")))
+         return(htmltag_output);
+         ##
+      # }
+      ## End splicejamFigure()
+      ##############################################
+
+      sashimi_data_list <- get_sashimi_data();
+
       if (length(sashimi_data_list) == 0 ||
             length(sashimi_data_list$sashimi_data) == 0) {
          return(render_blank_plot())
@@ -938,6 +1116,7 @@ sashimiAppServer <- function
             }, error=function(e){
                jamba::printDebug("Error:");
                print(e);
+               print(traceback())
                ggly1
             })
                # %>% plotly::layout(height=sum(plot_heights))
@@ -1172,7 +1351,12 @@ sashimiAppServer <- function
 
    # Render samples_df for sample selection and ordering
    data <- shiny::reactiveValues(
-      samples_data=unique(filesDF[,setdiff(colnames(filesDF), c("url", "type", "scale_factor")), drop=FALSE]),
+      samples_data=data.frame(check.names=FALSE,
+         unique(filesDF[,setdiff(colnames(filesDF), c("url", "type", "scale_factor")), drop=FALSE]),
+         if ("custom_ylim" %in% colnames(filesDF)) { data.frame(ylim=0)[, 0, drop=FALSE]} else{
+            data.frame(custom_ylim="")
+         }
+      ),
       sample_id=if (exists("sample_id")) {
          sample_id
       } else if (all(c("CA1_CB", "CA1_DE", "CA2_CB", "CA2_DE") %in% filesDF$sample_id)) {
@@ -1200,27 +1384,69 @@ sashimiAppServer <- function
 
    # sample table where selected rows are re-ordered on click
    output$samplesdf <- DT::renderDataTable({
-      shiny::isolate(data$samples_data)
-   },
-      options=list(
-         pageLength=nrow(shiny::isolate(data$samples_data)),
-         lengthMenu=nrow(shiny::isolate(data$samples_data)),
-         dom='t',
-         columnDefs=list(
-            list(
-               targets=seq_len(ncol(shiny::isolate(data$samples_data))),
-               searchable=FALSE,
-               sortable=FALSE))
-      ),
-      selection=list(
-         mode='multiple',
-         selected=match(get_sample_id_dt()$sample_id,
-            shiny::isolate(data$samples_data)$sample_id)
-      )
-   );
+      samples_with_ylim <- shiny::isolate(data$samples_data);
+      fixed_cols <- seq_len(ncol(samples_with_ylim)) - 1;
+      last_col_idx <- ncol(samples_with_ylim);
+      DT::datatable(
+         samples_with_ylim,
+         editable=list(target="cell",
+            disable=list(columns=fixed_cols)),
+      # )
+   # },
+         options=list(
+            pageLength=nrow(samples_with_ylim),
+            lengthMenu=nrow(samples_with_ylim),
+            dom='t',
+            columnDefs=list(
+               list(
+                  targets=seq_len(ncol(samples_with_ylim)) - 1,
+                  searchable=FALSE,
+                  sortable=FALSE),
+               list(
+                  targets=last_col_idx,
+                  searchable=FALSE,
+                  sortable=FALSE,
+                  className="no-select"))
+         ),
+         selection=list(
+            mode='multiple',
+            selected=match(get_sample_id_dt()$sample_id,
+            samples_with_ylim$sample_id)
+         )
+      );
+   })
    # event of clicking the samples_df table
+   # Track the previous selection state to detect if last column was clicked
+   previous_selection <- shiny::reactiveVal(NULL)
+   
    shiny::observeEvent(input$samplesdf_cell_clicked, {
+      cell_info <- input$samplesdf_cell_clicked;
+      # jamba::printDebug("names(cell_info):", names(cell_info), sep=", ", file=stderr());# debug
+      # jamba::printDebug("cell_info:", cell_info, sep=", ", file=stderr());# debug
+      if (length(cell_info) == 0) {
+         return(invisible(NULL))
+      }
+      # jamba::printDebug("cell_info$col:", cell_info$col, sep=", ", file=stderr());# debug
+      
+      # Check if clicked on the last column (custom_ylim)
+      # cell_info$col is 0-based and includes rowname column, so last data column is at index ncol
+      n_cols <- ncol(shiny::isolate(data$samples_data))
+      # jamba::printDebug("n_cols:", n_cols, " cell_info$col:", cell_info$col, sep=", ", file=stderr());# debug
+      if (cell_info$col == n_cols) {
+         # Revert to previous selection if last column was clicked
+         proxy <- DT::dataTableProxy('samplesdf')
+         prev_sel <- shiny::isolate(previous_selection())
+         if (!is.null(prev_sel)) {
+            DT::selectRows(proxy, prev_sel)
+         }
+         # jamba::printDebug("Last column clicked, reverting selection", file=stderr());# debug
+         return(invisible(NULL))
+      }
+      
       selected_rows <- input$samplesdf_rows_selected;
+      # Update the previous selection
+      previous_selection(selected_rows)
+      
       if (verbose > 1) {
          jamba::printDebug("selected_rows:", selected_rows);
       }
@@ -1242,6 +1468,21 @@ sashimiAppServer <- function
       DT::selectRows(proxy, seq_along(selected_rows))
       # enable the Calculate button so the sashimi plot can be updated
       shinyjs::enable("calc_gene_params");
+   })
+   ## Capture edits to the ylim column
+   shiny::observeEvent(input$samplesdf_cell_edit, {
+      info <- input$samplesdf_cell_edit
+      # jamba::printDebug("names(info):", names(info), sep=", ", file=stderr());# debug
+      # jamba::printDebug("info:", info, sep=", ", file=stderr());# debug
+
+      # str(info)  # Check structure: list with row, col, value
+      
+      # Update your reactive data with the new ylim value
+      ylim_colnum <- which(names(data$samples_data) == "custom_ylim");
+      if (info$col %in% ylim_colnum) {
+         data$samples_data[info$row, info$col] <- info$value;
+         if (verbose && length(ylim_colnum) > 0) jamba::printDebug("sashimiServer(): ", data$samples_data[[ylim_colnum]]);# debug
+      }
    })
 
 }

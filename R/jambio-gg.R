@@ -507,6 +507,9 @@ grl2df <- function
 #' @param exonLabelSize `numeric` value or `unit` object from `grid::unit()`.
 #'    Numeric values are assumed to have unit `"pt"` which refers to
 #'    font point size. Used to size exon labels when `labelExons=TRUE`.
+#' @param geneAxisAngle `numeric` default 30, angle in degrees
+#'    (0 to 360) where 0 is horizontal. This angle is applied to the
+#'    gene and transcript labels on the y-axis.
 #' @param newValues argument passed to `addGRLgaps()` to fill
 #'    column values for newly created gap entries. It is useful
 #'    to have `feature_type="gap"` so gaps have a different value
@@ -596,6 +599,7 @@ gene2gg <- function
  labelExons=TRUE,
  exonLabelAngle=90,
  exonLabelSize=8,
+ geneAxisAngle=30,
  geneSymbolColname="gene_name",
  newValues=list(feature_type="gap",
     subclass="gap",
@@ -888,6 +892,10 @@ gene2gg <- function
       ggforce::geom_shape(show.legend=FALSE) +
       colorjam::theme_jam() +
       ggplot2::ylab("") +
+      ggplot2::theme(
+         axis.text.y=ggplot2::element_text(
+            angle=geneAxisAngle,
+            hjust=1)) +
       ggplot2::scale_color_manual(
          na.value=jamba::makeColorDarker(tail(colorSubV, 1), darkFactor=1.3),
          values=jamba::makeColorDarker(colorSubV, darkFactor=1.3)) +
@@ -1367,22 +1375,22 @@ stackJunctions <- function
 #'    data.frame format,
 #'    `ref2c` list output from `make_ref2compressed()` to
 #'    transform genomic coordinates.
-#' @param show character vector of Sashimi plot features to include:
+#' @param show `character` vector of Sashimi plot features to include:
 #'    `"coverage"` sequence read coverage data;
 #'    `"junction"` splice junction read data.
-#' @param coord_method character value indicating the type of
+#' @param coord_method `character` value indicating the type of
 #'    coordinate scaling to use:
 #'    `"scale"` uses `ggplot2::scale_x_continuous()`;
 #'    `"coord"` uses `ggplot2::coord_trans()`;
 #'    `"none"` does not compress genomic coordinates.
-#' @param exonsGrl GRangesList object with one or more gene or
+#' @param exonsGrl `GRangesList` object with one or more gene or
 #'    transcript exon models, where exons are disjoint (not
 #'    overlapping.)
-#' @param junc_color,junc_fill character string with valid R color,
+#' @param junc_color,junc_fill `character` string with valid R color,
 #'    used for junction outline, and fill, for the junction arc
 #'    polygon. Alpha transparency is recommended for `junc_fill`
 #'    so overlapping junction arcs are visible.
-#' @param junc_alpha numeric value between 0 and 1, to define the
+#' @param junc_alpha `numeric` value between 0 and 1, to define the
 #'    alpha transparency used for junction colors, where 0 is
 #'    fully transparent, and 1 is completely non-transparent.
 #' @param junc_nudge_pct `numeric` value to nudge junction labels
@@ -1403,42 +1411,42 @@ stackJunctions <- function
 #'    is not configurable at this time.
 #' @param junc_fontsize `numeric` default 12, the text font size
 #'    used when show includes 'junctionLabels' as is default.
-#' @param fill_scheme character string for how the exon coverages
+#' @param fill_scheme `character` string for how the exon coverages
 #'    will be color-filled: `"exon"` will define colors for each
 #'    distinct exon, using the GRanges names from `flatExonsByGene`;
 #'    `"sample_id"` to color all exons the same by sample_id.
-#' @param color_sub optional character vector of R compatible colors
+#' @param color_sub optional `character` vector of R compatible colors
 #'    or hex strings, whose names are used to color or fill features
 #'    in the ggplot object. For example, if `fill_sheme="sample_id"`
 #'    the `color_sub` should have names for each `"sample_id"` value.
 #'    If any values are missing, they will be filled in using
 #'    `colorjam::rainbowJam()`.
-#' @param ylabel character string used as the y-axis label, by default
+#' @param ylabel `character` string used as the y-axis label, by default
 #'    `"score"` reflects the coverage score and junction score,
 #'    respectively for coverage and junction data. Scores are
 #'    also adjusted using the `scale_factor` value for each
 #'    `sample_id` as defined in the `filesDF`. Set to `NULL` to
 #'    hide the y-axis label completely.
-#' @param xlabel character string used to define the x-axis name,
+#' @param xlabel `character` string used to define the x-axis name,
 #'    which takes priority over argument `xlabel_ref`. When
 #'    `xlabel` is `NULL` and `xlabel_ref` is `FALSE`, then the
 #'    x-axis name is `""`, which displays no x-axis label.
-#' @param xlabel_ref logical indicating whether the x-axis name
+#' @param xlabel_ref `logical` indicating whether the x-axis name
 #'    should be determined by the reference (chromosome).
-#' @param use_jam_themes logical indicating whether to apply
+#' @param use_jam_themes `logical` indicating whether to apply
 #'    `colorjam::theme_jam()`, by default for the ggplot theme.
 #' @param apply_facet logical indicating whether to apply
 #'    `ggplot2::facet_wrap()` with `"~sample_id"` defining each
 #'    panel.
-#' @param facet_scales character value used as `"scales"` argument in
+#' @param facet_scales `character` value used as `"scales"` argument in
 #'    `ggplot2::facet_wrap()` when `apply_facet=TRUE`.
-#' @param ref2c optional output from `make_ref2compressed()` used to
-#'    compress axis coordinates during junction arc calculations.
-#' @param label_coords numeric vector length 2, optional range of
+#' @param ref2c optional `list` output from `make_ref2compressed()`
+#'    to compress axis coordinates during junction arc calculations.
+#' @param label_coords `numeric` vector length 2, optional range of
 #'    genomic coordinates to restrict labels, so labels are not
 #'    arranged by `ggrepel::geom_text_repel()` even when `coord_cartesian()`
 #'    is used to zoom into a specific x-axis range.
-#' @param verbose logical indicating whether to print verbose output.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are sent to `grl2df()`.
 #'
 #' @examples
@@ -1804,6 +1812,61 @@ to_basic.GeomShape <- function
  ...)
 {
    plotly:::prefix_class(data, "GeomPolygon");
+}
+
+#' Internal function to convert multi-plot ggplot to plotly panels
+#' @keywords internal
+#' @noRd
+jam_ggplotly <- function(p, ...)
+{
+   # check p$data for list columns 'x', 'y'
+   if (is.list(p$data$x)) {
+      # jamba::printDebug("jam_ggplotly(): ",
+      #    "head(p$data):");
+      # print(head(p$data, 10));# debug
+      # jamba::printDebug("jam_ggplotly(): ",
+      #    "sclass(p$data):");
+      # print(jamba::sclass(p$data));# debug
+      # jamba::printDebug("jam_ggplotly(): ",
+      #    "jamba::tcount(p$data$name):");
+      # print(head(jamba::tcount(p$data$name), 20));# debug
+      name_ct <- lengths(p$data$x);
+      use_rows <- rep(seq_along(name_ct), name_ct);
+      new_data <- p$data[use_rows, , drop=FALSE];
+      new_data$x <- unname(unlist(p$data$x))
+      new_data$y <- unname(unlist(p$data$y))
+     
+      ## Insert 'text' column for plotly label
+      # junction_label: (none)
+      # junction: feature, score
+      # coverage: x, y, feature
+      use_text <- ifelse(new_data$type %in% "coverage",
+         paste0("Coverage<br>\n",
+            new_data$feature, "<br>\n",
+            jamba::formatInt(round(new_data$x)), "<br>\n",
+            jamba::formatInt(round(new_data$y)), "<br>\n"),
+         ifelse(new_data$type %in% "junction",
+            paste0("Junction<br>\n",
+               new_data$feature, "<br>\n",
+               jamba::formatInt(round(new_data$score)), "<br>\n"),
+            ""))
+      new_data$text <- use_text;
+      
+      # new_data <- plotly::highlight_key(new_data,
+      #    key=~feature);
+      p$data <- new_data;
+   }
+   cp <- plotly::layout(
+      plotly::ggplotly(p,
+         tooltip=c("text")),
+         # tooltip="text"),
+      showlegend=FALSE)
+   cp <- plotly::highlight(cp,
+      "plotly_hover",
+      opacityDim=0.8,
+      selected=plotly::attrs_selected(
+         line=list(color="#444444")));
+   cp;
 }
 
 #' Stat for unpacking list-column polygon coordinates

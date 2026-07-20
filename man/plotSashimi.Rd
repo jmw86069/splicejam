@@ -40,26 +40,26 @@ data.frame format,
 \code{ref2c} list output from \code{make_ref2compressed()} to
 transform genomic coordinates.}
 
-\item{show}{character vector of Sashimi plot features to include:
+\item{show}{\code{character} vector of Sashimi plot features to include:
 \code{"coverage"} sequence read coverage data;
 \code{"junction"} splice junction read data.}
 
-\item{coord_method}{character value indicating the type of
+\item{coord_method}{\code{character} value indicating the type of
 coordinate scaling to use:
 \code{"scale"} uses \code{ggplot2::scale_x_continuous()};
 \code{"coord"} uses \code{ggplot2::coord_trans()};
 \code{"none"} does not compress genomic coordinates.}
 
-\item{exonsGrl}{GRangesList object with one or more gene or
+\item{exonsGrl}{\code{GRangesList} object with one or more gene or
 transcript exon models, where exons are disjoint (not
 overlapping.)}
 
-\item{junc_color, junc_fill}{character string with valid R color,
+\item{junc_color, junc_fill}{\code{character} string with valid R color,
 used for junction outline, and fill, for the junction arc
 polygon. Alpha transparency is recommended for \code{junc_fill}
 so overlapping junction arcs are visible.}
 
-\item{junc_alpha}{numeric value between 0 and 1, to define the
+\item{junc_alpha}{\code{numeric} value between 0 and 1, to define the
 alpha transparency used for junction colors, where 0 is
 fully transparent, and 1 is completely non-transparent.}
 
@@ -85,52 +85,52 @@ is not configurable at this time.
 \item{junc_fontsize}{\code{numeric} default 12, the text font size
 used when show includes 'junctionLabels' as is default.}
 
-\item{fill_scheme}{character string for how the exon coverages
+\item{fill_scheme}{\code{character} string for how the exon coverages
 will be color-filled: \code{"exon"} will define colors for each
 distinct exon, using the GRanges names from \code{flatExonsByGene};
 \code{"sample_id"} to color all exons the same by sample_id.}
 
-\item{color_sub}{optional character vector of R compatible colors
+\item{color_sub}{optional \code{character} vector of R compatible colors
 or hex strings, whose names are used to color or fill features
 in the ggplot object. For example, if \code{fill_sheme="sample_id"}
 the \code{color_sub} should have names for each \code{"sample_id"} value.
 If any values are missing, they will be filled in using
 \code{colorjam::rainbowJam()}.}
 
-\item{ylabel}{character string used as the y-axis label, by default
+\item{ylabel}{\code{character} string used as the y-axis label, by default
 \code{"score"} reflects the coverage score and junction score,
 respectively for coverage and junction data. Scores are
 also adjusted using the \code{scale_factor} value for each
 \code{sample_id} as defined in the \code{filesDF}. Set to \code{NULL} to
 hide the y-axis label completely.}
 
-\item{xlabel}{character string used to define the x-axis name,
+\item{xlabel}{\code{character} string used to define the x-axis name,
 which takes priority over argument \code{xlabel_ref}. When
 \code{xlabel} is \code{NULL} and \code{xlabel_ref} is \code{FALSE}, then the
 x-axis name is \code{""}, which displays no x-axis label.}
 
-\item{xlabel_ref}{logical indicating whether the x-axis name
+\item{xlabel_ref}{\code{logical} indicating whether the x-axis name
 should be determined by the reference (chromosome).}
 
-\item{use_jam_themes}{logical indicating whether to apply
+\item{use_jam_themes}{\code{logical} indicating whether to apply
 \code{colorjam::theme_jam()}, by default for the ggplot theme.}
 
 \item{apply_facet}{logical indicating whether to apply
 \code{ggplot2::facet_wrap()} with \code{"~sample_id"} defining each
 panel.}
 
-\item{facet_scales}{character value used as \code{"scales"} argument in
+\item{facet_scales}{\code{character} value used as \code{"scales"} argument in
 \code{ggplot2::facet_wrap()} when \code{apply_facet=TRUE}.}
 
-\item{ref2c}{optional output from \code{make_ref2compressed()} used to
-compress axis coordinates during junction arc calculations.}
+\item{ref2c}{optional \code{list} output from \code{make_ref2compressed()}
+to compress axis coordinates during junction arc calculations.}
 
-\item{label_coords}{numeric vector length 2, optional range of
+\item{label_coords}{\code{numeric} vector length 2, optional range of
 genomic coordinates to restrict labels, so labels are not
 arranged by \code{ggrepel::geom_text_repel()} even when \code{coord_cartesian()}
 is used to zoom into a specific x-axis range.}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are sent to \code{grl2df()}.}
 }

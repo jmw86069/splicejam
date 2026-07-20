@@ -1,3 +1,51 @@
+# splicejam 0.0.90.900
+
+* Added 'progressr' to dependencies for unified progress bars,
+using 'cli' for `sashimiFigure()` and 'shiny' for
+`launchSashimiApp()`.
+
+## Changes
+
+* `launchSashimiApp()` - updated docs to describe customization.
+* `sashimiAppUi()`
+
+   * Most all UI elements can be customized by defining the
+   variable within `envir`, and is described in `launchSashimiApp()`.
+   * Re-ordered some UI elements.
+   * Changed default `junction_arc_minimum=500`.
+
+* `sashimiAppServer()`
+
+   * Refactored to call `splicejamFigure()`.
+   * Refactored progress bar to call custom function provided
+   via argument `do_shiny_progress`, using `progressr::progressor()`.
+
+* `splicejamFigure()`
+
+   * New option `panel_method='plotly'` which uses
+   `plotly::subplot()` to assemble panels, and therefore
+   provides plotly interactive output.
+   * Argument 'show_progress=TRUE' enables progressr progress updates,
+   which will only be displayed when the user calls
+   `progressr::handlers(global=TRUE)`.
+   * Enabled `facet_scales='fixed'` which now properly defines ylim
+   for each panel.
+
+* `sashimiDataConstants()`
+
+   * Also handles 'filesDF' and 'color_sub' as optional values.
+
+* `sashimiAppConstants()`
+
+   * Pushes 'filesDF' and 'color_sub' into `sashimiDataConstants()`
+   for consistency, focusing its work on UI-specific elements.
+
+## New internal function
+
+* `jam_ggplotly()` wrappers the ggplot data containing `list`
+columns 'x', 'y' so it behaves in plotly. It also wraps the
+output to hide the legend.
+
 # splicejam 0.0.89.950
 
 ## Changes

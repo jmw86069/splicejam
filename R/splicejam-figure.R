@@ -15,7 +15,7 @@
 #' 
 #' Notable features:
 #' 
-#' * 'exon_range': new argument allows zooming into a genome
+#' * 'use_exon_range': new argument allows zooming into a genome
 #' coordinate range using exon names.
 #' * gene model is shown and aligned by default, using cowplot.
 #' * 'layout_ncol': allows multiple columns with splicejam and
@@ -26,6 +26,12 @@
 #' * Consider providing interactive output via `ggplotly()`.
 #' * Expand the approach to permit multiple genes.
 #' * Apply memoise to plot data, as in `launchSashimiApp()`
+#' 
+#' * Check when supplied with display_coords, no use_exon_range,
+#' it should (in theory) find gene(s) in that region, use
+#' them to assemble flattened exons, then generate figure with
+#' one or more genes.
+#' 
 #' 
 #' @family splicejam core functions
 #' 
@@ -45,7 +51,7 @@
 #'    See `prepareSashimi()` for more information.
 #' @param sample_id `character` default NULL, optionally used to
 #'    subset data to show only data for samples 'sample_id'.
-#' @param exon_range `character` vector with first and last exons
+#' @param use_exon_range `character` vector with first and last exons
 #'    to include in the genome coordinate range. Typically in the
 #'    form: 'genesymbol_exon1', 'genesymbol_exon8b'
 #' @param display_coords `numeric` default NULL, with optional genome
@@ -79,6 +85,19 @@
 #' @param do_plot `logical` default TRUE, whether to render the plot.
 #' @param use_memoise `logical` default FALSE, whether to enable
 #'    data cache methods with memoise.
+#' @param panel_method `character` method to assemble plot panels.
+#'    * 'patchwork' (default) uses patchwork, and tends to have better
+#'    handling of whitespace
+#'    * 'cowplot' uses cowplot, but tends to have much more whitespace.
+#'    * 'plotly' uses plotly to create an interactive figure.
+#' @param show_progress `logical` default TRUE, shows a progress bar
+#'    using R terminal or Shiny, depending upon whether it is running
+#'    inside Shiny.
+#'    * **Note:** The progress is updated (somewhere) but not displayed
+#'    unless the user (you) also enable it like this:
+#'    `progressr::handlers(global=TRUE)`
+#'    * The exception is when called from within `sashimiAppServer()`,
+#'    which sets `progressr::withShinyProgress()` to enable it.
 #' @param verbose `logical` whether to print verbose output, default TRUE.
 #'    * `verbose == TRUE`: prints major steps and elapsed time (default)
 #'    * `verbose == 2`: as above, adding `prepareSashimi()` major steps
@@ -104,17 +123,22 @@
 #'    * cp: the final assembled ggplot figure
 #' 
 #' @examples
+#' # By default, it loads farrisdata
 #' sjenv <- sashimiDataConstants()
 #' 
 #' sjenv$filesDF <- farrisdata::farris_sashimi_files_df
 #' sjfig <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_DE"))
 #' 
 #' sjfig <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_DE"),
-#'    exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
+#'    use_exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
 #' 
 #' sjfig2 <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_DE"),
 #'    layout_ncol=2,
-#'    exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
+#'    use_exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
+#' 
+#' sjfig3 <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_DE", "CA1_CB"),
+#'    layout_ncol=2, use_memoise=TRUE,
+#'    use_exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
 #' 
 #' @export
 splicejamFigure <- function
@@ -123,7 +147,7 @@ splicejamFigure <- function
  gene_sd=NULL,
  filesDF=NULL,
  sample_id=NULL,
- exon_range=NULL,
+ use_exon_range=NULL,
  display_coords=NULL,
  facet_scales="free_y",
  minJunctionScore=10,
@@ -139,39 +163,41 @@ splicejamFigure <- function
  use_memoise=FALSE,
  panel_method=c(
     "patchwork",
-    "cowplot"),
+    "cowplot",
+    "plotly"),
+ show_progress=TRUE,
  verbose=TRUE,
  ...)
 {
    # arglist
-   arglist <- list(...)
+   arglist <- list(...);
    panel_method <- match.arg(panel_method);
-   # exon_range
+   # use_exon_range
    # Todo: Make it work for multiple (neighboring) genes
    # - probably by creating new flattened exons
-   if (length(exon_range) == 0) {
+   if (length(use_exon_range) == 0) {
       # use overall first and last
-      exon_range <- jamba::middle(n=2,
-         names(sort(sjenv$flatExonsByGene[gene]@unlistData)))
-   } else if (all(exon_range %in% names(sjenv$flatExonsByGene[gene]@unlistData))) {
-      exon_range <- jamba::middle(n=2,
-         names(sort(sjenv$flatExonsByGene[gene]@unlistData[exon_range])))
+      use_exon_range <- jamba::middle(n=2,
+         names(sort(get('flatExonsByGene', sjenv)[gene]@unlistData)))
+   } else if (all(use_exon_range %in% names(get('flatExonsByGene', sjenv)[gene]@unlistData))) {
+      use_exon_range <- jamba::middle(n=2,
+         names(sort(get('flatExonsByGene', sjenv)[gene]@unlistData[use_exon_range])))
    } else {
-      exon_range <- jamba::provigrep(exon_range,
-         names(sjenv$flatExonsByGene[gene]@unlistData));
-      if (length(exon_range) > 0) {
-         exon_range <- jamba::middle(n=2,
-            names(sort(sjenv$flatExonsByGene[gene]@unlistData[exon_range])))
+      use_exon_range <- jamba::provigrep(use_exon_range,
+         names(get('flatExonsByGene', sjenv)[gene]@unlistData));
+      if (length(use_exon_range) > 0) {
+         use_exon_range <- jamba::middle(n=2,
+            names(sort(get('flatExonsByGene', sjenv)[gene]@unlistData[use_exon_range])))
       } else {
-         exon_range <- jamba::middle(n=2,
-            names(sort(sjenv$flatExonsByGene[gene]@unlistData)))   
+         use_exon_range <- jamba::middle(n=2,
+            names(sort(get('flatExonsByGene', sjenv)[gene]@unlistData)))   
       }
    }
    # genome coordinates
    if (length(display_coords) == 0) {
       display_coords <- range(as.data.frame(range(
-         subset(sjenv$flatExonsByGene[gene]@unlistData,
-            gene_nameExon %in% exon_range)
+         subset(get('flatExonsByGene', sjenv)[gene]@unlistData,
+            gene_nameExon %in% use_exon_range)
          ))[,c("start", "end")]);
    }
 
@@ -179,7 +205,7 @@ splicejamFigure <- function
    if (length(filesDF) > 0) {
       use_filesDF <- filesDF;
    } else {
-      use_filesDF <- sjenv$filesDF;
+      use_filesDF <- get('filesDF', sjenv);
    }
    if (length(use_filesDF) == 0 || nrow(use_filesDF) == 0) {
       stop("filesDF contains no data.");
@@ -195,65 +221,91 @@ splicejamFigure <- function
       }
    }
 
+   # Internal function for now
+   in_shiny_context <- function() {
+      !is.null(shiny::getDefaultReactiveDomain())
+   }
+  
+   # in Shiny context, set printDebug to stderr()
+   withr::local_options(list(jam.file=stderr()));
+
+   pfunction <- function(...) invisible(NULL);
+   do_shiny_progress <- FALSE;
+   progress_steps <- (4 +
+     nrow(unique(use_filesDF[, c("sample_id", "url", "type"), drop=FALSE])));
+   if (isTRUE(show_progress)) {
+      old_handlers <- NULL;
+      if (isTRUE(in_shiny_context())) {
+         if (verbose) jamba::printDebug("splicejamFigure(): ", "progress handler 'shiny'");
+         # add to the stack
+         old_handlers <- progressr::handlers(c("shiny"))
+      } else {
+         if (verbose) jamba::printDebug("splicejamFigure(): ", "progress handler 'cli'");
+         old_handlers <- progressr::handlers(c("cli"))
+      }
+      # progressr::handlers(global=TRUE);
+      on.exit(progressr::handlers(old_handlers),
+         add=TRUE)
+      #
+      pfunction <- progressr::progressor(
+         steps=progress_steps,
+         # auto_finish=FALSE,
+         # on_exit=FALSE, # to try in case calling environment is an issue
+         message="Preparing Sashimi Plot...");
+   }
+   
    # prepareSashimi()
    st0 <- 0;
    st1 <- c(elapsed=0);
    if (length(gene_sd) == 0) {
       if (verbose) jamba::printDebug("splicejamFigure(): ", "prepareSashimi()");
+
+      scoreArcMinimum <- 100;
+      if ("scoreArcMinimum" %in% names(arglist)) {
+         scoreArcMinimum <- arglist[["scoreArcMinimum"]];
+      }
+      include_strand <- c("both")
+      if ("include_strand" %in% names(arglist)) {
+         include_strand <- arglist[["include_strand"]];
+      }
+
       st1 <- system.time({
       if (isFALSE(use_memoise)) {
          gene_sd <- prepareSashimi(
+            do_shiny_progress=pfunction,
             gene=gene,
             sample_id=sample_id,
-            flatExonsByGene=sjenv$flatExonsByGene[gene],
+            flatExonsByGene=get('flatExonsByGene', sjenv)[gene],
             scoreArcFactor=scoreArcFactor,
-            # flatExonsByTx=sjenv$flatExonsByTx,
+            scoreArcMinimum=scoreArcMinimum,
             minJunctionScore=minJunctionScore,
             filesDF=use_filesDF,
+            include_strand=include_strand,
             use_memoise=use_memoise,
             verbose=verbose > 1,
             ...)
       } else {
-         # shiny::withProgress(
-         #    message="Preparing Sashimi.",
-         #    value=0,
          {
             # create memoise-ready function
             # Todo: Allow custom memoise path
             prepareSashimi_m <- memoise::memoise(prepareSashimi,
                cache=memoise::cache_filesystem("sashimidata_memoise"));
-   
-            if (verbose) {
-               include_strand <- c("both")
-               if ("include_strand" %in% names(arglist)) {
-                  include_strand <- arglist[["include_strand"]];
-               }
-               scoreArcMinimum <- 100;
-               if ("scoreArcMinimum" %in% names(arglist)) {
-                  scoreArcMinimum <- arglist[["scoreArcMinimum"]];
-               }
+
+            use_flatExonsByGene <- get('flatExonsByGene', sjenv)[gene];
+            withr::with_options(list(splicejam.progress=pfunction),{
                gene_has_cache <- memoise::has_cache(prepareSashimi_m)(
                   gene=gene,
-                  flatExonsByGene=sjenv$flatExonsByGene[gene],
+                  flatExonsByGene=use_flatExonsByGene,
                   minJunctionScore=minJunctionScore,
                   sample_id=sample_id,
                   filesDF=use_filesDF,
                   include_strand=include_strand,
                   verbose=verbose > 1,
-                  use_memoise=use_memoise,
+                  use_memoise=TRUE,
                   scoreArcFactor=scoreArcFactor,
-                  scoreArcMinimum=scoreArcMinimum,
-                  do_shiny_progress=FALSE)
-               # args shown below from shiny-server
-                  # gene=gene,
-                  # flatExonsByGene=flatExonsByGene1,
-                  # minJunctionScore=min_junction_reads,
-                  # sample_id=sample_id,
-                  # filesDF=filesDF,
-                  # include_strand=include_strand,
-                  # verbose=verbose,
-                  # use_memoise=use_memoise,
-                  # do_shiny_progress=TRUE);
+                  scoreArcMinimum=scoreArcMinimum)
+            })
+            if (verbose) {
                jamba::printDebug("",
                   indent=19,
                   "gene:",
@@ -261,29 +313,41 @@ splicejamFigure <- function
                   ", gene_has_cache:",
                   gene_has_cache);
             }
-            gene_sd <- prepareSashimi_m(
-               gene=gene,
-               flatExonsByGene=sjenv$flatExonsByGene[gene],
-               minJunctionScore=minJunctionScore,
-               sample_id=sample_id,
-               filesDF=use_filesDF,
-               include_strand=include_strand,
-               verbose=verbose > 1,
-               use_memoise=use_memoise,
-               scoreArcFactor=scoreArcFactor,
-               scoreArcMinimum=scoreArcMinimum,
-               do_shiny_progress=FALSE)
-               # gene=gene,
-               # scoreArcFactor=junction_arc_factor_d(),
-               # scoreArcMinimum=junction_arc_minimum_d(),
-               # flatExonsByGene=flatExonsByGene1,
-               # minJunctionScore=min_junction_reads,
-               # sample_id=sample_id,
-               # filesDF=filesDF,
-               # include_strand=include_strand,
-               # verbose=verbose,
-               # use_memoise=use_memoise,
-               # do_shiny_progress=TRUE);
+            
+            if (isTRUE(gene_has_cache)) {
+               # if cache exists, load directly without progress
+               # Todo: update progress here
+               withr::with_options(list(splicejam.progress=pfunction),{
+                  gene_sd <- prepareSashimi_m(
+                     gene=gene,
+                     flatExonsByGene=use_flatExonsByGene,
+                     minJunctionScore=minJunctionScore,
+                     sample_id=sample_id,
+                     filesDF=use_filesDF,
+                     include_strand=include_strand,
+                     verbose=verbose > 1,
+                     use_memoise=TRUE,
+                     scoreArcFactor=scoreArcFactor,
+                     scoreArcMinimum=scoreArcMinimum)
+               })
+               pfunction(amount=progress_steps - 4,
+                  paste0("Loading data from cache."))
+               # jamba::printDebug(0, " Checking cov cache ", progress_of, file=stderr());# debug
+            } else {
+               withr::with_options(list(splicejam.progress=pfunction),{
+                  gene_sd <- prepareSashimi_m(
+                     gene=gene,
+                     flatExonsByGene=use_flatExonsByGene,
+                     minJunctionScore=minJunctionScore,
+                     sample_id=sample_id,
+                     filesDF=use_filesDF,
+                     include_strand=include_strand,
+                     verbose=verbose > 1,
+                     use_memoise=TRUE,
+                     scoreArcFactor=scoreArcFactor,
+                     scoreArcMinimum=scoreArcMinimum)
+               })
+            }
          }
       }
       })
@@ -304,14 +368,14 @@ splicejamFigure <- function
    if ('ref2c' %in% names(gene_sd)) {
       ref2c <- gene_sd$ref2c;
    } else {
-      ref2c <- sjenv$ref2c;
+      ref2c <- get('ref2c', sjenv);
    }
 
    # layout_ncol <- 1;
    # base_size <- 18;
    xlim <- display_coords;
    ref_name <- as.character(head(
-      GenomicRanges::seqnames(sjenv$flatExonsByGene[gene]@unlistData), 1));
+      GenomicRanges::seqnames(get('flatExonsByGene', sjenv)[gene]@unlistData), 1));
 
    # plot panel heights, layout_ncol
    num_samples <- length(unique(sample_id))
@@ -324,7 +388,10 @@ splicejamFigure <- function
       rep(panel_height, ceiling(num_samples / layout_ncol)),
       gene_panel_height)
 
+   ########################################
    # plotSashimi()
+   # Todo: Consider memoise here, also
+   # option to bypass prepareSashimi()
    if (verbose) jamba::printDebug("splicejamFigure(): ", "plotSashimi()");
    use_show <- jamba::rmNA(c("coverage",
          "junction",
@@ -333,11 +400,16 @@ splicejamFigure <- function
       use_show <- arglist$show;
    }
    st2 <- list(elapsed=0);
+   if (is.function(pfunction)) {
+      # progress bar
+      pfunction(amount=1,
+         paste0("Creating plot for ", gene))
+   }
    st2 <- system.time({
       gg_sashimi <- jamba::call_fn_ellipsis(plotSashimi,
          sashimi=gene_sd,
          show=use_show,
-         color_sub=sjenv$color_sub,
+         color_sub=get('color_sub', sjenv),
          do_highlight=FALSE,
          facet_scales=facet_scales,
          junc_alpha=junction_alpha,
@@ -356,6 +428,9 @@ splicejamFigure <- function
    } else {
       strip.position <- "top";
    }
+   ## gg_yrange is useful for shared y-axes
+   gg_yrange <- range(unlist(gg_sashimi$data$y), na.rm=TRUE);
+   # Apply facet_wrap2
    gg_sashimi <- gg_sashimi +
       # ggplot2::facet_wrap(~sample_id,
       ggh4x::facet_wrap2(~sample_id,
@@ -363,17 +438,15 @@ splicejamFigure <- function
          remove_labels="y",
          strip.position=strip.position,
          scales=facet_scales);
-      # Optional arguments:
-      # strip.position 
 
    # detectedTx
    detectedTx <- NULL;
    if ('detectedTx' %in% names(arglist)) {
       detectedTx <- arglist[["detectedTx"]];
    } else if ('detectedTx' %in% names(sjenv)) {
-      detectedTx <- sjenv$detectedTx;
+      detectedTx <- get('detectedTx', sjenv)
    }
-   gene_tx2geneDF <- subset(sjenv$tx2geneDF, gene_name %in% gene);
+   gene_tx2geneDF <- subset(get('tx2geneDF', sjenv), gene_name %in% gene);
    detectedTx <- intersect(detectedTx,
       unique(gene_tx2geneDF$transcript_id))
    if (length(detectedTx) == 0) {
@@ -384,22 +457,29 @@ splicejamFigure <- function
       detectedTx <- unique(gene_tx2geneDF$transcript_id);
    }
 
-   ## Gene-exon model
+   #######################################
+   # Gene-exon model
+   # Todo: Implement memoise cache option.
    if (verbose) jamba::printDebug("splicejamFigure(): ", "gene2gg()");
-   if (length(sjenv$flatExonsByTx) == 0) {
+   if (length(get('flatExonsByTx', sjenv)) == 0) {
       txMatch <- 0;
    } else {
       txMatch <- match(detectedTx,
-         names(sjenv$flatExonsByTx))
+         names(get('flatExonsByTx', sjenv)))
       if (any(is.na(txMatch))) {
-         stop("Not all detectedTx were in names(sjenv$flatExonsByTx).");
+         stop("Not all detectedTx were in names(get('flatExonsByTx', sjenv)).");
       }
    }
    st3 <- list(elapsed=0);
+   if (is.function(pfunction)) {
+      # progress bar
+      pfunction(amount=1,
+         paste0("Creating gene-exon model for ", gene))
+   }
    st3 <- system.time({
       gg_gene <- gene2gg(gene=gene,
-         flatExonsByGene=sjenv$flatExonsByGene,
-         flatExonsByTx=sjenv$flatExonsByTx[txMatch],
+         flatExonsByGene=get('flatExonsByGene', sjenv),
+         flatExonsByTx=get('flatExonsByTx', sjenv)[txMatch],
          label_coords=display_coords,
          ref2c=ref2c,
          # layout_ncol=layout_ncol,
@@ -419,9 +499,15 @@ splicejamFigure <- function
       ggplot2::coord_cartesian(
          xlim=xlim,
          ylim=NULL);
-   
+
+   ############################################
    ## Apply multi-panel ylim
    panel_names <- names(table(gene_sd$df$sample_id))
+   if ("fixed" %in% facet_scales &&
+      length(use_ylim) == 0) {
+      # for fixed ylim, use gg_range
+      use_ylim <- list(gg_yrange);
+   }
    if (length(use_ylim) > 0) {
       if (!is.list(use_ylim)) {
          if (length(use_ylim) == 1) {
@@ -438,48 +524,6 @@ splicejamFigure <- function
       } else {
          use_ylim <- rep(use_ylim, length.out=num_samples);
          names(use_ylim) <- panel_names;
-      }
-   }
-
-   if (FALSE && length(use_ylim) > 0) {
-      ## Not active because it does not work well with facets,
-      ## something about quoted values in the filter. Ugh.
-      if (verbose) jamba::printDebug("splicejamFigure(): ", "use_ylim");
-      if (!is.list(use_ylim)) {
-         if (length(use_ylim) == 1) {
-            use_ylim <- range(c(0, use_ylim))
-         }
-         use_ylim <- list(use_ylim);
-         use_ylim <- rep(use_ylim, length.out=num_samples);
-      }
-      panel_names <- names(table(gene_sd$df$sample_id));
-      if (length(names(use_ylim)) > 0) {
-         use_ylim <- use_ylim[panel_names];
-         if (any(lengths(use_ylim) == 0)) {
-            stop("use_ylim[sample_id] have empty entries.");
-         }
-      } else {
-         use_ylim <- rep(use_ylim, length.out=num_samples);
-         names(use_ylim) <- panel_names;
-      }
-      
-      # panel_names <- seq_len(num_samples);
-      for (ipanel in panel_names) {
-         ipanel1 <- match(ipanel, panel_names);
-         if (verbose > 2) {
-            jamba::printDebug("splicejamFigure(): ",
-               "Applying ylim: ", use_ylim[[ipanel]],
-               " to panel ", ipanel);
-         }
-         # not sure how to pass variable value
-         # and not some enquosure thing.
-         # enquo(variable)??
-         suppressMessages({
-            cp_sashimi <- cp_sashimi +
-               ggh4x::scale_y_facet(
-                  sample_id %in% ipanel | PANEL %in% ipanel,
-                  limits=use_ylim[[ipanel1]])
-         })
       }
    }
 
@@ -558,6 +602,11 @@ splicejamFigure <- function
 
    st4 <- list(elapsed=0);
    if (verbose) jamba::printDebug("splicejamFigure(): ", panel_method);
+   if (is.function(pfunction)) {
+      # progress bar
+      pfunction(amount=1,
+         paste0("Assembling figure panels."))
+   }
    st4 <- system.time({
       if ("cowplot" %in% panel_method) {
          # Cowplot multi-panel figure
@@ -571,7 +620,7 @@ splicejamFigure <- function
             axis="lr",
             rel_heights=plot_heights)
          if (isTRUE(do_plot)) plot(cp);
-      } else {
+      } else if ("patchwork" %in% panel_method) {
          cp <- patchwork::wrap_plots(
             c(cp_sashimi_list,
                cp_spacers,
@@ -582,8 +631,37 @@ splicejamFigure <- function
             patchwork::plot_layout(axis_titles="collect")
          #
          if (isTRUE(do_plot)) plot(cp);
+      } else if ("plotly" %in% panel_method) {
+         cp_spacers <- lapply(cp_spacers, function(cp_spacer){
+            plotly::ggplotly(cp_spacer + ggplot2::theme_void())
+         })
+         cp_list <- c(cp_sashimi_list,
+            cp_spacers,
+            cp_genes)
+         plotlys <- lapply(cp_list, function(icp){
+            jam_ggplotly(icp)
+         })
+         jamba::printDebug("plotly layout_nrow: ", layout_nrow);# debug
+         cp <- plotly::subplot(plotlys,
+            shareX=TRUE,
+            shareY=FALSE,
+            nrows=layout_nrow) |>
+            plotly::layout(
+               margin=list(t=60, b=50, l=80, r=30));
+         ##
+         # cp <- plotly::highlight(cp,
+         #    "plotly_hover",
+         #    opacityDim=0.8,
+         #    selected=plotly::attrs_selected(
+         #       line=list(color="#444444")));
+         if (isTRUE(do_plot)) print(cp);
       }
    })
+   if (is.function(pfunction)) {
+      # progress bar
+      pfunction(amount=1,
+         paste0("Splicejam figure complete."))
+   }
    if (verbose) jamba::printDebug("", "elapsed ", indent=19, asSeconds(st4["elapsed"]));
    return(invisible(list(
       cp_sashimi=cp_sashimi,
@@ -592,7 +670,8 @@ splicejamFigure <- function
       cp_genes=cp_genes,
       gene_sd=gene_sd,
       layout_ncol=layout_ncol,
+      layout_nrow=layout_nrow,
       use_ylim=use_ylim,
       cp=cp
    )))
-   }
+}

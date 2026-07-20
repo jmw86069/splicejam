@@ -10,7 +10,7 @@ splicejamFigure(
   gene_sd = NULL,
   filesDF = NULL,
   sample_id = NULL,
-  exon_range = NULL,
+  use_exon_range = NULL,
   display_coords = NULL,
   facet_scales = "free_y",
   minJunctionScore = 10,
@@ -24,7 +24,8 @@ splicejamFigure(
   gene_panel_height = 1,
   do_plot = TRUE,
   use_memoise = FALSE,
-  panel_method = c("patchwork", "cowplot"),
+  panel_method = c("patchwork", "cowplot", "plotly"),
+  show_progress = TRUE,
   verbose = TRUE,
   ...
 )
@@ -53,7 +54,7 @@ See \code{prepareSashimi()} for more information.}
 \item{sample_id}{\code{character} default NULL, optionally used to
 subset data to show only data for samples 'sample_id'.}
 
-\item{exon_range}{\code{character} vector with first and last exons
+\item{use_exon_range}{\code{character} vector with first and last exons
 to include in the genome coordinate range. Typically in the
 form: 'genesymbol_exon1', 'genesymbol_exon8b'}
 
@@ -101,6 +102,25 @@ with relative height 1. Default is 1.}
 \item{use_memoise}{\code{logical} default FALSE, whether to enable
 data cache methods with memoise.}
 
+\item{panel_method}{\code{character} method to assemble plot panels.
+\itemize{
+\item 'patchwork' (default) uses patchwork, and tends to have better
+handling of whitespace
+\item 'cowplot' uses cowplot, but tends to have much more whitespace.
+\item 'plotly' uses plotly to create an interactive figure.
+}}
+
+\item{show_progress}{\code{logical} default TRUE, shows a progress bar
+using R terminal or Shiny, depending upon whether it is running
+inside Shiny.
+\itemize{
+\item \strong{Note:} The progress is updated (somewhere) but not displayed
+unless the user (you) also enable it like this:
+\code{progressr::handlers(global=TRUE)}
+\item The exception is when called from within \code{sashimiAppServer()},
+which sets \code{progressr::withShinyProgress()} to enable it.
+}}
+
 \item{verbose}{\code{logical} whether to print verbose output, default TRUE.
 \itemize{
 \item \code{verbose == TRUE}: prints major steps and elapsed time (default)
@@ -144,7 +164,7 @@ a user-friendly interface to the many internal details.
 
 Notable features:
 \itemize{
-\item 'exon_range': new argument allows zooming into a genome
+\item 'use_exon_range': new argument allows zooming into a genome
 coordinate range using exon names.
 \item gene model is shown and aligned by default, using cowplot.
 \item 'layout_ncol': allows multiple columns with splicejam and
@@ -155,21 +175,30 @@ gene/transcript/exon model.
 \item Consider providing interactive output via \code{ggplotly()}.
 \item Expand the approach to permit multiple genes.
 \item Apply memoise to plot data, as in \code{launchSashimiApp()}
+\item Check when supplied with display_coords, no use_exon_range,
+it should (in theory) find gene(s) in that region, use
+them to assemble flattened exons, then generate figure with
+one or more genes.
 }
 }
 }
 \examples{
+# By default, it loads farrisdata
 sjenv <- sashimiDataConstants()
 
 sjenv$filesDF <- farrisdata::farris_sashimi_files_df
 sjfig <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_DE"))
 
 sjfig <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_DE"),
-   exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
+   use_exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
 
 sjfig2 <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_DE"),
    layout_ncol=2,
-   exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
+   use_exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
+
+sjfig3 <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_DE", "CA1_CB"),
+   layout_ncol=2, use_memoise=TRUE,
+   use_exon_range=c("Gria1_exon13", "Gria1_exon16"), scoreArcFactor=0.4)
 
 }
 \seealso{

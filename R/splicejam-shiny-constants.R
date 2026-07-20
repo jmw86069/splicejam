@@ -244,35 +244,37 @@ sashimiAppConstants <- function
       flatExonsByGene=flatExonsByGene,
       flatExonsByTx=flatExonsByTx,
       empty_uses_farrisdata=empty_uses_farrisdata,
+      filesDF=filesDF,
+      color_sub=color_sub,
       use_memoise=use_memoise,
       verbose=verbose,
       envir=envir,
       ...);
 
-   params <- c("filesDF",
-      "color_sub");
-   for (param in params) {
-      param_value <- get_fn_envir(param,
-         envir=envir,
-         verbose=verbose - 1,
-         ...);
-      if (verbose >= 1) {
-         if (inherits(param_value,
-            c("logical", "character", "numeric",
-               "data.frame", "GRanges", "GRangesList"))) {
-            jamba::printDebug("sashimiDataConstants(): ",
-               "Assigning param: ", param,
-               ", head(param_value):", head(param_value));
-         } else {
-            jamba::printDebug("sashimiDataConstants(): ",
-               "Assigning param: ", param,
-               ", class(param_value):", class(param_value));
-         }
-      }   
-      assign(x=param,
-         value=param_value,
-         envir=envir)
-      }
+   # params <- c("filesDF",
+   #    "color_sub");
+   # for (param in params) {
+   #    param_value <- get_fn_envir(param,
+   #       envir=envir,
+   #       verbose=verbose - 1,
+   #       ...);
+   #    if (verbose >= 1) {
+   #       if (inherits(param_value,
+   #          c("logical", "character", "numeric",
+   #             "data.frame", "GRanges", "GRangesList"))) {
+   #          jamba::printDebug("sashimiDataConstants(): ",
+   #             "Assigning param: ", param,
+   #             ", head(param_value):", head(param_value));
+   #       } else {
+   #          jamba::printDebug("sashimiDataConstants(): ",
+   #             "Assigning param: ", param,
+   #             ", class(param_value):", class(param_value));
+   #       }
+   #    }   
+   #    assign(x=param,
+   #       value=param_value,
+   #       envir=envir)
+   # }
 
    # assert filesDF is available with proper colnames
    if (length(envir$filesDF) == 0 ||

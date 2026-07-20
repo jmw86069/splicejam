@@ -927,13 +927,15 @@ compressPolygonM <- function
 #' @param memoise_coverage_path,memoise_junction_path `character`
 #'    string with default folder path to store memoise cache files,
 #'    used with `use_memoise=TRUE`.
-#' @param do_shiny_progress `logical` default FALSE, whether to send
-#'    progress updates to a running shiny app using the
-#'    `shiny::withProgress()` and `shiny::setProgress()` methods.
-#'    This function calls `shiny::setProgress()` and
-#'    assumes that `shiny::withProgress()` has already been
-#'    initialized. It also does not close the progress, instead
-#'    pushes that responsibility to the calling function.
+#' @param do_shiny_progress default NULL uses
+#'    `getOption("splicejam.progress", FALSE)` which can be FALSE
+#'    to show no progress, or a `function` which updates an existing
+#'    progress bar, for example the output of `progressr::progressor()`
+#'    is such a function.
+#'    * The default is NULL to avoid having this argument be conditional
+#'    when also wrapping `prepareSashimi()` as a memoise cached
+#'    function. This argument remains NULL with or without enabling
+#'    a progress bar, by setting the option to control the value.
 #' @param verbose `logical` whether to print verbose output.
 #' @param ... additional arguments are passed to `make_ref2compressed()`,
 #'    `getGRcoverageFromBw()`, `exoncov2polygon()`.
@@ -1001,13 +1003,23 @@ prepareSashimi <- function
  use_memoise=FALSE,
  memoise_coverage_path="coverage_memoise",
  memoise_junction_path="junctions_memoise",
- do_shiny_progress=FALSE,
+ do_shiny_progress=NULL,
  verbose=FALSE,
  ...)
 {
    ## Purpose it to wrapper several functions used to prepare various
    ## types of data for Sashimi plots
    ##
+
+   # do_shiny_progress will become either progressr function,
+   # or function that ignores its input.
+   if (length(do_shiny_progress) == 0) {
+      do_shiny_progress <- getOption("splicejam.progress", FALSE)
+   }
+   if (isFALSE(do_shiny_progress) || !is.function(do_shiny_progress)) {
+      do_shiny_progress <- function(...) invisible(NULL)
+   }
+
    asSeconds <- function(x, digits=2, ...){
       format(difftime(as.POSIXct(x), 0), digits=digits, ...)
    }
@@ -1156,10 +1168,11 @@ prepareSashimi <- function
          jamba::printDebug("prepareSashimi(): ",
             "Preparing coverage from covGR");
       }
-      if (do_shiny_progress) {
+      if (is.function(do_shiny_progress)) {
          ##
-         shiny::setProgress(0/4,
-            detail=paste0("Preparing GR coverage data for ", gene));
+         do_shiny_progress(amount=1,
+            paste0("Preparing GR coverage data for ", gene))
+         if (verbose > 1) jamba::printDebug(1, " Preparing GR coverage data for ", gene, file=stderr());# debug
       }
       covGRuse <- covGR[names(covGR) %in% names(gr)];
       if (length(covGRuse) == 0) {
@@ -1185,10 +1198,11 @@ prepareSashimi <- function
          }
 
          ## Combine coverage per strand
-         if (do_shiny_progress) {
+         if (is.function(do_shiny_progress)) {
             ##
-            shiny::setProgress(1/4,
-               detail=paste0("Combining bw coverage by sample_id"));
+            do_shiny_progress(amount=1,
+               paste0("Combining bw coverage by sample_id"))
+            if (verbose > 1) jamba::printDebug(1, " Combining bw coverage by sample_id.", file=stderr());# debug
          }
          covGR2 <- combineGRcoverage(covGRuse,
             covName=covSamples,
@@ -1272,10 +1286,11 @@ prepareSashimi <- function
          jamba::printDebug("prepareSashimi(): ",
             "Preparing bw coverage data for ", gene);
       }
-      if (do_shiny_progress) {
+      if (is.function(do_shiny_progress)) {
          ##
-         shiny::setProgress(1/4,
-            detail=paste0("Preparing bw coverage data for ", gene));
+         do_shiny_progress(amount=1,
+            paste0("Preparing bw coverage data for ", gene))
+         if (verbose > 1) jamba::printDebug(1, " Preparing bw coverage data for ", gene, file=stderr());# debug
       }
       ## Note that coverage is not scaled at this step
       st15 <- system.time({
@@ -1297,10 +1312,11 @@ prepareSashimi <- function
          jamba::printDebug("prepareSashimi(): ",
             "Combining bw coverage by sample_id");
       }
-      if (do_shiny_progress) {
+      if (is.function(do_shiny_progress)) {
          ##
-         shiny::setProgress(1/4,
-            detail=paste0("Combining bw coverage by sample_id"));
+         do_shiny_progress(amount=1,
+            paste0("Combining bw coverage by sample_id"))
+         if (verbose > 1) jamba::printDebug(1, " Combining bw coverage by sample_id.", file=stderr());# debug
       }
       st16 <- system.time({
          covGR2 <- combineGRcoverage(covGR,
@@ -1329,10 +1345,11 @@ prepareSashimi <- function
          jamba::printDebug("prepareSashimi(): ",
             "Converting coverage to polygons.");
       }
-      if (do_shiny_progress) {
+      if (is.function(do_shiny_progress)) {
          ##
-         shiny::setProgress(2.5/4,
-            detail=paste0("Converting coverage to polygons."));
+         do_shiny_progress(amount=1,
+            paste0("Converting coverage to polygons."))
+         if (verbose > 1) jamba::printDebug(1, " Converting coverage to polygons.", file=stderr());# debug
       }
       st8 <- system.time({
          covDF <- exoncov2polygon(covGR2,
@@ -1416,10 +1433,11 @@ prepareSashimi <- function
          jamba::printDebug("prepareSashimi(): ",
             "Preparing junctions from juncGR");
       }
-      if (do_shiny_progress) {
+      if (is.function(do_shiny_progress)) {
          ##
-         shiny::incProgress(3/4,
-            detail=paste0("Preparing GR junction data for ", gene));
+         do_shiny_progress(amount=1,
+            paste0("Preparing GR junction data for ", gene))
+         if (verbose > 1) jamba::printDebug(1, " Preparing GR junction data for ", gene, file=stderr());# debug
       }
       juncGRuse <- juncGR[GenomicRanges::values(juncGR)[["sample_id"]] %in% sample_id];
       if (length(juncGRuse) == 0) {
@@ -1492,9 +1510,10 @@ prepareSashimi <- function
          import_juncs_m <- memoise::memoise(import_juncs_from_bed,
             cache=memoise::cache_filesystem(memoise_junction_path));
       }
-      if (do_shiny_progress) {
-         shiny::incProgress(3/4,
-            detail=paste0("Importing junctions for ", gene));
+      if (is.function(do_shiny_progress)) {
+         do_shiny_progress(amount=1,
+            paste0("Importing junctions for ", gene))
+         if (verbose > 1) jamba::printDebug(1, " Importing junctions for ", gene, file=stderr());# debug
       }
       if (verbose) jamba::printDebug("prepareSashimi(): ", "Importing junctions for ", gene);
       st10 <- system.time({
@@ -1502,15 +1521,17 @@ prepareSashimi <- function
             iBed <- juncUrls[[iBedName]];
             iBedNum <- match(iBedName, jamba::makeNames(names(juncUrls)));
             iBedPct <- (iBedNum - 1) / length(juncUrls);
-            if (do_shiny_progress) {
+            stepPct <- 1 / length(juncUrls);
+            if (is.function(do_shiny_progress)) {
                if (!is.na(iBedPct)) {
-                  shiny::setProgress(
-                     value=3/4 + iBedPct/6,
-                     detail=paste0("Importing junctions (",
-                        iBedNum,
-                        " of ",
-                        length(juncUrls),
-                        ") for ", gene));
+                  msg <- paste0("Importing junctions (",
+                     iBedNum,
+                     " of ",
+                     length(juncUrls),
+                     ") for ", gene);
+                  do_shiny_progress(amount=stepPct,
+                     msg)
+                  if (verbose > 1) jamba::printDebug(stepPct, " ", msg, file=stderr());# debug
                }
             }
             if (verbose > 1) {
@@ -1579,9 +1600,10 @@ prepareSashimi <- function
                "running spliceGR2junctionDF for juncBedGR()");
          }
          if (verbose) jamba::printDebug("prepareSashimi(): ", "Combining junction data for ", gene);
-         if (do_shiny_progress) {
-            shiny::setProgress(3.7/4,
-               detail=paste0("Combining junction data for ", gene));
+         if (is.function(do_shiny_progress)) {
+            do_shiny_progress(amount=1,
+               paste0("Combining junction data for ", gene))
+            if (verbose > 1) jamba::printDebug(1, " Combining junction data for ", gene, file=stderr());# debug
          }
          st11 <- system.time({
             juncDF1f <- spliceGR2junctionDF(spliceGRgene=juncBedGR,
@@ -1637,9 +1659,10 @@ prepareSashimi <- function
          jamba::printDebug("prepareSashimi(): ",
             "Calculating junction stacking for ", gene);
       }
-      if (do_shiny_progress) {
-         shiny::setProgress(3.8/4,
-            detail=paste0("Calculating junction stacking for ", gene));
+      if (is.function(do_shiny_progress)) {
+         do_shiny_progress(amount=1,
+            paste0("Calculating junction stacking for ", gene))
+         if (verbose > 1) jamba::printDebug(1, " Calculating junction stacking for ", gene, file=stderr());# debug
       }
       ## Convert junctions to polygons usable by geom_diagonal_wide()
       st12 <- system.time({
@@ -1683,10 +1706,11 @@ prepareSashimi <- function
       ## define junction label positions
       if (verbose) jamba::printDebug("prepareSashimi(): ", "Preparing junction label coordinates.");
       #juncLabelDF1 <- subset(mutate(juncCoordDF, id_name=jamba::makeNames(id)), grepl("_v1_v3$", id_name));
-      if (do_shiny_progress) {
+      if (is.function(do_shiny_progress)) {
          ##
-         shiny::setProgress(3.9/4,
-            detail=paste0("Preparing junction label coordinates for ", gene));
+         do_shiny_progress(amount=1,
+            paste0("Preparing junction label coordinates for ", gene))
+         if (verbose > 1) jamba::printDebug(1, " Preparing junction label coordinates for ", gene, file=stderr());# debug
       }
       st13 <- system.time({
          juncLabelDF1 <- subset(
@@ -1727,10 +1751,11 @@ prepareSashimi <- function
       juncDF <- NULL;
       juncLabelDF <- NULL;
    }
-   if (do_shiny_progress) {
+   if (is.function(do_shiny_progress)) {
       ##
-      shiny::setProgress(4/4,
-         detail=paste0("Sashimi data is ready for ", gene));
+      do_shiny_progress(amount=1,
+         paste0("Sashimi data are ready for ", gene))
+      if (verbose > 1) jamba::printDebug(1, " Sashimi data are ready for for ", gene, file=stderr());# debug
    }
 
    ## Merge data.frame entries together
@@ -1850,7 +1875,7 @@ prepareSashimi <- function
             levels=unique(sample_id))
          cjDF <- jamba::mixedSortDF(cjDF,
             byCols=c("sample_id", "type", "row"));
-        jamba::printDebug("table(cjDF[, c('sample_id', 'type')]):");print(table(cjDF[, c('sample_id', 'type')]));# debug
+         # jamba::printDebug("table(cjDF[, c('sample_id', 'type')]):");print(table(cjDF[, c('sample_id', 'type')]));# debug
       })
       if (verbose) jamba::printDebug("", "elapsed ", indent=19, asSeconds(st14["elapsed"]));
    }

@@ -1,5 +1,23 @@
 # TODO for splicejam
 
+## 14jul2026
+
+* Enhance plotly output from `splicejamFigure()`
+
+   * Enable highlighting, synchronize panels by 'feature'.
+   Previously called `plotly::highlight_key()` which
+   is actually `crosstalk::SharedData$new()` and which
+   alters the data from `data.frame` to R6 object.
+   Then `plotly::highlight()`. It fails via downstream issue.
+   * Improve the padding at the top.
+   * Improve the hover text for each type of feature.
+   See plotly docs on how to customize ggplotly output,
+   specifically how to customize hover text after creation.
+   Junction should show the score, from-to exon label.
+   Coverage should show running coverage at that position,
+   exon name.
+   Gene model should show the feature name and type.
+
 ## 06jul2026
 
 * Update 'README.Rmd' and vignettes with more simplified

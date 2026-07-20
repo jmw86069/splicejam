@@ -9,7 +9,10 @@
 #'
 #' This function contains the UI for the R-shiny
 #' Splicejam Sashimi viewer.
-#'
+#' 
+#' See `launchSashimiApp()` 'Custom Parameters' for options
+#' whose default values can be adjusted upfront.
+#' 
 #' The R-shiny app is started by `launchSashimiApp()`, which
 #' calls `shiny::shinyApp()`, using arguments `server`, `ui`,
 #' `onStart`, and `options`. This function fulfills the
@@ -89,10 +92,7 @@ sashimiAppUI <- function
       return(x);
    }
 
-   min_junction_reads <- jam_get("min_junction_reads",
-      100,
-      verbose=TRUE,
-      ...);
+   
    if (length(flatExonsByGene) == 0) {
       stop("flatExonsByGene is required.");
       # exon_range_choices_default <- jamba::mixedSort(
@@ -111,7 +111,7 @@ sashimiAppUI <- function
          nchar(default_gene) > 0) {
       exon_range_choices_default <- GenomicRanges::values(
          flatExonsByGene[[default_gene]])$gene_nameExon;
-      gene <- default_gene;
+      gene <- get("default_gene")
    }
    if (exists("gene")) {
       gene_coords_default <- range(as.data.frame(range(
@@ -136,14 +136,40 @@ sashimiAppUI <- function
    #cat(jamba::cPaste(c("exon_range_choices:", exon_range_choices), sep="\n"),
    #   file="debug_output.txt");
 
+   # Define some potentially user-custom variables
+   min_junction_reads <- jam_get("min_junction_reads",
+      100,
+      verbose=TRUE,
+      ...);
    layout_ncol <- jam_get("layout_ncol", 1, verbose=TRUE, ...);
-   # include_strand <- jam_get("include_strand", "both", verbose=TRUE, ...);
-   include_strand <- jam_get("layout_ncol", "both", verbose=TRUE, ...);
-   use_exon_names <- jam_get("use_exon_names", "coordinates", verbose=TRUE, ...);
-   share_y_axis <- jam_as_logical(jam_get("share_y_axis", TRUE, verbose=TRUE, ...));
+   include_strand <- jam_get("include_strand",
+      "both", verbose=TRUE, ...);
+
+   use_exon_names <- jam_get("use_exon_names",
+      "exon names", verbose=TRUE, ...);
    if (!any(c("coordinates", "exon names") %in% use_exon_names)) {
       use_exon_names <- "coordinates";
    }
+
+   gene_panel_height <- jam_get("gene_panel_height", 400, verbose=TRUE, ...)
+   panel_height <- jam_get("panel_height", 200, verbose=TRUE, ...)
+
+   font_sizing <- jam_get("font_sizing", "Default", verbose=TRUE, ...)
+   exon_font_sizing <- jam_get("exon_font_sizing", "Default", verbose=TRUE, ...)
+   junction_arc_factor <- jam_get("junction_arc_factor",
+      "Default", verbose=TRUE, ...)
+   junction_arc_minimum <- jam_get("junction_arc_minimum",
+      500, verbose=TRUE, ...)
+
+   junction_alpha <- jam_get("junction_alpha", 0.7, verbose=TRUE, ...);
+   if (!is.numeric(junction_alpha)) {
+      junction_alpha <- jamba::rmNA(naValue=0.7,
+         as.numeric(head(junction_alpha, 1)));
+   }
+
+   share_y_axis <- jam_as_logical(
+      jam_get("share_y_axis", FALSE, verbose=TRUE, ...));
+
    show_gene_model <- jam_as_logical(
       jam_get("show_gene_model", TRUE, verbose=TRUE, ...));
    show_tx_model <- jam_as_logical(
@@ -153,7 +179,9 @@ sashimiAppUI <- function
    }
    show_detected_tx <- jam_as_logical(
       jam_get("show_detected_tx", TRUE, verbose=TRUE, ...));
-
+   use_label_junctions <- jam_as_logical(
+      jam_get("label_junctions", TRUE, verbose=TRUE, ...));
+   
    # sidebar
    sidebar <- shinydashboardPlus::dashboardSidebar(
       shinydashboard::sidebarMenu(
@@ -344,13 +372,26 @@ sashimiAppUI <- function
                # glyphicon glyphicon-cog
                sidebar=shinydashboardPlus::boxSidebar(
                   id="sashimi_sidebar",
-                  width=25,
+                  width=30,
                   startOpen=FALSE,
                   #background="#FFE5C8",
                   background="#AAAAAA",
                   icon=shiny::icon("gear"),
                   htmltools::tagList(
                      htmltools::tags$b("Plot Style:"),
+                     shinyWidgets::prettyCheckbox(
+                        inputId="share_y_axis",
+                        value=share_y_axis,
+                        icon=shiny::icon("check"),
+                        status="success",
+                        label="Shared y-axis range"
+                     ),
+                     shinyWidgets::prettyCheckbox(
+                        inputId="label_junctions",
+                        value=use_label_junctions,
+                        icon=shiny::icon("check"),
+                        status="primary",
+                        label="Label junction counts?"),
                      shinyWidgets::prettyCheckbox(
                         inputId="do_plotly",
                         value=FALSE,
@@ -379,17 +420,11 @@ sashimiAppUI <- function
                            status="primary",
                            label="Display filter legend")
                      ),
-                     shinyWidgets::prettyCheckbox(
-                        inputId="label_junctions",
-                        value=FALSE,
-                        icon=shiny::icon("check"),
-                        status="primary",
-                        label="Label junction counts?"),
                      shinyWidgets::sliderTextInput(
                         inputId="panel_height",
                         label="Height per panel:",
                         choices=c(50,75,100,150,200,250,300,400,500),
-                        selected=200,
+                        selected=panel_height,
                         grid=TRUE
                      ),
                      shinyWidgets::sliderTextInput(
@@ -404,7 +439,7 @@ sashimiAppUI <- function
                            "+2 larger",
                            "+3 larger",
                            "+4 larger"),
-                        selected="Default",
+                        selected=font_sizing,
                         grid=TRUE
                      ),
                      shiny::sliderInput(
@@ -413,7 +448,7 @@ sashimiAppUI <- function
                         min=0.1,
                         max=1.0,
                         step=0.1,
-                        value=0.7
+                        value=junction_alpha
                      ),
                      shinyWidgets::sliderTextInput(
                         inputId="junction_arc_factor",
@@ -425,7 +460,7 @@ sashimiAppUI <- function
                            "+1 higher",
                            "+2 higher",
                            "+3 higher"),
-                        selected="Default",
+                        selected=junction_arc_factor,
                         grid=TRUE
                      ),
                      shinyWidgets::sliderTextInput(
@@ -436,19 +471,12 @@ sashimiAppUI <- function
                            "100",
                            "500",
                            "1000",
+                           "5000",
                            "10000"),
-                        selected="100",
+                        selected=as.character(junction_arc_minimum),
                         grid=TRUE
                      ),
-                     htmltools::tags$b("Axis Settings:"),
-                     shinyWidgets::prettyCheckbox(
-                        inputId="share_y_axis",
-                        value=share_y_axis,
-                        icon=shiny::icon("check"),
-                        status="success",
-                        label="Shared y-axis range"
-                     ),
-                     htmltools::tags$b("Exon Models:"),
+                     htmltools::tags$b("Gene-Exon Model:"),
                      shinyWidgets::prettyCheckbox(
                         inputId="show_gene_model",
                         value=show_gene_model,
@@ -484,7 +512,7 @@ sashimiAppUI <- function
                            inputId="gene_panel_height",
                            label="Height of gene panel:",
                            choices=c(50,75,100,150,200,250,300,400,500) * 2,
-                           selected=400,
+                           selected=gene_panel_height,
                            grid=TRUE
                         )
                      ),
@@ -503,7 +531,7 @@ sashimiAppUI <- function
                               "+2 larger",
                               "+3 larger",
                               "+4 larger"),
-                           selected="Default",
+                           selected=exon_font_sizing,
                            grid=TRUE
                         )
                      )

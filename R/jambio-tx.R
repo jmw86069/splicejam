@@ -3416,7 +3416,7 @@ runDiffSplice <- function
 
    ########################################################
    ## Define ExpressionSet
-   iMatrixTxES <- ExpressionSet(
+   iMatrixTxES <- Biobase::ExpressionSet(
       assayData=2^iMatrixTx[detectedTxUse,,drop=FALSE]-1,
       featureData=new("AnnotatedDataFrame",
          data=data.frame(

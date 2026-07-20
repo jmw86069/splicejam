@@ -36,7 +36,7 @@ prepareSashimi(
   use_memoise = FALSE,
   memoise_coverage_path = "coverage_memoise",
   memoise_junction_path = "junctions_memoise",
-  do_shiny_progress = FALSE,
+  do_shiny_progress = NULL,
   verbose = FALSE,
   ...
 )
@@ -238,13 +238,17 @@ otherwise. In general, TRUE would be a valid default option.}
 string with default folder path to store memoise cache files,
 used with \code{use_memoise=TRUE}.}
 
-\item{do_shiny_progress}{\code{logical} default FALSE, whether to send
-progress updates to a running shiny app using the
-\code{shiny::withProgress()} and \code{shiny::setProgress()} methods.
-This function calls \code{shiny::setProgress()} and
-assumes that \code{shiny::withProgress()} has already been
-initialized. It also does not close the progress, instead
-pushes that responsibility to the calling function.}
+\item{do_shiny_progress}{default NULL uses
+\code{getOption("splicejam.progress", FALSE)} which can be FALSE
+to show no progress, or a \code{function} which updates an existing
+progress bar, for example the output of \code{progressr::progressor()}
+is such a function.
+\itemize{
+\item The default is NULL to avoid having this argument be conditional
+when also wrapping \code{prepareSashimi()} as a memoise cached
+function. This argument remains NULL with or without enabling
+a progress bar, by setting the option to control the value.
+}}
 
 \item{verbose}{\code{logical} whether to print verbose output.}
 

@@ -5,10 +5,10 @@
 #'
 #' This function performs a subset of steps performed by
 #' `sashimiAppConstants()`, focusing only on data required
-#' for gene-exon structure. The `sashimiAppConstants()` defines
-#' `color_sub` and validates `filesDF`, then calls this function
-#' `sashimiDataConstants()` to prepare and validate the gene-exon
-#' data.
+#' for gene-exon structure.
+#' 
+#' The `sashimiAppConstants()` defines other Shiny-specific sections,
+#' specifically the 'aboutExtra' and other guides text.
 #'
 #' Data derived by this function `sashimiDataConstants()`:
 #'
@@ -52,18 +52,46 @@
 #'    `exonsByTx`, `cdsByTx`, `detectedTx`, and `tx2geneDF`. This step is
 #'    the key step for using a subset of detected transcripts, in order
 #'    to produce a clean transcript-exon model.
-#'
+#' * **filesDF**: `data.frame` with recognized columns:
+#'    * 'sample_id': `character` name of the sample or sample group,
+#'    where multiple files for the same sample or sample group all
+#'    use the same `character` string.
+#'    * 'url': `character` with URL or URI link to file or web
+#'    resource relevant to each data type.
+#'    * 'type': `character` with type of data, recognizing:
+#'       * 'bw': bigwig coverage file
+#'       * 'junction': BED or bigBed file, ideally formatted as
+#'       BED12 format. Scores higher than 1000 in bigBed are
+#'       recognized in the 'name' column when the 'name' is entirely
+#'       numeric value.
+#'       * 'coverage_gr': `character` name of coverage values supplied
+#'       in an object `covGR` whose `values()` contain columns of
+#'       `NumericList` coverages.
+#'    * 'scale_factor': optional `numeric` column used as a scalar
+#'    and is multiplied by the `numeric` values associated with
+#'    each file. For example, it can be very useful to apply
+#'    normalization for raw coverage values, or raw junction counts.
+#' 
 #' When `use_memoise=TRUE` several R objects are cached using
 #' `memoise::memoise()`, to help re-use of prepared R objects,
 #' and to help speed the re-use of data within the R-shiny app:
 #'
 #' @family splicejam R-shiny functions
 #'
-#' @return `environment` that contains the required data objects
+#' @returns `environment` that contains the required data objects
 #'    for splicejam sashimi plots. Note that the environment itself
 #'    is updated during processing, so the environment does not
 #'    need to be returned for the data contained inside it to
 #'    be updated by this function.
+#'    * filesDF (if provided)
+#'    * flatExonsByGene, flatExonsByTx
+#'    * gtf (if relevant)
+#'    * detectedGenes, detectedTx
+#'    * tx2geneDF
+#'    * default_gene (if relevant)
+#'    * color_sub (if provided)
+#'    * cdsByTx, exonsByTx
+#'    * txdb (if relevant)
 #'
 #' @param gtf,txdb,tx2geneDF,exonsByTx,cdsByTx objects used to define
 #'    the overall set of genes, transcripts, and associated exons and
@@ -97,6 +125,26 @@
 #'    ranges. When not provided, they are derived from `exonsByTx`
 #'    and `cdsByTx`, which also requires `tx2geneDF` and either
 #'    `gtf` or `txdb`.
+#' @param filesDF `data.frame`, default NULL. This argument is optional,
+#'    and when supplied it will be included in the output environment.
+#'    The `data.frame` must contain colnames:
+#'    * 'sample_id': `character` name of the sample or sample group,
+#'    where multiple files for the same sample or sample group all
+#'    use the same `character` string.
+#'    * 'url': `character` with URL or URI link to file or web
+#'    resource relevant to each data type.
+#'    * 'type': `character` with type of data, recognizing:
+#'       * 'bw': bigwig coverage file
+#'       * 'junction': BED or bigBed file, ideally formatted as
+#'       BED12 format. Scores higher than 1000 in bigBed are
+#'       recognized in the 'name' column when the 'name' is entirely
+#'       numeric value.
+#'       * 'coverage_gr': `character` name of coverage values supplied
+#'       in an object `covGR` whose `values()` contain columns of
+#'       `NumericList` coverages.
+#' @param color_sub `character` vector of colors, whose names match
+#'    'sample_id' in `filesDF` when supplied.
+#'    This argument is optional.
 #' @param default_gene `character` string indicating the default
 #'    gene to use for the initial R-shiny figure.
 #' @param envir `environment` where data will be prepared, or when
@@ -127,6 +175,8 @@ sashimiDataConstants <- function
  detectedGenes=NULL,
  flatExonsByGene=NULL,
  flatExonsByTx=NULL,
+ filesDF=NULL,
+ color_sub=NULL,
  envir=NULL,
  empty_uses_farrisdata=TRUE,
  use_memoise=TRUE,
@@ -173,6 +223,15 @@ sashimiDataConstants <- function
    }
    rm(list=params);
    verbose <- envir$verbose;
+
+
+   # if filesDF is provided, check proper colnames
+   if (inherits(envir$filesDF, "data.frame") &&
+      nrow(envir$filesDF) > 0) {
+      if (!all(c("sample_id", "url", "type") %in% colnames(envir$filesDF))) {
+         stop("filesDF must contain colnames: 'sample_id', 'url', 'type'");
+      }
+   }
 
 
    # Logic flow:

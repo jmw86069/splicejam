@@ -53,13 +53,13 @@ list2im <- function
       x <- lapply(x, unique);
    }
    if (verbose) {
-      printDebug("list2im(): ",
+      jamba::printDebug("list2im(): ",
          "Converting to '", "transactions", "' object.");
    }
    xT <- as(x, "transactions");
 
    if (verbose) {
-      printDebug("list2im(): ",
+      jamba::printDebug("list2im(): ",
          "Converting to '", "matrix", "' object.");
    }
    xM <- as.matrix(xT@data*1);
@@ -67,7 +67,7 @@ list2im <- function
    rownames(xM) <- xT@itemInfo[,1];
    if (!makeUnique && any(unlist(xCt) > 1)) {
       if (verbose) {
-         printDebug("list2im(): ",
+         jamba::printDebug("list2im(): ",
             "Applying item counts to the incidence matrix for ",
             format(big.mark=",", length(xCt)), " items.");
       }

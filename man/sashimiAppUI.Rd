@@ -16,6 +16,9 @@ Sashimi Shiny app UI
 This function contains the UI for the R-shiny
 Splicejam Sashimi viewer.
 
+See \code{launchSashimiApp()} 'Custom Parameters' for options
+whose default values can be adjusted upfront.
+
 The R-shiny app is started by \code{launchSashimiApp()}, which
 calls \code{shiny::shinyApp()}, using arguments \code{server}, \code{ui},
 \code{onStart}, and \code{options}. This function fulfills the

@@ -14,6 +14,8 @@ sashimiDataConstants(
   detectedGenes = NULL,
   flatExonsByGene = NULL,
   flatExonsByTx = NULL,
+  filesDF = NULL,
+  color_sub = NULL,
   envir = NULL,
   empty_uses_farrisdata = TRUE,
   use_memoise = TRUE,
@@ -59,6 +61,32 @@ and \code{cdsByTx}, which also requires \code{tx2geneDF} and either
 \code{gtf} or \code{txdb}.
 }}
 
+\item{filesDF}{\code{data.frame}, default NULL. This argument is optional,
+and when supplied it will be included in the output environment.
+The \code{data.frame} must contain colnames:
+\itemize{
+\item 'sample_id': \code{character} name of the sample or sample group,
+where multiple files for the same sample or sample group all
+use the same \code{character} string.
+\item 'url': \code{character} with URL or URI link to file or web
+resource relevant to each data type.
+\item 'type': \code{character} with type of data, recognizing:
+\itemize{
+\item 'bw': bigwig coverage file
+\item 'junction': BED or bigBed file, ideally formatted as
+BED12 format. Scores higher than 1000 in bigBed are
+recognized in the 'name' column when the 'name' is entirely
+numeric value.
+\item 'coverage_gr': \code{character} name of coverage values supplied
+in an object \code{covGR} whose \code{values()} contain columns of
+\code{NumericList} coverages.
+}
+}}
+
+\item{color_sub}{\code{character} vector of colors, whose names match
+'sample_id' in \code{filesDF} when supplied.
+This argument is optional.}
+
 \item{envir}{\code{environment} where data will be prepared, or when
 \code{envir=NULL} a new environment will be created and returned.}
 
@@ -87,6 +115,17 @@ for splicejam sashimi plots. Note that the environment itself
 is updated during processing, so the environment does not
 need to be returned for the data contained inside it to
 be updated by this function.
+\itemize{
+\item filesDF (if provided)
+\item flatExonsByGene, flatExonsByTx
+\item gtf (if relevant)
+\item detectedGenes, detectedTx
+\item tx2geneDF
+\item default_gene (if relevant)
+\item color_sub (if provided)
+\item cdsByTx, exonsByTx
+\item txdb (if relevant)
+}
 }
 \description{
 Prepare sashimi plot required data, deriving data objects as needed
@@ -94,10 +133,10 @@ Prepare sashimi plot required data, deriving data objects as needed
 \details{
 This function performs a subset of steps performed by
 \code{sashimiAppConstants()}, focusing only on data required
-for gene-exon structure. The \code{sashimiAppConstants()} defines
-\code{color_sub} and validates \code{filesDF}, then calls this function
-\code{sashimiDataConstants()} to prepare and validate the gene-exon
-data.
+for gene-exon structure.
+
+The \code{sashimiAppConstants()} defines other Shiny-specific sections,
+specifically the 'aboutExtra' and other guides text.
 
 Data derived by this function \code{sashimiDataConstants()}:
 \itemize{
@@ -141,6 +180,29 @@ supplied, it is derived using \code{flattenExonsBy()} and objects
 \code{exonsByTx}, \code{cdsByTx}, \code{detectedTx}, and \code{tx2geneDF}. This step is
 the key step for using a subset of detected transcripts, in order
 to produce a clean transcript-exon model.
+\item \strong{filesDF}: \code{data.frame} with recognized columns:
+\itemize{
+\item 'sample_id': \code{character} name of the sample or sample group,
+where multiple files for the same sample or sample group all
+use the same \code{character} string.
+\item 'url': \code{character} with URL or URI link to file or web
+resource relevant to each data type.
+\item 'type': \code{character} with type of data, recognizing:
+\itemize{
+\item 'bw': bigwig coverage file
+\item 'junction': BED or bigBed file, ideally formatted as
+BED12 format. Scores higher than 1000 in bigBed are
+recognized in the 'name' column when the 'name' is entirely
+numeric value.
+\item 'coverage_gr': \code{character} name of coverage values supplied
+in an object \code{covGR} whose \code{values()} contain columns of
+\code{NumericList} coverages.
+}
+\item 'scale_factor': optional \code{numeric} column used as a scalar
+and is multiplied by the \code{numeric} values associated with
+each file. For example, it can be very useful to apply
+normalization for raw coverage values, or raw junction counts.
+}
 }
 
 When \code{use_memoise=TRUE} several R objects are cached using

@@ -277,7 +277,7 @@ bgaPlotly3d <- function
       }
       ## re-calculate sample centroids and update bgaInfo
       if (verbose) {
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "Re-calculating sample centroids using sampleGroups:");
          print(sampleGroups);
       }
@@ -293,10 +293,10 @@ bgaPlotly3d <- function
       groupcoords_scaled <- groupcoords_unscaled * scale_factor;
       rownames(groupcoords_scaled) <- rownames(groupcoords_unscaled);
       if (verbose) {
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "groupcoords_unscaled:");
          print(groupcoords_unscaled);
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "groupcoords_scaled:");
          print(groupcoords_scaled);
       }
@@ -388,10 +388,10 @@ bgaPlotly3d <- function
          groupcoords_unscaled[as.character(sampleGroups),names(axesVsc)]);
    }
    if (verbose) {
-      printDebug("bgaPlotly3d(): ",
+      jamba::printDebug("bgaPlotly3d(): ",
          "head(dfSamplesDF):");
       print(head(dfSamplesDF, 12));
-      printDebug("bgaPlotly3d(): ",
+      jamba::printDebug("bgaPlotly3d(): ",
          "head(samplecoords_unscaled):");
       print(head(samplecoords_unscaled, 12));
    }
@@ -536,7 +536,7 @@ bgaPlotly3d <- function
          print(table(is.na(geneMatch)));
          dfVgLDF[,"groupName"] <- geneLabels[dfVgLDF$Name];
          dfVgLDF[,"Name"] <- dfVgLDF[,"groupName"];
-         printDebug("head(dfVgLDF):");
+         jamba::printDebug("head(dfVgLDF):");
          print(head(dfVgLDF, 20));
       }
       dfVgLDF$Symbol <- rep(c("circle","circle-open","x"), nrow(dfVgDF));
@@ -741,7 +741,7 @@ bgaPlotly3d <- function
             iGroupSamples);
          iGroupColor <- head(iGroupColor1, 1);
          if (verbose) {
-            printDebug("   bgaPlotly3d(): ",
+            jamba::printDebug("   bgaPlotly3d(): ",
                "hull name:",
                paste0(iGroup,
                   " group hull (", closestRcolor(iGroupColor), ")"));
@@ -790,7 +790,7 @@ bgaPlotly3d <- function
    ## superGroups
    if (length(superGroups) > 0) {
       if (verbose) {
-         printDebug("bgaPlotly3d(): ",
+         jamba::printDebug("bgaPlotly3d(): ",
             "Processing supergroups.");
       }
       if (length(names(superGroups)) == 0 &&
@@ -812,7 +812,7 @@ bgaPlotly3d <- function
          superGroupDF <- unique(superGroupsDF);
          superGroupDF <- jamba::mixedSortDF(superGroupDF);
          if (verbose) {
-            printDebug("bgaPlotly3d(): ",
+            jamba::printDebug("bgaPlotly3d(): ",
                "head(superGroupDF, 30):");
             print(head(superGroupDF, 30));
          }
@@ -822,7 +822,7 @@ bgaPlotly3d <- function
             }
             iSuperGroup <- iDF[1,"superGroups"];
             if (verbose) {
-               printDebug("   bgaPlotly3d(): ",
+               jamba::printDebug("   bgaPlotly3d(): ",
                   "head(iDF, 30):");
                print(head(iDF, 30));
             }
@@ -860,7 +860,7 @@ bgaPlotly3d <- function
          }
       } else {
          if (verbose) {
-            printDebug("bgaPlotly3d(): ",
+            jamba::printDebug("bgaPlotly3d(): ",
                "names(superGroups) were not all present in names(bgaInfo$fac).");
          }
       }
@@ -1067,7 +1067,7 @@ spline3d <- function
       spline(coordsT1[,"t"], u, xout=ts)$y;
    });
    if (verbose) {
-      printDebug("spline3d(): ",
+      jamba::printDebug("spline3d(): ",
          "head(d2, 20):")
       print(head(d2, 20));
    }

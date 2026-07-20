@@ -46,102 +46,92 @@ Launch Sashimi R-shiny application
 This function launches the Sashimi visualization
 R-shiny app.
 
-The R objects required to prepare sashimi plots are
-defined by the function \code{sashimiAppConstants()}, which
-documents each R object required and how it is used.
+The key input data should be supplied through argument
+\code{envir} which should be prepared using
+\code{sashimiDataConstants()}. It will prepare all the
+necessary data to use.
+\subsection{Custom Parameters}{
 
-In general, if you have any of \code{txdb}, \code{tx2geneDF}, \code{filesDF},
-\code{gtf} (optional) defined, this function will populate the
-other objects for you as needed. It looks into the \code{parent.frame()}
-which is the environment calling \code{launchSashimiApp()},
-unless you provide specific environment \code{envir}.
-
-It will also populate the new objects inside this environment,
-unless you pass \code{assign_global=FALSE}.
-
-The \code{sashimiAppConstants()} function returns an \code{environment}
-in which the required sashimi plot data is stored and
-used by the R-shiny app. The default environment is \code{globalenv()}
-however any custom environment can be used, for example
-with \code{myenv <- new.env()}.
-
-The most straightforward way to run a new Sashimi R-shiny
-app is to define: \code{filesDF} and \code{gtf};
-or: \code{filesDF}, \code{txdb}, \code{tx2geneDF}.
-You may define them in the current environment,
-or in a custom environment
-and pass the environment using argument \code{envir}.
-
-When providing \code{gtf} it will create \code{txdb} and \code{tx2geneDF}
-as needed. If providing \code{txdb} and \code{tx2geneDF} it will use
-that data asis. It caches the necessary intermediate files
-when \code{use_memoise=TRUE} (default) so the time spent is
-usually first-time cost only.
-
-If no data are defined, the default \code{empty_uses_farrisdata=TRUE}
-will cause the app to use Farris et al 2019 data.
-\subsection{Running in shiny-server}{
-
-Create a file \code{app.R} and include lines which define the
-data above (gtf, filesDF; or txdb, tx2geneDF, filesDF)
-then call \code{launchSashimiApp()} at the end.
-
-If no data are defined, the default \code{empty_uses_farrisdata=TRUE}
-will cause the app to use Farris et al 2019 data
-together with the \code{farrisdata} R package, and will run the
-Shiny App using that data.
-}
-
-\subsection{Data Preparation}{
-
-The data derived from the GTF file is listed below. Any data object
-that already exists in the \code{environment} is used in subsequent steps:
+The environment \code{envir} may have additional visual
+customizations, which recognize the following names:
 \itemize{
-\item \code{txdb} - TranscriptDb from which \code{exonsByGene} and \code{exonsByTx}
-are derived.
-\item \code{tx2geneDF} - \code{data.frame} with transcript-to-gene relationship,
-with colnames \code{"gene_name"} and \code{"transcript_id"}. See
-\code{makeTx2geneFromGtf()} for details.
-\item \code{detectedTx} - \code{character} vector of detected transcripts, used
-to match \code{tx2geneDF$transcript_id}. When \code{detectedTx} is NULL,
-all entries in \code{tx2geneDF} are used. Note that we found it is
-\emph{much better to use only a subset of detected transcripts},
-mainly because many GTF sources include a large number of potential
-alternative isoforms, many of which have no supported evidence in
-any one given cell type. See \code{defineDetectedTx()} for one method
-to define detected transcripts.
-\item \code{detectedGenes} - \code{character} vector of genes that match
-\code{tx2geneDF$gene_name}. When \code{detectedGenes} is NULL, it is
-inferred using \code{detectedTx} and \code{tx2geneDF$transcript_id}.
-\item \code{exonsByTx}, \code{cdsByTx} - derived from \code{txdb} and annotated to include
-values from \code{tx2geneDF$gene_name}.
-\item \code{flatExonsByGene}, \code{flatExonsByTx} - \code{GRangesList} objects derived
-from \code{exonsByGene} and \code{exonsByTx}, using \code{detectedTx}.
-They also use \code{cdsByTx} to indicate coding regions (CDS) of exons.
+\item 'panel_height', default \code{200} pixels
+\item 'gene_panel_height', default \code{400} pixels
+\item 'layout_ncol', default 1
+\item 'min_junction_reads', default \code{100}
+\item 'share_y_axis', default \code{FALSE}
+\item 'gene_coords_default', default NULL
+\item 'label_junctions', default \code{TRUE}
+\item 'show_gene_model', default \code{TRUE}
+\item 'show_tx_model', default \code{TRUE}
+\item 'show_detected_tx', default \code{TRUE}
+\item 'font_sizing', default "Default", note it must match available
+choices in the UI: "-4 smaller" to "+4 larger".
+\item 'exon_font_sizing', default "Default", see comment for
+'font-sizing', the same applies.
+\item 'junction_alpha', default \code{0.7} for 70\% opacity
+\item 'junction_arc_factor', default "Default", note it must match
+available choices in the UI: "-2 flat" to "+3 higher".
+\item 'junction_arc_minimum', default \code{500}
+\item 'aboutExtra', default is html tag data suitable to render
+in an HTML section of the R-shiny web page. This entry
+is useful to describe the data or experiment underlying
+the Splicejam visualizations shown.
 }
 
-Note that if \code{detectedTx} is not defined, it will use all transcripts
-at this stage, which can be substantially slower than using only
-the subset of "observed/detected" transcripts.
+The environment is prepared by calling \code{sashimiAppConstants()}
+which also defines \code{aboutExtra} and other UI elements.
+It calls \code{sashimiDataConstants()} which will verify the
+environment is usable.
+}
 
-An alternative is to supply one \code{detectedGenes} gene value, which will prepare
-only one gene for \code{flatExonsByGene} in the R-shiny app. However, the
-R-shiny app has the option to search all non-detected genes, which
-are prepared one by one inside the R-shiny app. This process is slightly
-slower when using the app by a few seconds, and will use all transcripts
-for \code{detectedTx}.
+\subsection{Running within shiny-server}{
 
-The \code{filesDF} object should be a \code{data.frame} with at least three colnames:
+Create a file \code{'app.R'} and include lines which create
+the environment, for example:
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{# Prepare data
+sjenv <- sashimiDataConstants(gtf=gtf, filesDF=filesDF)
+
+# Add any customizations
+sjenv$default_gene <- "Gria1";
+sjenv$panel_height <- 100;
+sjenv$gene_panel_height <- 200;
+
+# Launch the app
+launchSashimiApp()
+}\if{html}{\out{</div>}}
+
+This file should be suitable to run the shiny server.
+
+Note that the default will load Farris et al data into the
+environment, controlled by \code{empty_uses_farrisdata=TRUE}.
+}
+
+\subsection{Other data notes}{
+
+The \code{filesDF} object should be a \code{data.frame} with
+at least three colnames:
 \itemize{
 \item \code{"sample_id"}
 \item \code{"type"} (with values either \code{"bw"} or \code{"junction"})
 \item \code{"url"} (a URL or file path to each file.)
 }
 
-If coverage or junctions are available in multiple files, for example
-sequencing replicates, use the same \code{sample_id} for each file, and
-the coverage and junctions will be combined using the sum, after
-multiplying an optional \code{"scale_factor"} to each file.
+In addition, it recognizes \code{"scale_factor"} with \code{numeric}
+values used to scale (by multiplication) the corresponding
+scores.
+
+If coverage or junctions are available in multiple files for
+the same \code{'sample_id'}, for example when using
+replicates, use the same \code{sample_id} for each file, and
+the coverage and junctions will be combined by taking the sum.
+The optional \code{"scale_factor"} is applied to each file first,
+which permits adjusting the files upfront.
+
+The reason for using the sum is that the Splicejam visualization
+is intended to show the evidence supporting particular exons
+and junctions, and this evidence is built up across replicates.
 
 For more direct control over the data preparation, including
 \code{tx2geneDF}, \code{detectedTx}, \code{exonsByGene}, and \code{flatExonsByGene},

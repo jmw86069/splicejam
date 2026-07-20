@@ -117,6 +117,16 @@ getGRcoverageFromBw <- function
       }
       dev_method <- "rtracklayer";
    }
+
+   # do_shiny_progress will become either progressr function,
+   # or function that ignores its input.
+   if (length(do_shiny_progress) == 0) {
+      do_shiny_progress <- getOption("splicejam.progress", FALSE)
+   }
+   if (isFALSE(do_shiny_progress) || !is.function(do_shiny_progress)) {
+      do_shiny_progress <- function(...) invisible(NULL)
+   }
+
    if (!jamba::igrepHas("GRanges", class(gr))) {
       stop("gr must be a GRanges object.");
    }
@@ -238,6 +248,7 @@ getGRcoverageFromBw <- function
       bwUrl <- bwUrls[[iBw]];
       iBwNum <- match(iBw, names(bwUrls));
       iBwPct <- iBwNum / length(bwUrls);
+      stepPct <- 1 / length(bwUrls);
       progress_value <- 0/2 + iBwPct/2;
       progress_of <- paste0("(", iBwNum, " of ",
          length(bwUrls), ")");
@@ -251,22 +262,20 @@ getGRcoverageFromBw <- function
             jamba::printDebug("bwUrl:");
             print(bwUrl);
             # added check in case this step stalls
-            if (do_shiny_progress && !is.na(iBwPct)) {
-               shiny::setProgress(
-                  value=progress_value,
-                  detail=paste0("Checking cov cache ",
-                     progress_of));
+            if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+               do_shiny_progress(amount=0,
+                  paste0("Checking cov cache ", progress_of))
+               if (verbose > 1) jamba::printDebug(0, " Checking cov cache ", progress_of, file=stderr());# debug
             }
             cov_has_cache <- memoise::has_cache(import_or_null_m)(
                bwUrl,
                gr=gr);
             jamba::printDebug("   cov_has_cache:", cov_has_cache);
          }
-         if (do_shiny_progress && !is.na(iBwPct)) {
-            shiny::setProgress(
-               value=progress_value,
-               detail=paste0("Importing coverage ",
-                  progress_of));
+         if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+            do_shiny_progress(amount=stepPct,
+               paste0("Importing cov cache ", progress_of))
+            if (verbose > 1) jamba::printDebug(iBwPct, " Importing cov cache ", progress_of, file=stderr());# debug
          }
          cov1 <- import_or_null_m(
             bwUrl,
@@ -278,21 +287,19 @@ getGRcoverageFromBw <- function
                   "Repairing coverage cache.",
                   fgText=c("darkorange", "seagreen2"));
             }
-            if (do_shiny_progress && !is.na(iBwPct)) {
-               shiny::setProgress(
-                  value=progress_value,
-                  detail=paste0("Repairing cov cache (",
-                     progress_of));
+            if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+               do_shiny_progress(amount=0,
+                  paste0("Repairing cov cache ", progress_of))
+               if (verbose > 1) jamba::printDebug(0, " Repairing cov cache ", progress_of, file=stderr());# debug
             }
             cov_has_cache <- memoise::has_cache(import_or_null_m)(
                bwUrl,
                gr=gr);
             if (cov_has_cache) {
-               if (do_shiny_progress && !is.na(iBwPct)) {
-                  shiny::setProgress(
-                     value=progress_value,
-                     detail=paste0("Dropping cov cache (",
-                        progress_of));
+               if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+                  do_shiny_progress(amount=0,
+                     paste0("Dropping cov cache ", progress_of))
+                  if (verbose > 1) jamba::printDebug(0, " Dropping cov cache ", progress_of, file=stderr());# debug
                }
                cov1 <- tryCatch({
                   memoise::drop_cache(import_or_null_m)(
@@ -302,11 +309,10 @@ getGRcoverageFromBw <- function
                      bwUrl,
                      gr=gr);
                }, error=function(e){
-                  if (do_shiny_progress && !is.na(iBwPct)) {
-                     shiny::setProgress(
-                        value=progress_value,
-                        detail=paste0("Drop failed, loading cov (",
-                           progress_of));
+                  if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+                     do_shiny_progress(amount=0,
+                        paste0("Drop failed, loading cov ", progress_of))
+                     if (verbose > 1) jamba::printDebug(0, " Drop failed, loading cov ", progress_of, file=stderr());# debug
                   }
                   jamba::printDebug("getGRcoverageFromBw(): ",
                      c("Error calling ",
@@ -325,20 +331,18 @@ getGRcoverageFromBw <- function
                   "Failed to repair coverage cache for bwUrl: ",
                   c("'", bwUrl, "'"), sep="",
                   fgText=c("darkorange", "red"));
-               if (do_shiny_progress && !is.na(iBwPct)) {
-                  shiny::setProgress(
-                     value=progress_value,
-                     detail=paste0("Failed repair, skipping cov (",
-                        progress_of));
+               if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+                  do_shiny_progress(amount=0,
+                     paste0("Failed repair, skipping cov ", progress_of))
+                  if (verbose > 1) jamba::printDebug(0, " Failed repair, skipping cov ", progress_of, file=stderr());# debug
                }
             }
          }
       } else {
-         if (do_shiny_progress && !is.na(iBwPct)) {
-            shiny::setProgress(
-               value=progress_value,
-               detail=paste0("Importing no cache ",
-                  progress_of));
+         if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+            do_shiny_progress(amount=stepPct,
+               paste0("Importing, no cache ", progress_of))
+            if (verbose > 1) jamba::printDebug(stepPct, " Importing, no cache ", progress_of, file=stderr());# debug
          }
          cov1 <- import_or_null(bwUrl,
             gr=gr);

@@ -14,6 +14,7 @@ gene2gg(
   labelExons = TRUE,
   exonLabelAngle = 90,
   exonLabelSize = 8,
+  geneAxisAngle = 30,
   geneSymbolColname = "gene_name",
   newValues = list(feature_type = "gap", subclass = "gap", gene_nameExon = "gap"),
   gene_order = c("first", "last"),
@@ -73,6 +74,10 @@ vertical, and \code{0} is horizontal.}
 \item{exonLabelSize}{\code{numeric} value or \code{unit} object from \code{grid::unit()}.
 Numeric values are assumed to have unit \code{"pt"} which refers to
 font point size. Used to size exon labels when \code{labelExons=TRUE}.}
+
+\item{geneAxisAngle}{\code{numeric} default 30, angle in degrees
+(0 to 360) where 0 is horizontal. This angle is applied to the
+gene and transcript labels on the y-axis.}
 
 \item{newValues}{argument passed to \code{addGRLgaps()} to fill
 column values for newly created gap entries. It is useful
