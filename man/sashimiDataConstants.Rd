@@ -90,13 +90,15 @@ This argument is optional.}
 \item{envir}{\code{environment} where data will be prepared, or when
 \code{envir=NULL} a new environment will be created and returned.}
 
-\item{empty_uses_farrisdata}{\code{logical} indicating whether to
-use data from the Github R package \code{"jmw86069/farrisdata"}
+\item{empty_uses_farrisdata}{\code{logical} default TRUE, whether to
+use data from the Github R package \code{'jmw86069/farrisdata'}
 if no data is supplied to this function. This behavior is
 intended to make it easy to use farrisdata to recreate
-the Sashimi plots in that publication.}
+the Sashimi plots in that publication.
+Note: When the 'farrisdata' R package is not installed,
+this argument is automatically set to FALSE.}
 
-\item{use_memoise}{\code{logical} indicating whether to use \code{memoise}
+\item{use_memoise}{\code{logical} default TRUE, whether to use \code{memoise}
 to cache intermediate data files for exons, flattened exons,
 transcript-gene data, and so on. This mechanism reduces
 time to render sashimi plots that re-use the same gene.

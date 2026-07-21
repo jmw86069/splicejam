@@ -7,3 +7,4 @@
 ^.*_memoise$
 ^doc$
 ^Meta$
+^data-raw$

@@ -21,6 +21,19 @@
 #' * 'layout_ncol': allows multiple columns with splicejam and
 #' gene/transcript/exon model.
 #' 
+#' ## Progress Bar
+#' 
+#' To enable a progress bar when using R console:
+#' 
+#' ```R
+#' progressr::handlers(global=TRUE)
+#' ```
+#' 
+#' This command permits the progress bar to print to the R console,
+#' otherwise the progress is tracked but not displayed.
+#' In other words, it makes a grand announcement in an empty room,
+#' in the far corner of an abandoned building.
+#' 
 #' ## Todo:
 #' 
 #' * Consider providing interactive output via `ggplotly()`.

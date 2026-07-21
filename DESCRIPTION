@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.90.900
+Version: 0.0.91.900
 Authors@R: c(
     person(given="James M.",
        family="Ward",
@@ -49,9 +49,8 @@ Imports: jamba(>= 1.0.0),
     DT,
     caTools,
     memoise(>= 2.0.1.9000),
-    testthat(>= 3.0.0),
     R.utils,
-    cpp11bigwig(>= 0.3.0.9000),
+    cpp11bigwig(>= 0.3.1.9000),
     patchwork,
     progressr
 Suggests: 
@@ -63,7 +62,9 @@ Suggests:
     tximportData,
     TxDb.Mmusculus.UCSC.mm10.knownGene,
     org.Mm.eg.db,
-    farrisdata(>= 0.0.9.900)
+    farrisdata(>= 0.0.9.900),
+    testthat(>= 3.0.0),
+    vdiffr
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -80,3 +81,4 @@ BugReports: http://github.com/jmw86069/splicejam/issues
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.0.0
+Config/testthat/edition: 3

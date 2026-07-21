@@ -170,6 +170,19 @@ coordinate range using exon names.
 \item 'layout_ncol': allows multiple columns with splicejam and
 gene/transcript/exon model.
 }
+\subsection{Progress Bar}{
+
+To enable a progress bar when using R console:
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{progressr::handlers(global=TRUE)
+}\if{html}{\out{</div>}}
+
+This command permits the progress bar to print to the R console,
+otherwise the progress is tracked but not displayed.
+In other words, it makes a grand announcement in an empty room,
+in the far corner of an abandoned building.
+}
+
 \subsection{Todo:}{
 \itemize{
 \item Consider providing interactive output via \code{ggplotly()}.

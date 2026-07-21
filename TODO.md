@@ -1,5 +1,26 @@
 # TODO for splicejam
 
+## 21jul2026
+
+* Add testthat tests for `splicejamFigure()`.
+* Convert `exoncov2polygons()` to keep `NumericList`.
+
+   * Also modify the custom ggplot2 stat to accept
+   `NumericList` and add baseline y=0 to begin and end
+   of the `geom_shape()` for each polygon.
+
+* Create method to take Bioconductor `TxDb` and organism
+annotation such as `org.Mm.eg.db` and create `environment`
+suitable for use in `splicejamFigure()`.
+
+   * 'TxDb' seem to use ENTREZID for gene_id.
+   * 'tx2geneDF' can be created with 'TxDb' and anno data.
+
+* `sashimiDataConstants()` option to filter for
+`detectedGenes` and/or `detectedTx` to reduce data volume.
+* Create a strategy to handle overlapping genes, or
+one plot with one or more genes, e.g. a coordinate range.
+
 ## 14jul2026
 
 * Enhance plotly output from `splicejamFigure()`

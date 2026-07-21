@@ -149,12 +149,14 @@
 #'    gene to use for the initial R-shiny figure.
 #' @param envir `environment` where data will be prepared, or when
 #'    `envir=NULL` a new environment will be created and returned.
-#' @param empty_uses_farrisdata `logical` indicating whether to
-#'    use data from the Github R package `"jmw86069/farrisdata"`
+#' @param empty_uses_farrisdata `logical` default TRUE, whether to
+#'    use data from the Github R package `'jmw86069/farrisdata'`
 #'    if no data is supplied to this function. This behavior is
 #'    intended to make it easy to use farrisdata to recreate
 #'    the Sashimi plots in that publication.
-#' @param use_memoise `logical` indicating whether to use `memoise`
+#'    Note: When the 'farrisdata' R package is not installed,
+#'    this argument is automatically set to FALSE.
+#' @param use_memoise `logical` default TRUE, whether to use `memoise`
 #'    to cache intermediate data files for exons, flattened exons,
 #'    transcript-gene data, and so on. This mechanism reduces
 #'    time to render sashimi plots that re-use the same gene.
@@ -190,6 +192,11 @@ sashimiDataConstants <- function
       }
       # envir <- new.env(parent=emptyenv());
       envir <- new.env();
+   }
+
+   ## Check if farrisdata is installed
+   if (!requireNamespace("farrisdata", quietly=TRUE)) {
+      empty_uses_farrisdata <- FALSE;
    }
 
    params <- setdiff(names(formals(sashimiDataConstants)),
@@ -277,8 +284,8 @@ sashimiDataConstants <- function
    }
    ## Define flat exons by gene
    ## One-time setup cost when using GTF input
-   if (length(envir$tx2geneDF) == 0 || length(envir$exonsByTx) == 0) {
-      if (verbose) msg("length(tx2geneDF) == 0 || length(exonsByTx) == 0");
+   if (length(envir$tx2geneDF) == 0 || length(envir$flatExonsByTx) == 0) {
+      if (verbose) msg("length(tx2geneDF) == 0 || length(flatExonsByTx) == 0");
       if ((!exists("gtf", envir=envir) || length(envir$gtf) == 0) && length(envir$txdb) == 0) {
          if (isTRUE(envir$empty_uses_farrisdata)) {
             # use default GTF file if not defined
@@ -291,14 +298,14 @@ sashimiDataConstants <- function
                " will be derived.");
          } else {
             stop(paste0("The 'gtf' or 'txdb' argument are required ",
-               "when either 'tx2geneDF' or 'exonsByTx' are not provided."));
+               "when either 'tx2geneDF' or 'flatExonsByTx' are not provided."));
          }
       } else {
          envir$empty_uses_farrisdata <- FALSE
       }
       if (length(envir$gtf) == 0 && length(envir$txdb) == 0) {
          stop(paste0("The 'gtf' or 'txdb' argument are required ",
-            "when either 'tx2geneDF' or 'exonsByTx' are not provided."));
+            "when either 'tx2geneDF' or 'flatExonsByTx' are not provided."));
       }
       ## tx2geneDF
       if (length(envir$gtf) > 0) {
@@ -360,7 +367,7 @@ sashimiDataConstants <- function
 
       ## Now make TxDb in order to derive exonsByTx and cdsByTx
       #if (length(exonsByTx) == 0 || length(cdsByTx) == 0) {
-      if (length(envir$exonsByTx) == 0) {
+      if (length(envir$flatExonsByTx) == 0 && length(envir$exonsByTx) == 0) {
          if (length(envir$txdb) > 0 && inherits(envir$txdb, "TxDb")) {
             jamba::printDebug("sashimiDataConstants(): ",
                "Using supplied txdb.");
@@ -428,8 +435,10 @@ sashimiDataConstants <- function
          }
       }
 
-      ## create cdsByTx
-      if (length(envir$cdsByTx) == 0 && exists("txdb", envir=envir, inherits=FALSE)) {
+      ## create cdsByTx only when flatExonsByTx also does not exist
+      if (length(envir$flatExonsByTx) == 0 &&
+         length(envir$cdsByTx) == 0 &&
+         exists("txdb", envir=envir, inherits=FALSE)) {
          #suppressPackageStartupMessages(require(GenomicFeatures));
          if (isTRUE(envir$use_memoise)) {
             cdsBy_m <- memoise::memoise(GenomicFeatures::cdsBy,
@@ -466,7 +475,12 @@ sashimiDataConstants <- function
          }
       }
    } else {
-      if (verbose) msg("tx2geneDF or exonsByTx were provided.");
+      if (verbose) msg("tx2geneDF or flatExonsByTx were provided.");
+   }
+
+   ## color_sub 
+   if (isTRUE(envir$empty_uses_farrisdata)) {
+      envir$color_sub <- farrisdata::colorSub;
    }
 
    ## Define detectedTx

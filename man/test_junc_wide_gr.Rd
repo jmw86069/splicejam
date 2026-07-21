@@ -87,6 +87,7 @@ print(ggWide1c2);
 }
 \seealso{
 Other splicejam data:
+\code{\link{sjenvtest}},
 \code{\link{test_cov_gr}},
 \code{\link{test_cov_wide_gr}},
 \code{\link{test_exon_gr}},

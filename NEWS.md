@@ -1,3 +1,22 @@
+# splicejam 0.0.91.900
+
+* Added 'testthat', 'vdiffr' with `splicejamFigure()`.
+* Added data `'sjenvtest'` with two genes from Farris et al.
+
+## Changes
+
+* `sashimiDataConstants()`
+
+   * Now properly defines 'color_sub' when farrisdata is used.
+   * When 'farrisdata' is not available, it now sets
+   `empty_uses_farrisdata=FALSE`.
+   * Now accepts `environment` with 'flatExonsByGene' and
+   'flatExonsByTx' without also creating 'exonsByTx' and
+   'cdsByTx'.
+
+* `sashimiAppServer()` no longer assumes 'exonsByTx' exists,
+will skip this step if not present.
+
 # splicejam 0.0.90.900
 
 * Added 'progressr' to dependencies for unified progress bars,

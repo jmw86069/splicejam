@@ -41,6 +41,7 @@ ggplot(grl2df(test_exon_gr), aes(x=x, y=y, group=id, fill=feature_type)) +
 }
 \seealso{
 Other splicejam data:
+\code{\link{sjenvtest}},
 \code{\link{test_cov_gr}},
 \code{\link{test_cov_wide_gr}},
 \code{\link{test_exon_wide_gr}},

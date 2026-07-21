@@ -417,7 +417,7 @@ sashimiAppServer <- function
             return(NULL)
          }
          ## Handle "All Genes" where it is not present in flatExonsByGene
-         if (!gene %in% names(flatExonsByGene)) {
+         if (!gene %in% names(flatExonsByGene) && length(exonsByTx) > 0) {
             if (verbose) {
                jamba::printDebug("sashimiAppServer(): ",
                   "Creating flat exons for gene:",
@@ -453,7 +453,7 @@ sashimiAppServer <- function
             return(NULL)
          }
          ## Handle "All Genes" where it is not present in flatExonsByGene
-         if (!gene %in% names(flatExonsByGene)) {
+         if (!gene %in% names(flatExonsByGene) && length(exonsByTx) > 0) {
             if (verbose) {
                jamba::printDebug("sashimiAppServer(): ",
                   "Creating flat exons for gene: ",
