@@ -17,7 +17,7 @@
 #'    begins at position 100, the junction would end at position
 #'    99.
 #'
-#' @family splicejam data
+#' @family Splicejam data
 #'
 #' @examples
 #' # The code below is used to create the junction test data
@@ -38,7 +38,8 @@
 #'
 #' # To plot junctions, use grl2df(..., shape="junction")
 #' junc_df <- grl2df(test_junc_gr, shape="junction")
-#' gg1 <- ggplot(junc_df, aes(x=x, y=y, group=id, fill=gr_name)) +
+#' gg1 <- ggplot2::ggplot(junc_df,
+#'    ggplot2::aes(x=x, y=y, group=id, fill=gr_name)) +
 #'    ggforce::geom_diagonal_wide(alpha=0.7) +
 #'    colorjam::theme_jam() +
 #'    colorjam::scale_fill_jam()
@@ -69,7 +70,7 @@
 #'    begins at position 100, the junction would end at position
 #'    99.
 #'
-#' @family splicejam data
+#' @family Splicejam data
 #'
 #' @examples
 #' # The code below is used to create the junction test data
@@ -88,12 +89,13 @@
 #'
 #' # To plot junctions, use grl2df(..., shape="junction")
 #' junc_wide_df <-grl2df(test_junc_wide_gr, shape="junction")
-#' ggWide1 <- ggplot(junc_wide_df, aes(x=x, y=y, group=id, fill=gr_name)) +
+#' ggWide1 <- ggplot2::ggplot(junc_wide_df,
+#'    ggplot2::aes(x=x, y=y, group=id, fill=gr_name)) +
 #'    ggforce::geom_diagonal_wide(alpha=0.7) +
 #'    colorjam::theme_jam() +
 #'    colorjam::scale_fill_jam() +
-#'    xlab("chr1") +
-#'    ggtitle("junctions (full intron width)")
+#'    ggplot2::xlab("chr1") +
+#'    ggplot2::ggtitle("junctions (full intron width)")
 #' print(ggWide1);
 #'
 #' # The exons are required to define compressed ranges
@@ -104,23 +106,24 @@
 #' ref2c <- make_ref2compressed(test_exon_wide_gr,
 #'    nBreaks=10);
 #' ggWide1c <- ggWide1 +
-#'    scale_x_continuous(trans=ref2c$trans_grc) +
-#'    xlab("chr1 (compressed introns)") +
-#'    ggtitle("junctions (compressed introns, distorted)");
+#'    ggplot2::scale_x_continuous(trans=ref2c$trans_grc) +
+#'    ggplot2::xlab("chr1 (compressed introns)") +
+#'    ggplot2::ggtitle("junctions (compressed introns, distorted)");
 #' print(ggWide1c);
 #'
 #' # to fix the arc shapes, supply the transform to grl2df()
 #' # Note: USE THESE STEPS
-#' junc_wide_c_df <-grl2df(test_junc_wide_gr,
+#' junc_wide_c_df <- grl2df(test_junc_wide_gr,
 #'    shape="junction",
 #'    ref2c=ref2c);
-#' ggWide1c2 <- ggplot(junc_wide_c_df, aes(x=x, y=y, group=id, fill=gr_name)) +
+#' ggWide1c2 <- ggplot2::ggplot(junc_wide_c_df,
+#'    ggplot2::aes(x=x, y=y, group=id, fill=gr_name)) +
 #'    ggforce::geom_diagonal_wide(alpha=0.7) +
 #'    colorjam::theme_jam() +
 #'    colorjam::scale_fill_jam() +
-#'    scale_x_continuous(trans=ref2c$trans_grc) +
-#'    xlab("chr1 (compressed introns)") +
-#'    ggtitle("junctions (compressed introns)");
+#'    ggplot2::scale_x_continuous(trans=ref2c$trans_grc) +
+#'    ggplot2::xlab("chr1 (compressed introns)") +
+#'    ggplot2::ggtitle("junctions (compressed introns)");
 #' print(ggWide1c2);
 #'
 "test_junc_wide_gr"
@@ -136,7 +139,7 @@
 #'    exon for an arbitrary gene. It has one column of values,
 #'    `"gene_name"` used for Sashimi plot preparation.
 #'
-#' @family splicejam data
+#' @family Splicejam data
 #'
 #' @examples
 #' # The code below is used to create the exon test data
@@ -176,7 +179,7 @@
 #'    exon for an arbitrary gene. It has one column of values,
 #'    `"gene_name"` used for Sashimi plot preparation.
 #'
-#' @family splicejam data
+#' @family Splicejam data
 #'
 #' @examples
 #' # The code below is used to create the exon test data
@@ -222,7 +225,7 @@
 #' with NumericList values representing RNA-seq read coverage
 #' across these exons.
 #'
-#' @family splicejam data
+#' @family Splicejam data
 #'
 #' @examples
 #' suppressPackageStartupMessages(library(GenomicRanges));
@@ -244,7 +247,8 @@
 #' exondf <- exoncov2polygon(test_cov_gr, covNames="sample_A");
 #' gg3 <- ggplot(exondf,
 #'       aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
-#'    ggforce::geom_shape(alpha=0.8) +
+#'    ggforce::geom_shape(alpha=0.8,
+#'       stat="unpack_polygon") +
 #'    colorjam::theme_jam() +
 #'    colorjam::scale_fill_jam() +
 #'    colorjam::scale_color_jam();
@@ -275,7 +279,7 @@
 #' coverage data on a genomic scale. See examples
 #' for steps to compress the intron sizes.
 #'
-#' @family splicejam data
+#' @family Splicejam data
 #'
 #' @examples
 #' # The steps below demonstrate how to create coverage data manually
@@ -291,7 +295,8 @@
 #' widecovdf <- exoncov2polygon(test_cov_wide_gr, covNames="sample_A");
 #' ggWide3 <- ggplot(widecovdf,
 #'       aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
-#'    ggforce::geom_shape(alpha=0.7) +
+#'    ggforce::geom_shape(alpha=0.7,
+#'       stat="unpack_polygon") +
 #'    colorjam::theme_jam() +
 #'    colorjam::scale_fill_jam() +
 #'    colorjam::scale_color_jam();

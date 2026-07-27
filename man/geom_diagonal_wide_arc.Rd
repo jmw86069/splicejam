@@ -78,10 +78,12 @@ to use \code{position_jitter()}, give the position as \code{"jitter"}.
 \link[ggplot2:layer_positions]{layer position} documentation.
 }}
 
-\item{n}{The number of points to create for each of the bounding diagonals}
+\item{n}{\code{integer} number of points to create for each
+of the bounding diagonals}
 
-\item{strength}{The proportion to move the control point along the x-axis
-towards the other end of the bezier curve}
+\item{strength}{\code{numeric} proportion to move the control
+point along the x-axis towards the other end of the
+bezier curve.}
 
 \item{na.rm}{If \code{FALSE}, the default, missing values are removed with
 a warning. If \code{TRUE}, missing values are silently removed.}
@@ -140,8 +142,8 @@ give the stat as \code{"count"}.
 }
 \description{
 The \code{geom_diagonal_wide_arc()} function draws a \emph{thick} diagonal, that is, a
-polygon confined between a lower and upper \link[ggforce:geom_diagonal]{diagonal}. As with
-the diagonal functions in \code{ggforce}, the wide diagonal variant is horizontal.
+polygon confined between a lower and upper diagonal, see \code{ggforce::geom_diagonal()}.
+The wide diagonal variant is horizontal.
 This function joins two adjacent diagonals into one wider arc.
 }
 \section{Aesthetics}{
@@ -178,15 +180,13 @@ ggplot(data, aes(x, y, group = group)) +
 # The diagonal_wide_arc geom uses geom_shape under the hood, so corner rounding
 # etc are all there
 ggplot(data) +
-  geom_diagonal_wide_arc(aes(x, y, group=group), radius=unit(5, 'mm'))
+  geom_diagonal_wide_arc(aes(x, y, group=group))
 
 }
 \seealso{
-Other jam ggplot2 functions:
-\code{\link[=gene2gg]{gene2gg()}},
-\code{\link[=plotSashimi]{plotSashimi()}},
+Other ggplot2 customizations:
 \code{\link{splicejam-extensions}},
 \code{\link[=stat_unpack_polygon]{stat_unpack_polygon()}},
 \code{\link[=to_basic.GeomShape]{to_basic.GeomShape()}}
 }
-\concept{jam ggplot2 functions}
+\concept{ggplot2 customizations}

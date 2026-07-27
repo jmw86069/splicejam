@@ -3,7 +3,7 @@
 #'
 #' read gtf/gff3 file
 #'
-#' @family jam gtf functions
+#' @family GTF functions
 #'
 #' @returns `data.frame` representing tab-delimited data stored in the
 #'    gtf or gff3 file.
@@ -81,7 +81,7 @@ readGtf <- function
 #'    into columns. Each `data.frame` may have different columns,
 #'    using the observed name/value pair data.
 #'
-#' @family jam gtf functions
+#' @family GTF functions
 #'
 #' @param GTF `character` path to GTF or GFF3 file, or `data.frame`
 #'    containing GTF or GFF3 data.
@@ -194,7 +194,7 @@ describeGtfAttrNames <- function
 #'    when `useRows` is entirely `FALSE` or no `attrNames` are recognized
 #'    in the input `gtfDF`.
 #'
-#' @family jam gtf functions
+#' @family GTF functions
 #'
 #' @param gtfDF `data.frame` with GTF or GFF3 formatted data
 #' @param useRows `logical`, default NULL, rows in `gtfDF` to use for analysis,

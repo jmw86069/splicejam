@@ -38,10 +38,20 @@ line segment drawing when used with a plotting function that recognizes
 line breaks via empty rows, for example plotly.
 }
 \seealso{
-Other jam spatial functions:
-\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
+Other Internal utility functions:
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
 \code{\link[=compressPolygonM]{compressPolygonM()}},
+\code{\link[=df2colorSub]{df2colorSub()}},
+\code{\link[=escapeWhitespaceRegexp]{escapeWhitespaceRegexp()}},
+\code{\link[=factor2label]{factor2label()}},
+\code{\link[=geomean]{geomean()}},
+\code{\link[=intercalate]{intercalate()}},
+\code{\link[=internal_junc_score]{internal_junc_score()}},
+\code{\link[=jamGeomean]{jamGeomean()}},
+\code{\link[=list2im]{list2im()}},
+\code{\link[=shrinkMatrix]{shrinkMatrix()}},
 \code{\link[=simplifyXY]{simplifyXY()}},
-\code{\link[=spline3d]{spline3d()}}
+\code{\link[=stackJunctions]{stackJunctions()}},
+\code{\link[=strsplitOrdered]{strsplitOrdered()}}
 }
-\concept{jam spatial functions}
+\concept{Internal utility functions}

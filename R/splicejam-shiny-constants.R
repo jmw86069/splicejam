@@ -114,7 +114,7 @@
 #' R-shiny UI. The content is displayed in the tab
 #' `"About Sashimi Plots"` at the top of the app.
 #'
-#' @family splicejam R-shiny functions
+#' @family Shiny prep functions
 #'
 #' @return `environment` that contains the data required for the
 #'    splicejam R-shiny app. It also includes data returned by

@@ -179,26 +179,10 @@ groups2contrasts(iFactors,
 
 }
 \seealso{
-Other jam RNA-seq functions:
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=defineDetectedTx]{defineDetectedTx()}},
-\code{\link[=detectedTxInfo]{detectedTxInfo()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=internal_junc_score]{internal_junc_score()}},
-\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=runDiffSplice]{runDiffSplice()}},
-\code{\link[=sortSamples]{sortSamples()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
-
-Other jam design functions:
+Other Design functions:
 \code{\link[=curateDFtoDF]{curateDFtoDF()}},
-\code{\link[=curateVtoDF]{curateVtoDF()}}
+\code{\link[=curateVtoDF]{curateVtoDF()}},
+\code{\link[=runDiffSplice]{runDiffSplice()}},
+\code{\link[=sortSamples]{sortSamples()}}
 }
-\concept{jam RNA-seq functions}
-\concept{jam design functions}
+\concept{Design functions}

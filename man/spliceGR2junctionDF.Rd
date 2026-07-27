@@ -20,33 +20,33 @@ spliceGR2junctionDF(
 )
 }
 \arguments{
-\item{spliceGRgene}{GRanges object containing splice junctions, where
+\item{spliceGRgene}{\code{GRanges} object containing splice junctions, where
 the \code{scoreColname} contains numeric scores.}
 
-\item{exonsGR}{GRanges object containing flattened exons by gene,
+\item{exonsGR}{\code{GRanges} object containing flattened exons by gene,
 as is provided by \code{flattenExonsBy()}.}
 
-\item{spliceBuffer}{integer distance allowed from a compatible exon
+\item{spliceBuffer}{\code{integer} distance allowed from a compatible exon
 boundary, for a junction read to be snapped to that boundary.}
 
-\item{useOnlyValidEntries}{logical indicating whether to remove
+\item{useOnlyValidEntries}{\code{logical} indicating whether to remove
 junctions that do not align with a compatible exon boundary.}
 
-\item{renameTooFar}{logical indicating whether junctions are
+\item{renameTooFar}{\code{logical} indicating whether junctions are
 named by the nearest exon boundary and the distance to that
 boundary.}
 
 \item{scoreColname, sampleColname}{colnames in \code{values(spliceGRgene)}
 to define the score, and \code{sample_id}.}
 
-\item{flipNegativeStrand}{logical indicating whether to flip the
+\item{flipNegativeStrand}{\code{logical} indicating whether to flip the
 orientation of negative strand features when matching exon
 boundaries. This argument is passed to \code{closestExonToJunctions()}.}
 
-\item{returnGRanges}{logical indicating whether to return GRanges,
+\item{returnGRanges}{\code{logical} indicating whether to return GRanges,
 or by default, \code{data.frame}.}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
 }
@@ -71,43 +71,18 @@ row identifier, \code{score} as the value column, and \code{sampleColname} as
 the new column headers.
 }
 \seealso{
-Other jam RNA-seq functions:
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=defineDetectedTx]{defineDetectedTx()}},
-\code{\link[=detectedTxInfo]{detectedTxInfo()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=groups2contrasts]{groups2contrasts()}},
-\code{\link[=internal_junc_score]{internal_junc_score()}},
-\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=runDiffSplice]{runDiffSplice()}},
-\code{\link[=sortSamples]{sortSamples()}}
-
-Other jam GRanges functions:
+Other GenomicRanges functions:
 \code{\link[=addGRLgaps]{addGRLgaps()}},
 \code{\link[=addGRgaps]{addGRgaps()}},
 \code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
 \code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
 \code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
 \code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
 \code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
 \code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
 \code{\link[=getGRLgaps]{getGRLgaps()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
 \code{\link[=getGRgaps]{getGRgaps()}},
-\code{\link[=grl2df]{grl2df()}},
 \code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=sortGRL]{sortGRL()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
+\code{\link[=sortGRL]{sortGRL()}}
 }
-\concept{jam GRanges functions}
-\concept{jam RNA-seq functions}
+\concept{GenomicRanges functions}

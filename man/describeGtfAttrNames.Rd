@@ -68,9 +68,9 @@ will become: \code{c("tag", "tag_v1", "tag_v2")}.
 }
 }
 \seealso{
-Other jam gtf functions:
+Other GTF functions:
 \code{\link[=getGtfAttrs]{getGtfAttrs()}},
 \code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
 \code{\link[=readGtf]{readGtf()}}
 }
-\concept{jam gtf functions}
+\concept{GTF functions}

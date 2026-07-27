@@ -21,6 +21,11 @@ sjenvtest$color_sub <- farrisdata::colorSub;
 sjenvtest$filesDF <- subset(farrisdata::farris_sashimi_files_df,
    grepl("CA[12]", sample_id))
 
+# Update junction to bigBed URL
+sjenvtest$filesDF$url <- gsub("[.]bed[.]gz", ".bb",
+   gsub("mm10/(CA|DG)", "mm10/repaired_bb/\\1",
+      sjenvtest$filesDF$url))
+
 usethis::use_data(sjenvtest, overwrite=TRUE)
 
 ######################################
@@ -30,7 +35,9 @@ keep_minimal <- c(
    "tx2geneDF",
    "filesDF",
    "flatExonsByGene",
-   "flatExonsByTx"
+   "flatExonsByTx",
+   "default_gene",
+   "color_sub"
    # "detectedGenes", # optional?
    # "detectedTx",    # optional?
    # "color_sub"      # optional
@@ -42,6 +49,11 @@ for (i in keep_minimal) {
 }
 jamba::sdim(sjenvtest1)
 
+sjenvtest <- sjenvtest1;
+usethis::use_data(sjenvtest, overwrite=TRUE)
+
+jamba::sdim(sjenvtest)
+
 sjenvtest2 <- sashimiDataConstants(envir=sjenvtest1)
 jamba::sdim(sjenvtest2)
 system.time(sjfigtest2 <- splicejamFigure(sjenv=sjenvtest2, gene="Gria1", use_memoise=TRUE))
@@ -49,3 +61,18 @@ system.time(sjfigtest2 <- splicejamFigure(sjenv=sjenvtest2, gene="Gria1", use_me
 
 system.time(sjfigtest2b <- splicejamFigure(sjenv=sjenvtest2, gene="Gria1", use_memoise=TRUE))
 # 7 sec
+
+system.time(sjfigtest2d <- splicejamFigure(sjenv=sjenvtest2, gene="Gria1", use_memoise=TRUE))
+# 7 sec
+
+# speed test?
+data(sjenvtest)
+progressr::handlers(global=TRUE)
+st2c <- system.time({
+   sjfigtest2c <- splicejamFigure(sjenv=sjenvtest,
+      use_memoise=FALSE,
+      gene="Gria1")
+})
+st2c["elapsed"]
+sjfigtest2c$timings_df
+sum(sjfigtest2c$timings_df$time)

@@ -16,7 +16,7 @@
 #' @param output provided by shiny
 #' @param session provided by shiny
 #'
-#' @family splicejam R-shiny functions
+#' @family Shiny prep functions
 #'
 #' ## @import jamba
 #' ## @import dplyr
@@ -343,16 +343,21 @@ sashimiAppServer <- function
             if ("gene_nameExon" %in% colnames(GenomicRanges::values(flatExonsByGene1[[gene]]))) {
                exon_names <- jamba::mixedSort(
                   GenomicRanges::values(flatExonsByGene1[[gene]])$gene_nameExon);
-               jamba::printDebug("sashimiAppServer(): ",
-                  "exon_names:",
-                  exon_names);
+               # jamba::printDebug("sashimiAppServer(): ", "exon_names:", exon_names, file=stderr());# debug
+               active_exon_range <- isolate(input$exon_range);
+               # jamba::printDebug("sashimiAppServer(): ", "active_exon_range:", active_exon_range, file=stderr());# debug
+               if (!all(active_exon_range) %in% exon_names) {
+                  active_exon_range <- c(head(exon_names, 1),
+                     tail(exon_names, 1));
+               }
+               # jamba::printDebug("sashimiAppServer(): ", "active_exon_range:", active_exon_range, file=stderr());# debug
                shinyWidgets::updateSliderTextInput(session,
                   "exon_range",
                   choices=exon_names,
-                  selected=c(
-                     head(exon_names, 1),
-                     tail(exon_names, 1))
-               );
+                  selected=active_exon_range)
+                     # c(
+                     # head(exon_names, 1),
+                     # tail(exon_names, 1)))
             } else {
                exon_names <- NULL;
                shinyjs::disable("exon_range");
@@ -373,6 +378,8 @@ sashimiAppServer <- function
             shinyjs::disable("calc_gene_params");
             shinyjs::disable("exon_range");
             shinyjs::disable("gene_coords");
+            # active_exon_range <- isolate(input$exon_range);
+            # jamba::printDebug("sashimiAppServer(): ", "active_exon_range:", active_exon_range, file=stderr());# debug
             shinyWidgets::updateSliderTextInput(session,
                "gene_coords",
                choices=c("1", "2"),
@@ -1421,17 +1428,13 @@ sashimiAppServer <- function
    
    shiny::observeEvent(input$samplesdf_cell_clicked, {
       cell_info <- input$samplesdf_cell_clicked;
-      # jamba::printDebug("names(cell_info):", names(cell_info), sep=", ", file=stderr());# debug
-      # jamba::printDebug("cell_info:", cell_info, sep=", ", file=stderr());# debug
       if (length(cell_info) == 0) {
          return(invisible(NULL))
       }
-      # jamba::printDebug("cell_info$col:", cell_info$col, sep=", ", file=stderr());# debug
       
       # Check if clicked on the last column (custom_ylim)
       # cell_info$col is 0-based and includes rowname column, so last data column is at index ncol
       n_cols <- ncol(shiny::isolate(data$samples_data))
-      # jamba::printDebug("n_cols:", n_cols, " cell_info$col:", cell_info$col, sep=", ", file=stderr());# debug
       if (cell_info$col == n_cols) {
          # Revert to previous selection if last column was clicked
          proxy <- DT::dataTableProxy('samplesdf')
@@ -1439,7 +1442,6 @@ sashimiAppServer <- function
          if (!is.null(prev_sel)) {
             DT::selectRows(proxy, prev_sel)
          }
-         # jamba::printDebug("Last column clicked, reverting selection", file=stderr());# debug
          return(invisible(NULL))
       }
       
@@ -1472,8 +1474,6 @@ sashimiAppServer <- function
    ## Capture edits to the ylim column
    shiny::observeEvent(input$samplesdf_cell_edit, {
       info <- input$samplesdf_cell_edit
-      # jamba::printDebug("names(info):", names(info), sep=", ", file=stderr());# debug
-      # jamba::printDebug("info:", info, sep=", ", file=stderr());# debug
 
       # str(info)  # Check structure: list with row, col, value
       

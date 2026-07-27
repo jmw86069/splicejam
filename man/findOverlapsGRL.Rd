@@ -14,19 +14,19 @@ findOverlapsGRL(
 )
 }
 \arguments{
-\item{GRL1}{GRangesList query}
+\item{GRL1}{\code{GRangesList} query}
 
-\item{GRL2}{GRangesList subject}
+\item{GRL2}{\code{GRangesList} subject}
 
-\item{annoName1}{character value indicating either the colname of
+\item{annoName1}{\code{character} value indicating either the colname of
 \code{values(GRL1)} to use as the name, or if \code{"name"} then it uses
 \code{names(GRL1)}.}
 
-\item{annoName2}{character value indicating either the colname of
+\item{annoName2}{\code{character} value indicating either the colname of
 \code{values(GRL2)} to use as the name, or if \code{"name"} then it uses
 \code{names(GRL2)}.}
 
-\item{check_names}{logical indicating whether the values defined
+\item{check_names}{\code{logical} indicating whether the values defined
 by \code{annoName1} should match the values defined by \code{annoName2}.
 Note that when \code{check_names=FALSE} the overlaps returned will
 depend upon GRL1 and GRL2 being in identical order. Otherwise,
@@ -38,7 +38,7 @@ GRL1 and GRL2 do not have to be in identical order.}
 criteria.}
 }
 \value{
-Hits object, or the natural output from
+\code{Hits} object, or the natural output from
 \code{GenomicRanges::findOverlaps()} dependent upon the \code{...} arguments,
 subsetted for only entries with matching values defined
 by \code{annoName1} and \code{annoName2}.
@@ -52,25 +52,18 @@ case of two GRangesList objects, restricting results to those including
 the same GRangesList index in the subject and query.
 }
 \seealso{
-Other jam GRanges functions:
+Other GenomicRanges functions:
 \code{\link[=addGRLgaps]{addGRLgaps()}},
 \code{\link[=addGRgaps]{addGRgaps()}},
 \code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
 \code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
 \code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
 \code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
 \code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
 \code{\link[=getGRLgaps]{getGRLgaps()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
 \code{\link[=getGRgaps]{getGRgaps()}},
-\code{\link[=grl2df]{grl2df()}},
 \code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
 \code{\link[=sortGRL]{sortGRL()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
 }
-\concept{jam GRanges functions}
+\concept{GenomicRanges functions}

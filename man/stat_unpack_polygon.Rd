@@ -67,11 +67,9 @@ polygon_data <- data.frame(
 
 }
 \seealso{
-Other jam ggplot2 functions:
-\code{\link[=gene2gg]{gene2gg()}},
+Other ggplot2 customizations:
 \code{\link[=geom_diagonal_wide_arc]{geom_diagonal_wide_arc()}},
-\code{\link[=plotSashimi]{plotSashimi()}},
 \code{\link{splicejam-extensions}},
 \code{\link[=to_basic.GeomShape]{to_basic.GeomShape()}}
 }
-\concept{jam ggplot2 functions}
+\concept{ggplot2 customizations}

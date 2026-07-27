@@ -8,7 +8,7 @@ import_juncs_from_bed(
   iBed,
   juncNames,
   sample_id,
-  scale_factor,
+  scale_factor = 1,
   use_memoise = FALSE,
   memoise_junction_path = "junctions_memoise",
   gr = NULL,
@@ -17,29 +17,33 @@ import_juncs_from_bed(
 )
 }
 \arguments{
-\item{iBed}{\code{character} path or URL to one BED file containing splice
-junction data. The score is typially expected to be stored in the
-name column (column 3), primarily because the score column
-is restricted to maximum value 1000 when used for UCSC tracks.
-
-This process also recognizes names in the form "JUNC000000_1234"
-where the read depth/score is interpreted as "1234". When all
-entries have this name convention, the values are converted to
-numeric and used to populate the "score" column.
-
-If not all values in the "name" column can be converted to numeric
-without introducing NA values, the "score" column is used as-is.
-
-If you see scores with maximum value "1000" the "name" field is
-probably not being used properly as a numeric score.}
+\item{iBed}{\code{character} path or URL to one BED, bigBed, or
+'SJ.out.tab' file as produced by STAR during alignment.
+\itemize{
+\item For 'SJ.out.tab' input, the countUnique value (column 7)
+is used, with no other filtering applied.
+\item For BED and bigBed input, the score is preferred in the
+name column (column 3), primarily because UCSC
+tracks limit the score to maximum of 1000.
+\item BED name can be numeric, or can be in the form
+\code{'JUNC000000_1234'} with 'JUNC' prefix followed by
+integer digits, underscore, the integer values.
+In this example, the score is \code{'1234'}.
+When not all names can be converted to numeric values,
+the score column is used.
+\item If you see scores with maximum value "1000" the 'score'
+column could be the problem.
+\item bigBed files are imported using the 'cpp11bigwig' package
+which also uses the appropriate index.
+}}
 
 \item{juncNames}{\code{character} the name of the junction source file}
 
-\item{sample_id}{character string representing the sample
+\item{sample_id}{\code{character} string representing the sample
 identifier.}
 
-\item{scale_factor}{\code{numeric} value used to adjust the raw
-score, applied by multiplying the scale_factor by each score.}
+\item{scale_factor}{\code{numeric} default 1, adjusts the raw score,
+applied by multiplying the scale_factor by each score.}
 
 \item{use_memoise}{\code{logical} default FALSE, whether to cache data
 using memoise.}
@@ -84,7 +88,8 @@ this step, to prevent propagation of junctions with
 zero counts.
 }
 \seealso{
-Other jam data import functions:
+Other Data import functions:
+\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
 \code{\link[=psl2df]{psl2df()}}
 }
-\concept{jam data import functions}
+\concept{Data import functions}

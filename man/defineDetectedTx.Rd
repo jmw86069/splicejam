@@ -210,21 +210,7 @@ value of zero represents absence of data. Any group mean that is
 filters.
 }
 \seealso{
-Other jam RNA-seq functions:
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=detectedTxInfo]{detectedTxInfo()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=groups2contrasts]{groups2contrasts()}},
-\code{\link[=internal_junc_score]{internal_junc_score()}},
-\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=runDiffSplice]{runDiffSplice()}},
-\code{\link[=sortSamples]{sortSamples()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
+Other Detected transcripts:
+\code{\link[=detectedTxInfo]{detectedTxInfo()}}
 }
-\concept{jam RNA-seq functions}
+\concept{Detected transcripts}

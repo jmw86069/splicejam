@@ -1,31 +1,55 @@
 # TODO for splicejam
 
+## 27jul2026
+
+* Write "importer" functions to use Bioconductor
+packages as input.
+
+   * Alternative to create sashimi environment,
+   which does not require a GTF file.
+   * Organism transcript packages such as knownGenes
+   `'TxDb'`, or EnsEMBL data via `'EnsDb'`.
+   * Note 'TxDb' requires organism annotation
+   such as `'org.Mm.eg.db'` for the relevant organism.
+   The knownGenes packages use ENTREZID as the 'gene_id'
+   by convention. It is required to create tx2geneDF.
+   * Note 'EnsDb' packages have gene-to-transcript
+   relationships stored inside, no need for
+   'org' annotation data to create tx2geneDF.
+
+   * 'TxDb' seem to use ENTREZID for gene_id.
+   * 'tx2geneDF' can be created with 'TxDb' and anno.
+   * 'EnsDb' has complete tx2gene and exonsBy support.
+
+* INCOMPLETE. Allow editing 'scale_factor' in the Sample tab.
+
+   * The Shiny widget exists but is clunky. Values are
+   not yet utilized in `sashimiAppServer()`.
+
+* TODO. Move a lot of functions to 'keywords internal'
+to minimize the user-facing function space.
+
 ## 21jul2026
 
-* Add testthat tests for `splicejamFigure()`.
-* Convert `exoncov2polygons()` to keep `NumericList`.
+* DONE. Adjust junction count label to be below negative strand
+ribbon, not above.
+* DONE. Add testthat tests for `splicejamFigure()`.
+* DONE. Convert `exoncov2polygons()` to keep `NumericList`.
 
-   * Also modify the custom ggplot2 stat to accept
+   * DONE. Also modify the custom ggplot2 stat to accept
    `NumericList` and add baseline y=0 to begin and end
    of the `geom_shape()` for each polygon.
 
-* Create method to take Bioconductor `TxDb` and organism
-annotation such as `org.Mm.eg.db` and create `environment`
-suitable for use in `splicejamFigure()`.
-
-   * 'TxDb' seem to use ENTREZID for gene_id.
-   * 'tx2geneDF' can be created with 'TxDb' and anno data.
-
-* `sashimiDataConstants()` option to filter for
+* TODO. `sashimiDataConstants()` option to filter for
 `detectedGenes` and/or `detectedTx` to reduce data volume.
-* Create a strategy to handle overlapping genes, or
+* DEFER. Create a strategy to handle overlapping genes, or
 one plot with one or more genes, e.g. a coordinate range.
 
 ## 14jul2026
 
-* Enhance plotly output from `splicejamFigure()`
+* PARTIAL. Enhance plotly output from `splicejamFigure()`
 
-   * Enable highlighting, synchronize panels by 'feature'.
+   * DEFER. Enable highlighting, synchronize panels by 'feature'.
    Previously called `plotly::highlight_key()` which
    is actually `crosstalk::SharedData$new()` and which
    alters the data from `data.frame` to R6 object.
@@ -41,21 +65,19 @@ one plot with one or more genes, e.g. a coordinate range.
 
 ## 06jul2026
 
-* Update 'README.Rmd' and vignettes with more simplified
+* DONE. Update 'README.Rmd' and vignettes with more simplified
 workflow, using `sashimiDataConstants()`.
-* Work out how to use TxDb Bioconductor packages with
-correct annotation as alternative input instead of GTF.
-* Consider replacing logic in `launchSashimiApp()` with
+* DONE. Consider replacing logic in `launchSashimiApp()` with
 `splicejamFigure()`.
-* Transition to `progressr` for Shiny and CLI progress
+* DONE. Transition to `progressr` for Shiny and CLI progress
 indicators.
-* Add optional progress bar to `splicejamFigure()`.
-* When applying 'junc_color' only for fill_scheme='exon',
+* DONE. Add optional progress bar to `splicejamFigure()`.
+* DEFER. When applying 'junc_color' only for fill_scheme='exon',
 also apply the light-to-dark shading as used with
 fill_scheme='sample_id'.
-* `gene2gg()` option to set gene/transcript order.
+* TODO. `gene2gg()` option to set gene/transcript order.
 
-* Method to validate the splicejam environment.
+* TODO. Method to validate the splicejam environment.
 flat exons, tx2geneDF, detectedGenes/detectedTx as needed.
 * DONE. Update `splicejamFigure()` with 'use_memoise=TRUE'
 the same as with `launchSashimiApp()`.
@@ -65,23 +87,20 @@ as input as alternative to multiple objects.
 
 ## 24jun2026
 
-* Add some wrapper function to do the steps wrapped inside
+* DONE. Add some wrapper function to do the steps wrapped inside
 the Splicejam Shiny app, specifically range of exons or range
 of genome coordinates to display. See 14apr2026 note below.
-* `prepareSashimi()` update to permit coordinate range input.
-* Consider accepting `SJ.out` format directly, validate using
+* DONE. `prepareSashimi()` update to permit coordinate range input.
+* DONE. Consider accepting `SJ.out` format directly, validate using
 junctionBed bed12-format from the same file.
-* Optimize `exoncov2polygon()`, which has now become rate-limiting.
-* Consider refactoring splicejam 'df' format for polycon coordinates
-as list on each row. Candidate types:
-
-   * coverage: one row per polygon point, roughly 300-400 rows could be
-   one row with a `list` of coordinate values. 110k rows!
-   * junctions: 9 rows per arc.
-
-* Add visual unit tests (vdiffr) for sashimi plot output, to cover
+* PARTIAL. Optimize `exoncov2polygon()`, which has become rate-limiting.
+* PARTIAL. Consider refactoring splicejam 'df' format for polycon coordinates
+as list on each row. Edit: Coverage now stores the entire sequence
+on one row using AsIs with `NumericList` data direct from
+cpp11bigwig. Woot.
+* DONE. Add visual unit tests (vdiffr) for sashimi plot output, to cover
 the range of intermediate steps altogether.
-* Add unit tests for all the various core processing steps.
+* DEFER. Add unit tests for all the various core processing steps.
 
 ## 16jun2026
 
@@ -99,7 +118,7 @@ the range of intermediate steps altogether.
 
 ## 14apr2026
 
-* Cleaner workflow:
+* DONE. Cleaner workflow:
 
    * `assembleSashimiData()`? - does the work of `sashimiDataConstants()`,
    returns an environment to be used in other functions.
@@ -110,7 +129,7 @@ the range of intermediate steps altogether.
       * uses patchwork as needed
       * zoom by coordinate or by exon name, as with the Shiny app.
 
-* Consider moving BGA plot functions to another smaller R package,
+* DEFER. Consider moving BGA plot functions to another smaller R package,
 accept other PCA objects. Consider tSNE/UMAP.
 
    * Dedicated R package for PCA/BGA-like features?
@@ -118,9 +137,10 @@ accept other PCA objects. Consider tSNE/UMAP.
    * Consider dynamic group centroid calculations, with optional
    supergroups as with BGA.
 
-* Support non-gene/transcript features/tracks within the "gene panel".
+* DEFER. Support non-gene/transcript features/tracks within the "gene panel".
 The gene panel could include suitable "tracks".
-* Ideal world: Insert Splicejam into something like plotgardner.
+* DEFER. Ideal world: Insert Splicejam into something like plotgardner.
+Needs research to determine feasibility.
 
 ## 07apr2026
 
@@ -185,654 +205,3 @@ What if there is no coverage, it spends time trying to repair coverage.
 
    * Consider SplicejamData object to contain the elements needed,
    making it clear how to prepare data, and confirm it is ready to use.
-
-
-## 06nov2025
-
-* Confirm ggplot2-4.0.0 are compatible with splicejam.
-* Consider 'Gviz' as an alternate visual output.
-* Rewrite vignette "How-to" for people to use splicejam.
-
-## 17mar2025
-
-* `makeTx2geneFromGtf()`
-
-   * DONE. Consider adding: `chr`, `start`, `end`, `strand`
-   * PARTIAL. Consider gene-level ranges, may not be feasible with >50
-   disjoint ranges for some snRNA like 7S rRNA for example.
-   For now, `gene_id` always has a unique range, although `gene_name`
-   may be shared across numerous `gene_id` for some reason.
-   * Consider option to reduce gene ranges to retain only disjoint
-   ranges.
-   * Consider helper function to predict "best TSS" using expression data
-   with `tximport::summarizeToGene()` using gene_start as the key, to
-   determine the highest-abundance isoforms by TSS as a measure of most
-   likely "primary TSS". Bonus points for optionally calculating
-   "best TTS" using only isoforms compatible with that TSS. Otherwise,
-   from experience, there are one or two genes whose highest-signal TSS
-   is slightly downstream the highest-signal TTS, and this is not what
-   we want.
-   * Consider adding example GTF to show utility, input, and output.
-
-* Consider revisiting the ALE-related functions, clarify documentation,
-add example data and output.
-
-## 12feb2025
-
-* `sashimiDataConstants()`
-
-   * DONE. Argument `gtf` using `curl::curl_download()` only works properly
-   when it is a URL, with `http://` or `file://` prefix.
-   Using a local file causes an error, to be fixed.
-   * Fix error when `"jampack"` package is not installed, caused by
-   `packageVersion("jampack")` which throws an error.
-
-* Investigate warnings during processing. Should be resolved.
-
-   * "Removed 135 rows containing missing values or values outside
-   the scale range (`geom_text_repel()`)"
-
-## 29oct2024
-
-* Debug error `"covNames must be colnames(GenomicRanges::values(gr))"`
-
-## 03oct2024
-
-* Consider adding workaround when web security certificate fails the initial
-check.
-
-   * Apparent possible workaround is to update `httr` option like this:
-   `httr::set_config(httr::config(ssl_verifypeer=FALSE))`
-   * The change causes the SSL verification to be skipped, which should
-   only be done when the risks are mitigated, for example when
-   using an internal host within a firewall for example.
-
-* DONE. Remove warning `"setShadow is deprecated and will be removed..."`
-* DONE. Fix issue with `width()` function not found, caused by not having
-proper package prefix, `GenomicRanges::width()` or `Biobase::width()`.
-
-## 16aug2024
-
-* Update `pkgdown` package documentation. Latest version of R used for
-testing is 4.2.3, although it should be equivalent for R-4.4.0.
-* Minimize R package dependencies?
-
-   * `plyr` is not called, and is implied by `dplyr` already.
-
-
-## 17apr2024
-
-* DONE. Stop fully importing jamba, ggplot2
-
-   * DONE. Use proper package prefixing `ggplot2::ggplot()` to avoid needing
-   to import the full package and all functions.
-
-* DONE. General request for more flexible splice count label positions.
-
-   * Currently uses `ggrepel` to position labels, inconsistently placed
-   sometimes inside or outside the junction ribbon.
-
-
-## 01aug2023
-
-* Consider NCBI tracks for miscellaneous RNA-seq data tracks as a convenient
-default set of tracks to use when viewing "supporting evidence" for
-transcription of a particular gene:
-
-   * "RNA-seq exon coverage, aggregate (filtered) - log base2 scaled"
-   * "RNA-seq intron features, aggregate (filtered)"
-
-
-## 14nov2022
-
-* review R packages that produce spliced RNA plots: similar tricks;
-potential for interoperability; better ideas to make the workflow "easy"
-
-   * Ularcirc: https://bioconductor.org/packages/3.16/bioc/html/Ularcirc.html
-   * fishpond: https://bioconductor.org/packages/3.16/bioc/vignettes/fishpond/inst/doc/allelic.html
-   check `plotAllelicGene()`
-   * IsoformSwitchAnalyzeR: https://bioconductor.org/packages/3.16/bioc/vignettes/IsoformSwitchAnalyzeR/inst/doc/IsoformSwitchAnalyzeR.html
-   check `switchPlot()` and `switchPlotTranscript()`
-   * SplicingGraphs: https://bioconductor.org/packages/3.16/bioc/html/SplicingGraphs.html
-   check `plotTranscripts()`
-   * Gviz: https://bioconductor.org/packages/3.16/bioc/vignettes/Gviz/inst/doc/Gviz.html
-   * SGSeq: https://bioconductor.org/packages/3.16/bioc/vignettes/SGSeq/inst/doc/SGSeq.html
-   check `plotCoverage()` which appears to show coverage by exon, and arcs per splice;
-   also `plotSpliceGraph()` which plots schematic splice graph, flattened per gene.
-
-## 09nov2022
-
-* `makeTx2geneFromGtf()`
-
-   * optionally include other gtf/gff3 columns in the output:
-   
-      * `"source"` (column 2 in GTF/GFF3)
-      * `seqname,start,end,strand`: columns 1, 4, 5, 7
-   
-   * optional helper function to describe the observed gene and tx
-   attribute names, for the purpose of using them with `makeTx2geneFromGtf()`.
-
-## 23jan2022
-
-* Suggest adding long gene name to the plot output somehow, in addition
-to the gene symbol.
-
-* FIXED: reported bug that upon reproducing on local machine shows R error from
-duplicate row.names, derived from coercing splice GRanges to data.frame.
-
-   * This bug appears to be fixed, at least when testing genes `Gria1` and
-   `Tnr` with all four `CB` samples. Those two test cases reproduced the
-   reported error, and the updated `splicejam` no longer shows an error.
-
-
-## 29sep2021
-
-* For plotly sashimi plots, show the coverage (y-axis height) at each position
-along the x-axis.
-
-
-## 24sep2021
-
-* BGA plot function `bgaPlotly3d()`
-
-   * allow adjustment to text label color distinct of polygon color
-
-
-## 28jul2021
-
-* Ability to adjust splice junction arc minimum height
-
-## 16jul2021
-
-* COMPLETE: Update (minor): Import STAR `"SJ.out.tab"` format equivalent to
-importing BED12 format.
-
-   * When the junctions file has 9 columns it is assumed to be STAR format.
-   * The import now uses `data.table::fread()` and not
-   `rtracklayer::import.bed()`.
-
-* COMPLETE: Update (minor): Optional R-shiny startup without displaying a gene.
-
-   * Use `default_gene="blank"` to start with a blank plot.
-
-* Test (minor): test against alternative, commonly used GTF sources
-
-   * Use case: Most steps were designed to use Gencode GTF. The workflow
-   should also work when using other GTF files.
-   * Notable areas to test: Many steps assume GTF annotations include
-   "gene_name", "transcript_id" - but if not present the user should
-   be able to define alternate names.
-
-
-## 13jul2021
-
-* `makeTx2geneDFfromGtf()` extend to include genome coordinates (major)
-
-   * currently `tx2geneDF` does not return genome coordinates,
-   in part because a given gene symbol may be located in
-   multiple locations, multiple chromosomes, e.g. `"7SK"`.
-
-* Consider bookdown online documentation (major)
-
-   * Need model to follow for where to put documentation, how to host.
-   Check: jokergoo/ComplexHeatmap; clusterProfiler, enrichplot.
-
-
-* Consider using patchwork instead of cowplot?
-
-   * There is some issue with including the gene model panel twice,
-   maybe patchwork does that step well?
-
-## 12jul2021
-
-* Update (minor): Update Shiny progress bar after coverage is complete,
-before splice junctions are being loaded.
-
-   * Use case: After loading coverage files, for example the label
-   says "coverage (16 of 16)", it pauses for a long time.
-   What is it doing? I want to know!
-
-* New feature (minor): Allow resizing the gene-transcript panel
-
-   * Use case: Sometimes there are way too many transcripts, the
-   panel should be much taller. Sometimes the exon labels are clipped
-   off the bottom of the figure.
-   * Note that adjusting "per panel size" affects gene-transcript
-   panel, making it much too crowded.
-
-* New feature (minor): Allow down-sampling the coverage profile
-
-   * Use case: exons are rarely displayed one base per pixel, more
-   often an exon is roughly 100-500 bases wide, but displayed in
-   the equivalent of 25-50 pixels. The adjustment would be to
-   down-sample data to help speed up the rendering step.
-
-* New feature (minor): Optionally display gene model per column for multi-column layout.
-
-   * Use case: Currently with two-column display the gene model
-   does not visually align to the coverages.
-
-* New feature (inquiry): Test porting to ggbio or Gviz for broader re-use.
-
-   * Use case: To integrate other track types, coverage, peaks, genes,
-   etc. the ggbio and Gviz R packages are more feature-rich. I think ggbio
-   is no longer officially supported?
-   * General idea is to provide two functionalities: track "geom", and
-   x-axis compressed axis which effectively compresses the intron ranges.
-   * For Gviz, understand `GdObject-class` and create CustomTrack,
-   which should mimic the workflow used by `AlignmentsTrack()`:
-   
-   ```R
-   Gviz::CustomTrack(plottingFunction=function(GdObject, prepare=FALSE, ...){},
-      variables=list(), name="CustomTrack", ...)
-   ```
-
-* New feature (minor): Color picker alongside Shiny app "Sample Selection"
-
-   * Use case is to display, and allow selection of colors per sample
-   * Not sure if "easy" color picker widgets will work with
-   the selectable table widget.
-
-
-* New feature (major): allow multiple genes/features in display region,
-not just one gene
-
-   * Use case: display more than one gene; display genes and peaks.
-   * Use case: allow zooming out - beyond the annotated gene.
-   * Use case: display other genes that overlap the display coordinates.
-   * Changes:
-   * Define the display region by genome coordinates, not
-   by the gene symbol - which itself only implies coordinates.
-   * Define compressed ranges using the features displayed. This
-   step also requires renaming the compressed ranges something
-   more broadly useful. If exons from two genes overlap, what shall
-   we name this region? Probably should use "region_1" or "gap_1".
-   * Option to compress ranges using only certain features - outside
-   the Shiny app, this step is already possible using
-   `splicejam::make_ref2compressed()` with a set of `GRanges`.
-   * Major: junction strandedness should not be forced to match
-   the strand of the displayed gene. This change may cause problems
-   using STAR junctions, since STAR junction strandedness is not
-   always accurate.
-
-* New feature (moderate): Extend `splicejam::make_ref2compressed()`
-
-   * Use case: If displaying RNA-seq and ChIP-seq data together, it
-   may be useful to extend regions around the TSS before compressing gaps,
-   to show signal near the TSS. Similar with exons, peaks, etc. Some
-   configuration options could be useful to describe specifically
-   in this function.
-
-
-* New feature (major): Display multiple genes in adjacent panels.
-
-   * Use case: Given 3 genes of interest, display sashimi plots side-by-side
-   * Counterpoint: This step can be done "manually" by preparing
-   individual sashimi plots, then using `cowplot` or `patchwork` to
-   assemble them into multi-panel figure.
-   * Conclusion: Probably will not implement. May need to add this use case
-   to the vignette.
-
-* New feature (major): display Sashimi plots similar to ggridges ridge plots
-
-   * Use case: ggplot2 facet panels take up much extra space, making
-   figures look heavy and bulky - they take up a lot of web browser space.
-   The idea is to plot coverage/junctions slightly overlapping so they
-   are adjacent and perhaps more easily compared visually. Also,
-   more samples can be plotted together without using so much figure space.
-   * Changes:
-   * The y-axis label is only practical for the first sample.
-   * Draw baseline for each sample, render back samples first, top-to-bottom.
-   * Define flexible offset, either by fraction of max height, or
-   by absolute y-axis coverage units.
-   * Allow optional ggplot2 facets, which could still be used to split
-   different experiment design groups. Or could split by sample and display
-   each sample replicate per panel.
-   * Could allow some trickery, like ordering samples by a factor column,
-   where visual gaps could be inserted by using empty factor levels.
-   For example: GroupA_Veh, GroupA_Treated, GroupA_blank, GroupB_Veh, GroupB_Treated.
-   In this case `"GroupA_blank"` would be a factor level, but there would
-   be no sashimi plot data for that factor level, so it would be drawn empty,
-   leaving a visual gap.
-
-
-* New features (major): coverage and junctions from BAM files
-
-   * Use case is to allow BAM input, both for coverage and for junctions.
-   * Major enabling feature: This step is a precursor to handling
-   scRNA-seq, which could dynamically split the BAM reads by
-   tSNE/UMAP clusters.
-
-* New data (major): pre-defined hg19 transcriptome data required for sashimi plots
-
-   * Gencode comprehensive with all genes, flat exons pre-computed.
-   * Obvious enhancement: hg38, mm10, other common organisms.
-   * Describe steps used so others can use their own GTF as needed.
-
-
-* New feature (nice to have): ability to select/deselect transcripts
-displayed in the R-shiny app for a given gene.
-
-   Use case is when displaying all transcripts for a given gene,
-   but there are too many un-expressed transcripts, e.g. human ACTB.
-   Could allow a separate table to select transcripts to include/hide.
-   When performing "Update" the compressed exons would be re-calculated
-   for that gene using the selected exons.
-
-## 19mar2021 todo items
-
-* COMPLETE: Fix broken Sample Selection - change to table selection/ordering
-
-   * include `sessionInfo()` in a hidden section on the R-shiny app
-   to be able to confirm all packages and version numbers being used.
-
-## 18mar2021 todo items
-
-* COMPLETE: Fix the ggrepel exon labeling which is now above instead of below
-the gene-exon model.
-* for interactive plots, highlighting a splice junction also highlights
-all splice junctions for the same exon span, which is good
-
-   * for flat gene-exon models, name the gap using the format
-   `geneSymbolexon_name1-geneSymbolexon_name2` which will allow
-   the gap to be highlighted as well.
-   * for flat transcript-exon models, not sure if this is
-   appropriate.
-
-
-
-## 23apr2020 todo items
-
-* Consider adding transcript selection to the left menu items
-* Workflow:
-
-   * Idea is to allow manually selecting subset or superset of
-   transcripts to include in the flatExonsByGene, partly to 
-   allow removing transcripts that mess up the overall gene model,
-   partly to allow showing a highlighted subset of transcripts
-   for example for diffSplice/DEXseq splice hits. Sometimes a
-   gene has 8 detected isoforms, but the predominant change
-   involves only 2 or 3 of those isoforms. Would be great to
-   be able to create the ideal subset.
-   * (Note this workflow is already possible with manual
-   steps outside the R-shiny app, but who wants to do that?)
-
-* Allow expanding the x-axis genomic region being displayed, beyond
-the gene body. Note this step requires defining the compression
-to use for upstream region -- for example should it be 10:1
-compressed in visual space?
-* Note the genomic coordinates are not being displayed below
-certain genes (human GAS5) -- why not? It might be because
-this gene has one contiguous exon due to some noisy unspliced
-isoforms. The coordinate labeling function might be trying to
-use only the outside coordinate. Could adjust that function to
-use either the edge, or if two labels are separated by more then
-5% the total exon width, display that label.
-
-   * Genomic axis label logic for compressed GRanges coordinates:
-   Start by labeling outer edge of each exon, then internal exon
-   boundaries. Add each label if it will be at least 5% distant
-   from another label, based upon the total exon width, and total
-   number of gaps.
-   * Review new ggplot2 axis labeling rules and whether we can rely
-   upon ggplot2 to hide axis labels that would otherwise overlap.
-
-* Allow manually setting one common y-axis range. Currently only
-possible to adjust the y-axis by using interactive plotly, which
-loses some important junction labeling.
-* Allow displaying any gene-exon model that sits inside the viewing
-range, in case there is an interesting internal feature such as a miRNA.
-This enhancement is the predecessor for supplying a genomic region
-and having the sashimi plot generated in that region regardless of
-genes involved. Note that junction strandedness will need to be
-more fluid -- currently the junction strand is fixed consistent with
-the target gene, mostly because STAR junction strandedness is
-sometimes mis-annotated (i.e. 100% coverage on "+" strand, but one
-junction might be labeled "-" strand.)
-* Pie in the sky idea: some way to save per-gene settings, like
-coordinate range, axis ranges, etc. So when someone goes to "Gria1"
-they get the best default Gria1 view they can get. When they go to
-"Smarca4" they get the best default Smarca4 view they can get.
-
-
-## 21apr2020 todo items
-
-* COMPLETE: It looks like junction stacking on negative strand is applied
-to the wrong edge of each junction (left-right instead of right-left).
-* COMPLETE: Allow the gene-transcript panel to be adjusted taller.
-
-   * By default, gene panel height should be auto-adjusted based
-   upon the number of transcripts shown.
-   * Ideally the panel height should be adjusted based upon label height.
-
-* Enable more default settings such as number of columns, panel height,
-font sizes, etc. The app should be fully customizable upon startup,
-so that new users get the intended default experience.
-
-   * Available:
-   
-      * min_junction_reads - minimum junction read threshold
-      * use_exon_names - one of `c("coordinates", "exon names")`
-      * exon_range_selected - two gene_nameExon values
-      * exon_range_choices_default - exon labels available for default gene
-      * layout_ncol - number of columns in layout
-      * include_strand - one of `c("+","-","both")` strands to display
-      * share_y_axis - one of `c(TRUE, FALSE)` whether to use shared y-axis range
-      
-   * Todo:
-   
-      * panel height
-      * show gene model
-      * show transcripts
-      * detected only
-      * font size,
-      * exon font size
-      * interactive plot
-      * minimum arc height? new option
-
-* Consider minimum junction threshold based upon % coverage range
-instead of absolute number. Not urgent, can be manually adjusted.
-* Consider option to label gene exons by major exon number (exon1, exon2, etc.)
-not using the disjoint exon numbers (exon1a, exon1b, exon2a, exon2b, etc.)
-* `detectedTxInfo()`
-
-   * option to return only detected results.
-   * change labels to be user-friendly
-   
-* new function to convert `detectedTxInfo()` into ComplexHeatmap:
-
-   * box around cells which meet the "detected" thresholds overall (cell_fun)
-   * color cells by percent max expression per sample (default), option to use count, TPM
-   * label cells: pseudo-counts (percent max expr, TPM abundance); 67.9 (13%, 1.2 TPM)
-   * option to display "detected" or "all" Tx
-
-* Consider optional per-panel label to supplement/replace the text
-label used by ggplot2 facet wrap. Label could be positioned topright,
-topleft, bottomright, bottomleft, or auto.
-* Two-column displays are not visually synchronized with the gene
-view, consider making a two-column gene view?
-* When using plotly interactive plots with two columns, consider
-syncing the two columns when zooming in one side, so the other column
-is also zoomed into the same region.
-* Consider adding two-column output selection to the main page.
-* When viewing very large genes in plotly interactive mode, it
-can take ages to render (after the ggplot object is already created,
-it appears the slow step is creating all the plotly-specific javascript
-to render every coordinate position, even though the region is zoomed
-out.) Needs some optimization step to reduce the number of actual
-x-axis points being displayed. SMARCA4 is an example gene, spans 150k
-bases, yet every exon pixel is stored as a coordinate for plotly.
-Consider reducing the resolution of x-axis points being rendered by
-plotly somehow.
-
-## Bug fixes
-
-* `prepareSashimi()` throws an error when `flatExonsByGene`
-contains different seqlevels than the `BigWigFile`, usually
-when `flatExonsByGene` contains more seqlevels than present
-in the `BigWigFile`. It happens even when the exon features
-of interest involve seqlevels present in `BigWigFile`.
-The fix is to reduce the seqlevels in `flatExonsByGene`
-to match those in the `BigWigFile`, or to reduce seqlevels
-to actual features in `flatExonsByGene`. At that point
-an error would accurately reflect that `BigWigFile` does
-not contain seqlevels for the requested seqlevels, and
-thus would be helpful.
-
-
-### Sashimi usability enhancements
-
-* Separate the function `sashimiAppConstants()` to its own
-proper standalone function, that prepares all the dependency
-data objects like `flatExonsByGene`, `flatExonsByTx`,
-`tx2geneDF`.
-* New function to assemble `filesDF`. Essentially appends
-a file to an existing `data.frame`.
-* New function `plotlySashimi()` that optionally includes
-the gene-transcript-exon model in the visualization.
-* Zoom by exon range, using exon names. For example,
-`zoom_by=c("Gria1_exon11", "Gria1_exon16")`.
-
-### Sashimi longer term enhancements
-
-* Enable display of sample replicates. Actually, enable
-the grouping of `sample_id` entries. Default is to overlay
-replicates in the same facet panel, facet by `sample_group`.
-Alternative is to offset the y-axis similar to the `"ggridges"`
-package. Unclear if the layers coverage polygons, and
-junction arcs, will be out of sync; that is sample_1
-should draw coverage and junctions, before sample_2 is
-drawn.
-* Enable BAM file for coverage data. Defer filtering rules
-to the `Rsamtools` package, but show recommended examples
-for properly paired reads.
-* Enable BAM file for junction data. Determine recommended
-filters for properly paired reads with minimum overlap width
-at each end of the junction.
-* Enable Sashimi plots over a region, not just one gene range.
-Refactor of `prepareSashimi()` to take GRanges range
-an optional coordinate range, or multiple genes (which would
-imply the coordinate range if on the same chromosome).
-* Create an example showing two genes with overlapping
-exons.
-* Mock up an example that combines gene exons, ChIP-seq peaks,
-and ATAC-seq peaks, together into one schematic of a
-genome region. It should show before and after, compressing
-the "intervening sequences" between features.
-* Mock up example showing `detectedTxInfo()` output in
-the form of plots. For example, show percent max expression
-as a heatmap, each call labeled to show the counts, TPM,
-percentage, and whether it was called "detected" by
-the thresholds.
-
-### Farris R-shiny feedback
-
-* Recalculate scale factors, use reference genes from in situ
-hybridizations: Calm1, Camk2a, Camk2b, Actb, which show little to
-no change.
-* Plotly two-column layout does not keep all columns of panels
-in sync when the x-axis is zoomed, the desired effect is to have the
-x-axis of each sashimi panel zoomed consistently, across however
-many columns are used for layout.
-* Gria1 takes a while to display the first time, during which the app
-is not usable. Consider making plot rendering asynchronous to decouple
-the visualization from the use of the R-shiny app.
-* The plotly exon coordinates show the overall coordinate range and
-not the specific exon.
-
-### Vignettes
-
-* New vignette describing how to start a new R-shiny Sashimi App.
-
-### Testing
-
-* Implement methods in the testthat package to ensure a consistent
-suite of tests to confirm full functionality with updates.
-Highest priority functions, which would break parts of the workflow:
-    * `flattenExonsBy()`
-    * `assignGRLexonNames()` - dependent upon `jamba::makeNames()`
-    * `annotateGRfromGR()` - dependent upon `shrinkMatrix()`
-    * `shrinkMatrix()`
-    * `combineGRcoverage()`
-    * `df2colorSub()`
-
-### data.frame versus tibble
-
-* Evaluated tibble as possible replacement for data.frame in
-`prepareSashimi()`. It shrinks data volume to about 7 times smaller,
-reducing duplicated annotations per row for polygon coordinates.
-However, ggplot2 still requires unnesting the tibble into a tall
-format for plotting, it is unclear whether that step will incur
-its own performance hit.
-* ggplot2 polygon rendering should be faster -- possibly needs to
-reduce the polygon detail prior to plotting, but unclear whether that
-can happen since ggplot2 already chops polygons into multiple small
-segments in order to handle transformed axis coordinates.
-
-### R-shiny caching
-
-* Review flatExonsByTx caching, which gets invalidated too frequently.
-Consider using a fixed caching strategy, using defined keys instead
-of the memoise default.
-
-### R-shiny launchSashimiApp()
-
-* Better error message for gene symbol not recognized.
-* Plotly tooltips are so finicky, but try anyway:
-
-    * coverage tooltip: y-position (coverage score), exon name (gr_name),
-    track name (cov_name), preferably the coordinate range of the feature.
-    * junction tooltip: junction score, name "gene_exonFrom gene_exonTo",
-    and start-end coordinates of the junction.
-    * plotly_onclick: show junction score or exon name in the middle
-    of the respective polygon?
-    
-* Make font sizes more configurable.
-* Add gene symbol somewhere, otherwise without the gene model shown,
-there is no indication what gene is being displayed.
-* Add a vignette describing how to set up an R-shiny splicejam.
-
-### Sashimi plot functionality
-
-* refactor prepareSashimi() to create full merged data.frame, thus
-removing it from plotSashimi(); it should make plot faster.
-* geom_diagonal_wide_arc(): new argument calc_midpoint=TRUE will
-calculate the appropriate middle x-position using the active
-x-axis transformation so the mid-point is the visible middle.
-Optionally specify the fraction, 0.5 is middle, 0.25 is the first
-quartile near the left edge, etc.
-* Transformed axis:
-
-    * customize breaks, minor_breaks, and labels functions so
-    ggplot2 labels include as many non-overlapping x-axis labels
-    at exon boundaries as possible. Make minor_breaks include
-    tick marks and optional smaller labels when zoomed in, or
-    when an exon is wide enough to have an intermediate label.
-    * Transformed axis line: x-axis line indicating compresssed
-    status, solid line = uncompressed, dotted line = compressed.
-    It might need a new own geom.
-
-### Portability/Usability
-
-* Verify "Plan B for Windows users." Test and confirm whether
-using Windows Subsystem for Linux (WSL) will enable bigWig import.
-* Expand input types to allow BAM files, from which coverage will be
-calculated. Will need an appropriate caching strategy, probably
-at the level of covGR GRanges with RleList to store coverage
-in value columns.
-* Expand junction input to allow BAM files, from which junctions
-can be inferred. (Check existing Bioconductor packages for
-any that convert BAM to junctions.)
-
-### Vignettes
-
-* More Sashimi examples:
-
-    * Using baseline to "shift" a set of exons up on the y-axis,
-    use Ntrk2 as an example.
-    * Use baseline with Gria1 to shift up/down the two alternate
-    exons. (The original vision was something like a Sankey plot.)
-
-* ALE-specific RNA-seq analysis workflow.
-* Codon usage analysis workflow.
-

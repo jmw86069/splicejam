@@ -212,9 +212,8 @@ When \code{use_memoise=TRUE} several R objects are cached using
 and to help speed the re-use of data within the R-shiny app:
 }
 \seealso{
-Other splicejam R-shiny functions:
+Other Splicejam core functions:
 \code{\link[=launchSashimiApp]{launchSashimiApp()}},
-\code{\link[=sashimiAppConstants]{sashimiAppConstants()}},
-\code{\link[=sashimiAppUI]{sashimiAppUI()}}
+\code{\link[=splicejamFigure]{splicejamFigure()}}
 }
-\concept{splicejam R-shiny functions}
+\concept{Splicejam core functions}

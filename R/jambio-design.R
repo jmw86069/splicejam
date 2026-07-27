@@ -97,8 +97,7 @@
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
-#' @family jam RNA-seq functions
-#' @family jam design functions
+#' @family Design functions
 #'
 #' @examples
 #' # first define a vector of sample groups
@@ -366,7 +365,7 @@ groups2contrasts <- function
             }
          }
          if (verbose) {
-            printDebug("groups2contrasts(): ",
+            jamba::printDebug("groups2contrasts(): ",
                "head(iFactors):");
             print(head(iFactors, 100));
          }
@@ -460,7 +459,7 @@ groups2contrasts <- function
             suffix="_");
       }
       rownames(iFactors) <- unname(jamba::pasteByRow(iFactors, sep=factorSep));
-      printDebug("iFactors:");print(iFactors);
+      jamba::printDebug("iFactors:");print(iFactors);
    }
    if (verbose >= 2) {
       jamba::printDebug("groups2contrasts(): ",
@@ -779,8 +778,7 @@ groups2contrasts <- function
 #'    `keepFactorsAsIs==TRUE` then only `sort(x)` is returned.
 #' @param ... additional arguments are ignored.
 #'
-#' @family jam string functions
-#' @family jam RNA-seq functions
+#' @family Design functions
 #'
 #' @examples
 #' # the defaults perform well for clear descriptors
@@ -881,7 +879,7 @@ sortSamples <- function
 #'    be ordered by the first appearance of each term.
 #' @param ... additional arguments are ignored.
 #'
-#' @family jam string functions
+#' @family Internal utility functions
 #'
 #' @examples
 #' # first define a vector of sample groups
@@ -1027,7 +1025,7 @@ strsplitOrdered <- function
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
-#' @family jam design functions
+#' @family Design functions
 #'
 #' @examples
 #' set.seed(123);
@@ -1108,8 +1106,9 @@ curateVtoDF <- function
 
    ## First check if input is a list, or data.frame, and convert as needed
    if (jamba::igrepHas("data.frame", class(curationL))) {
-      curationL <- curationDFtoL(curationL,
-         whitespace=whitespace);
+      stop("This data.frame input is not supported.")
+      # curationL <- curationDFtoL(curationL,
+      #    whitespace=whitespace);
    }
    if (jamba::igrepHas("character", class(curationL)) &&
          all(file.exists(curationL))) {
@@ -1147,7 +1146,7 @@ curateVtoDF <- function
 
    curationValuesL <- lapply(jamba::nameVectorN(curationL), function(iName){
       if (verbose) {
-         printDebug("curateVtoDF(): ",
+         jamba::printDebug("curateVtoDF(): ",
             "Creating column:",
             iName);
       }
@@ -1181,7 +1180,7 @@ curateVtoDF <- function
       }
       if (trimWhitespace && jamba::igrepHas(trimRegexp, x1)) {
          if (verbose) {
-            printDebug("curateVtoDF(): ",
+            jamba::printDebug("curateVtoDF(): ",
                "   Trimming leading/trailing whitespace.");
          }
          x1 <- gsub(trimRegexp, "", x1);
@@ -1209,7 +1208,7 @@ curateVtoDF <- function
          }
          x1 <- previousV;
          if (verbose) {
-            printDebug("curateVtoDF(): ",
+            jamba::printDebug("curateVtoDF(): ",
                "   Curated a subset of values, and used previous data otherwise.");
          }
       }
@@ -1343,7 +1342,7 @@ curateVtoDF <- function
 #' @param verbose logical indicating whether to print verbose output
 #' @param ... additional arguments are passed to `curateVtoDF()`
 #'
-#' @family jam design functions
+#' @family Design functions
 #'
 #' @examples
 #' set.seed(123);
@@ -1489,7 +1488,7 @@ curateDFtoDF <- function
 #'    iteration per string.
 #' @param ... additional arguments are ignored.
 #'
-#' @family jam string functions
+#' @family Internal utility functions
 #'
 #' @examples
 #' x <- c("one two three", "one[ ]two three", "one[ 12] two three");

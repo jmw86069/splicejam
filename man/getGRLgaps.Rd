@@ -7,12 +7,12 @@
 getGRLgaps(grl, strandSpecific = TRUE, verbose = FALSE, ...)
 }
 \arguments{
-\item{grl}{GRangesList object.}
+\item{grl}{\code{GRangesList} object.}
 
-\item{strandSpecific}{logical indicating whether to determine gaps
+\item{strandSpecific}{\code{logical}, default TRUE, whether to determine gaps
 within strand.}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
 }
@@ -31,25 +31,18 @@ otherwise strands are converted to \code{"*"}. It will also determine
 gaps within chromosome for each GRanges entry in GRangesList.
 }
 \seealso{
-Other jam GRanges functions:
+Other GenomicRanges functions:
 \code{\link[=addGRLgaps]{addGRLgaps()}},
 \code{\link[=addGRgaps]{addGRgaps()}},
 \code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
 \code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
 \code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
 \code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
 \code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
 \code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
 \code{\link[=getGRgaps]{getGRgaps()}},
-\code{\link[=grl2df]{grl2df()}},
 \code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
 \code{\link[=sortGRL]{sortGRL()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
 }
-\concept{jam GRanges functions}
+\concept{GenomicRanges functions}

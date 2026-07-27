@@ -18,7 +18,7 @@
 #' `onStart`, and `options`. This function fulfills the
 #' argument `ui`.
 #'
-#' @family splicejam R-shiny functions
+#' @family Shiny prep functions
 #'
 #'
 #' @param ... additional arguments are ignored.
@@ -113,11 +113,21 @@ sashimiAppUI <- function
          flatExonsByGene[[default_gene]])$gene_nameExon;
       gene <- get("default_gene")
    }
+   exon_range_choices_default <- jamba::mixedSort(exon_range_choices_default);
+
+   gene_coords_default <- jam_get("gene_coords_default", c(1, 2), verbose=TRUE, ...);
+   gene_coords_default <- range(gene_coords_default, na.rm=TRUE);
    if (exists("gene")) {
-      gene_coords_default <- range(as.data.frame(range(
+      valid_gene_coords <- range(as.data.frame(range(
          flatExonsByGene[[gene]]
       ))[,c("start", "end")]);
+      gene_coords_default <- jamba::noiseFloor(gene_coords_default,
+         minimum=min(valid_gene_coords),
+         ceiling=max(valid_gene_coords))
    } else {
+      gene_coords_default <- c(1, 2);
+   }
+   if (length(unique(gene_coords_default)) == 1) {
       gene_coords_default <- c(1, 2);
    }
 
@@ -128,13 +138,23 @@ sashimiAppUI <- function
    exon_range_selected_default <- c(
       head(exon_range_choices, 1),
       tail(exon_range_choices, 1));
-   exon_range_selected <- jam_get("exon_range",
-      exon_range_selected_default,
-      verbose=TRUE,
-      ...);
-
-   #cat(jamba::cPaste(c("exon_range_choices:", exon_range_choices), sep="\n"),
-   #   file="debug_output.txt");
+   withr::with_options(list(jam.file=stderr()), {
+      exon_range_selected <- jam_get("use_exon_range",
+         exon_range_selected_default,
+         verbose=TRUE,
+         ...);
+      exon_range_selected <- jamba::provigrep(
+         paste0(exon_range_selected, "$"),
+         names(flatExonsByGene[gene]@unlistData));
+      if (length(exon_range_selected) < 1) {
+         exon_range_selected <- exon_range_selected_default;
+      }
+      exon_range_selected <- jamba::mixedSort(exon_range_selected);
+      exon_range_selected <- c(head(exon_range_selected, 1),
+         tail(exon_range_selected, 1));
+   })
+   # jamba::printDebug("exon_range_selected_default:", exon_range_selected_default, file=stderr());# debug
+   # jamba::printDebug("exon_range_selected:", exon_range_selected, file=stderr());# debug
 
    # Define some potentially user-custom variables
    min_junction_reads <- jam_get("min_junction_reads",
@@ -266,7 +286,7 @@ sashimiAppUI <- function
                      shinyWidgets::radioGroupButtons(
                         inputId="use_exon_names",
                         status="primary",
-                        choices=c("coordinates", "exon names"),
+                        choices=c("coordinates", "exon names")[2:1],
                         selected=use_exon_names,
                         checkIcon=list(
                            # yes=shiny::icon("ok", lib="glyphicon")
@@ -313,12 +333,11 @@ sashimiAppUI <- function
                   condition="input.use_exon_names == 'exon names'",
                   shinyWidgets::sliderTextInput(
                      inputId="exon_range",
-                     label="Gene exon range",
+                     label=paste("Gene exon range"),
                      grid=TRUE,
                      force_edges=TRUE,
                      choices=exon_range_choices,
                      selected=exon_range_selected
-                     #selected=c("exon1", "exon3")
                   )
                ),
                shiny::conditionalPanel(
@@ -615,4 +634,4 @@ sashimiAppUI <- function
       skin="blue");
    dp;
 
-}
+   }

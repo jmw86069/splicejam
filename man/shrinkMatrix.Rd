@@ -41,4 +41,21 @@ This function is mainly a wrapper around the very efficient
 functions in the \code{data.table} package, with the ability to
 provide a custom function to shrink row values.
 }
-\concept{jam matrix functions}
+\seealso{
+Other Internal utility functions:
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=compressPolygonM]{compressPolygonM()}},
+\code{\link[=df2colorSub]{df2colorSub()}},
+\code{\link[=dfWide2segments]{dfWide2segments()}},
+\code{\link[=escapeWhitespaceRegexp]{escapeWhitespaceRegexp()}},
+\code{\link[=factor2label]{factor2label()}},
+\code{\link[=geomean]{geomean()}},
+\code{\link[=intercalate]{intercalate()}},
+\code{\link[=internal_junc_score]{internal_junc_score()}},
+\code{\link[=jamGeomean]{jamGeomean()}},
+\code{\link[=list2im]{list2im()}},
+\code{\link[=simplifyXY]{simplifyXY()}},
+\code{\link[=stackJunctions]{stackJunctions()}},
+\code{\link[=strsplitOrdered]{strsplitOrdered()}}
+}
+\concept{Internal utility functions}

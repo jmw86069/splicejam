@@ -39,8 +39,20 @@ data.frame(input=paste0('"', x, '"'),
 
 }
 \seealso{
-Other jam string functions:
-\code{\link[=sortSamples]{sortSamples()}},
+Other Internal utility functions:
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=compressPolygonM]{compressPolygonM()}},
+\code{\link[=df2colorSub]{df2colorSub()}},
+\code{\link[=dfWide2segments]{dfWide2segments()}},
+\code{\link[=factor2label]{factor2label()}},
+\code{\link[=geomean]{geomean()}},
+\code{\link[=intercalate]{intercalate()}},
+\code{\link[=internal_junc_score]{internal_junc_score()}},
+\code{\link[=jamGeomean]{jamGeomean()}},
+\code{\link[=list2im]{list2im()}},
+\code{\link[=shrinkMatrix]{shrinkMatrix()}},
+\code{\link[=simplifyXY]{simplifyXY()}},
+\code{\link[=stackJunctions]{stackJunctions()}},
 \code{\link[=strsplitOrdered]{strsplitOrdered()}}
 }
-\concept{jam string functions}
+\concept{Internal utility functions}

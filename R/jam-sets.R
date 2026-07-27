@@ -25,7 +25,7 @@
 #'    updated to reflect the count of each element.
 #' @param verbose logical indicating whether to print verbose output.
 #'
-#' @family jam list functions
+#' @family Internal utility functions
 #'
 #' @examples
 #' set.seed(123);

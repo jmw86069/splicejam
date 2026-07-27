@@ -9,7 +9,7 @@ exoncov2polygon(
   covNames = NULL,
   sample_id = NULL,
   baseline = NULL,
-  gapWidth = 250,
+  gapWidth = getOption("splicejam.gap", 250),
   doPlot = FALSE,
   coord_style = c("fortify", "base", "list", "all"),
   ref2c = NULL,
@@ -20,29 +20,32 @@ exoncov2polygon(
 )
 }
 \arguments{
-\item{gr}{GRanges where \code{colnames(GenomicRanges::values(gr))} is present in \code{covNames},
+\item{gr}{\code{GRanges} where \code{colnames(GenomicRanges::values(gr))} is present in \code{covNames},
 and contains data with class \code{NumericList}.}
 
-\item{covNames}{character vector contained in \code{colnames(GenomicRanges::values(gr))}.}
+\item{covNames}{\code{character} vector contained in \code{colnames(GenomicRanges::values(gr))}.}
 
-\item{baseline}{numeric vector of length 0, 1 or \code{length(gr)}. If
+\item{baseline}{\code{numeric} vector of length 0, 1 or \code{length(gr)}. If
 \code{baseline} has names matching \code{names(gr)} they will be used for
 each \code{gr} entry; if \code{baseline} is not named, it is extended
 to \code{length(gr)}. The \code{baseline} value is added to the coverage
 for each exon to offset the polygon as needed.}
 
-\item{gapWidth}{numeric value sent to \code{make_ref2compressed()}.}
+\item{gapWidth}{\code{integer} value, default 200 from
+\code{options('splicejam.gap')}, passed to \code{make_ref2compressed()} to set
+a fixed with for gap, thus compressing introns to a fixed visual
+size. When NULL, it uses 3.3 times the median feature length.}
 
-\item{coord_style}{character value to define the output style:
+\item{coord_style}{\code{character} value to define the output style:
 \code{"base"} returns a matrix with polygons separated by a row of \code{NA}
 values; \code{"fortify"} returns a \code{data.frame} intended for ggplot2,
 with columns \code{"cov"} and \code{"gr"} indicating the values in \code{covNames} and
 \code{names(gr)} used to separate each polygon.}
 
-\item{ref2c}{optional list containing output from \code{make_ref2compressed()},
+\item{ref2c}{optional \code{list} containing output from \code{make_ref2compressed()},
 used to compress the GRanges coordinates.}
 
-\item{compress_introns}{logical indicating whether to compress
+\item{compress_introns}{\code{logical} indicating whether to compress
 the coverage polygon coordinates to approximately the same
 number of pixels per inch as the exon polygons. This option
 greatly reduces the size of the polygon, since introns are
@@ -52,7 +55,7 @@ to a fixed width on the x-axis. The data has many more
 x-axis coordinates than the data visualization, this argument
 is intended to reduce the intron coordinates accordingly.}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
 }
@@ -126,14 +129,11 @@ ref2c <- make_ref2compressed(gr=test_cov_gr2[grep("exon", names(test_cov_gr2))])
 
 exondf2a <- exoncov2polygon(test_cov_gr2, covNames=c("sample_A", "sample_B", "sample_C"))
 exondf2 <- exoncov2polygon(test_cov_gr2, covNames=c("sample_A", "sample_B", "sample_C"), ref2c=ref2c)
-profvis::profvis({exondf2 <- exoncov2polygon(test_cov_gr2, covNames=c("sample_A", "sample_B", "sample_C"))})
-profvis::profvis({exondf2 <- exoncov2polygon(test_cov_gr2, covNames=c("sample_A", "sample_B", "sample_C"), ref2c=ref2c)})
-
 
 # create a ggplot
 gg3 <- ggplot2::ggplot(exondf2,
       ggplot2::aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
-   ggforce::geom_shape(alpha=0.8) +
+   ggforce::geom_shape(alpha=0.8, stat="unpack_polygon") +
    colorjam::theme_jam() +
    ggplot2::facet_wrap(~cov, ncol=1) +
    ggplot2::scale_x_continuous(trans=ref2c$trans_grc) +
@@ -145,52 +145,11 @@ print(gg3);
 \seealso{
 \code{test_cov_wide_gr()} for examples
 
-Other jam GRanges functions:
-\code{\link[=addGRLgaps]{addGRLgaps()}},
-\code{\link[=addGRgaps]{addGRgaps()}},
-\code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
-\code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
-\code{\link[=getGRLgaps]{getGRLgaps()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=getGRgaps]{getGRgaps()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=sortGRL]{sortGRL()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
-
-Other jam RNA-seq functions:
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=defineDetectedTx]{defineDetectedTx()}},
-\code{\link[=detectedTxInfo]{detectedTxInfo()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=groups2contrasts]{groups2contrasts()}},
-\code{\link[=internal_junc_score]{internal_junc_score()}},
-\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=runDiffSplice]{runDiffSplice()}},
-\code{\link[=sortSamples]{sortSamples()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
-
-Other splicejam core functions:
+Other Sashimi prep functions:
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=grl2df]{grl2df()}},
 \code{\link[=make_ref2compressed]{make_ref2compressed()}},
 \code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=splicejamFigure]{splicejamFigure()}}
+\code{\link[=prepareSashimi]{prepareSashimi()}}
 }
-\concept{jam GRanges functions}
-\concept{jam RNA-seq functions}
-\concept{splicejam core functions}
+\concept{Sashimi prep functions}

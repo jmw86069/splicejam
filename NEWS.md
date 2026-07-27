@@ -1,10 +1,29 @@
 # splicejam 0.0.91.900
 
+* Re-categorized all function families, for "See Also"
+and for pkgdown site docs.
+* Updated pkgdown site help docs.
 * Added 'testthat', 'vdiffr' with `splicejamFigure()`.
 * Added data `'sjenvtest'` with two genes from Farris et al.
+* Simplified vignette 'create-a-sashimi-plot.Rmd'.
+* Removed all other vignettes, no longer necessary.
+* Updated 'README.Rmd' with the abbreviated workflow,
+added alt text.
+
 
 ## Changes
 
+* `splicejamFigure()`
+
+   * returns 'timings_df' `data.frame` with time duration
+   for each of several steps in the process.
+   * Now adds 10% to y-axis ranges to accomodate junction labels.
+
+* `plotSashimi()` now positions junction labels below the arc
+for negative strand genes, junctions with negative scores.
+* `import_juncs_from_bed()` help docs include formatting for
+BED, bigBed using optional 'name' column to store scores
+higher than 1000, or 'SJ.out.tab' as produced by STAR aligner.
 * `sashimiDataConstants()`
 
    * Now properly defines 'color_sub' when farrisdata is used.
@@ -16,6 +35,12 @@
 
 * `sashimiAppServer()` no longer assumes 'exonsByTx' exists,
 will skip this step if not present.
+* `exoncov2polygons()`
+
+   * Refactored to use `NumericList` coverage data as-is without
+   further processing.
+   * Updated StatUnpackPolygon to handle this format, adding
+   initial and final point with y-value 0.
 
 # splicejam 0.0.90.900
 

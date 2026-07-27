@@ -11,11 +11,9 @@ interest to users as the standard ggplot2 api of using geom_* and stat_*
 functions for building up the plot is encouraged.
 }
 \seealso{
-Other jam ggplot2 functions:
-\code{\link[=gene2gg]{gene2gg()}},
+Other ggplot2 customizations:
 \code{\link[=geom_diagonal_wide_arc]{geom_diagonal_wide_arc()}},
-\code{\link[=plotSashimi]{plotSashimi()}},
 \code{\link[=stat_unpack_polygon]{stat_unpack_polygon()}},
 \code{\link[=to_basic.GeomShape]{to_basic.GeomShape()}}
 }
-\concept{jam ggplot2 functions}
+\concept{ggplot2 customizations}

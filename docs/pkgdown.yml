@@ -1,9 +1,9 @@
-pandoc: 2.14.1
-pkgdown: 1.6.1
+pandoc: 3.8.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  basic-rnaseq-workflow: basic-rnaseq-workflow.html
   create-a-sashimi-plot: create-a-sashimi-plot.html
-  shiny-server-for-sashimi-plots: shiny-server-for-sashimi-plots.html
-last_built: 2021-07-27T21:22Z
-
+last_built: 2026-07-27T21:52Z
+urls:
+  reference: https://jmw86069.github.io/splicejam/reference
+  article: https://jmw86069.github.io/splicejam/articles

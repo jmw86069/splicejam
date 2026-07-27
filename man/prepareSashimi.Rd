@@ -11,7 +11,7 @@ prepareSashimi(
   gene,
   sample_id = NULL,
   minJunctionScore = 10,
-  gapWidth = 200,
+  gapWidth = getOption("splicejam.gap", 200),
   addGaps = TRUE,
   baseline = 0,
   compressGR = TRUE,
@@ -88,10 +88,9 @@ and may be associated with numerous spurious junctions with
 10 to 50 reads, which are not useful to display when coverage
 is in the 10,000 order of magnitude.}
 
-\item{gapWidth}{\code{numeric} value of the fixed width to use for
-gaps (introns) between exon features. If \code{NULL} then
-\code{getGRgaps()} will use the default based upon the median exon
-width.}
+\item{gapWidth}{\code{integer} value, default 200 from options
+\code{options('splicejam.gap')}, to set a fixed gap width, or when
+NULL the gap width is defined as 3 times the median feature width.}
 
 \item{addGaps}{\code{logical} default TRUE, whether to include gap regions
 in the coverage plot, for example including introns or intergenic
@@ -321,7 +320,8 @@ data(test_cov_gr);
 filesDF <- data.frame(url="sample_A",
    type="coverage_gr",
    sample_id="sample_A");
-sh1 <- prepareSashimi(GRangesList(TestGene1=test_exon_gr),
+sh1 <- prepareSashimi(
+   flatExonsByGene=GRangesList(TestGene1=test_exon_gr),
    filesDF=filesDF,
    gene="TestGene1",
    covGR=test_cov_gr,
@@ -330,40 +330,11 @@ plotSashimi(sh1);
 
 }
 \seealso{
-Other jam RNA-seq functions:
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=defineDetectedTx]{defineDetectedTx()}},
-\code{\link[=detectedTxInfo]{detectedTxInfo()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=groups2contrasts]{groups2contrasts()}},
-\code{\link[=internal_junc_score]{internal_junc_score()}},
-\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=runDiffSplice]{runDiffSplice()}},
-\code{\link[=sortSamples]{sortSamples()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
-
-Other jam plot functions:
-\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
-\code{\link[=factor2label]{factor2label()}},
-\code{\link[=gene2gg]{gene2gg()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=jitter_norm]{jitter_norm()}},
-\code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
-
-Other splicejam core functions:
+Other Sashimi prep functions:
 \code{\link[=exoncov2polygon]{exoncov2polygon()}},
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=grl2df]{grl2df()}},
 \code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=splicejamFigure]{splicejamFigure()}}
+\code{\link[=plotSashimi]{plotSashimi()}}
 }
-\concept{jam RNA-seq functions}
-\concept{jam plot functions}
-\concept{splicejam core functions}
+\concept{Sashimi prep functions}

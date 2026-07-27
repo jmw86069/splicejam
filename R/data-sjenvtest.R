@@ -7,7 +7,7 @@
 #' both 'Compartment' values CB (cell body) and
 #' DE (dendrites).
 #' 
-#' @family splicejam data
+#' @family Splicejam data
 #' 
 #' @format `environment` with components suitable as
 #'    input to `splicejamFigure()` and other functions

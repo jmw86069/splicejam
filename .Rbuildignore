@@ -8,3 +8,7 @@
 ^doc$
 ^Meta$
 ^data-raw$
+^.vscode
+^.vdoc.*
+^TODO_.*md$
+^gencode.*$

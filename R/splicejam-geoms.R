@@ -8,15 +8,15 @@
 #' @name splicejam-extensions
 #' @rdname splicejam-extensions
 #'
-#' @family jam ggplot2 functions
+#' @family ggplot2 customizations
 #'
 NULL
 
 #' Draw an area defined by an upper and lower diagonal into an arc
 #'
 #' The `geom_diagonal_wide_arc()` function draws a *thick* diagonal, that is, a
-#' polygon confined between a lower and upper [diagonal][geom_diagonal]. As with
-#' the diagonal functions in `ggforce`, the wide diagonal variant is horizontal.
+#' polygon confined between a lower and upper diagonal, see `ggforce::geom_diagonal()`.
+#' The wide diagonal variant is horizontal.
 #' This function joins two adjacent diagonals into one wider arc.
 #'
 #' @section Aesthetics:
@@ -35,15 +35,16 @@ NULL
 #' @inheritParams ggforce::geom_shape
 #' @inheritParams ggplot2::stat_identity
 #'
-#' @param n The number of points to create for each of the bounding diagonals
-#'
-#' @param strength The proportion to move the control point along the x-axis
-#' towards the other end of the bezier curve
+#' @param n `integer` number of points to create for each
+#'    of the bounding diagonals
+#' @param strength `numeric` proportion to move the control
+#'    point along the x-axis towards the other end of the
+#'    bezier curve.
 #'
 #' @name geom_diagonal_wide_arc
 #' @rdname geom_diagonal_wide_arc
 #'
-#' @family jam ggplot2 functions
+#' @family ggplot2 customizations
 #'
 #' @examples
 #' data <- data.frame(
@@ -63,7 +64,7 @@ NULL
 #' # The diagonal_wide_arc geom uses geom_shape under the hood, so corner rounding
 #' # etc are all there
 #' ggplot(data) +
-#'   geom_diagonal_wide_arc(aes(x, y, group=group), radius=unit(5, 'mm'))
+#'   geom_diagonal_wide_arc(aes(x, y, group=group))
 #'
 NULL
 
@@ -71,10 +72,12 @@ NULL
 #' @format NULL
 #' @usage NULL
 #'
-#' @family jam ggplot2 functions
+#' @family ggplot2 customizations
 #'
 #' @export
-StatDiagonalWideArc <- ggplot2::ggproto('StatDiagonalWideArc', ggplot2::Stat,
+StatDiagonalWideArc <- ggplot2::ggproto(
+   'StatDiagonalWideArc',
+   ggplot2::Stat,
    setup_data=function(data, params) {
       if (any(!table(data$group) %in% c(8))) {
          stop('Each group must consist of 8 points')
@@ -126,7 +129,7 @@ StatDiagonalWideArc <- ggplot2::ggproto('StatDiagonalWideArc', ggplot2::Stat,
 
 #' @rdname geom_diagonal_wide_arc
 #'
-#' @family jam ggplot2 functions
+#' @family ggplot2 customizations
 #'
 #' @export
 stat_diagonal_wide_arc <- function
@@ -159,7 +162,7 @@ stat_diagonal_wide_arc <- function
 
 #' @rdname geom_diagonal_wide_arc
 #'
-#' @family jam ggplot2 functions
+#' @family ggplot2 customizations
 #'
 #' @export
 geom_diagonal_wide_arc <- function

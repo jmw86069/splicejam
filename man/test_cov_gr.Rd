@@ -38,7 +38,8 @@ test_cov_gr;
 exondf <- exoncov2polygon(test_cov_gr, covNames="sample_A");
 gg3 <- ggplot(exondf,
       aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
-   ggforce::geom_shape(alpha=0.8) +
+   ggforce::geom_shape(alpha=0.8,
+      stat="unpack_polygon") +
    colorjam::theme_jam() +
    colorjam::scale_fill_jam() +
    colorjam::scale_color_jam();
@@ -55,7 +56,7 @@ gg3 +
       alpha=0.6)
 }
 \seealso{
-Other splicejam data:
+Other Splicejam data:
 \code{\link{sjenvtest}},
 \code{\link{test_cov_wide_gr}},
 \code{\link{test_exon_gr}},
@@ -63,5 +64,5 @@ Other splicejam data:
 \code{\link{test_junc_gr}},
 \code{\link{test_junc_wide_gr}}
 }
-\concept{splicejam data}
+\concept{Splicejam data}
 \keyword{datasets}

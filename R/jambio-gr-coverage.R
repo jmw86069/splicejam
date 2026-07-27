@@ -29,7 +29,7 @@
 #' possible the cache will be invalidated by the addition of names
 #' to `gr`, though unclear exactly how deeply memoise checks such things.
 #'
-#' @return DataFrame object, whose colnames are defined using
+#' @returns `DataFrame` object, whose colnames are defined using
 #'    either `names(bwUrls)` or by `jamba::makeNames(basename(bwUrls))`
 #'    then removing the `.bw` or `.bigWig` file extension,
 #'    case-insensitively.
@@ -37,13 +37,12 @@
 #'    list of numeric coverage values.
 #'
 #'
-#' @family jam GRanges functions
-#' @family jam RNA-seq functions
+#' @family Data import functions
 #'
-#' @param gr GRanges object
-#' @param bwUrls character vector of full file paths or web URLs
+#' @param gr `GRanges` object
+#' @param bwUrls `character` vector of full file paths or web URLs
 #'    to bigWig files, suitable for use by `rtracklayer::import()`.
-#' @param addGaps logical indicating whether gaps between GRanges
+#' @param addGaps `logical` indicating whether gaps between GRanges
 #'    should be added to the query. Gaps are determined using
 #'    `getGRgaps()`. Practically, when `addGaps=TRUE` loads the
 #'    coverage data between exons, which can be a substantially
@@ -58,7 +57,7 @@
 #'    otherwise the column is created with value `default_feature_type`.
 #'    By default, this function adds a column `"feature_type"` with
 #'    value `"gap"`.
-#' @param use_memoise logical indicating whether to use `memoise::memoise()`
+#' @param use_memoise `logical` indicating whether to use `memoise::memoise()`
 #'    to store coverage data in cache files, which can be re-used in
 #'    subsequent R sessions, given consistent values for
 #'    `memoise_coverage_path`.
@@ -68,13 +67,13 @@
 #'    file to `bwUrls` will cause creating of one new memoise cache file,
 #'    but will re-use any pre-existing memoise cache files for the
 #'    previously cached `bwUrls` entries.
-#' @param memoise_coverage_path character path to file folder
+#' @param memoise_coverage_path `character` path to file folder
 #'    used to store coverage data in memoise cache files.
 #'    By default, the folder is a subfolder of
 #'    the current working directory (see `getwd()`) so it should be
 #'    changed to an absolute path if needed for wider re-use in any
 #'    working directory.
-#' @param do_shiny_progress logical indicating whether to update
+#' @param do_shiny_progress `logical` indicating whether to update
 #'    shiny progress bar, using `shiny::setProgress()`. It assumes
 #'    the progress bar is already initiated.
 #' @param dev_method `character` string with API method to use:
@@ -82,7 +81,7 @@
 #'    * `rtracklayer`: Uses `rtracklayer::import.bw()` and may
 #'    fail or take extreme time to return data for remote files,
 #'    and/or on Windows client machines.
-#' @param verbose logical indicating whether to print verbose output.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
 #' @export
@@ -120,7 +119,7 @@ getGRcoverageFromBw <- function
 
    # do_shiny_progress will become either progressr function,
    # or function that ignores its input.
-   if (length(do_shiny_progress) == 0) {
+   if (!inherits(do_shiny_progress, c("logical", "function"))) {
       do_shiny_progress <- getOption("splicejam.progress", FALSE)
    }
    if (isFALSE(do_shiny_progress) || !is.function(do_shiny_progress)) {
@@ -262,7 +261,7 @@ getGRcoverageFromBw <- function
             jamba::printDebug("bwUrl:");
             print(bwUrl);
             # added check in case this step stalls
-            if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+            if (!is.na(iBwPct)) {
                do_shiny_progress(amount=0,
                   paste0("Checking cov cache ", progress_of))
                if (verbose > 1) jamba::printDebug(0, " Checking cov cache ", progress_of, file=stderr());# debug
@@ -272,7 +271,7 @@ getGRcoverageFromBw <- function
                gr=gr);
             jamba::printDebug("   cov_has_cache:", cov_has_cache);
          }
-         if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+         if (!is.na(iBwPct)) {
             do_shiny_progress(amount=stepPct,
                paste0("Importing cov cache ", progress_of))
             if (verbose > 1) jamba::printDebug(iBwPct, " Importing cov cache ", progress_of, file=stderr());# debug
@@ -287,7 +286,7 @@ getGRcoverageFromBw <- function
                   "Repairing coverage cache.",
                   fgText=c("darkorange", "seagreen2"));
             }
-            if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+            if (!is.na(iBwPct)) {
                do_shiny_progress(amount=0,
                   paste0("Repairing cov cache ", progress_of))
                if (verbose > 1) jamba::printDebug(0, " Repairing cov cache ", progress_of, file=stderr());# debug
@@ -296,7 +295,7 @@ getGRcoverageFromBw <- function
                bwUrl,
                gr=gr);
             if (cov_has_cache) {
-               if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+               if (!is.na(iBwPct)) {
                   do_shiny_progress(amount=0,
                      paste0("Dropping cov cache ", progress_of))
                   if (verbose > 1) jamba::printDebug(0, " Dropping cov cache ", progress_of, file=stderr());# debug
@@ -309,7 +308,7 @@ getGRcoverageFromBw <- function
                      bwUrl,
                      gr=gr);
                }, error=function(e){
-                  if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+                  if (!is.na(iBwPct)) {
                      do_shiny_progress(amount=0,
                         paste0("Drop failed, loading cov ", progress_of))
                      if (verbose > 1) jamba::printDebug(0, " Drop failed, loading cov ", progress_of, file=stderr());# debug
@@ -331,7 +330,7 @@ getGRcoverageFromBw <- function
                   "Failed to repair coverage cache for bwUrl: ",
                   c("'", bwUrl, "'"), sep="",
                   fgText=c("darkorange", "red"));
-               if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+               if (!is.na(iBwPct)) {
                   do_shiny_progress(amount=0,
                      paste0("Failed repair, skipping cov ", progress_of))
                   if (verbose > 1) jamba::printDebug(0, " Failed repair, skipping cov ", progress_of, file=stderr());# debug
@@ -339,7 +338,7 @@ getGRcoverageFromBw <- function
             }
          }
       } else {
-         if (is.function(do_shiny_progress) && !is.na(iBwPct)) {
+         if (!is.na(iBwPct)) {
             do_shiny_progress(amount=stepPct,
                paste0("Importing, no cache ", progress_of))
             if (verbose > 1) jamba::printDebug(stepPct, " Importing, no cache ", progress_of, file=stderr());# debug
@@ -383,8 +382,7 @@ getGRcoverageFromBw <- function
 #'    with coverage combined taking the sum of individual
 #'    coverages after multiplying each by `scaleFactors`.
 #'
-#' @family jam GRanges functions
-#' @family jam RNA-seq functions
+#' @family Internal utility functions
 #'
 #' @param gr `GRanges` object containing coverage data in columns
 #'    containing NumericList class data.

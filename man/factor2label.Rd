@@ -61,13 +61,20 @@ factor2label(x);
 
 }
 \seealso{
-Other jam plot functions:
-\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
-\code{\link[=gene2gg]{gene2gg()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=jitter_norm]{jitter_norm()}},
-\code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
+Other Internal utility functions:
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=compressPolygonM]{compressPolygonM()}},
+\code{\link[=df2colorSub]{df2colorSub()}},
+\code{\link[=dfWide2segments]{dfWide2segments()}},
+\code{\link[=escapeWhitespaceRegexp]{escapeWhitespaceRegexp()}},
+\code{\link[=geomean]{geomean()}},
+\code{\link[=intercalate]{intercalate()}},
+\code{\link[=internal_junc_score]{internal_junc_score()}},
+\code{\link[=jamGeomean]{jamGeomean()}},
+\code{\link[=list2im]{list2im()}},
+\code{\link[=shrinkMatrix]{shrinkMatrix()}},
+\code{\link[=simplifyXY]{simplifyXY()}},
+\code{\link[=stackJunctions]{stackJunctions()}},
+\code{\link[=strsplitOrdered]{strsplitOrdered()}}
 }
-\concept{jam plot functions}
+\concept{Internal utility functions}

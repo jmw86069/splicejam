@@ -107,7 +107,7 @@
 #'    aggregating transcripts into ALEs. Note that only multi-ALE genes
 #'    are included, all single-ALE genes are excluded.
 #'
-#' @family jam ALE-specific RNA-seq functions
+#' @family ALE and codon functions
 #'
 #' @export
 tx2ale <- function
@@ -589,7 +589,7 @@ tx2ale <- function
 #'    to prevent divide-by-zero when all isoforms are `0`.
 #' @param verbose logical indicating whether to print verbose output.
 #'
-#' @family jam RNA-seq functions
+#' @family Detected transcripts
 #'
 #' @export
 defineDetectedTx <- function
@@ -909,7 +909,7 @@ defineDetectedTx <- function
 #'
 #' @import data.table
 #'
-#' @family jam matrix functions
+#' @family Internal utility functions
 #'
 #' @export
 shrinkMatrix <- function
@@ -1014,7 +1014,7 @@ shrinkMatrix <- function
 #' codonFile <- system.file("extdata", "Mouse_codon_usage.txt", package="splicejam");
 #' codonDF <- codonUsage2df(codonFile);
 #'
-#' @family jam codon usage functions
+#' @family ALE and codon functions
 #'
 #' @export
 codonUsage2df <- function
@@ -1073,7 +1073,7 @@ codonUsage2df <- function
 #' dnaext1 <- c("atgggattataga");
 #' dna2codon(dnaext1);
 #'
-#' @family jam codon usage functions
+#' @family ALE and codon functions
 #'
 #' @export
 dna2codon <- function
@@ -1084,8 +1084,12 @@ dna2codon <- function
    ## into 3-base codons.
    ##
    ## Split into a vector
-   y <- unlist(strsplit(x, ""));
-   h <- floor(length(y) / 3);
+   keep_n_codons <- floor(nchar(x) / 3);
+   extra_nts <- nchar(x) %% 3;
+   if (extra_nts > 0) {
+      add_blanks <- jamba::cPaste(rep(" ", 3 - extra_nts), sep="")
+      x <- paste0(x, add_blanks)
+   }
    ## The purpose of head() is to make sure we do not use the last
    ## codon unless it contains all three nucleotides. Otherwise
    ## matrix() will recycle text to fill the last row, creating a
@@ -1097,7 +1101,7 @@ dna2codon <- function
             unlist(strsplit(x, ""))),
             #seqinr::s2c(x)),
       sep=""),
-      h);
+      keep_n_codons);
 }
 
 #' Calculate Codon Adaptation Index
@@ -1124,7 +1128,7 @@ dna2codon <- function
 #'    `names(x)` containing codon adaptation index (cai) values
 #'    equivalent to those produced by `seqinr::cai()`.
 #'
-#' @family jam codon usage functions
+#' @family ALE and codon functions
 #'
 #' @export
 jamCai <- function
@@ -1202,7 +1206,7 @@ jamCai <- function
 #' x <- c(-20,10,40);
 #' jamGeomean(x);
 #'
-#' @family jam numeric functions
+#' @family Internal utility functions
 #'
 #' @export
 jamGeomean <- function
@@ -1212,7 +1216,7 @@ jamGeomean <- function
 {
    ## Purpose is to calculate geometric mean while allowing for
    ## positive and negative values
-   x2 <- mean(log2(1 + abs(x)) * sign(x),
+   x2 <- mean(log2(abs(1 + x)) * sign(x),
       na.rm=na.rm);
    sign(x2) * (2 ^ abs(x2) - 1);
 }
@@ -1226,18 +1230,35 @@ jamGeomean <- function
 #' The classical geometric mean is defined as
 #' the exponentiated mean of log-transformed values. Said another
 #' way, it is the `n`th root of the product of `n` numeric values.
-#' This formula is analogous to geometric distance. The formula
-#' does not allow negative values, however, and if any value is
-#' zero the result is also zero.
+#' This formula is analogous to geometric distance.
+#' 
+#' The original formula does not permit negative values, however
+#' the formula used here applies log to the absolute value,
+#' then multiplies that by the sign. For example `x(-4, 1/4)`
+#' would be applied `log2(abs(c(-4, 1/4))) * sign(c(-4, 1/4))`
+#' and thus both values would become -2. This adaptation is for
+#' convenience, assuming that a fraction `1/4` and negative value
+#' `-4` represent the same underlying value, usually a
+#' fold change. A fold change may be represented either as `-4``
+#' or as `1/4``, although technically the `1/4` is not a fold
+#' change but a ratio.
+#' 
+#' Whens supplying non-negative values, specifically those where
+#' a value '0' should be considered a legitimate measured
+#' result, and therefore should be incorporated into the geomean,
+#' set argument `'offset'` to some suitable offset, most
+#' common is `offset=1` to mimic `log2(1 + x)` transformation.
 #'
-#' @return numeric value representing the geometric mean of input values
+#' @return `numeric` value representing the geometric mean of input values
 #'
-#' @param x numeric vector containing only positive values
-#' @param na.rm logical indicating whether to ignore `NA` values. Note that
-#'    `NA` values are removed prior to log-transformation, to avoid negative
-#'    numbers being dropped completely. To drop negative numbers, do so
-#'    prior to calling `geomean()`.
-#' @param offset numeric value added to input `x` prior to log
+#' @param x `numeric` vector containing only positive values
+#' @param na.rm `logical` indicating whether to ignore `NA` values,
+#'    default TRUE.
+#'    When TRUE, NA values are removed upfront, before log transformation.
+#'    Note that negative values are maintained by default, by applying
+#'    log transformation on the absolute value, then multiplying by the
+#'    sign.
+#' @param offset `numeric` value added to input `x` prior to log
 #'    transformation, intended only when values between 0 and 1 should be
 #'    retained. Note that the offset makes the result slightly different
 #'    than classical geometric mean.
@@ -1251,9 +1272,10 @@ jamGeomean <- function
 #' geomean(x);
 #'
 #' x <- c(0, 4000, 200000);
-#' geomean(x);
+#' geomean(x, offset=1);
+#' geomean(-x, offset=1);
 #'
-#' @family jam numeric functions
+#' @family Internal utility functions
 #'
 #' @export
 geomean <- function
@@ -1264,11 +1286,39 @@ geomean <- function
  ...)
 {
    ## Purpose is to calculate the classical geometric mean
-   if (na.rm && any(is.na(x))) {
+   if (isTRUE(na.rm) && any(is.na(x))) {
       x <- jamba::rmNA(x,
          naValue=naValue);
    }
-   2 ^ mean(log2(x + offset), na.rm=na.rm) - offset;
+   use_x <- x;
+   if (offset > 0) {
+      if (offset < 1) {
+         offset <- 1;
+      }
+      use_x <- ifelse(x >= 0, x + offset, -1 * (abs(x) + offset))
+   # } else if (any(x < 1 & x > 0) && !any(x < 0)) {
+   #    use_x <- ifelse(x > 0 & x < 1, -1 / x, x)
+   }
+   
+   log2mean <- mean(log2(abs(use_x)) * sign(use_x), na.rm=TRUE);
+   if (any(x < 0)) {
+      new_x <- sign(log2mean + 1e-16) * 2 ^ abs(log2mean) - (offset * sign(log2mean + 1e-16));
+   } else {
+      new_x <- 2^(log2mean) - offset;
+   }
+   # new_x <- 2 ^ mean(log2(abs(use_x)) * sign(use_x), na.rm=TRUE);
+   # if (any(x < 0)) {
+   #    if (offset >= 1 && (new_x < 1 & new_x > 0)) {
+   #       new_x <- -1 / new_x + offset;
+   #    } else if (new_x >= 1) {
+   #       new_x <- new_x - offset;
+   #    } else if (new_x <= -1) {
+   #       new_x <- new_x + offset;
+   #    }
+   # } else {
+   #    new_x <- new_x - offset;
+   # }
+   new_x
 }
 
 #' Summarize detected transcript results
@@ -1309,7 +1359,7 @@ geomean <- function
 #'
 #' @param ... additional arguments are ignored.
 #'
-#' @family jam RNA-seq functions
+#' @family Detected transcripts
 #'
 #' @export
 detectedTxInfo <- function
@@ -1418,7 +1468,7 @@ detectedTxInfo <- function
 #' levels(factor2label(x));
 #' factor2label(x);
 #'
-#' @family jam plot functions
+#' @family Internal utility functions
 #'
 #' @export
 factor2label <- function
@@ -1483,28 +1533,24 @@ factor2label <- function
 #' GRangesList element has only one strand and one seqname,
 #' and will stop otherwise.
 #'
-#' @return GRangesList containing only the first stranded
-#'    GRanges feature per input GRangesList element. When
+#' @returns `GRangesList` containing only the first stranded
+#'    `GRanges` feature per input `GRangesList` element. When
 #'    `method="flank"` the output contains no metadata values,
 #'    but this method is deprecated.
 #'
-#' @family jam ALE-specific RNA-seq functions
-#' @family jam GRanges functions
+#' @family ALE and codon functions
 #'
-#' @param grl GRangesList
-#' @param method character value in `c("direct", "endoapply", "flank")`
-#'    representing which method to use to define the first feature.
-#'    The `"direct"` method uses `IRanges::heads()` or
-#'    `IRanges::tails()` depending upon the strandedness;
-#'    the `"endoapply"` method uses `S4Vectors::endoapply()` to
+#' @param grl `GRangesList`
+#' @param method `character` with method to use, default 'direct':
+#'    * 'direct' uses `IRanges::heads()` or
+#'    `IRanges::tails()` depending upon the strandedness.
+#'    This approach is vectorized and is preferred.
+#'    * 'endoapply' uses `S4Vectors::endoapply()` to
 #'    iterate each GRangesList element, then returns the result
-#'    from `head()` or `tail()`. The `"flank"` method is
-#'    intended to be equivalent but uses `IRanges::heads()` or
-#'    `IRanges::tails()` then `GenomicRanges::flank()`, which
-#'    is vectorized. The `"flank"` method is deprecated and
-#'    `"direct"` is recommended as the preferred vectorized
-#'    replacement.
-#' @param verbose logical indicating whether to print verbose output.
+#'    from `head()` or `tail()`.
+#'    This approach is not vectorized and may be substantially
+#'    slower than 'direct'.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
 #' @examples
@@ -1557,7 +1603,11 @@ getFirstStrandedFromGRL <- function
             "performing direct logic");
       }
       grl2 <- IRanges::heads(grl, 1);
-      is_minus <- as.vector(unlist(GenomicRanges::strand(range(grl)))) %in% "-";
+      # jamba::printDebug("GenomicRanges::strand(range(grl)):");print(GenomicRanges::strand(range(grl)));# debug
+      jamba::printDebug("GenomicRanges::strand(grl2@unlistData):");print(GenomicRanges::strand(grl2@unlistData));# debug
+      jamba::printDebug("lengths(grl):");print(lengths(grl));# debug
+      jamba::printDebug("lengths(grl2):");print(lengths(grl2));# debug
+      is_minus <- as.vector(unlist(GenomicRanges::strand(grl2@unlistData))) %in% "-";
       if (any(is_minus)) {
          grl2[is_minus] <- IRanges::tails(grl[is_minus], 1);
       }
@@ -1630,7 +1680,7 @@ getFirstStrandedFromGRL <- function
 #'
 #' @return GRangesList sorted by chromosome and position.
 #'
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
 #' @param GRL GRangesList to be sorted.
 #' @param splitColname intermediate colname used to split values
@@ -1739,7 +1789,7 @@ sortGRL <- function
 #' @return GRanges object with colnames added to `values`, with length
 #' and order equal to the input `GR1` GRanges object.
 #'
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
 #' @param GR1 GRanges object, the reference object to which annotations
 #'    are added.
@@ -2272,7 +2322,7 @@ annotateGRfromGR <- function
 #' @return GRangesList object with the same length and lengths as
 #'    the input `GRL1`, with annotation columns added from `GRL2`.
 #'
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
 #' @param GRL1 GRangesList query
 #' @param GRL2 GRangesList subject, used to add annotations to `GRL1`
@@ -2431,24 +2481,22 @@ annotateGRLfromGRL <- function
 #' case of two GRangesList objects, restricting results to those including
 #' the same GRangesList index in the subject and query.
 #'
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
-#' @return Hits object, or the natural output from
+#' @return `Hits` object, or the natural output from
 #'    `GenomicRanges::findOverlaps()` dependent upon the `...` arguments,
 #'    subsetted for only entries with matching values defined
 #'    by `annoName1` and `annoName2`.
 #'
-#' @family jam GRanges functions
-#'
-#' @param GRL1 GRangesList query
-#' @param GRL2 GRangesList subject
-#' @param annoName1 character value indicating either the colname of
+#' @param GRL1 `GRangesList` query
+#' @param GRL2 `GRangesList` subject
+#' @param annoName1 `character` value indicating either the colname of
 #'    `values(GRL1)` to use as the name, or if `"name"` then it uses
 #'    `names(GRL1)`.
-#' @param annoName2 character value indicating either the colname of
+#' @param annoName2 `character` value indicating either the colname of
 #'    `values(GRL2)` to use as the name, or if `"name"` then it uses
 #'    `names(GRL2)`.
-#' @param check_names logical indicating whether the values defined
+#' @param check_names `logical` indicating whether the values defined
 #'    by `annoName1` should match the values defined by `annoName2`.
 #'    Note that when `check_names=FALSE` the overlaps returned will
 #'    depend upon GRL1 and GRL2 being in identical order. Otherwise,
@@ -2537,8 +2585,7 @@ findOverlapsGRL <- function
 #' @return GRangesList object with additional columns indicating the
 #' exon name.
 #'
-#' @family jam GRanges functions
-#' @family jam RNA-seq functions
+#' @family GenomicRanges functions
 #'
 #' @param GRL `GRangesList` input object. Ideally, the input `GRanges` are
 #'    disjoint, meaning no two exons overlap, but instead are represented
@@ -2843,7 +2890,7 @@ assignGRLexonNames <- function
 #' all comparisons are strand-specific. To force non-stranded comparisons,
 #' update the strand of the input object to `"*"`.
 #'
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
 #' @return `logical` vector indicating whether the input `x` contains
 #'    disjoint ranges. When input `x` is a `GRangesList` then the
@@ -2910,7 +2957,7 @@ jam_isDisjoint <- function
 #' @param verbose logical indicating whether to print verbose output
 #' @param ... additional arguments are ignored.
 #'
-#' @family jam ALE-specific RNA-seq functions
+#' @family ALE and codon functions
 #'
 #' @export
 ale2violin <- function
@@ -3241,15 +3288,15 @@ ale2violin <- function
 #' `test` for more information about transcript- and gene-level
 #' summaries.
 #'
-#' @family jam RNA-seq functions
+#' @family Design functions
 #'
-#' @param iMatrixTx numeric matrix of expression, with transcripts as
+#' @param iMatrixTx `numeric` matrix of expression, with transcripts as
 #'    rows and samples as columns. The data is assumed to be log2-transformed
 #'    using the format `log2(1 + x)`. This data should be normalized using
 #'    appropriate methods, outside the scope of this function.
-#' @param detectedTx character vector containing all or a subset of
+#' @param detectedTx `character` vector containing all or a subset of
 #'    `rownames(iMatrix)` used for statistical testing.
-#' @param tx2geneDF data.frame with colnames `c(txColname, geneColname)`,
+#' @param tx2geneDF `data.frame` with colnames `c(txColname, geneColname)`,
 #'    where all entries of `rownames(iMatrix)` are represented
 #'    in `tx2geneDF[,txColname]`.
 #' @param txColname,geneColname the `colnames(tx2geneDF)` representing
@@ -3257,13 +3304,13 @@ ale2violin <- function
 #'    and the associated genes given by `tx2geneDF[,geneColname]`.
 #'    Note that `detectedTx` must also contain values in `rownames(iMatrixTx)`
 #'    and `tx2geneDF[,txColname]`.
-#' @param iDesign numeric matrix representing the design matrix for
+#' @param iDesign `numeric` matrix representing the design matrix for
 #'    the experiment design. For example, `limma::model.matrix(~0+group)`
 #'    will represent each group. Typically, `rownames(iDesign)` should
 #'    be defined to match the `colnames(iMatrix)` even if it requires
 #'    extra processing. The `colnames(iDesign)` should represent
 #'    group names used in `rownames(iContrasts)`.
-#' @param iContrasts numeric matrix representing the contrasts used
+#' @param iContrasts `numeric` matrix representing the contrasts used
 #'    in statistical comparisons. This matrix can be generated by
 #'    running `limma::makeContrasts()` using a format similar to the
 #'    following: `limma::makeContrasts(contrasts="group1-group2", levels=iDesign)`,
@@ -3271,24 +3318,24 @@ ale2violin <- function
 #' @param cutoffFDR numeric value indicating a statistical threshold
 #'    on the FDR (adjusted P-value). Values should be between 0 and 1, where
 #'    `cutoffFDR=1` would impose no threshold on the adjusted P-value.
-#' @param cutoffFold numeric value indicating the minimum normal space
+#' @param cutoffFold `numeric` value indicating the minimum normal space
 #'    fold change allowed for statistical hits. For example `cutoffFold=2`
 #'    would require a 2-fold change, equivalent to log2 fold change >= 1.
-#' @param collapseByGene logical indicating whether results should be
+#' @param collapseByGene `logical` indicating whether results should be
 #'    summarized at the gene level after filtering statistical hits.
-#' @param spliceTest character value described in `limma::topSplice()`
+#' @param spliceTest `character` value described in `limma::topSplice()`
 #'    which defines the statistical test to return. The default `"t"`
 #'    returns the t-test result for each isoform, which is mainly beneficial
 #'    because it also includes fold change that can be filtered. The
 #'    `"F"` returns F-test per gene, and `"simes"` returns the per-gene
 #'    t-test P-value after Simes adjustment per gene.
-#' @param sep character value used as a delimiter in output data.frame
+#' @param sep `character` value used as a delimiter in output data.frame
 #'    colnames, such that each stats is followed by the contrast name,
 #'    separated by this delimiter.
-#' @param useVoom logical indicating whether to apply the `limma::voom()`
+#' @param useVoom `logical` indicating whether to apply the `limma::voom()`
 #'    adjustment prior to running `limma::diffSplice()`. This value
 #'    should be `TRUE` when analyzing count or pseudocount data.
-#' @param verbose logical indicating whether to print verbose output.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
 #' @references
@@ -3570,12 +3617,12 @@ runDiffSplice <- function
 #' for each chromosome (using `GenomicRanges::seqnames(gr)`), and when `strandSpecific=TRUE`
 #' it determines gaps in stranded fashion.
 #'
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
-#' @param gr GRanges object
-#' @param strandSpecific logical indicating whether to convert strand
-#'    to `"*"` prior to determining gaps between features.
-#' @param verbose logical indicating whether to print verbose output.
+#' @param gr `GRanges` object
+#' @param strandSpecific `logical`, default TRUE, whether to determine gaps
+#'    within strand.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are passed to `getGRLgaps()`.
 #'
 #' @export
@@ -3616,16 +3663,16 @@ getGRgaps <- function
 #' otherwise strands are converted to `"*"`. It will also determine
 #' gaps within chromosome for each GRanges entry in GRangesList.
 #'
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
 #' @return GRangesList object with gaps for each chromosome and strand
 #'    present in each GRanges entry. It does not return gap sequence
 #'    at the edges of GRanges regions to the chromosome ends.
 #'
-#' @param grl GRangesList object.
-#' @param strandSpecific logical indicating whether to determine gaps
+#' @param grl `GRangesList` object.
+#' @param strandSpecific `logical`, default TRUE, whether to determine gaps
 #'    within strand.
-#' @param verbose logical indicating whether to print verbose output.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
 #' @export
@@ -3787,8 +3834,7 @@ getGRLgaps <- function
 #' giving a visual indicator that it may need to be reviewed
 #' in more detail.
 #'
-#' @family jam RNA-seq functions
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
 #' @return `GRangesList` with names dependent upon argument `by`:
 #'    when `by="gene"` names are derived from values in `geneColname`;
@@ -4135,7 +4181,7 @@ flattenExonsBy <- function
 #' gaps GRanges object will have `NA` values used by default. To supply
 #' values, use the `newValues` argument, which assigns name-value pairs.
 #'
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
 #' @return GRanges object, sorted when `doSort=TRUE`. When `newValues`
 #'    is supplied, the values for gaps GRanges elements will be assigned,
@@ -4236,7 +4282,7 @@ addGRgaps <- function
 #' gaps GRanges object will have `NA` values used by default. To supply
 #' values, use the `newValues` argument, which assigns name-value pairs.
 #'
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
 #' @return GRangesList object, sorted per GRangesList element
 #'    when `doSort=TRUE`. When `newValues`
@@ -4387,8 +4433,7 @@ addGRLgaps <- function
 #' This function should usually be called by `spliceGR2junctionDF()`
 #' and not called directly.
 #'
-#' @family jam RNA-seq functions
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
 #' @param spliceGRgene GRanges representing splice junctions
 #' @param exonsGR GRanges representing flattened exons per gene, as
@@ -4662,28 +4707,27 @@ closestExonToJunctions <- function
 #' row identifier, `score` as the value column, and `sampleColname` as
 #' the new column headers.
 #'
-#' @family jam RNA-seq functions
-#' @family jam GRanges functions
+#' @family GenomicRanges functions
 #'
-#' @param spliceGRgene GRanges object containing splice junctions, where
+#' @param spliceGRgene `GRanges` object containing splice junctions, where
 #'    the `scoreColname` contains numeric scores.
-#' @param exonsGR GRanges object containing flattened exons by gene,
+#' @param exonsGR `GRanges` object containing flattened exons by gene,
 #'    as is provided by `flattenExonsBy()`.
-#' @param spliceBuffer integer distance allowed from a compatible exon
+#' @param spliceBuffer `integer` distance allowed from a compatible exon
 #'    boundary, for a junction read to be snapped to that boundary.
-#' @param useOnlyValidEntries logical indicating whether to remove
+#' @param useOnlyValidEntries `logical` indicating whether to remove
 #'    junctions that do not align with a compatible exon boundary.
-#' @param renameTooFar logical indicating whether junctions are
+#' @param renameTooFar `logical` indicating whether junctions are
 #'    named by the nearest exon boundary and the distance to that
 #'    boundary.
 #' @param scoreColname,sampleColname colnames in `values(spliceGRgene)`
 #'    to define the score, and `sample_id`.
-#' @param flipNegativeStrand logical indicating whether to flip the
+#' @param flipNegativeStrand `logical` indicating whether to flip the
 #'    orientation of negative strand features when matching exon
 #'    boundaries. This argument is passed to `closestExonToJunctions()`.
-#' @param returnGRanges logical indicating whether to return GRanges,
+#' @param returnGRanges `logical` indicating whether to return GRanges,
 #'    or by default, `data.frame`.
-#' @param verbose logical indicating whether to print verbose output.
+#' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
 #'
 #' @export
@@ -4946,3 +4990,4 @@ spliceGR2junctionDF <- function
    }
    return(retVals);
 }
+  

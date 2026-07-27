@@ -35,8 +35,11 @@ This function is equivalent to \code{seqinr::cai()} except that it
 runs in vectorized form and is markedly more efficient.
 }
 \seealso{
-Other jam codon usage functions:
+Other ALE and codon functions:
+\code{\link[=ale2violin]{ale2violin()}},
 \code{\link[=codonUsage2df]{codonUsage2df()}},
-\code{\link[=dna2codon]{dna2codon()}}
+\code{\link[=dna2codon]{dna2codon()}},
+\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
+\code{\link[=tx2ale]{tx2ale()}}
 }
-\concept{jam codon usage functions}
+\concept{ALE and codon functions}

@@ -38,8 +38,11 @@ codonDF <- codonUsage2df(codonFile);
 
 }
 \seealso{
-Other jam codon usage functions:
+Other ALE and codon functions:
+\code{\link[=ale2violin]{ale2violin()}},
 \code{\link[=dna2codon]{dna2codon()}},
-\code{\link[=jamCai]{jamCai()}}
+\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
+\code{\link[=jamCai]{jamCai()}},
+\code{\link[=tx2ale]{tx2ale()}}
 }
-\concept{jam codon usage functions}
+\concept{ALE and codon functions}

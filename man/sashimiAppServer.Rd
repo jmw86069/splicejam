@@ -25,7 +25,7 @@ calls \code{shiny::shinyApp()}, using arguments \code{server}, \code{ui},
 \code{onStart}, and \code{options}. This function fulfills the
 argument \code{server}.
 }
-\concept{splicejam R-shiny functions
+\concept{Shiny prep functions
 \subsection{@import jamba}{
 }
 

@@ -184,8 +184,10 @@ curateDFtoDF(df, curationL);
 
 }
 \seealso{
-Other jam design functions:
+Other Design functions:
 \code{\link[=curateVtoDF]{curateVtoDF()}},
-\code{\link[=groups2contrasts]{groups2contrasts()}}
+\code{\link[=groups2contrasts]{groups2contrasts()}},
+\code{\link[=runDiffSplice]{runDiffSplice()}},
+\code{\link[=sortSamples]{sortSamples()}}
 }
-\concept{jam design functions}
+\concept{Design functions}

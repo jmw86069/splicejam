@@ -83,9 +83,7 @@
 #' @param ... additional arguments are passsed to relevant downstream
 #'    functions.
 #'
-#' @family jam GRanges functions
-#' @family jam plot functions
-#' @family splicejam core functions
+#' @family Sashimi prep functions
 #'
 #' @examples
 #' suppressPackageStartupMessages(library(GenomicRanges));
@@ -99,7 +97,9 @@
 #' grldf <- grl2df(gr, addGaps=TRUE);
 #'
 #' gg1 <- ggplot2::ggplot(grldf, ggplot2::aes(x=x, y=y, group=id)) +
-#'    ggforce::geom_shape(ggplot2::aes(fill=feature_type)) +
+#'    ggforce::geom_shape(
+#'       ggplot2::aes(fill=feature_type),
+#'       stat="unpack_polygon") +
 #'    colorjam::theme_jam()
 #' print(gg1);
 #'
@@ -111,11 +111,11 @@
 #'    colorjam::theme_jam()
 #' print(gg2);
 #'
-#' ## data can also be plotted using coord_trans()
+#' ## data can also be plotted using coord_transform()
 #' ## the main difference is that x-axis breaks are defined before the
 #' ## transformation, which can result in non-optimal placement
 #' gg3 <- gg1 +
-#'    ggplot2::coord_trans(x=ref2c$trans_grc) + colorjam::theme_jam();
+#'    ggplot2::coord_transform(x=ref2c$trans_grc) + colorjam::theme_jam();
 #' print(gg3);
 #'
 #' ## An example showing splice junction data
@@ -220,7 +220,8 @@ grl2df <- function
       } else {
          yBase <- rep(seq_along(grl) - 1,
             S4Vectors::elementNROWS(grl));
-         ySeqnames <- as.character(unlist(GenomicRanges::seqnames(grl)));
+         ySeqnames <- unlist(
+            IRanges::CharacterList(GenomicRanges::seqnames(grl)));
          abs_rank <- function(x){
             xu <- jamba::nameVector(unique(x));
             xr <- rank(xu, ties.method="min");
@@ -470,9 +471,7 @@ grl2df <- function
 #' the `data.frame` used to produce the ggplot, which allows
 #' for more customization.
 #'
-#' @family jam plot functions
-#' @family jam ggplot2 functions
-#' @family splicejam core functions
+#' @family Sashimi prep functions
 #'
 #' @param gene `character` string of the gene to plot, compared
 #'    with `names(flatExonsByGene)` and `values(flatExonsByTx)$gene_name`.
@@ -527,7 +526,7 @@ grl2df <- function
 #'    contains among other things, the `trans_grc` data of
 #'    class `trans` or `transform` depending upon the versions
 #'    of `scales` and `ggplot2` packages. It is used by
-#'    `ggplot2::coord_trans()` or `ggplot2::scale_x_continuous()`.
+#'    `ggplot2::coord_transform()` or `ggplot2::scale_x_continuous()`.
 #'    Note: The use of `trans` or `transform` object types should be
 #'    consistent with the version of `scales` and `ggplot2`,
 #'    for example an older version from cached data cannot be
@@ -920,10 +919,10 @@ gene2gg <- function
             ggrepel::geom_text_repel(
                inherit.aes=FALSE,
                data=exonLabelDF,
-               ggplot2::aes_(x=~x,
-                  y=~min(y),
+               ggplot2::aes(x = x,
+                  y = min(y),
                   #text=NULL,
-                  label=as.name(exonColname)),
+                  label = .data[[exonColname]]),
                angle=exonLabelAngle,
                hjust=vjust,
                vjust=hjust,
@@ -990,8 +989,7 @@ gene2gg <- function
 #' and `"nameTo"`, the junctions are by default stacked by
 #' coordinates.
 #'
-#' @family jam plot functions
-#' @family jam GRanges functions
+#' @family Internal utility functions
 #'
 #' @return GRanges with colnames `c("yStart", "yEnd")` added
 #'    to `values(gr)`, indicating the baseline y-axis position
@@ -1363,9 +1361,7 @@ stackJunctions <- function
 #' As a result, this function provides several arguments to
 #' customize the visualization.
 #'
-#' @family jam plot functions
-#' @family jam ggplot2 functions
-#' @family splicejam core functions
+#' @family Sashimi prep functions
 #'
 #' @param sashimi Sashimi data prepared by `prepareSashimi()` which
 #'    is a `list` with `covDF` coverage data in data.frame format,
@@ -1381,7 +1377,7 @@ stackJunctions <- function
 #' @param coord_method `character` value indicating the type of
 #'    coordinate scaling to use:
 #'    `"scale"` uses `ggplot2::scale_x_continuous()`;
-#'    `"coord"` uses `ggplot2::coord_trans()`;
+#'    `"coord"` uses `ggplot2::coord_transform()`;
 #'    `"none"` does not compress genomic coordinates.
 #' @param exonsGrl `GRangesList` object with one or more gene or
 #'    transcript exon models, where exons are disjoint (not
@@ -1457,7 +1453,8 @@ stackJunctions <- function
 #' filesDF <- data.frame(url="sample_A",
 #'    type="coverage_gr",
 #'    sample_id="sample_A");
-#' sh1 <- prepareSashimi(GRangesList(TestGene1=test_exon_gr),
+#' sh1 <- prepareSashimi(
+#'    flatExonsByGene=GRangesList(TestGene1=test_exon_gr),
 #'    filesDF=filesDF,
 #'    gene="TestGene1",
 #'    covGR=test_cov_gr,
@@ -1704,13 +1701,14 @@ plotSashimi <- function
                na.rm=TRUE);
          }
          ## Todo: nudge_y to adjust labels consistently above the ribbon
-         max_junc_y <- max(na.rm=TRUE,
-            unlist(subset(cjDF, type %in% "junction_label")$y));
-         # jamba::printDebug("plotSashimi(): ",
-         #    "VERBOSE: Adding junction labels.");
-         # cjDF1 <- subset(cjDF, type %in% "junction_label");
-         # cjDF1$x <- unlist(cjDF1$x);
-         # cjDF1$y <- unlist(cjDF1$y);
+         cjDFjl <- subset(cjDF, type %in% "junction_label")
+         # cjDFjl$xmax <- sapply(cjDFjl$x, max);
+         # cjDFjl$xmin <- sapply(cjDFjl$x, min);
+         jly <- unlist(cjDFjl$y)[
+            (unlist(cjDFjl$x) >= min(label_coords)) &
+            (unlist(cjDFjl$x) <= max(label_coords))
+         ];
+         max_junc_y <- max(na.rm=TRUE, abs(jly));
          gg_sashimi <- gg_sashimi +
             ggrepel::geom_text_repel(
                mapping=ggplot2::aes(
@@ -1726,7 +1724,7 @@ plotSashimi <- function
                vjust=0.5,
                direction="y",
                point.padding=0,
-               nudge_y=(max_junc_y * junc_nudge_pct),
+               nudge_y=(max_junc_y * junc_nudge_pct * sign(jly)),
                #fill="transparent",
                color="black"
             );
@@ -1749,7 +1747,7 @@ plotSashimi <- function
             name=xlabel);
    } else if ("coord" %in% coord_method) {
       gg_sashimi <- gg_sashimi +
-         ggplot2::coord_trans(x=sashimi$ref2c$trans_grc) +
+         ggplot2::coord_transform(x=sashimi$ref2c$trans_grc) +
          #coord_cartesian(expand=FALSE) +
          ggplot2::xlab(xlabel);
    }
@@ -1799,7 +1797,7 @@ plotSashimi <- function
 #'
 #' @inheritParams plotly::to_basic
 #'
-#' @family jam ggplot2 functions
+#' @family ggplot2 customizations
 #'
 #' @importFrom plotly to_basic
 #' @export
@@ -1831,6 +1829,19 @@ jam_ggplotly <- function(p, ...)
       #    "jamba::tcount(p$data$name):");
       # print(head(jamba::tcount(p$data$name), 20));# debug
       name_ct <- lengths(p$data$x);
+
+      # insert 0 at beginning and end
+      multixs <- which(name_ct > 1);
+      for (multix in multixs) {
+         p$data$x[[multix]] <- c(head(p$data$x[[multix]], 1),
+            p$data$x[[multix]],
+            tail(p$data$x[[multix]], 1));
+         p$data$y[[multix]] <- c(0,
+            p$data$y[[multix]],
+            0);
+      }
+      name_ct <- lengths(p$data$x);
+
       use_rows <- rep(seq_along(name_ct), name_ct);
       new_data <- p$data[use_rows, , drop=FALSE];
       new_data$x <- unname(unlist(p$data$x))
@@ -1898,7 +1909,7 @@ jam_ggplotly <- function(p, ...)
 #'    Default is `TRUE`.
 #' @param ... Additional arguments passed to the base stat.
 #'
-#' @family jam ggplot2 functions
+#' @family ggplot2 customizations
 #'
 #' @examples
 #' # Create compact polygon data with list-column coordinates
@@ -1954,17 +1965,42 @@ StatUnpackPolygon <- ggplot2::ggproto("StatUnpackPolygon", ggplot2::Stat,
       unpacked_list <- lapply(seq_len(nrow(data)), function(i) {
          row <- data[i, , drop=FALSE]
 
-         # Get x and y values, coerce to numeric if needed
-         x_vals <- tryCatch({
-            as.numeric(row$x[[1]])
+         # Get y values (coverage data)
+         # Extract from list column (either from fast or slow path)
+         y_vals <- tryCatch({
+            as.numeric(row$y[[1]])
          }, error=function(e) {
-            as.numeric(row$x)
+            as.numeric(row$y)
          })
 
-         y_vals <- tryCatch({
-         as.numeric(row$y[[1]])
+         # Get x values (genomic positions)
+         # For FAST PATH: x contains coverage data, need to create coordinates from x_start/x_end
+         # For SLOW PATH: x contains actual coordinates already
+         x_vals <- tryCatch({
+            # Check if we have x_start/x_end and need to create coordinates
+            if (("x_start" %in% colnames(data) && "x_end" %in% colnames(data)) &&
+                !is.na(row$x_start) && !is.na(row$x_end)) {
+               # Check if x appears to be coordinates or coverage
+               x_test <- tryCatch({
+                  as.numeric(row$x[[1]])
+               }, error=function(e) {
+                  numeric(0)
+               })
+               
+               # If x is same length as y, it's coordinates; if much shorter, it's coverage data
+               if (length(x_test) != length(y_vals)) {
+                  # x is not coordinates, create them from x_start/x_end (FAST PATH)
+                  seq(from=as.numeric(row$x_start), to=as.numeric(row$x_end), length.out=length(y_vals))
+               } else {
+                  # x already contains coordinates (SLOW PATH)
+                  x_test
+               }
+            } else {
+               # No x_start/x_end, just extract x as-is
+               as.numeric(row$x[[1]])
+            }
          }, error=function(e) {
-         as.numeric(row$y)
+            as.numeric(row$x)
          })
 
          # Ensure equal length
@@ -1973,6 +2009,29 @@ StatUnpackPolygon <- ggplot2::ggproto("StatUnpackPolygon", ggplot2::Stat,
             min_len <- min(length(x_vals), length(y_vals))
             x_vals <- x_vals[seq_len(min_len)]
             y_vals <- y_vals[seq_len(min_len)]
+         }
+
+         # Add polygon baseline closure (y=0 at both ends) if not already present
+         # This ensures proper polygon closure for geom_shape rendering
+         if (length(y_vals) > 0 && !all(is.na(y_vals))) {
+            # Build new x and y with leading/trailing zeros as needed
+            x_new <- x_vals
+            y_new <- y_vals
+            
+            # Add leading zero only if first value is not already zero
+            if (y_vals[1] != 0) {
+               x_new <- c(x_vals[1], x_new)
+               y_new <- c(0, y_new)
+            }
+            
+            # Add trailing zero only if last value is not already zero
+            if (y_vals[length(y_vals)] != 0) {
+               x_new <- c(x_new, x_vals[length(x_vals)])
+               y_new <- c(y_new, 0)
+            }
+            
+            x_vals <- x_new
+            y_vals <- y_new
          }
 
          # Create expanded data frame for this polygon

@@ -20,12 +20,12 @@ getGRcoverageFromBw(
 )
 }
 \arguments{
-\item{gr}{GRanges object}
+\item{gr}{\code{GRanges} object}
 
-\item{bwUrls}{character vector of full file paths or web URLs
+\item{bwUrls}{\code{character} vector of full file paths or web URLs
 to bigWig files, suitable for use by \code{rtracklayer::import()}.}
 
-\item{addGaps}{logical indicating whether gaps between GRanges
+\item{addGaps}{\code{logical} indicating whether gaps between GRanges
 should be added to the query. Gaps are determined using
 \code{getGRgaps()}. Practically, when \code{addGaps=TRUE} loads the
 coverage data between exons, which can be a substantially
@@ -41,7 +41,7 @@ otherwise the column is created with value \code{default_feature_type}.
 By default, this function adds a column \code{"feature_type"} with
 value \code{"gap"}.}
 
-\item{use_memoise}{logical indicating whether to use \code{memoise::memoise()}
+\item{use_memoise}{\code{logical} indicating whether to use \code{memoise::memoise()}
 to store coverage data in cache files, which can be re-used in
 subsequent R sessions, given consistent values for
 \code{memoise_coverage_path}.
@@ -52,14 +52,14 @@ file to \code{bwUrls} will cause creating of one new memoise cache file,
 but will re-use any pre-existing memoise cache files for the
 previously cached \code{bwUrls} entries.}
 
-\item{memoise_coverage_path}{character path to file folder
+\item{memoise_coverage_path}{\code{character} path to file folder
 used to store coverage data in memoise cache files.
 By default, the folder is a subfolder of
 the current working directory (see \code{getwd()}) so it should be
 changed to an absolute path if needed for wider re-use in any
 working directory.}
 
-\item{do_shiny_progress}{logical indicating whether to update
+\item{do_shiny_progress}{\code{logical} indicating whether to update
 shiny progress bar, using \code{shiny::setProgress()}. It assumes
 the progress bar is already initiated.}
 
@@ -71,12 +71,12 @@ fail or take extreme time to return data for remote files,
 and/or on Windows client machines.
 }}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
 }
 \value{
-DataFrame object, whose colnames are defined using
+\code{DataFrame} object, whose colnames are defined using
 either \code{names(bwUrls)} or by \code{jamba::makeNames(basename(bwUrls))}
 then removing the \code{.bw} or \code{.bigWig} file extension,
 case-insensitively.
@@ -115,43 +115,8 @@ possible the cache will be invalidated by the addition of names
 to \code{gr}, though unclear exactly how deeply memoise checks such things.
 }
 \seealso{
-Other jam GRanges functions:
-\code{\link[=addGRLgaps]{addGRLgaps()}},
-\code{\link[=addGRgaps]{addGRgaps()}},
-\code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
-\code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
-\code{\link[=getGRLgaps]{getGRLgaps()}},
-\code{\link[=getGRgaps]{getGRgaps()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=sortGRL]{sortGRL()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
-
-Other jam RNA-seq functions:
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=defineDetectedTx]{defineDetectedTx()}},
-\code{\link[=detectedTxInfo]{detectedTxInfo()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=groups2contrasts]{groups2contrasts()}},
-\code{\link[=internal_junc_score]{internal_junc_score()}},
-\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=runDiffSplice]{runDiffSplice()}},
-\code{\link[=sortSamples]{sortSamples()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
+Other Data import functions:
+\code{\link[=import_juncs_from_bed]{import_juncs_from_bed()}},
+\code{\link[=psl2df]{psl2df()}}
 }
-\concept{jam GRanges functions}
-\concept{jam RNA-seq functions}
+\concept{Data import functions}

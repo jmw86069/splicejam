@@ -1,0 +1,362 @@
+# splicejam ![](reference/figures/splicejam_logo.png)
+
+Splicejam was created to analyze and visualize RNA-seq and transcript
+isoform splicing data. Splicejam aims to provide sashimi plots with
+enough customizations to support publication-quality figures.
+
+## Updates 23-July-2026
+
+- Much simpler workflow:
+
+``` R
+sjenv <- sashimiDataConstants(
+   gtf=gtf,
+   filesDF=filesDF)
+sashimiFigure(sjenv, gene="Gria1")
+```
+
+## Splicejam Sashimi Plot
+
+An example sashimi plot is shown below for the gene *Gria1*. Each panel
+shows transcript expression in a region of mouse hippocampus, where
+“CA1_CB” shows data that originated from cell bodies of CA1, and
+“CA2_CB” shows corresponding data from cell bodies of CA2.
+
+In the example below `sjenvtest` is an `environment` which contains the
+data necessary to create a Splicejam sashimi plot.
+
+``` r
+
+suppressPackageStartupMessages(library(splicejam))
+if (suppressPackageStartupMessages(require(GenomicRanges))) {
+   data(sjenvtest);
+   sjfig <- splicejamFigure(sjenv=sjenvtest,
+      gene="Gria1",
+      sample_id=c("CA1_CB", "CA2_CB"),
+      use_memoise=TRUE,
+      minJunctionScore=500)
+}
+```
+
+![](reference/figures/README-gria1_sashimi-1.png)
+
+![](reference/figures/mouse_hippocampus.png)
+
+A depiction of the CA1 and CA2 regions of mouse hippocampus is shown in
+Fig 4a from [Dudek et al. Nature Reviews
+Neuroscience(2016)](https://dx.doi.org/10.1038/nrn.2015.22)
+
+  
+
+## Features of a splicejam sashimi plot:
+
+- The dark color polygons represent RNA transcript sequence coverage for
+  exons in the Gria1 gene.
+- Wide ribbons are drawn to indicate splice junctions, areas where the
+  sequences are aligned with a wide gap, typically spanning two exons.
+- The thickness of the ribbon (in height) represents the number of
+  aligned reads that span the gap, usually about 70-80% the height of
+  the adjacent exons.
+- The ribbons are shaded light to dark based upon how predominant the
+  splice junction is from exon to exon. The darkest ribbons represent
+  the most predominant path from exon to exon through the gene.
+- Introns are drawn with a fixed width (along the x-axis) and do not use
+  genome coordinates. Introns are normally about 100 times wider than
+  exons, and when drawn to scale obscure the detailed coverage of the
+  exons. The x-axis labels indicate genome coordinates.
+
+## Sashimi plot at closer range
+
+The plot can be zoomed using exon names, and argument `use_exon_range`.
+
+Notice the relative heights of the exons differ across CA1 and CA2,
+consistent with the corresponding changes in splice junctions. Clearly
+CA1 and CA2 favor different and mutually exclusive exons for Gria1.
+
+``` r
+
+sjfig_zoom <- splicejamFigure(sjenv=sjenvtest,
+   gene="Gria1",
+   sample_id=c("CA1_CB", "CA2_CB"),
+   use_exon_range=c("Gria1_exon13", "Gria1_exon16"),
+   use_memoise=TRUE,
+   minJunctionScore=500)
+```
+
+![](reference/figures/README-gria1_sashimi_zoom-1.png)
+
+Incidentally, these two isoforms of Gria1 represent the [“flop” and
+“flip”](https://www.sciencedirect.com/topics/neuroscience/gria1) forms
+of the AMPA receptor complex. In human, the genes Gria2, Gria3, and
+Gria4 comprise the AMPA receptor complex, and each genes has two
+isoforms with “flop” and “flip” designations.
+
+## Package Reference
+
+A full online function reference is available via the pkgdown
+documentation:
+
+Full splicejam command reference: <https://jmw86069.github.io/splicejam>
+
+The splicejam package is part of a suite of R packages called “jampack”
+which is available through GitHub, see
+<https://github.com/jmw86069/jampack>
+
+## How to install
+
+Install using the R package `remotes` and this command:
+
+``` R
+remotes::install_github("jmw86069/splicejam")
+```
+
+## About sashimi plots
+
+Sashimi plots were originally envisioned by MISO, which introduced the
+innovative idea to compress intron width in order to reveal the detailed
+exon sequence coverage, and to highlight changes in splice junctions.
+
+Katz, Y, Wang ET, Silterra J, Schwartz S, Wong B, Thorvaldsdóttir H,
+Robinson JT, Mesirov JP, Airoldi EM, Burge, CB. *Sashimi plots:
+Quantitative visualization of alternative isoform expression from
+RNA-seq data.* <http://biorxiv.org/content/early/2014/02/11/002576>
+
+Splicejam re-envisions classic sashimi plots by displaying splice
+junctions as wide arcs proportional in size to the number of junction
+reads, making them directly comparable to exon coverages on the same
+plot. Inspired by:
+
+- [Sankey plots](https://en.wikipedia.org/wiki/Sankey_diagram),
+- [flow diagrams](https://en.wikipedia.org/wiki/Flow_diagram),
+- [Alluvial diagrams](https://en.wikipedia.org/wiki/Alluvial_diagram).
+
+These ribbons were ultimately made feasible to implement in R thanks to
+the package [ggforce](https://ggforce.data-imaginist.com/) which
+implemented
+[geom_diagonal_wide](https://ggforce.data-imaginist.com/reference/geom_diagonal_wide.html).
+
+# Package index
+
+## Splicejam core functions
+
+These functions are the heart of the splicejam package
+
+- [`launchSashimiApp()`](https://jmw86069.github.io/splicejam/reference/launchSashimiApp.md)
+  : Launch Sashimi R-shiny application
+- [`sashimiDataConstants()`](https://jmw86069.github.io/splicejam/reference/sashimiDataConstants.md)
+  : Prepare sashimi plot required data
+- [`splicejamFigure()`](https://jmw86069.github.io/splicejam/reference/splicejamFigure.md)
+  : Make Splicejam Sashimi Figure
+
+## Detected transcripts
+
+Method to define detected transcripts, and review results
+
+- [`defineDetectedTx()`](https://jmw86069.github.io/splicejam/reference/defineDetectedTx.md)
+  : Define detected transcripts
+- [`detectedTxInfo()`](https://jmw86069.github.io/splicejam/reference/detectedTxInfo.md)
+  : Summarize detected transcript results
+
+## Data import functions
+
+Useful wrapper functions to import genomic data
+
+- [`getGRcoverageFromBw()`](https://jmw86069.github.io/splicejam/reference/getGRcoverageFromBw.md)
+  : Get coverage for GRanges from bigWig files
+- [`import_juncs_from_bed()`](https://jmw86069.github.io/splicejam/reference/import_juncs_from_bed.md)
+  : Import splice junction data from BED or SJ.out.tab file
+- [`psl2df()`](https://jmw86069.github.io/splicejam/reference/psl2df.md)
+  : Convert PSL alignment to data.frame
+
+## Splicejam Test data
+
+Various data objects to test Splicejam
+
+- [`sjenvtest`](https://jmw86069.github.io/splicejam/reference/sjenvtest.md)
+  : Splicejam Environment Test Data
+- [`test_cov_gr`](https://jmw86069.github.io/splicejam/reference/test_cov_gr.md)
+  : Sample exon coverage data GRanges
+- [`test_cov_wide_gr`](https://jmw86069.github.io/splicejam/reference/test_cov_wide_gr.md)
+  : Sample exon coverage data GRanges with wide introns
+- [`test_exon_gr`](https://jmw86069.github.io/splicejam/reference/test_exon_gr.md)
+  : Sample exon data GRanges
+- [`test_exon_wide_gr`](https://jmw86069.github.io/splicejam/reference/test_exon_wide_gr.md)
+  : Sample exon data GRanges with wide introns
+- [`test_junc_gr`](https://jmw86069.github.io/splicejam/reference/test_junc_gr.md)
+  : Sample junction data GRangesList
+- [`test_junc_wide_gr`](https://jmw86069.github.io/splicejam/reference/test_junc_wide_gr.md)
+  : Sample junction data GRangesList with wide introns
+
+## Plot utility functions
+
+Several functions, including 3-D BGA plotly function
+
+- [`bgaPlotly3d()`](https://jmw86069.github.io/splicejam/reference/bgaPlotly3d.md)
+  : Create an interactive 3-D BGA plotly visualization
+- [`jitter_norm()`](https://jmw86069.github.io/splicejam/reference/jitter_norm.md)
+  : Apply jitter using normal distribution
+- [`spline3d()`](https://jmw86069.github.io/splicejam/reference/spline3d.md)
+  : Calculate a spline curve fit in 3-D
+
+## Design functions
+
+Support for statistical design and differential isoform analysis
+
+- [`curateDFtoDF()`](https://jmw86069.github.io/splicejam/reference/curateDFtoDF.md)
+  : Curate data.frame into a data.frame
+- [`curateVtoDF()`](https://jmw86069.github.io/splicejam/reference/curateVtoDF.md)
+  : Curate vector into a data.frame
+- [`groups2contrasts()`](https://jmw86069.github.io/splicejam/reference/groups2contrasts.md)
+  : Define experimental contrasts from sample groups
+- [`runDiffSplice()`](https://jmw86069.github.io/splicejam/reference/runDiffSplice.md)
+  : Perform differential isoform analysis using diffSplice
+- [`sortSamples()`](https://jmw86069.github.io/splicejam/reference/sortSamples.md)
+  : Sort biological sample labels for experimental design
+
+## GenomicRanges functions
+
+GenomicRanges utilities, such as annotating one GR or GRL from another
+
+- [`addGRgaps()`](https://jmw86069.github.io/splicejam/reference/addGRgaps.md)
+  : Add gaps between GRanges regions
+- [`addGRLgaps()`](https://jmw86069.github.io/splicejam/reference/addGRLgaps.md)
+  : Add gaps between GRangesList regions
+- [`annotateGRfromGR()`](https://jmw86069.github.io/splicejam/reference/annotateGRfromGR.md)
+  : Annotate GRanges using another GRanges object
+- [`annotateGRLfromGRL()`](https://jmw86069.github.io/splicejam/reference/annotateGRLfromGRL.md)
+  : Annotate GRangesList from GRangesList objects
+- [`assignGRLexonNames()`](https://jmw86069.github.io/splicejam/reference/assignGRLexonNames.md)
+  : Assign exon names to GRangesList
+- [`closestExonToJunctions()`](https://jmw86069.github.io/splicejam/reference/closestExonToJunctions.md)
+  : Find closest exon to splice junction ends
+- [`findOverlapsGRL()`](https://jmw86069.github.io/splicejam/reference/findOverlapsGRL.md)
+  : Find overlaps between two GRangesList objects
+- [`flattenExonsBy()`](https://jmw86069.github.io/splicejam/reference/flattenExonsBy.md)
+  : Flatten exons by gene or transcript
+- [`getGRgaps()`](https://jmw86069.github.io/splicejam/reference/getGRgaps.md)
+  : Get gaps in GRanges
+- [`getGRLgaps()`](https://jmw86069.github.io/splicejam/reference/getGRLgaps.md)
+  : Get gaps in GRangesList objects
+- [`jam_isDisjoint()`](https://jmw86069.github.io/splicejam/reference/jam_isDisjoint.md)
+  : Test whether GRanges are disjoint (non-overlapping)
+- [`sortGRL()`](https://jmw86069.github.io/splicejam/reference/sortGRL.md)
+  : Sort GRangesList elements by chromosome and position
+- [`spliceGR2junctionDF()`](https://jmw86069.github.io/splicejam/reference/spliceGR2junctionDF.md)
+  : Splice junction data.frame summary
+
+## GTF functions
+
+Gene-exon structure (GTF) file parsing to tx2gene data.frame, and
+others.
+
+- [`describeGtfAttrNames()`](https://jmw86069.github.io/splicejam/reference/describeGtfAttrNames.md)
+  : describe gtf/gff3 attribute names by feature type
+- [`getGtfAttrs()`](https://jmw86069.github.io/splicejam/reference/getGtfAttrs.md)
+  : Grab GTF or GFF3 attributes into a data.frame
+- [`makeTx2geneFromGtf()`](https://jmw86069.github.io/splicejam/reference/makeTx2geneFromGtf.md)
+  : Make tx2gene data.frame from a GTF file
+- [`readGtf()`](https://jmw86069.github.io/splicejam/reference/readGtf.md)
+  : read gtf/gff3 file
+
+## ALE and codon functions
+
+Functions supporting Farris et al, alternate last exon (ALE) and codon
+usage analysis.
+
+- [`ale2violin()`](https://jmw86069.github.io/splicejam/reference/ale2violin.md)
+  : Prepare ALE data for violin plots
+- [`codonUsage2df()`](https://jmw86069.github.io/splicejam/reference/codonUsage2df.md)
+  : Make codon usage data.frame
+- [`dna2codon()`](https://jmw86069.github.io/splicejam/reference/dna2codon.md)
+  : Convert DNA to 3-base codons
+- [`getFirstStrandedFromGRL()`](https://jmw86069.github.io/splicejam/reference/getFirstStrandedFromGRL.md)
+  : Get first stranded GRanges feature per GRangesList
+- [`jamCai()`](https://jmw86069.github.io/splicejam/reference/jamCai.md)
+  : Calculate Codon Adaptation Index
+- [`tx2ale()`](https://jmw86069.github.io/splicejam/reference/tx2ale.md)
+  : tx2ale: detect alternative last exons (ALE) from transcript data
+
+## Shiny prep functions
+
+Functions to prepare the Splicejam R-shiny app
+
+- [`sashimiAppConstants()`](https://jmw86069.github.io/splicejam/reference/sashimiAppConstants.md)
+  : Sashimi Shiny app constants
+- [`sashimiAppServer()`](https://jmw86069.github.io/splicejam/reference/sashimiAppServer.md)
+  : Sashimi Shiny app server
+- [`sashimiAppUI()`](https://jmw86069.github.io/splicejam/reference/sashimiAppUI.md)
+  : Sashimi Shiny app UI
+
+## Sashimi prep functions
+
+Functions to prepare the Sashimi data and plot objects
+
+- [`exoncov2polygon()`](https://jmw86069.github.io/splicejam/reference/exoncov2polygon.md)
+  : Convert exon coverage to polygons
+- [`gene2gg()`](https://jmw86069.github.io/splicejam/reference/gene2gg.md)
+  : Gene GRangesList to ggplot2 grob
+- [`grl2df()`](https://jmw86069.github.io/splicejam/reference/grl2df.md)
+  : GRangesList to data.frame for ggplot2
+- [`make_ref2compressed()`](https://jmw86069.github.io/splicejam/reference/make_ref2compressed.md)
+  : Create a ref2compressed function to compress GR gaps
+- [`plotSashimi()`](https://jmw86069.github.io/splicejam/reference/plotSashimi.md)
+  : Jam Sashimi plot
+- [`prepareSashimi()`](https://jmw86069.github.io/splicejam/reference/prepareSashimi.md)
+  : Prepare Sashimi plot data
+
+## ggplot2 customizations
+
+Customizations to ggplot2 objects for Sashimi visualizations
+
+- [`stat_diagonal_wide_arc()`](https://jmw86069.github.io/splicejam/reference/geom_diagonal_wide_arc.md)
+  [`geom_diagonal_wide_arc()`](https://jmw86069.github.io/splicejam/reference/geom_diagonal_wide_arc.md)
+  : Draw an area defined by an upper and lower diagonal into an arc
+- [`splicejam-extensions`](https://jmw86069.github.io/splicejam/reference/splicejam-extensions.md)
+  [`StatDiagonalWideArc`](https://jmw86069.github.io/splicejam/reference/splicejam-extensions.md)
+  : splicejam extensions to ggforce
+- [`stat_unpack_polygon()`](https://jmw86069.github.io/splicejam/reference/stat_unpack_polygon.md)
+  : Stat for unpacking list-column polygon coordinates
+- [`to_basic(`*`<GeomShape>`*`)`](https://jmw86069.github.io/splicejam/reference/to_basic.GeomShape.md)
+  : Support plotly for GeomShape
+
+## Internal utility functions
+
+Numerous utility functions, mostly for internal use within Splicejam
+
+- [`combineGRcoverage()`](https://jmw86069.github.io/splicejam/reference/combineGRcoverage.md)
+  : Combine GRanges coverage replicates
+- [`compressPolygonM()`](https://jmw86069.github.io/splicejam/reference/compressPolygonM.md)
+  : Compress genome coordinates of a matrix of polygons
+- [`df2colorSub()`](https://jmw86069.github.io/splicejam/reference/df2colorSub.md)
+  : Convert data.frame to categorical colors
+- [`dfWide2segments()`](https://jmw86069.github.io/splicejam/reference/dfWide2segments.md)
+  : Convert data.frame to plotly line segment format
+- [`escapeWhitespaceRegexp()`](https://jmw86069.github.io/splicejam/reference/escapeWhitespaceRegexp.md)
+  : Escape whitespace in regular expression patterns
+- [`factor2label()`](https://jmw86069.github.io/splicejam/reference/factor2label.md)
+  : Convert factor to a factor label
+- [`geomean()`](https://jmw86069.github.io/splicejam/reference/geomean.md)
+  : Classical geometric mean
+- [`intercalate()`](https://jmw86069.github.io/splicejam/reference/intercalate.md)
+  : Intercalate list values into a vector
+- [`internal_junc_score()`](https://jmw86069.github.io/splicejam/reference/internal_junc_score.md)
+  : maximum overlapping internal junction score
+- [`jamGeomean()`](https://jmw86069.github.io/splicejam/reference/jamGeomean.md)
+  : Modified geometric mean for positive and negative values
+- [`list2im()`](https://jmw86069.github.io/splicejam/reference/list2im.md)
+  : Convert list to incidence matrix
+- [`shrinkMatrix()`](https://jmw86069.github.io/splicejam/reference/shrinkMatrix.md)
+  : Shrink numeric matrix by groups of rows
+- [`simplifyXY()`](https://jmw86069.github.io/splicejam/reference/simplifyXY.md)
+  : Simplify XY coordinates to minimal line segments
+- [`stackJunctions()`](https://jmw86069.github.io/splicejam/reference/stackJunctions.md)
+  : Stack the y-axis position of junctions
+- [`strsplitOrdered()`](https://jmw86069.github.io/splicejam/reference/strsplitOrdered.md)
+  : Split the elements of an ordered factor vector
+
+# Articles
+
+### All vignettes
+
+- [Create a Sashimi
+  Plot](https://jmw86069.github.io/splicejam/articles/create-a-sashimi-plot.md):

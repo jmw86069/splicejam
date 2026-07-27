@@ -49,12 +49,13 @@ test_junc_wide_gr;
 
 # To plot junctions, use grl2df(..., shape="junction")
 junc_wide_df <-grl2df(test_junc_wide_gr, shape="junction")
-ggWide1 <- ggplot(junc_wide_df, aes(x=x, y=y, group=id, fill=gr_name)) +
+ggWide1 <- ggplot2::ggplot(junc_wide_df,
+   ggplot2::aes(x=x, y=y, group=id, fill=gr_name)) +
    ggforce::geom_diagonal_wide(alpha=0.7) +
    colorjam::theme_jam() +
    colorjam::scale_fill_jam() +
-   xlab("chr1") +
-   ggtitle("junctions (full intron width)")
+   ggplot2::xlab("chr1") +
+   ggplot2::ggtitle("junctions (full intron width)")
 print(ggWide1);
 
 # The exons are required to define compressed ranges
@@ -65,28 +66,29 @@ data(test_exon_wide_gr);
 ref2c <- make_ref2compressed(test_exon_wide_gr,
    nBreaks=10);
 ggWide1c <- ggWide1 +
-   scale_x_continuous(trans=ref2c$trans_grc) +
-   xlab("chr1 (compressed introns)") +
-   ggtitle("junctions (compressed introns, distorted)");
+   ggplot2::scale_x_continuous(trans=ref2c$trans_grc) +
+   ggplot2::xlab("chr1 (compressed introns)") +
+   ggplot2::ggtitle("junctions (compressed introns, distorted)");
 print(ggWide1c);
 
 # to fix the arc shapes, supply the transform to grl2df()
 # Note: USE THESE STEPS
-junc_wide_c_df <-grl2df(test_junc_wide_gr,
+junc_wide_c_df <- grl2df(test_junc_wide_gr,
    shape="junction",
    ref2c=ref2c);
-ggWide1c2 <- ggplot(junc_wide_c_df, aes(x=x, y=y, group=id, fill=gr_name)) +
+ggWide1c2 <- ggplot2::ggplot(junc_wide_c_df,
+   ggplot2::aes(x=x, y=y, group=id, fill=gr_name)) +
    ggforce::geom_diagonal_wide(alpha=0.7) +
    colorjam::theme_jam() +
    colorjam::scale_fill_jam() +
-   scale_x_continuous(trans=ref2c$trans_grc) +
-   xlab("chr1 (compressed introns)") +
-   ggtitle("junctions (compressed introns)");
+   ggplot2::scale_x_continuous(trans=ref2c$trans_grc) +
+   ggplot2::xlab("chr1 (compressed introns)") +
+   ggplot2::ggtitle("junctions (compressed introns)");
 print(ggWide1c2);
 
 }
 \seealso{
-Other splicejam data:
+Other Splicejam data:
 \code{\link{sjenvtest}},
 \code{\link{test_cov_gr}},
 \code{\link{test_cov_wide_gr}},
@@ -94,5 +96,5 @@ Other splicejam data:
 \code{\link{test_exon_wide_gr}},
 \code{\link{test_junc_gr}}
 }
-\concept{splicejam data}
+\concept{Splicejam data}
 \keyword{datasets}

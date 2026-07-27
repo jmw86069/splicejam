@@ -61,7 +61,7 @@ print(ggWide2);
 
 }
 \seealso{
-Other splicejam data:
+Other Splicejam data:
 \code{\link{sjenvtest}},
 \code{\link{test_cov_gr}},
 \code{\link{test_cov_wide_gr}},
@@ -69,5 +69,5 @@ Other splicejam data:
 \code{\link{test_junc_gr}},
 \code{\link{test_junc_wide_gr}}
 }
-\concept{splicejam data}
+\concept{Splicejam data}
 \keyword{datasets}

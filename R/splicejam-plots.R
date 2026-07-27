@@ -155,8 +155,7 @@
 #' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional parameters are ignored
 #'
-#' @family jam plot functions
-#' @family jam spatial functions
+#' @family Plot utility functions
 #'
 #' @export
 bgaPlotly3d <- function
@@ -923,7 +922,7 @@ bgaPlotly3d <- function
 #'    `axes1`.
 #' @param ... additional parameters are ignored.
 #'
-#' @family jam spatial functions
+#' @family Internal utility functions
 #'
 #' @export
 dfWide2segments <- function
@@ -971,7 +970,7 @@ dfWide2segments <- function
 #'
 #' @param ... parameters are expected as multiple vectors.
 #'
-#' @family jam list functions
+#' @family Internal utility functions
 #'
 #' @examples
 #' A <- LETTERS[1:10];
@@ -1041,7 +1040,7 @@ intercalate <- function
 #' @return
 #' numeric matrix with `colnames(x)=c("x","y","z")`.
 #'
-#' @family jam spatial functions
+#' @family Plot utility functions
 #'
 #' @export
 spline3d <- function
@@ -1097,7 +1096,7 @@ spline3d <- function
 #' @param verbose logical indicating whether to print verbose output.
 #' @param ... additional parameters are passed to `colorjam::group2color()`.
 #'
-#' @family jam color functions
+#' @family Internal utility functions
 #'
 #' @examples
 #' colorSub1 <- colorjam::group2colors(LETTERS[1:6]);
@@ -1146,7 +1145,7 @@ df2colorSub <- function
 #' scaled relative to the range of values in each dimension. That is,
 #' points will appear to have a radial jitter.
 #'
-#' @family jam plot functions
+#' @family Plot utility functions
 #'
 #' @param x numeric vector
 #' @param factor numeric value to define the magnitude of jitter,

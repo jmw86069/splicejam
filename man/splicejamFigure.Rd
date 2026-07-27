@@ -26,7 +26,7 @@ splicejamFigure(
   use_memoise = FALSE,
   panel_method = c("patchwork", "cowplot", "plotly"),
   show_progress = TRUE,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }
@@ -150,6 +150,8 @@ colored using 'junc_color' and 'junc_fill'.
 \item gene_sd: the sashimi data from \code{prepareSashimi()}
 \item layout_ncol: the layout ncol as used
 \item use_ylim: the \code{list} of ylim as used
+\item timings_df: \code{data.frame} for various processing steps, and duration
+in seconds.
 \item cp: the final assembled ggplot figure
 }
 }
@@ -215,12 +217,8 @@ sjfig3 <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_
 
 }
 \seealso{
-Other splicejam core functions:
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=gene2gg]{gene2gg()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}}
+Other Splicejam core functions:
+\code{\link[=launchSashimiApp]{launchSashimiApp()}},
+\code{\link[=sashimiDataConstants]{sashimiDataConstants()}}
 }
-\concept{splicejam core functions}
+\concept{Splicejam core functions}

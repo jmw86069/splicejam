@@ -20,8 +20,8 @@ Description: Jam Bioinformatics methods for RNA-seq and other genomics
     methods for manipulating gene expression data.
 Depends: R (>= 3.5.0)
 biocViews:
-Imports: jamba(>= 1.0.0),
-    jamma(>= 0.0.38.900),
+Imports: jamba(>= 1.0.4),
+    jamma(>= 0.0.40.900),
     colorjam(>= 0.0.35.900),
     data.table,
     GenomicRanges,
@@ -44,7 +44,6 @@ Imports: jamba(>= 1.0.0),
     shinyjqui,
     shinycssloaders,
     shinyjs,
-    cowplot,
     plotly,
     DT,
     caTools,
@@ -64,6 +63,7 @@ Suggests:
     org.Mm.eg.db,
     farrisdata(>= 0.0.9.900),
     testthat(>= 3.0.0),
+    cowplot,
     vdiffr
 License: GPL-2
 Encoding: UTF-8
@@ -76,9 +76,9 @@ Remotes:
     github::RinteRface/shinydashboardPlus,
     github::Yang-Tang/shinyjqui,
     github::rnabioco/cpp11bigwig
-URL: http://github.com/jmw86069/splicejam
-BugReports: http://github.com/jmw86069/splicejam/issues
+URL: https://jmw86069.github.io/splicejam
+BugReports: https://github.com/jmw86069/splicejam/issues
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.0.0.9000
 Config/testthat/edition: 3

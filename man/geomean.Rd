@@ -7,14 +7,16 @@
 geomean(x, na.rm = TRUE, naValue = NA, offset = 0, ...)
 }
 \arguments{
-\item{x}{numeric vector containing only positive values}
+\item{x}{\code{numeric} vector containing only positive values}
 
-\item{na.rm}{logical indicating whether to ignore \code{NA} values. Note that
-\code{NA} values are removed prior to log-transformation, to avoid negative
-numbers being dropped completely. To drop negative numbers, do so
-prior to calling \code{geomean()}.}
+\item{na.rm}{\code{logical} indicating whether to ignore \code{NA} values,
+default TRUE.
+When TRUE, NA values are removed upfront, before log transformation.
+Note that negative values are maintained by default, by applying
+log transformation on the absolute value, then multiplying by the
+sign.}
 
-\item{offset}{numeric value added to input \code{x} prior to log
+\item{offset}{\code{numeric} value added to input \code{x} prior to log
 transformation, intended only when values between 0 and 1 should be
 retained. Note that the offset makes the result slightly different
 than classical geometric mean.}
@@ -22,7 +24,7 @@ than classical geometric mean.}
 \item{...}{additional parameters are ignored.}
 }
 \value{
-numeric value representing the geometric mean of input values
+\code{numeric} value representing the geometric mean of input values
 }
 \description{
 Classical geometric mean
@@ -33,9 +35,23 @@ This function calculates the classical geometric mean.
 The classical geometric mean is defined as
 the exponentiated mean of log-transformed values. Said another
 way, it is the \code{n}th root of the product of \code{n} numeric values.
-This formula is analogous to geometric distance. The formula
-does not allow negative values, however, and if any value is
-zero the result is also zero.
+This formula is analogous to geometric distance.
+
+The original formula does not permit negative values, however
+the formula used here applies log to the absolute value,
+then multiplies that by the sign. For example \code{x(-4, 1/4)}
+would be applied \code{log2(abs(c(-4, 1/4))) * sign(c(-4, 1/4))}
+and thus both values would become -2. This adaptation is for
+convenience, assuming that a fraction \code{1/4} and negative value
+\code{-4} represent the same underlying value, usually a
+fold change. A fold change may be represented either as \verb{-4`` or as }1/4``, although technically the \code{1/4} is not a fold
+change but a ratio.
+
+Whens supplying non-negative values, specifically those where
+a value '0' should be considered a legitimate measured
+result, and therefore should be incorporated into the geomean,
+set argument \code{'offset'} to some suitable offset, most
+common is \code{offset=1} to mimic \code{log2(1 + x)} transformation.
 }
 \examples{
 x <- c(2, 4);
@@ -45,11 +61,25 @@ x <- c(-2, 2, 4);
 geomean(x);
 
 x <- c(0, 4000, 200000);
-geomean(x);
+geomean(x, offset=1);
+geomean(-x, offset=1);
 
 }
 \seealso{
-Other jam numeric functions:
-\code{\link[=jamGeomean]{jamGeomean()}}
+Other Internal utility functions:
+\code{\link[=combineGRcoverage]{combineGRcoverage()}},
+\code{\link[=compressPolygonM]{compressPolygonM()}},
+\code{\link[=df2colorSub]{df2colorSub()}},
+\code{\link[=dfWide2segments]{dfWide2segments()}},
+\code{\link[=escapeWhitespaceRegexp]{escapeWhitespaceRegexp()}},
+\code{\link[=factor2label]{factor2label()}},
+\code{\link[=intercalate]{intercalate()}},
+\code{\link[=internal_junc_score]{internal_junc_score()}},
+\code{\link[=jamGeomean]{jamGeomean()}},
+\code{\link[=list2im]{list2im()}},
+\code{\link[=shrinkMatrix]{shrinkMatrix()}},
+\code{\link[=simplifyXY]{simplifyXY()}},
+\code{\link[=stackJunctions]{stackJunctions()}},
+\code{\link[=strsplitOrdered]{strsplitOrdered()}}
 }
-\concept{jam numeric functions}
+\concept{Internal utility functions}

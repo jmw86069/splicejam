@@ -21,28 +21,38 @@ and transcript isoform splicing data.
 Splicejam aims to provide sashimi plots with enough
 customizations to support publication-quality figures.
 
+## Updates 23-July-2026
+
+* Much simpler workflow:
+
+```
+sjenv <- sashimiDataConstants(
+   gtf=gtf,
+   filesDF=filesDF)
+sashimiFigure(sjenv, gene="Gria1")
+```
+
+
+## Splicejam Sashimi Plot
+
 An example sashimi plot is shown below for the gene *Gria1*.
 Each panel shows transcript expression in a region of mouse
 hippocampus, where "CA1_CB" shows data that originated from
 cell bodies of CA1, and "CA2_CB" shows corresponding data
 from cell bodies of CA2.
 
-<br>
+In the example below `sjenvtest` is an `environment` which
+contains the data necessary to create a Splicejam sashimi plot.
 
-```{r, gria1_sashimi, echo=FALSE, fig.height=8, fig.width=14}
-if (suppressPackageStartupMessages(require(splicejam))) {
-   data(demodata);
-   ## Prepare sashimi data
-   sashimi <- prepareSashimi(gene="Gria1",
-      flatExonsByGene=demodata$exons,
-      filesDF=demodata$filesDF,
-      tx2geneDF=demodata$tx2geneDF,
-      minJunctionScore=500,
-      colorSub=demodata$colorSub,
-      addGaps=FALSE);
-   ## Create the sashimi plot
-   plotSashimi(sashimi) + 
-      xlab("chr11")
+```{r, gria1_sashimi, fig.height=10, fig.width=14, alt="Splicejam sashimi plot for the gene 'Gria1'."}
+suppressPackageStartupMessages(library(splicejam))
+if (suppressPackageStartupMessages(require(GenomicRanges))) {
+   data(sjenvtest);
+   sjfig <- splicejamFigure(sjenv=sjenvtest,
+      gene="Gria1",
+      sample_id=c("CA1_CB", "CA2_CB"),
+      use_memoise=TRUE,
+      minJunctionScore=500)
 }
 ```
 
@@ -80,20 +90,22 @@ The x-axis labels indicate genome coordinates.
 
 ## Sashimi plot at closer range
 
-The x-axis range is adjusted in the following plot
-to show more detail around the differentially spliced exons.
+The plot can be zoomed using exon names, and argument
+`use_exon_range`.
+
 Notice the relative heights of the exons differ across CA1 and CA2,
 consistent with the corresponding changes in splice junctions.
 Clearly CA1 and CA2 favor different and mutually exclusive 
 exons for Gria1.
 
-```{r, gria1_sashimi_zoom, echo=FALSE, fig.height=6, fig.width=8}
-buffer <- 25;
-new_coords <- c(57289248+buffer, 57317800-buffer);
-plotSashimi(sashimi,
-   label_coords=new_coords) +
-   coord_cartesian(xlim=new_coords) + 
-   xlab("chr11")
+```{r, gria1_sashimi_zoom, fig.height=10, fig.width=14, alt="Splicejam sashimi plot for the gene 'Gria1', zoomed in to show exon 13 through exon 16."}
+sjfig_zoom <- splicejamFigure(sjenv=sjenvtest,
+   gene="Gria1",
+   sample_id=c("CA1_CB", "CA2_CB"),
+   use_exon_range=c("Gria1_exon13", "Gria1_exon16"),
+   use_memoise=TRUE,
+   minJunctionScore=500)
+
 ```
 
 Incidentally, these two isoforms of Gria1 represent the

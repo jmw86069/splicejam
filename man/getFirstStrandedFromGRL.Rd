@@ -12,28 +12,27 @@ getFirstStrandedFromGRL(
 )
 }
 \arguments{
-\item{grl}{GRangesList}
+\item{grl}{\code{GRangesList}}
 
-\item{method}{character value in \code{c("direct", "endoapply", "flank")}
-representing which method to use to define the first feature.
-The \code{"direct"} method uses \code{IRanges::heads()} or
-\code{IRanges::tails()} depending upon the strandedness;
-the \code{"endoapply"} method uses \code{S4Vectors::endoapply()} to
+\item{method}{\code{character} with method to use, default 'direct':
+\itemize{
+\item 'direct' uses \code{IRanges::heads()} or
+\code{IRanges::tails()} depending upon the strandedness.
+This approach is vectorized and is preferred.
+\item 'endoapply' uses \code{S4Vectors::endoapply()} to
 iterate each GRangesList element, then returns the result
-from \code{head()} or \code{tail()}. The \code{"flank"} method is
-intended to be equivalent but uses \code{IRanges::heads()} or
-\code{IRanges::tails()} then \code{GenomicRanges::flank()}, which
-is vectorized. The \code{"flank"} method is deprecated and
-\code{"direct"} is recommended as the preferred vectorized
-replacement.}
+from \code{head()} or \code{tail()}.
+This approach is not vectorized and may be substantially
+slower than 'direct'.
+}}
 
-\item{verbose}{logical indicating whether to print verbose output.}
+\item{verbose}{\code{logical} indicating whether to print verbose output.}
 
 \item{...}{additional arguments are ignored.}
 }
 \value{
-GRangesList containing only the first stranded
-GRanges feature per input GRangesList element. When
+\code{GRangesList} containing only the first stranded
+\code{GRanges} feature per input \code{GRangesList} element. When
 \code{method="flank"} the output contains no metadata values,
 but this method is deprecated.
 }
@@ -60,30 +59,11 @@ getFirstStrandedFromGRL(grl)
 
 }
 \seealso{
-Other jam ALE-specific RNA-seq functions:
+Other ALE and codon functions:
 \code{\link[=ale2violin]{ale2violin()}},
+\code{\link[=codonUsage2df]{codonUsage2df()}},
+\code{\link[=dna2codon]{dna2codon()}},
+\code{\link[=jamCai]{jamCai()}},
 \code{\link[=tx2ale]{tx2ale()}}
-
-Other jam GRanges functions:
-\code{\link[=addGRLgaps]{addGRLgaps()}},
-\code{\link[=addGRgaps]{addGRgaps()}},
-\code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
-\code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getGRLgaps]{getGRLgaps()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=getGRgaps]{getGRgaps()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=sortGRL]{sortGRL()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
 }
-\concept{jam ALE-specific RNA-seq functions}
-\concept{jam GRanges functions}
+\concept{ALE and codon functions}

@@ -38,7 +38,8 @@ ranges(test_cov_wide_gr) <- ranges(test_exon_wide_gr);
 widecovdf <- exoncov2polygon(test_cov_wide_gr, covNames="sample_A");
 ggWide3 <- ggplot(widecovdf,
       aes(x=x, y=y, group=gr, fill=gr, color=gr)) +
-   ggforce::geom_shape(alpha=0.7) +
+   ggforce::geom_shape(alpha=0.7,
+      stat="unpack_polygon") +
    colorjam::theme_jam() +
    colorjam::scale_fill_jam() +
    colorjam::scale_color_jam();
@@ -66,7 +67,7 @@ ggWide3c +
       alpha=0.6)
 }
 \seealso{
-Other splicejam data:
+Other Splicejam data:
 \code{\link{sjenvtest}},
 \code{\link{test_cov_gr}},
 \code{\link{test_exon_gr}},
@@ -74,5 +75,5 @@ Other splicejam data:
 \code{\link{test_junc_gr}},
 \code{\link{test_junc_wide_gr}}
 }
-\concept{splicejam data}
+\concept{Splicejam data}
 \keyword{datasets}

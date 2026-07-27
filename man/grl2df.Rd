@@ -137,7 +137,9 @@ names(gr) <- jamba::makeNames(rep("exon", 7));
 grldf <- grl2df(gr, addGaps=TRUE);
 
 gg1 <- ggplot2::ggplot(grldf, ggplot2::aes(x=x, y=y, group=id)) +
-   ggforce::geom_shape(ggplot2::aes(fill=feature_type)) +
+   ggforce::geom_shape(
+      ggplot2::aes(fill=feature_type),
+      stat="unpack_polygon") +
    colorjam::theme_jam()
 print(gg1);
 
@@ -149,11 +151,11 @@ gg2 <- gg1 +
    colorjam::theme_jam()
 print(gg2);
 
-## data can also be plotted using coord_trans()
+## data can also be plotted using coord_transform()
 ## the main difference is that x-axis breaks are defined before the
 ## transformation, which can result in non-optimal placement
 gg3 <- gg1 +
-   ggplot2::coord_trans(x=ref2c$trans_grc) + colorjam::theme_jam();
+   ggplot2::coord_transform(x=ref2c$trans_grc) + colorjam::theme_jam();
 print(gg3);
 
 ## An example showing splice junction data
@@ -171,44 +173,11 @@ print(ggWide1);
 
 }
 \seealso{
-Other jam GRanges functions:
-\code{\link[=addGRLgaps]{addGRLgaps()}},
-\code{\link[=addGRgaps]{addGRgaps()}},
-\code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
-\code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
-\code{\link[=getGRLgaps]{getGRLgaps()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=getGRgaps]{getGRgaps()}},
-\code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=sortGRL]{sortGRL()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
-
-Other jam plot functions:
-\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
-\code{\link[=factor2label]{factor2label()}},
-\code{\link[=gene2gg]{gene2gg()}},
-\code{\link[=jitter_norm]{jitter_norm()}},
-\code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
-
-Other splicejam core functions:
+Other Sashimi prep functions:
 \code{\link[=exoncov2polygon]{exoncov2polygon()}},
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=make_ref2compressed]{make_ref2compressed()}},
 \code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=splicejamFigure]{splicejamFigure()}}
+\code{\link[=prepareSashimi]{prepareSashimi()}}
 }
-\concept{jam GRanges functions}
-\concept{jam plot functions}
-\concept{splicejam core functions}
+\concept{Sashimi prep functions}

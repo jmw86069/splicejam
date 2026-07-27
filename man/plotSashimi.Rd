@@ -47,7 +47,7 @@ transform genomic coordinates.}
 \item{coord_method}{\code{character} value indicating the type of
 coordinate scaling to use:
 \code{"scale"} uses \code{ggplot2::scale_x_continuous()};
-\code{"coord"} uses \code{ggplot2::coord_trans()};
+\code{"coord"} uses \code{ggplot2::coord_transform()};
 \code{"none"} does not compress genomic coordinates.}
 
 \item{exonsGrl}{\code{GRangesList} object with one or more gene or
@@ -151,7 +151,8 @@ data(test_cov_gr);
 filesDF <- data.frame(url="sample_A",
    type="coverage_gr",
    sample_id="sample_A");
-sh1 <- prepareSashimi(GRangesList(TestGene1=test_exon_gr),
+sh1 <- prepareSashimi(
+   flatExonsByGene=GRangesList(TestGene1=test_exon_gr),
    filesDF=filesDF,
    gene="TestGene1",
    covGR=test_cov_gr,
@@ -160,30 +161,11 @@ plotSashimi(sh1);
 
 }
 \seealso{
-Other jam plot functions:
-\code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
-\code{\link[=factor2label]{factor2label()}},
-\code{\link[=gene2gg]{gene2gg()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=jitter_norm]{jitter_norm()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
-
-Other jam ggplot2 functions:
-\code{\link[=gene2gg]{gene2gg()}},
-\code{\link[=geom_diagonal_wide_arc]{geom_diagonal_wide_arc()}},
-\code{\link{splicejam-extensions}},
-\code{\link[=stat_unpack_polygon]{stat_unpack_polygon()}},
-\code{\link[=to_basic.GeomShape]{to_basic.GeomShape()}}
-
-Other splicejam core functions:
+Other Sashimi prep functions:
 \code{\link[=exoncov2polygon]{exoncov2polygon()}},
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=grl2df]{grl2df()}},
 \code{\link[=make_ref2compressed]{make_ref2compressed()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=splicejamFigure]{splicejamFigure()}}
+\code{\link[=prepareSashimi]{prepareSashimi()}}
 }
-\concept{jam ggplot2 functions}
-\concept{jam plot functions}
-\concept{splicejam core functions}
+\concept{Sashimi prep functions}

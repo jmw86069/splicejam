@@ -35,13 +35,8 @@ scaled relative to the range of values in each dimension. That is,
 points will appear to have a radial jitter.
 }
 \seealso{
-Other jam plot functions:
+Other Plot utility functions:
 \code{\link[=bgaPlotly3d]{bgaPlotly3d()}},
-\code{\link[=factor2label]{factor2label()}},
-\code{\link[=gene2gg]{gene2gg()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
+\code{\link[=spline3d]{spline3d()}}
 }
-\concept{jam plot functions}
+\concept{Plot utility functions}

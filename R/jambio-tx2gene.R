@@ -8,14 +8,14 @@
 #' Create a transcript-to-gene data.frame from a GTF file, which is required
 #' by a number of transcriptome analysis methods such as those in
 #' the DEXseq package, and the limma package functions such as
-#' \code{diffSplice()}.
+#' `diffSplice()`.
 #'
-#' This function also only uses \code{data.table::fread()} and does not
+#' This function also only uses `data.table::fread()` and does not
 #' import the full GTF file using something like Bioconductor
-#' \code{GenomicFeatures}, simply because the data.table method is markedly
+#' `GenomicFeatures`, simply because the data.table method is markedly
 #' faster when importing only the transcript-to-gene relationship. Also, this
 #' method allows the import of more annotations than are supported by the
-#' typical Bioconductor \code{rtracklayer::import()} for GTF data.
+#' typical Bioconductor `rtracklayer::import()` for GTF data.
 #'
 #' This function is intended to help keep all transcript data consistent by
 #' using the same GTF file that is also used by other analysis tools, whether
@@ -64,8 +64,7 @@
 #' @returns `data.frame` with colnames defined by
 #'    `geneAttrNames` and `txAttrNames`.
 #'
-#' @family jam RNA-seq functions
-#' @family jam gtf functions
+#' @family GTF functions
 #'
 #' @import data.table
 #'

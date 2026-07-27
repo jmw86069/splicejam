@@ -34,7 +34,7 @@ both 'Compartment' values CB (cell body) and
 DE (dendrites).
 }
 \seealso{
-Other splicejam data:
+Other Splicejam data:
 \code{\link{test_cov_gr}},
 \code{\link{test_cov_wide_gr}},
 \code{\link{test_exon_gr}},
@@ -42,5 +42,5 @@ Other splicejam data:
 \code{\link{test_junc_gr}},
 \code{\link{test_junc_wide_gr}}
 }
-\concept{splicejam data}
+\concept{Splicejam data}
 \keyword{datasets}

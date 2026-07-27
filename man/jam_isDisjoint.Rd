@@ -34,25 +34,18 @@ all comparisons are strand-specific. To force non-stranded comparisons,
 update the strand of the input object to \code{"*"}.
 }
 \seealso{
-Other jam GRanges functions:
+Other GenomicRanges functions:
 \code{\link[=addGRLgaps]{addGRLgaps()}},
 \code{\link[=addGRgaps]{addGRgaps()}},
 \code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
 \code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
 \code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
 \code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
 \code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
 \code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
 \code{\link[=getGRLgaps]{getGRLgaps()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
 \code{\link[=getGRgaps]{getGRgaps()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=make_ref2compressed]{make_ref2compressed()}},
 \code{\link[=sortGRL]{sortGRL()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
+\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
 }
-\concept{jam GRanges functions}
+\concept{GenomicRanges functions}

@@ -60,6 +60,7 @@ customizations, which recognize the following names:
 \item 'layout_ncol', default 1
 \item 'min_junction_reads', default \code{100}
 \item 'share_y_axis', default \code{FALSE}
+\item 'use_exon_range', default NULL
 \item 'gene_coords_default', default NULL
 \item 'label_junctions', default \code{TRUE}
 \item 'show_gene_model', default \code{TRUE}
@@ -200,9 +201,8 @@ the data is retrieved from the file or remote server.
 
 }
 \seealso{
-Other splicejam R-shiny functions:
-\code{\link[=sashimiAppConstants]{sashimiAppConstants()}},
-\code{\link[=sashimiAppUI]{sashimiAppUI()}},
-\code{\link[=sashimiDataConstants]{sashimiDataConstants()}}
+Other Splicejam core functions:
+\code{\link[=sashimiDataConstants]{sashimiDataConstants()}},
+\code{\link[=splicejamFigure]{splicejamFigure()}}
 }
-\concept{splicejam R-shiny functions}
+\concept{Splicejam core functions}

@@ -76,7 +76,7 @@
 #' `memoise::memoise()`, to help re-use of prepared R objects,
 #' and to help speed the re-use of data within the R-shiny app:
 #'
-#' @family splicejam R-shiny functions
+#' @family Splicejam core functions
 #'
 #' @returns `environment` that contains the required data objects
 #'    for splicejam sashimi plots. Note that the environment itself
@@ -382,7 +382,13 @@ sashimiDataConstants <- function
                   gtfStem,
                   "' to store as: '",
                   localDb, "'");
-               envir$txdb <- txdbmaker::makeTxDbFromGFF(gtfBase);
+               # Suppress warnings (for now) for example:
+               # #> Warning: The "phase" metadata column contains non-NA values for features of type
+               # #>   stop_codon. This information was ignored.
+               # #> Warning: genome version information is not available for this TxDb object
+               suppressWarnings({
+                  envir$txdb <- txdbmaker::makeTxDbFromGFF(gtfBase);
+               })
                AnnotationDbi::saveDb(x=envir$txdb,
                   file=localDb);
             } else {
@@ -707,7 +713,7 @@ sashimiDataConstants <- function
 #' @return object represented by variable name given in `x` from either
 #'    the calling function, or the environment `envir`, or `NULL`
 #'    if not defined in either case.
-#'
+#' 
 #' @param x `character` string indicating the name of an R object.
 #' @param envir `environment` or `list` of `environment` objects.
 #' @param assign_to_envir `logical` indicating whether to assign values
@@ -715,7 +721,10 @@ sashimiDataConstants <- function
 #'    helpful to combine function arguments with environment values.
 #' @param verbose `logical` indicating whether to print verbose output.
 #' @param ... additional arguments are ignored.
-#'
+#' 
+#' @keywords internal
+#' @noRd
+#' 
 #' @examples
 #' x <- 10;
 #' get_fn_envir("x")
@@ -752,7 +761,6 @@ sashimiDataConstants <- function
 #' rm("x", envir=testenv);
 #' test_x(envir=c(testenv, globalenv()), verbose=TRUE)
 #'
-#' @export
 get_fn_envir <- function(x,
  envir=NULL,
  enable_parent_1=TRUE,

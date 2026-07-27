@@ -6,7 +6,7 @@
 \usage{
 make_ref2compressed(
   gr,
-  gapWidth = 200,
+  gapWidth = getOption("splicejam.gap", 200),
   keepValues = FALSE,
   upstream = 50000,
   upstreamGapWidth = gapWidth * 3,
@@ -22,7 +22,8 @@ make_ref2compressed(
 \item{gr}{\code{GRanges} object containing regions not to compress. Regions
 which are unstranded gaps are compressed to fixed width.}
 
-\item{gapWidth}{integer value used for fixed gap width, or when
+\item{gapWidth}{\code{integer} value, default 200 from options
+\code{options('splicejam.gap')}, to set a fixed gap width, or when
 NULL the gap width is defined as 3 times the median feature width.}
 
 \item{keepValues}{\code{logical} indicating whether to keep feature values
@@ -104,52 +105,11 @@ print(ggWide2);
 \seealso{
 \code{grl2df()}, \code{test_junc_wide_gr}
 
-Other jam GRanges functions:
-\code{\link[=addGRLgaps]{addGRLgaps()}},
-\code{\link[=addGRgaps]{addGRgaps()}},
-\code{\link[=annotateGRLfromGRL]{annotateGRLfromGRL()}},
-\code{\link[=annotateGRfromGR]{annotateGRfromGR()}},
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=findOverlapsGRL]{findOverlapsGRL()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getFirstStrandedFromGRL]{getFirstStrandedFromGRL()}},
-\code{\link[=getGRLgaps]{getGRLgaps()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=getGRgaps]{getGRgaps()}},
-\code{\link[=grl2df]{grl2df()}},
-\code{\link[=jam_isDisjoint]{jam_isDisjoint()}},
-\code{\link[=sortGRL]{sortGRL()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}},
-\code{\link[=stackJunctions]{stackJunctions()}}
-
-Other splicejam core functions:
+Other Sashimi prep functions:
 \code{\link[=exoncov2polygon]{exoncov2polygon()}},
 \code{\link[=gene2gg]{gene2gg()}},
 \code{\link[=grl2df]{grl2df()}},
 \code{\link[=plotSashimi]{plotSashimi()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=splicejamFigure]{splicejamFigure()}}
-
-Other jam RNA-seq functions:
-\code{\link[=assignGRLexonNames]{assignGRLexonNames()}},
-\code{\link[=closestExonToJunctions]{closestExonToJunctions()}},
-\code{\link[=combineGRcoverage]{combineGRcoverage()}},
-\code{\link[=defineDetectedTx]{defineDetectedTx()}},
-\code{\link[=detectedTxInfo]{detectedTxInfo()}},
-\code{\link[=exoncov2polygon]{exoncov2polygon()}},
-\code{\link[=flattenExonsBy]{flattenExonsBy()}},
-\code{\link[=getGRcoverageFromBw]{getGRcoverageFromBw()}},
-\code{\link[=groups2contrasts]{groups2contrasts()}},
-\code{\link[=internal_junc_score]{internal_junc_score()}},
-\code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
-\code{\link[=prepareSashimi]{prepareSashimi()}},
-\code{\link[=runDiffSplice]{runDiffSplice()}},
-\code{\link[=sortSamples]{sortSamples()}},
-\code{\link[=spliceGR2junctionDF]{spliceGR2junctionDF()}}
+\code{\link[=prepareSashimi]{prepareSashimi()}}
 }
-\concept{jam GRanges functions}
-\concept{jam RNA-seq functions}
-\concept{splicejam core functions}
+\concept{Sashimi prep functions}

@@ -13,7 +13,7 @@
 #' To supply text as input use `base::textConnection()` to wrap
 #' a text connection around the input text.
 #'
-#' @family jam data import functions
+#' @family Data import functions
 #'
 #' @param psl file or other connection compatible with `base::readLines()`
 #'    of data in PSL alignment format.
@@ -39,7 +39,7 @@ psl2df <- function
    pslHeaderCheck <- readLines(psl, n=1);
    if (jamba::igrepHas("^pslayout", pslHeaderCheck)) {
       if (verbose) {
-         printDebug("psl2df(): ",
+         jamba::printDebug("psl2df(): ",
             "Detected psLayout header line.");
       }
       pslLines <- gsub("[' ]+", "",
@@ -55,7 +55,7 @@ psl2df <- function
          header=FALSE);
    } else {
       if (verbose) {
-         printDebug("psl2df(): ",
+         jamba::printDebug("psl2df(): ",
             "Detected no psLayout header line.");
       }
       pslHeader <- c("match", "mis-match", "rep.match",
@@ -68,11 +68,11 @@ psl2df <- function
       pslLines <- gsub("[' ]+", "",
          c(pslHeaderCheck,
             readLines(psl)));
-      printDebug("length(pslLines):", length(pslLines));
+      jamba::printDebug("length(pslLines):", length(pslLines));
       if (jamba::igrepHas("^[-]+$", pslLines)) {
          pslN <- max(grep("^[-]+$", pslLines));
          if (verbose) {
-            printDebug("psl2df(): ",
+            jamba::printDebug("psl2df(): ",
                "Detected ----- divider on line:",
                pslN);
          }

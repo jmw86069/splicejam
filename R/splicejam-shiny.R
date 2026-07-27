@@ -21,6 +21,7 @@
 #' * 'layout_ncol', default 1
 #' * 'min_junction_reads', default `100`
 #' * 'share_y_axis', default `FALSE`
+#' * 'use_exon_range', default NULL
 #' * 'gene_coords_default', default NULL
 #' * 'label_junctions', default `TRUE`
 #' * 'show_gene_model', default `TRUE`
@@ -145,7 +146,7 @@
 #'    and only when the cache is not available, or somehow incorrect,
 #'    the data is retrieved from the file or remote server.
 #'
-#' @family splicejam R-shiny functions
+#' @family Splicejam core functions
 #'
 #' @returns `shiny::shiny.appobj` which is a Shiny App object,
 #'    suitable to run an R-shiny app by printing to console.

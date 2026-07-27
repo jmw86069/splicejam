@@ -1,73 +1,64 @@
+destination: docs
+home:
+  title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
+  description: Splicejam sashimi plots created using 'BigWig' and junction 'BED' files.
+figures:
+  fig.width: 8
+  fig.height: 8
 template:
-  params:
-    bootswatch: cosmo
+  bootstrap: 5
+  bootswatch: cosmo
+url: https://jmw86069.github.io/splicejam/
 reference:
 - title: Splicejam core functions
   desc: These functions are the heart of the splicejam package
   contents:
-  - has_concept("splicejam core functions")
-- title: RNA-seq functions
-  desc: Functions aimed at RNA-seq analysis
+  - has_concept("Splicejam core functions")
+- title: Detected transcripts
+  desc: Method to define detected transcripts, and review results
   contents:
-  - has_concept("jam RNA-seq functions")
-- title: Splicejam R-shiny functions
-  desc: Functions to enable Splicejam R-shiny
+  - has_concept("Detected transcripts")
+- title: Data import functions
+  desc: Useful wrapper functions to import genomic data
   contents:
-  - has_concept("splicejam R-shiny functions")
-- title: ALE-specific RNA-seq functions
-  desc: Functions specific to ALE (alternate last exon) RNA-seq analysis
+  - has_concept("Data import functions")
+- title: Splicejam Test data
+  desc: Various data objects to test Splicejam
   contents:
-  - has_concept("jam ALE-specific RNA-seq functions")
-- title: RNA-seq codon usage functions
-  desc: Functions specific to codon usage in RNA-seq analysis
+  - has_concept("Splicejam data")
+- title: Plot utility functions
+  desc: Several functions, including 3-D BGA plotly function
   contents:
-  - has_concept("jam codon usage functions")
-- title: GRanges functions
-  desc: Functions to manipulate the Genomic Ranges (GRanges) family of objects
-  contents:
-  - has_concept("jam GRanges functions")
+  - has_concept("Plot utility functions")
 - title: Design functions
-  desc: Functions aimed at manipulation of experimental design
+  desc: Support for statistical design and differential isoform analysis
   contents:
-  - has_concept("jam design functions")
-- title: Plot functions
-  desc: Functions that assist with R plotting
+  - has_concept("Design functions")
+- title: GenomicRanges functions
+  desc: GenomicRanges utilities, such as annotating one GR or GRL from another
   contents:
-  - has_concept("jam plot functions")
-- title: ggplot2 functions
-  desc: Functions specific to ggplot2 visualization
+  - has_concept("GenomicRanges functions")
+- title: GTF functions
+  desc: Gene-exon structure (GTF) file parsing to tx2gene data.frame, and others.
   contents:
-  - has_concept("jam ggplot2 functions")
-- title: List functions
-  desc: Functions that assist with list manipulation
+  - has_concept("GTF functions")
+- title: ALE and codon functions
+  desc: Functions supporting Farris et al, alternate last exon (ALE) and codon usage analysis.
   contents:
-  - has_concept("jam list functions")
-- title: String functions
-  desc: Functions aimed at manipulation of character strings
+  - has_concept("ALE and codon functions")
+- title: Shiny prep functions
+  desc: Functions to prepare the Splicejam R-shiny app
   contents:
-  - has_concept("jam string functions")
-- title: Spatial functions
-  desc: Functions that assist with spatial data, particularly 3-D coordinates
+  - has_concept("Shiny prep functions")
+- title: Sashimi prep functions
+  desc: Functions to prepare the Sashimi data and plot objects
   contents:
-  - has_concept("jam spatial functions")
-- title: Color functions
-  desc: Functions that assist with color manipulation
+  - has_concept("Sashimi prep functions")
+- title: ggplot2 customizations
+  desc: Customizations to ggplot2 objects for Sashimi visualizations
   contents:
-  - has_concept("jam color functions")
-- title: Matrix functions
-  desc: Functions aimed at manipulation of matrix data
+  - has_concept("ggplot2 customizations")
+- title: Internal utility functions
+  desc: Numerous utility functions, mostly for internal use within Splicejam
   contents:
-  - has_concept("jam matrix functions")
-- title: Numeric functions
-  desc: Functions aimed at manipulation of numeric data
-  contents:
-  - has_concept("jam numeric functions")
-- title: splicejam test data
-  desc: R data with exons, coverage, and splice junctions
-  contents:
-  - has_concept("splicejam data")
-- title: Import functions
-  desc: Functions to import specific data formats
-  contents:
-  - has_concept("jam data import functions")
-
+  - has_concept("Internal utility functions")
