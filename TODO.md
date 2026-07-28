@@ -2,6 +2,22 @@
 
 ## 27jul2026
 
+* Provide R-shiny method to customize y-axis ranges
+per panel. Probably re-use the Samples table since it
+saves adding a new UI element which would essentially
+be the same table.
+* Provide R-shiny option to edit `scale_factor`,
+same approach used for y-axis limits.
+* DONE. Provide a clear way to adjust the y-axis label
+font size, for example the counts, and separately
+the gene/transcript labels. Controlled with `base_size`
+while gene axis labels use `geneAxisSize`.
+* FIXED. The gene/transcript labels are intended to
+be angled slightly down.
+* Consider option to customize the x-axis tick marks,
+labels, label density, etc. Custom xlab?
+* Re-enable the option to hide the gene-exon model.
+To be fair, it was rarely used.
 * Write "importer" functions to use Bioconductor
 packages as input.
 

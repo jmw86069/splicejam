@@ -57,7 +57,8 @@
 #'    * tx2geneDF': `data.frame` with columns: 'gene_name', 
 #'    'transcript_id'.
 #' @param gene `character` string with gene(s) to include in the
-#'    flattened exon model.
+#'    flattened exon model. Default 'Gria1' is for historical
+#'    reasons, the flagship gene in Farris et al 2019.
 #' @param gene_sd `list` optional sashimi data output from
 #'    `prepareSashimi()`.
 #' @param filesDF `data.frame` with columns 'url', 'sample_id', 'type'.
@@ -84,8 +85,19 @@
 #' @param use_ylim `list` of `numeric` y-axis limits, applied to
 #'    each 'sample_id' panel. It uses `ggh4x::scale_y_facet()` and
 #'    is currently experimental, working out the enquo mechanics.
+#' @param ylab `character` default 'Read Depth' used as the y-axis
+#'    label beside the Splicejam sashimi plots.
+#'    It can be customized as relevant, for example:
+#'    'Normalized Read Depth'.
 #' @param base_size `numeric` with base font size, default 18.
 #' @param exonLabelSize `numeric` with exon label size, default 14.
+#' @param geneAxisSize `numeric` font size for gene axis labels,
+#'    used for gene and transcript labels in the gene model panel,
+#'    default 14.
+#' @param geneAxisAngle `numeric` angle in degrees, default 30,
+#'    for the gene/transcript labels in the gene-transcript-exon model
+#'    panel. The transcript labels are often quite long, and angling
+#'    the labels slightly downhelps reduce the screen space required.
 #' @param label_junctions `logical` whether to label junctions with
 #'    count/score, default TRUE.
 #' @param junction_alpha `numeric` default 0.8, default alpha for
@@ -158,7 +170,7 @@
 #' @export
 splicejamFigure <- function
 (sjenv=NULL,
- gene="Myom1",
+ gene="Gria1",
  gene_sd=NULL,
  filesDF=NULL,
  sample_id=NULL,
@@ -168,8 +180,11 @@ splicejamFigure <- function
  minJunctionScore=10,
  scoreArcFactor=0.6,
  use_ylim=NULL,
+ ylab="Read Depth",
  base_size=18,
  exonLabelSize=14,
+ geneAxisSize=12,
+ geneAxisAngle=30,
  label_junctions=TRUE,
  junction_alpha=0.8,
  layout_ncol=1,
@@ -556,8 +571,20 @@ splicejamFigure <- function
          ylim=NULL);
 
    # apply gene x-limits
+   # 0.0.91.950 - reinstitute y-axis geneAxisAngle
+   # TODO: insert gene label font size
+   
+   ## NOT NEEDED: convert fontsize to mm point size
+   # geneAxisSizeMm <- as.numeric(geneAxisSize) / 2.85;
+   geneAxisSizeMm <- as.numeric(geneAxisSize) / 1;
+   
    cp_gene <- gg_gene +
       colorjam::theme_jam(base_size=base_size) +
+      ggplot2::theme(
+         axis.text.y=ggplot2::element_text(
+            angle=geneAxisAngle,
+            size=geneAxisSizeMm,
+            hjust=1)) +
       ggplot2::ggtitle(NULL) +
       ggplot2::xlab(ref_name) +
       ggplot2::coord_cartesian(
@@ -642,7 +669,7 @@ splicejamFigure <- function
                   ggplot2::scale_y_continuous(
                      # limits=use_ylim[[ipanel]],
                      labels=scales::comma,
-                     name="read depth")
+                     name=ylab)
             })
          }
       })
@@ -704,7 +731,7 @@ splicejamFigure <- function
          cp <- plotly::subplot(plotlys,
             shareX=TRUE,
             shareY=FALSE,
-            nrows=layout_nrow) |>
+            nrows=layout_nrow) %>%
             plotly::layout(
                margin=list(t=60, b=50, l=80, r=30));
          ## Todo: Handle plotly crosstalk to highlight points

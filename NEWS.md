@@ -1,3 +1,24 @@
+# splicejam 0.0.91.950
+
+## Hotfix
+
+* Replaced two instances of `|>` with `%>%` to maintain
+compatibility with R-3.5.1, more or less.
+Note there are no continuing tests using R-3.5.1.
+
+## Minor Updates
+
+* `splicejamFigure()` arguments:
+
+   * 'ylab' to customize the y-axis label
+   * 'geneAxisAngle' to control the angle of gene/transcript
+   labels in the gene model panel. They are often quite wide,
+   and the angle helps reduce whitespace.
+   * 'geneAxisSize' to customize the gene/transcript
+   label fontsize.
+   * Default changed `gene='Gria1'` for historical reasons,
+   the flagship gene for Farris et al 2019.
+
 # splicejam 0.0.91.900
 
 * Re-categorized all function families, for "See Also"

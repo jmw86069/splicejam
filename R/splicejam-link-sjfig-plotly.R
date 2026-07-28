@@ -145,7 +145,7 @@ link_sjfig_plotly <- function
    sjfig$cp <- plotly::subplot(plotlys,
       shareX=TRUE,
       shareY=FALSE,
-      nrows=sjfig$layout_nrow) |>
+      nrows=sjfig$layout_nrow) %>%
       plotly::layout(
          margin=list(t=60, b=50, l=80, r=30));
    

@@ -12,3 +12,4 @@
 ^.vdoc.*
 ^TODO_.*md$
 ^gencode.*$
+^HOWTO_.*$

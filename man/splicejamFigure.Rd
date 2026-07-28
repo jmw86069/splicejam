@@ -6,7 +6,7 @@
 \usage{
 splicejamFigure(
   sjenv = NULL,
-  gene = "Myom1",
+  gene = "Gria1",
   gene_sd = NULL,
   filesDF = NULL,
   sample_id = NULL,
@@ -16,8 +16,11 @@ splicejamFigure(
   minJunctionScore = 10,
   scoreArcFactor = 0.6,
   use_ylim = NULL,
+  ylab = "Read Depth",
   base_size = 18,
   exonLabelSize = 14,
+  geneAxisSize = 12,
+  geneAxisAngle = 30,
   label_junctions = TRUE,
   junction_alpha = 0.8,
   layout_ncol = 1,
@@ -43,7 +46,8 @@ splicejamFigure(
 }}
 
 \item{gene}{\code{character} string with gene(s) to include in the
-flattened exon model.}
+flattened exon model. Default 'Gria1' is for historical
+reasons, the flagship gene in Farris et al 2019.}
 
 \item{gene_sd}{\code{list} optional sashimi data output from
 \code{prepareSashimi()}.}
@@ -80,9 +84,23 @@ Note argument 'scoreArcMinimum=100' can be adjusted through
 each 'sample_id' panel. It uses \code{ggh4x::scale_y_facet()} and
 is currently experimental, working out the enquo mechanics.}
 
+\item{ylab}{\code{character} default 'Read Depth' used as the y-axis
+label beside the Splicejam sashimi plots.
+It can be customized as relevant, for example:
+'Normalized Read Depth'.}
+
 \item{base_size}{\code{numeric} with base font size, default 18.}
 
 \item{exonLabelSize}{\code{numeric} with exon label size, default 14.}
+
+\item{geneAxisSize}{\code{numeric} font size for gene axis labels,
+used for gene and transcript labels in the gene model panel,
+default 14.}
+
+\item{geneAxisAngle}{\code{numeric} angle in degrees, default 30,
+for the gene/transcript labels in the gene-transcript-exon model
+panel. The transcript labels are often quite long, and angling
+the labels slightly downhelps reduce the screen space required.}
 
 \item{label_junctions}{\code{logical} whether to label junctions with
 count/score, default TRUE.}
