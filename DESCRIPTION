@@ -1,7 +1,7 @@
 Package: splicejam
 Type: Package
 Title: Analysis and Visualization of Gene Splice Variants and Transcriptome Data
-Version: 0.0.91.950
+Version: 0.0.92.900
 Authors@R: c(
     person(given="James M.",
        family="Ward",
@@ -61,6 +61,7 @@ Suggests:
     tximportData,
     TxDb.Mmusculus.UCSC.mm10.knownGene,
     org.Mm.eg.db,
+    genejam,
     farrisdata(>= 0.0.9.900),
     testthat(>= 3.0.0),
     cowplot,
@@ -71,6 +72,7 @@ LazyData: true
 Remotes:
     github::jmw86069/colorjam,
     github::jmw86069/jamma,
+    github::jmw86069/genejam,
     github::jmw86069/farrisdata,
     github::r-lib/memoise,
     github::RinteRface/shinydashboardPlus,

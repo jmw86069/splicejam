@@ -392,8 +392,8 @@
 <text transform='translate(297.99,130.66) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='20.02px' lengthAdjust='spacingAndGlyphs'>897</text>
 <text transform='translate(316.61,141.53) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='30.03px' lengthAdjust='spacingAndGlyphs'>1,301</text>
 <text transform='translate(335.54,130.00) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='30.03px' lengthAdjust='spacingAndGlyphs'>2,487</text>
-<text transform='translate(349.25,162.80) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='13.35px' lengthAdjust='spacingAndGlyphs'>44</text>
-<text transform='translate(351.23,133.94) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='30.03px' lengthAdjust='spacingAndGlyphs'>2,030</text>
+<text transform='translate(349.25,162.81) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='13.35px' lengthAdjust='spacingAndGlyphs'>44</text>
+<text transform='translate(351.23,133.92) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='30.03px' lengthAdjust='spacingAndGlyphs'>2,030</text>
 <text transform='translate(367.23,127.46) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='30.03px' lengthAdjust='spacingAndGlyphs'>3,152</text>
 <rect x='177.35' y='108.84' width='501.31' height='71.98' style='stroke-width: 1.75; stroke: #262626;' />
 </g>
@@ -885,38 +885,39 @@
 <polygon points='511.80,398.43 522.24,398.43 522.24,393.63 511.80,393.63 ' style='stroke-width: 1.75; stroke: #1562AF; fill: #1B80E3;' />
 <polygon points='522.30,397.23 655.83,397.23 655.83,394.83 522.30,394.83 ' style='stroke-width: 1.75; stroke: #3C81C4; fill: #4EA8FF;' />
 <polygon points='655.88,397.23 655.88,397.23 655.88,394.83 655.88,394.83 ' style='stroke-width: 1.75; stroke: #3C81C4; fill: #4EA8FF;' />
-<line x1='192.63' y1='415.70' x2='202.81' y2='414.54' style='stroke-width: 1.07; stroke: #595959;' />
-<line x1='232.86' y1='414.88' x2='230.75' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
-<line x1='252.84' y1='414.87' x2='250.76' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
+<line x1='192.61' y1='415.70' x2='202.81' y2='414.54' style='stroke-width: 1.07; stroke: #595959;' />
+<line x1='232.87' y1='414.88' x2='230.75' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
+<line x1='252.86' y1='414.87' x2='250.76' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
 <line x1='305.54' y1='414.76' x2='304.25' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
-<line x1='357.16' y1='414.72' x2='356.18' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
-<line x1='376.29' y1='414.80' x2='374.64' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
-<line x1='436.13' y1='417.82' x2='444.47' y2='414.79' style='stroke-width: 1.07; stroke: #595959;' />
+<line x1='357.16' y1='414.71' x2='356.18' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
+<line x1='376.24' y1='414.80' x2='374.64' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
+<line x1='436.09' y1='417.82' x2='444.47' y2='414.79' style='stroke-width: 1.07; stroke: #595959;' />
 <line x1='461.90' y1='414.87' x2='464.04' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
-<line x1='520.25' y1='413.97' x2='518.08' y2='414.28' style='stroke-width: 1.07; stroke: #595959;' />
-<line x1='585.83' y1='413.97' x2='588.00' y2='414.28' style='stroke-width: 1.07; stroke: #595959;' />
-<line x1='652.60' y1='413.98' x2='654.82' y2='414.28' style='stroke-width: 1.07; stroke: #595959;' />
-<text transform='translate(190.83,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon1a</text>
-<text transform='translate(207.57,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon1b</text>
-<text transform='translate(225.02,416.89) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.04px' lengthAdjust='spacingAndGlyphs'>Gria1_exon1c</text>
-<text transform='translate(244.28,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon2</text>
-<text transform='translate(264.26,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon3</text>
+<line x1='500.66' y1='414.80' x2='499.07' y2='414.57' style='stroke-width: 1.07; stroke: #595959;' />
+<line x1='526.54' y1='417.82' x2='518.03' y2='414.78' style='stroke-width: 1.07; stroke: #595959;' />
+<line x1='592.30' y1='413.97' x2='590.12' y2='414.28' style='stroke-width: 1.07; stroke: #595959;' />
+<line x1='659.07' y1='413.99' x2='656.94' y2='414.28' style='stroke-width: 1.07; stroke: #595959;' />
+<text transform='translate(190.81,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon1a</text>
+<text transform='translate(207.74,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon1b</text>
+<text transform='translate(224.72,416.89) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.04px' lengthAdjust='spacingAndGlyphs'>Gria1_exon1c</text>
+<text transform='translate(244.29,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon2</text>
+<text transform='translate(264.28,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon3</text>
 <text transform='translate(282.34,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon4</text>
-<text transform='translate(299.34,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon5</text>
+<text transform='translate(299.26,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon5</text>
 <text transform='translate(316.96,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon6</text>
 <text transform='translate(334.27,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon7</text>
-<text transform='translate(351.13,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon8</text>
+<text transform='translate(351.18,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon8</text>
 <text transform='translate(368.58,420.39) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='80.05px' lengthAdjust='spacingAndGlyphs'>Gria1_exon9</text>
-<text transform='translate(387.70,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon10</text>
-<text transform='translate(404.67,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon11</text>
-<text transform='translate(421.56,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon12</text>
-<text transform='translate(440.49,463.53) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon13</text>
+<text transform='translate(387.66,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon10</text>
+<text transform='translate(404.71,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon11</text>
+<text transform='translate(421.60,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon12</text>
+<text transform='translate(440.45,463.53) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon13</text>
 <text transform='translate(460.10,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon14</text>
-<text transform='translate(478.68,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon15</text>
-<text transform='translate(495.92,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon16</text>
-<text transform='translate(531.67,412.61) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='95.59px' lengthAdjust='spacingAndGlyphs'>Gria1_exon17a</text>
-<text transform='translate(584.03,412.61) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='95.59px' lengthAdjust='spacingAndGlyphs'>Gria1_exon17b</text>
-<text transform='translate(650.80,413.00) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='94.81px' lengthAdjust='spacingAndGlyphs'>Gria1_exon17c</text>
+<text transform='translate(479.63,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon15</text>
+<text transform='translate(512.08,416.50) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='87.82px' lengthAdjust='spacingAndGlyphs'>Gria1_exon16</text>
+<text transform='translate(531.80,467.42) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='95.59px' lengthAdjust='spacingAndGlyphs'>Gria1_exon17a</text>
+<text transform='translate(603.72,412.61) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='95.59px' lengthAdjust='spacingAndGlyphs'>Gria1_exon17b</text>
+<text transform='translate(670.49,413.00) rotate(-90)' text-anchor='middle' style='font-size: 13.98px; font-family: sans;' textLength='94.81px' lengthAdjust='spacingAndGlyphs'>Gria1_exon17c</text>
 <rect x='177.35' y='392.03' width='501.31' height='71.98' style='stroke-width: 1.75; stroke: #262626;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>

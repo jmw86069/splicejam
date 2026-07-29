@@ -1,6 +1,52 @@
 # TODO for splicejam
 
+## 28jul2026
+
+- Consider ability to use custom transcript labels, for example “Gria1
+  flip” and “Gria1 flop”.
+
+- Consider ability to provide `detectedTx` to an existing splicejam
+  environment. It would rebuild `flatExonsByGene` using the new subset
+  of transcripts.
+
+  - It is already possible by re-creating the `environment` with the new
+    `detectedTx` data.
+
+- Bigger todo ideas:
+
+  - Give differential isoform results, create the figure to help
+    visualize the supporting data. E.g.
+    [`limma::diffSplice()`](https://rdrr.io/pkg/limma/man/diffSplice.html)
+    gives a set of significant ‘transcript_id’, use those to create the
+    figure.
+  - Given coverage data, determine whether it is feasible to determine
+    “detected transcripts”, outside of using Salmon transcript quant
+    output for example.
+  - Port
+    [`defineDetectedTx()`](https://jmw86069.github.io/splicejam/reference/defineDetectedTx.md)
+    to kallisto input.
+
 ## 27jul2026
+
+- Provide R-shiny method to customize y-axis ranges per panel. Probably
+  re-use the Samples table since it saves adding a new UI element which
+  would essentially be the same table.
+
+- Provide R-shiny option to edit `scale_factor`, same approach used for
+  y-axis limits.
+
+- DONE. Provide a clear way to adjust the y-axis label font size, for
+  example the counts, and separately the gene/transcript labels.
+  Controlled with `base_size` while gene axis labels use `geneAxisSize`.
+
+- FIXED. The gene/transcript labels are intended to be angled slightly
+  down.
+
+- Consider option to customize the x-axis tick marks, labels, label
+  density, etc. Custom xlab?
+
+- Re-enable the option to hide the gene-exon model. To be fair, it was
+  rarely used.
 
 - Write “importer” functions to use Bioconductor packages as input.
 
@@ -23,11 +69,14 @@
 
   - ‘EnsDb’ has complete tx2gene and exonsBy support.
 
-- INCOMPLETE. Allow editing scale_factor in the Sample tab.
+- INCOMPLETE. Allow editing ‘scale_factor’ in the Sample tab.
 
   - The Shiny widget exists but is clunky. Values are not yet utilized
     in
     [`sashimiAppServer()`](https://jmw86069.github.io/splicejam/reference/sashimiAppServer.md).
+
+- TODO. Move a lot of functions to ‘keywords internal’ to minimize the
+  user-facing function space.
 
 ## 21jul2026
 

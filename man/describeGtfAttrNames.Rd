@@ -71,6 +71,7 @@ will become: \code{c("tag", "tag_v1", "tag_v2")}.
 Other GTF functions:
 \code{\link[=getGtfAttrs]{getGtfAttrs()}},
 \code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
+\code{\link[=makeTx2geneFromTxdb]{makeTx2geneFromTxdb()}},
 \code{\link[=readGtf]{readGtf()}}
 }
 \concept{GTF functions}

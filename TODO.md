@@ -1,5 +1,29 @@
 # TODO for splicejam
 
+## 28jul2026
+
+* Consider ability to use custom transcript labels,
+for example "Gria1 flip" and "Gria1 flop".
+* Consider ability to provide `detectedTx` to an
+existing splicejam environment. It would rebuild
+`flatExonsByGene` using the new subset of transcripts.
+
+   * It is already possible by re-creating the
+   `environment` with the new `detectedTx` data.
+
+* Bigger todo ideas:
+
+   * Give differential isoform results, create
+   the figure to help visualize the supporting data.
+   E.g. `limma::diffSplice()` gives a set of
+   significant 'transcript_id', use those to create
+   the figure.
+   * Given coverage data, determine whether it is
+   feasible to determine "detected transcripts",
+   outside of using Salmon transcript quant output
+   for example.
+   * Port `defineDetectedTx()` to kallisto input.
+
 ## 27jul2026
 
 * Provide R-shiny method to customize y-axis ranges

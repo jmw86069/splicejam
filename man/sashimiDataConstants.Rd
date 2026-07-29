@@ -214,6 +214,7 @@ and to help speed the re-use of data within the R-shiny app:
 \seealso{
 Other Splicejam core functions:
 \code{\link[=launchSashimiApp]{launchSashimiApp()}},
+\code{\link[=splicejamDataFromTxDb]{splicejamDataFromTxDb()}},
 \code{\link[=splicejamFigure]{splicejamFigure()}}
 }
 \concept{Splicejam core functions}

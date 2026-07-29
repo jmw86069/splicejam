@@ -7,16 +7,31 @@ Splicejam was created to analyze and visualize RNA-seq and transcript
 isoform splicing data. Splicejam aims to provide sashimi plots with
 enough customizations to support publication-quality figures.
 
-## Updates 23-July-2026
+## Updates 28-July-2026
 
-- Much simpler workflow:
+- The workflow is much simpler than pre-July-2026:
 
-<!-- -->
+  1.  One step to prepare the data `environment`.
+  2.  One step to create the figure, or open R-shiny app.
 
-    sjenv <- sashimiDataConstants(
-       gtf=gtf,
-       filesDF=filesDF)
-    sashimiFigure(sjenv, gene="Gria1")
+- Support for Bioconductor TxDb data package:
+
+``` r
+sjenv_txdb <- splicejamDataFromTxDb(
+   txdb=TxDb.Mmusculus.UCSC.mm10.knownGene::TxDb.Mmusculus.UCSC.mm10.knownGene,
+   filesDF=filesDF,
+   ann_lib="org.Mm.eg.db")
+sashimiFigure(sjenv, gene="Gria1")
+```
+
+- Or prepare splicejam data using a GTF file:
+
+``` r
+sjenv <- sashimiDataConstants(
+   gtf=gtf,
+   filesDF=filesDF)
+sashimiFigure(sjenv, gene="Gria1")
+```
 
 ## Splicejam Sashimi Plot
 

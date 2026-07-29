@@ -4,11 +4,28 @@ Splicejam was created to analyze and visualize RNA-seq and transcript
 isoform splicing data. Splicejam aims to provide sashimi plots with
 enough customizations to support publication-quality figures.
 
-## Updates 23-July-2026
+## Updates 28-July-2026
 
-- Much simpler workflow:
+- The workflow is much simpler than pre-July-2026:
 
-``` R
+  1.  One step to prepare the data `environment`.
+  2.  One step to create the figure, or open R-shiny app.
+
+- Support for Bioconductor TxDb data package:
+
+``` r
+
+sjenv_txdb <- splicejamDataFromTxDb(
+   txdb=TxDb.Mmusculus.UCSC.mm10.knownGene::TxDb.Mmusculus.UCSC.mm10.knownGene,
+   filesDF=filesDF,
+   ann_lib="org.Mm.eg.db")
+sashimiFigure(sjenv, gene="Gria1")
+```
+
+- Or prepare splicejam data using a GTF file:
+
+``` r
+
 sjenv <- sashimiDataConstants(
    gtf=gtf,
    filesDF=filesDF)
@@ -145,6 +162,8 @@ These functions are the heart of the splicejam package
   : Launch Sashimi R-shiny application
 - [`sashimiDataConstants()`](https://jmw86069.github.io/splicejam/reference/sashimiDataConstants.md)
   : Prepare sashimi plot required data
+- [`splicejamDataFromTxDb()`](https://jmw86069.github.io/splicejam/reference/splicejamDataFromTxDb.md)
+  : Prepare splicejam data environment from a TxDb annotation package
 - [`splicejamFigure()`](https://jmw86069.github.io/splicejam/reference/splicejamFigure.md)
   : Make Splicejam Sashimi Figure
 
@@ -255,6 +274,8 @@ others.
   : Grab GTF or GFF3 attributes into a data.frame
 - [`makeTx2geneFromGtf()`](https://jmw86069.github.io/splicejam/reference/makeTx2geneFromGtf.md)
   : Make tx2gene data.frame from a GTF file
+- [`makeTx2geneFromTxdb()`](https://jmw86069.github.io/splicejam/reference/makeTx2geneFromTxdb.md)
+  : Make tx2gene data.frame from a TxDb object
 - [`readGtf()`](https://jmw86069.github.io/splicejam/reference/readGtf.md)
   : read gtf/gff3 file
 

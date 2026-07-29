@@ -77,6 +77,7 @@ However, to see available attribute names, try \code{describeGtfAttrNames()}.
 Other GTF functions:
 \code{\link[=describeGtfAttrNames]{describeGtfAttrNames()}},
 \code{\link[=makeTx2geneFromGtf]{makeTx2geneFromGtf()}},
+\code{\link[=makeTx2geneFromTxdb]{makeTx2geneFromTxdb()}},
 \code{\link[=readGtf]{readGtf()}}
 }
 \concept{GTF functions}

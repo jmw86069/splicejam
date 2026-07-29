@@ -5,6 +5,7 @@
 <url><loc>https://jmw86069.github.io/splicejam/articles/index.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/articles/shiny-server-for-sashimi-plots.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/authors.html</loc></url>
+<url><loc>https://jmw86069.github.io/splicejam/HOWTO_TxDb_input.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/index.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/news/index.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/addGRgaps.html</loc></url>
@@ -54,6 +55,7 @@
 <url><loc>https://jmw86069.github.io/splicejam/reference/launchSashimiApp.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/list2im.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/makeTx2geneFromGtf.html</loc></url>
+<url><loc>https://jmw86069.github.io/splicejam/reference/makeTx2geneFromTxdb.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/make_ref2compressed.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/plotSashimi.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/prepareSashimi.html</loc></url>
@@ -71,6 +73,7 @@
 <url><loc>https://jmw86069.github.io/splicejam/reference/sortSamples.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/spliceGR2junctionDF.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/splicejam-extensions.html</loc></url>
+<url><loc>https://jmw86069.github.io/splicejam/reference/splicejamDataFromTxDb.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/splicejamFigure.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/spline3d.html</loc></url>
 <url><loc>https://jmw86069.github.io/splicejam/reference/stackJunctions.html</loc></url>

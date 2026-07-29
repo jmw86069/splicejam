@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Create a Sashimi Plot • splicejam</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Create a Sashimi Plot">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">splicejam</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.91.900</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.92.900</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@
                         <h4 data-toc-skip class="author">James M.
 Ward</h4>
             
-            <h4 data-toc-skip class="date">2026-07-27</h4>
+            <h4 data-toc-skip class="date">2026-07-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jmw86069/splicejam/blob/HEAD/vignettes/create-a-sashimi-plot.Rmd" class="external-link"><code>vignettes/create-a-sashimi-plot.Rmd</code></a></small>
       <div class="d-none name"><code>create-a-sashimi-plot.Rmd</code></div>
@@ -73,423 +73,457 @@ Ward</h4>
 </h2>
 <p>This vignette is intended to describe how to create a Sashimi plot
 using RNA-seq data.</p>
-<div class="section level3">
-<h3 id="outline">Outline<a class="anchor" aria-label="anchor" href="#outline"></a>
-</h3>
-<ul>
-<li>
-<code><a href="../reference/sashimiDataConstants.html">sashimiDataConstants()</a></code>: Prepare data inside an
-<code>environment</code> which is used to prepare figures.</li>
-<li>
-<code><a href="../reference/splicejamFigure.html">splicejamFigure()</a></code>: The core function to produce a
-Splicejam sashimi plot figure.</li>
-</ul>
-<p>Alternatively, open an R-shiny app:</p>
-<ul>
-<li><code><a href="../reference/launchSashimiApp.html">launchSashimiApp()</a></code></li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="requirements">Requirements<a class="anchor" aria-label="anchor" href="#requirements"></a>
-</h3>
-<p>There are three basic requirements for a Sashimi plot:</p>
 <ol style="list-style-type: decimal">
-<li>
-<strong>Gene-exon structure</strong>: The easiest input is a GTF
-<code>.gtf</code> or GFF3 <code>.gff</code> file.</li>
-<li>
-<strong>RNA-seq coverage data</strong>: Typically bigwig
-<code>.bw</code> files.</li>
-<li>
-<strong>Splice junction data</strong>: Typically BED12
-<code>.bed</code>, bigBed <code>.bb</code>, or STAR
-<code>'SJ.out.tab'</code> formatted file.</li>
+<li>Define coverage and junction data: <code>filesDF</code>
+</li>
+<li>Provide gene-exon data: <code>sjenv</code>
+</li>
+<li>Create Splicejam figures.</li>
 </ol>
-<p>Each type of data will be described below.</p>
-</div>
 </div>
 <div class="section level2">
-<h2 id="gene-exon-structure">Gene-exon structure<a class="anchor" aria-label="anchor" href="#gene-exon-structure"></a>
+<h2 id="data-requirements">Data Requirements<a class="anchor" aria-label="anchor" href="#data-requirements"></a>
 </h2>
-<p>There are several sources of gene-exon structures:</p>
-<div class="section level3">
-<h3 id="gtf-file">GTF File<a class="anchor" aria-label="anchor" href="#gtf-file"></a>
-</h3>
-<p>GTF or GFF file, for example Gencode GTF (<a href="https://www.gencodegenes.com" class="external-link uri">https://www.gencodegenes.com</a>).</p>
-<ul>
-<li><p>A GTF file is sufficient to cover all gene-transcript-exon
-requirements for Splicejam.</p></li>
-<li><p>When a GTF file and corresponding transcripts are used for STAR
-alignment, and/or Salmon/Kallisto quantitation, we recommend using the
-same file as input to Splicejam.</p></li>
+<p>The process:</p>
+<ol style="list-style-type: decimal">
 <li>
-<p>The GTF should have the following fields defined:</p>
+<p><strong>Splicejam environment</strong>:</p>
 <ul>
-<li>‘gene_name’: <code>character</code> gene symbol. Its values will be
-used to represent genes in the <code>data.frame</code> referred to as
-<code>'tx2geneDF'</code>.</li>
-<li>‘transcript_id’: <code>character</code> transcript identifier, for
-example <code>'ENST0000001.2'</code>. Its values will be used in
-<code>'tx2geneDF'</code> in column ‘transcript_id’.</li>
-<li>Note the ‘gene_id’ column is not typically used as the primary key
-for genes.</li>
+<li>
+<strong>TxDb</strong> from Bioconductor, or your own.</li>
+<li>
+<strong>GTF file</strong> with specific annotations.</li>
 </ul>
 </li>
-</ul>
-<p>How the GTF file is used:</p>
-<ul>
-<li>The GTF or GFF file is used to prepare <code>'tx2geneDF'</code>
-which associates transcripts <code>'transcript_id'</code> to genes
-<code>'gene_name'</code>, using <code><a href="../reference/makeTx2geneFromGtf.html">makeTx2geneFromGtf()</a></code>. It
-also parses other GTF entries in column 9 (annotations), to include in
-the resulting <code>tx2geneDF</code> output
-<code>data.frame</code>.</li>
-<li>The GTF or GFF file is converted to <code>TxDb</code> annotation
-database using <code>txdbmaker::makeTxDbFromGFF()</code>. This
-<code>TxDb</code> is saved in a local file with extension
-<code>'.txdb'</code> for re-use if needed.</li>
-<li>The <code>TxDb</code> data is used to produce
-<code>exonsByTx</code>, and if the ‘CDS’ field is defined in the GTF
-file it also produces <code>cdsByTx</code>. The CDS is used to
-distinguish non-coding exons (thin exons) from coding exons (wide exons)
-in the Splicejam sashimi plot.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="txdb-and-tx2genedf">TxDb and tx2geneDF<a class="anchor" aria-label="anchor" href="#txdb-and-tx2genedf"></a>
-</h3>
-<p>A <code>TxDb</code> is typically produced using the Bioconductor
-package ‘txdbmaker’, see <code>txdbmaker::makeTxDb()</code> for various
-types of input.</p>
+<li>
+<p><strong>Create <code>filesDF</code></strong>:</p>
 <ul>
 <li>
-<p>Note that <code>TxDb</code> input is not sufficient alone, since
-Splicejam requires ‘gene_name’ to be associated with
-‘transcript_id’.</p>
-<ul>
-<li>Bioconductor provides several Txdb data packages (see BiocView <a href="https://bioconductor.org/packages/release/BiocViews.html#___TxDb" class="external-link uri">https://bioconductor.org/packages/release/BiocViews.html#___TxDb</a>).
-For example, to install the package for hg19 UCSC knownGenes TxDb,
-<code>BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene")</code>.</li>
-<li>The TxDb specification includes ‘gene_id’ but not ‘gene_name’,
-instead it must be provided, or produced using Bioconductor organism
-annotation data, for example the Human annotation package is called
-<code>'org.Hs.eg.db'</code>.</li>
-<li>Most Bioconductor packages define ‘gene_id’ using ENTREZID, however
-it is not clearly documented. For example
-<code>TxDb.Hsapiens.UCSC.hg38.knownGene</code> does not indicate that is
-uses ENTREZID, which is surprising because UCSC knownGene typically uses
-its own gene identifiers to enable them to provide gene loci which are
-not represented in the NCBI Gene release. Nonetheless, one can convert
-UCSC knownGene in hg38 using <code><a href="https://rdrr.io/pkg/org.Hs.eg.db/man/org.Hs.egSYMBOL.html" class="external-link">org.Hs.eg.db::org.Hs.egSYMBOL</a></code>
-using something like this:
-<code>AnnotationDbi::mget("1", org.Hs.eg.db::org.Hs.egSYMBOL)</code>.</li>
+<strong>RNA-seq coverage data</strong>: bigwig <code>.bw</code>
+files.</li>
+<li>
+<strong>Splice junction data</strong>: <code>.bed</code>, bigBed
+<code>.bb</code>, or STAR <code>'SJ.out.tab'</code>.</li>
 </ul>
 </li>
-<li><p>Methods to produce <code>'tx2geneDF'</code> are described in
-<code><a href="https://rdrr.io/pkg/tximport/man/tximport.html" class="external-link">tximport::tximport()</a></code>, which also includes references to
-other resources. One straightforward approach is to use a GTF or GFF
-file with <code><a href="../reference/makeTx2geneFromGtf.html">makeTx2geneFromGtf()</a></code>.</p></li>
-</ul>
+</ol>
 </div>
+<div class="section level2">
+<h2 id="create-the-splicejam-data-environment">Create the Splicejam data environment<a class="anchor" aria-label="anchor" href="#create-the-splicejam-data-environment"></a>
+</h2>
+<p>Create the Splicejam <code>environment</code> using one of the two
+paths described above.</p>
+<p>For testing, we provide <code>sjenvtest</code> which includes data
+for mouse genes: <code>'Gria1'</code> and <code>'Ntrk3'</code>.</p>
+<p>See <a href="#Create%20%60filesDF%60">Create <code>filesDF</code></a>
+to provide <code>filesDF</code> at this step.</p>
 <div class="section level3">
-<h3 id="grangeslist-objects-and-tx2genedf">GRangesList objects, and tx2geneDF<a class="anchor" aria-label="anchor" href="#grangeslist-objects-and-tx2genedf"></a>
+<h3 id="gtf-input">GTF input<a class="anchor" aria-label="anchor" href="#gtf-input"></a>
 </h3>
-<p><code>GRangesList</code> objects ‘exonsByTx’, ‘exonsByGene’, and
-‘cdsByTx’ may be provided, for example by using
-<code><a href="https://rdrr.io/pkg/GenomicFeatures/man/transcriptsBy.html" class="external-link">GenomicFeatures::exonsBy()</a></code> and
-<code><a href="https://rdrr.io/pkg/GenomicFeatures/man/transcriptsBy.html" class="external-link">GenomicFeatures::cdsBy()</a></code> or equivalent.</p>
-<p>These objects are used to produce flattened exon models, for example
-a flat exon model for transcript would combine <code>exonsByTx</code>
-with <code>cdsByTx</code> to represent non-coding and coding regions as
-narrow and wide exons, respectively. The output is
-<code>flatExonsByTx</code>.</p>
-<p>Alternatively, <code>flatExonsByTx</code> can be provided directly,
-for example it can be prepared using <code><a href="../reference/flattenExonsBy.html">flattenExonsBy()</a></code>.</p>
-<p>The <code>flatExonsByTx</code> is used together with
-<code>tx2geneDF</code> to prepare <code>flatExonsByGene</code>.
-Alternatively, it may be prepared upfront for example using
-<code><a href="../reference/flattenExonsBy.html">flattenExonsBy()</a></code>.</p>
-<blockquote>
-<p>Note that gene exons are numbered based upon the observed exon
-structure of the transcripts provided. Therefore, when using
-<code>detectedTx</code> to define a subset of detected transcripts, the
-exon numbers may differ from the output if using all annotated
-transcripts. This distinction was intentional, and motivated by numerous
-Gencode comprehensive transcripts which may not be observed in practice.
-However, one may prepare flattened exons using all transcripts to
-override this decision.</p>
-</blockquote>
-<ul>
-<li>The <code>tx2geneDF</code> should be a <code>data.frame</code> with
-minimal columns ‘transcript_id’ and ‘gene_name’. These data associate
-transcripts to genes.</li>
-<li>
-<code>exonsByTx</code> should be named by ‘transcript_id’ as in
-<code>tx2geneDF</code>.</li>
-<li>
-<code>cdsByTx</code> should be named by ‘transcript_id’ as in
-<code>tx2geneDF</code>. It is optional, and when provided it is used to
-produce narrow and wide exons in the resulting gene-transcript-exon
-model.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="use-of-detected-transcripts">Use of detected transcripts<a class="anchor" aria-label="anchor" href="#use-of-detected-transcripts"></a>
-</h3>
-<p>The recommended workflow is to use an appropriate set of “detected
-transcripts” with Splicejam. The motivation is to represent observed
-exon structure, which is beneficial when used together with Gencode
-comprehensive transcript data. The comprehensive data often includes
-numerous extraneous transcripts which may make it difficult to interpret
-isoform changes in the given experiment.</p>
-<p>Instead, using “detected transcripts” is helpful to review scenarios
-where, for example, isoform A switches to isoform B. There may be 12
-other potential isoforms without supporting data, and they would not be
-helpful to assess the A-to-B isoform switch.</p>
-<p>Note that transcript quantitation is usually necessary to define
-detected transcripts, for example using Salmon or Kallisto.</p>
-<p>Splicejam provides <code><a href="../reference/defineDetectedTx.html">splicejam::defineDetectedTx()</a></code> with
-heuristics to help define detected transcripts, typically using some
-combination of minimum counts, minimum estimated TPM abundance, and
-minimum percent max of each. It typically reduces the total transcripts
-by about 60% the original size, the vast majority of transcripts removed
-have zero or near-zero quantitative values.</p>
-<p>We found it beneficial to apply:</p>
-<ul>
-<li>Minimum count, to require some minimum plausible supporting
-data.</li>
-<li>Minimum TPM abundance, to require some minimum fractional transcript
-versus the overall observed transcriptome.</li>
-<li>Percent max per gene, to require a minor isoform to comprise at
-least 10% of the highest group mean within the same sample group. This
-option uses ‘TPM’ by default, so the evaluation is done at ‘molar’-like
-level and is relatively independent of transcript length. This filter
-helps remove extremely low abundance transcripts from extremely high
-abundance genes, for example GAPDH and ACTB may have 20 copies of an
-obscure isoform, compared with over 120,000 counts of the predominant
-isoform. The 20 copies may be biologically real, but in our experience
-has not typically represented signal useful to downstream analysis and
-visualization.</li>
-</ul>
-<p>For additional information about transcript quantitation, see:</p>
-<p>Salmon (Patro et al 2017, <a href="https://combine-lab.github.io/salmon/" class="external-link uri">https://combine-lab.github.io/salmon/</a>)</p>
-<p>Kallisto (Bray et al 2016, <a href="https://pachterlab.github.io/kallisto/about" class="external-link uri">https://pachterlab.github.io/kallisto/about</a>)</p>
-</div>
-<div class="section level3">
-<h3 id="txdb-bioconductor-package">TxDb Bioconductor package<a class="anchor" aria-label="anchor" href="#txdb-bioconductor-package"></a>
-</h3>
-<p>This example uses Bioconductor data package
-<code>TxDb.Mmusculus.UCSC.mm10.knownGene</code> which represents UCSC
-known genes for the mouse <code>mm10</code> genome assembly.</p>
-<p>First we assemble all exons by transcript, then all CDS exons by
-transcript. We will use these exons to assemble annotated gene
-models.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"warn"</span><span class="op">=</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>;</span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmw86069.github.io/splicejam">splicejam</a></span><span class="op">)</span><span class="op">)</span>;</span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmw86069.github.io/jamba/" class="external-link">jamba</a></span><span class="op">)</span><span class="op">)</span>;</span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/" class="external-link">kableExtra</a></span><span class="op">)</span><span class="op">)</span>;</span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span></span>
-<span>   <span class="co"># First obtain exons by transcript</span></span>
-<span>   <span class="va">exonsByTxMm10</span> <span class="op">&lt;-</span> <span class="fu">exonsBy</span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span>,</span>
-<span>      by<span class="op">=</span><span class="st">"tx"</span>,</span>
-<span>      use.names<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>;</span>
-<span>   <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">values</a></span><span class="op">(</span><span class="va">exonsByTxMm10</span><span class="op">@</span><span class="va">unlistData</span><span class="op">)</span><span class="op">$</span><span class="va">feature_type</span> <span class="op">&lt;-</span> <span class="st">"exon"</span>;</span>
-<span>   <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">values</a></span><span class="op">(</span><span class="va">exonsByTxMm10</span><span class="op">@</span><span class="va">unlistData</span><span class="op">)</span><span class="op">$</span><span class="va">subclass</span> <span class="op">&lt;-</span> <span class="st">"exon"</span>;</span>
-<span>   </span>
-<span>   <span class="co"># For added insight, obtain CDS exons by transcript (optional)</span></span>
-<span>   <span class="va">cdsByTxMm10</span> <span class="op">&lt;-</span> <span class="fu">cdsBy</span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span>,</span>
-<span>      by<span class="op">=</span><span class="st">"tx"</span>,</span>
-<span>      use.names<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>;</span>
-<span>   <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">values</a></span><span class="op">(</span><span class="va">cdsByTxMm10</span><span class="op">@</span><span class="va">unlistData</span><span class="op">)</span><span class="op">$</span><span class="va">feature_type</span> <span class="op">&lt;-</span> <span class="st">"cds"</span>;</span>
-<span>   <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">values</a></span><span class="op">(</span><span class="va">cdsByTxMm10</span><span class="op">@</span><span class="va">unlistData</span><span class="op">)</span><span class="op">$</span><span class="va">subclass</span> <span class="op">&lt;-</span> <span class="st">"cds"</span>;</span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>The <code>TxDb</code> objects do not permit storing gene symbols, so
-the example uses the Bioconductor annotation package
-<code>org.Mm.eg.db</code> to assign <code>gene_name</code> values. For
-values not found in <code>org.Mm.eg.db</code>, we use the format
-<code>LOC#</code> to indicate the Entrez gene ID, for example Entrez
-gene ID <code>1234</code> would be represented <code>LOC1234</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span></span>
-<span>   <span class="co"># Now prepare tx_name, gene_id, gene_name data.frame,</span></span>
-<span>   <span class="co"># surprisingly difficult</span></span>
-<span>   <span class="va">tx2geneMm10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span></span>
-<span>      <span class="fu">AnnotationDbi</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">select</a></span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span>,</span>
-<span>         <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/AnnotationDb-class.html" class="external-link">keys</a></span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span>, <span class="st">"GENEID"</span><span class="op">)</span>,</span>
-<span>         columns<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GENEID"</span>,<span class="st">"TXNAME"</span><span class="op">)</span>,</span>
-<span>         keytype<span class="op">=</span><span class="st">"GENEID"</span></span>
-<span>      <span class="op">)</span></span>
-<span>   <span class="op">)</span>;</span>
-<span>   <span class="va">tx2geneMm10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://jmw86069.github.io/jamba/reference/renameColumn.html" class="external-link">renameColumn</a></span><span class="op">(</span><span class="va">tx2geneMm10</span>,</span>
-<span>      from<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GENEID"</span>, <span class="st">"TXNAME"</span>, <span class="st">"TXTYPE"</span><span class="op">)</span>,</span>
-<span>      to<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gene_id"</span>, <span class="st">"transcript_id"</span>, <span class="st">"transcript_type"</span><span class="op">)</span><span class="op">)</span>;</span>
-<span></span>
-<span>   <span class="co"># add gene_name using org.Mm.eg.db</span></span>
-<span>   <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">org.Mm.eg.db</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">gene_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">values</a></span><span class="op">(</span><span class="fu">genes</span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span>;</span>
-<span>      <span class="va">gene_namesL</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/get.html" class="external-link">mget</a></span><span class="op">(</span><span class="va">gene_ids</span>,</span>
-<span>         <span class="va">org.Mm.egSYMBOL</span>,</span>
-<span>         ifnotfound<span class="op">=</span><span class="cn">NA</span><span class="op">)</span>;</span>
-<span>      <span class="co">## Convert list to vector taking the first gene_name each</span></span>
-<span>      <span class="co">## (All genes should only have one SYMBOL but there is no</span></span>
-<span>      <span class="co">## hard constraint so we should make absolutely sure to</span></span>
-<span>      <span class="co">## use only one value per gene.)</span></span>
-<span>      <span class="va">gene_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://jmw86069.github.io/jamba/reference/heads.html" class="external-link">heads</a></span><span class="op">(</span><span class="fu">S4Vectors</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/List-class.html" class="external-link">List</a></span><span class="op">(</span><span class="va">gene_namesL</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>;</span>
-<span>      <span class="co">## Replace NA with LOC# format</span></span>
-<span>      <span class="co">## Note we use gsub() to ensure the data fits the expected format</span></span>
-<span>      <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/any.html" class="external-link">any</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">gene_names</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>         <span class="va">gene_na</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">gene_names</span><span class="op">)</span><span class="op">)</span>;</span>
-<span>         <span class="va">gene_names</span><span class="op">[</span><span class="va">gene_na</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"^([0-9]+)$"</span>, <span class="st">"LOC\\1"</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gene_names</span><span class="op">[</span><span class="va">gene_na</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>;</span>
-<span>      <span class="op">}</span></span>
-<span>      <span class="va">tx2geneMm10</span><span class="op">$</span><span class="va">gene_name</span> <span class="op">&lt;-</span> <span class="va">gene_names</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">tx2geneMm10</span><span class="op">$</span><span class="va">gene_id</span><span class="op">)</span><span class="op">]</span>;</span>
-<span>   <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>      <span class="co">## If we have no gene annotations, use the gene_id values</span></span>
-<span>      <span class="va">tx2geneMm10</span><span class="op">$</span><span class="va">gene_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">tx2geneMm10</span><span class="op">$</span><span class="va">gene_id</span><span class="op">)</span>;</span>
-<span>   <span class="op">}</span></span>
-<span>   <span class="co"># print the first 20 rows to show the content</span></span>
-<span>   <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tx2geneMm10</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span>;</span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; Loading required package: TxDb.Mmusculus.UCSC.mm10.knownGene</span></span></code></pre></div>
-<p>Next we flatten transcript exons to the gene level using the function
-<code><a href="../reference/flattenExonsBy.html">splicejam::flattenExonsBy()</a></code>.</p>
-<p>We also flatten exons to the transcript level, which has the effect
-of combining CDS exons alongside non-CDS exons. The result is used when
-plotting transcript exon structures.</p>
-<p>In both cases, the argument <code>genes=c("Gria1", "Ntrk2")</code> is
-used as a convenience to produce data for only these two genes.</p>
+<code class="sourceCode R"><span><span class="va">sjenv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span><span class="op">)</span>;</span>
+<span><span class="va">sjenv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sashimiDataConstants.html">sashimiDataConstants</a></span><span class="op">(</span>envir<span class="op">=</span><span class="va">sjenv</span>,</span>
+<span>   empty_uses_farrisdata<span class="op">=</span><span class="cn">FALSE</span>,</span>
+<span>   filesDF<span class="op">=</span><span class="va">filesDF</span>,</span>
+<span>   gtf<span class="op">=</span><span class="va">gtf</span><span class="op">)</span>;</span></code></pre></div>
 <blockquote>
-<p>We recommend using detected transcripts here, with the argument
-<code>detectedTx</code>.</p>
+<p>Note: If you call <code><a href="../reference/sashimiDataConstants.html">sashimiDataConstants()</a></code> with no
+additional arguments, the default
+<code>empty_uses_farrisdata=TRUE</code> will try to use data from Farris
+et al 2019 via the Github R package
+<code>'jmw86069/farrisdata'</code>.</p>
 </blockquote>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>   <span class="co"># flatten exons to the gene level</span></span>
-<span>   <span class="co"># for speed, we will only process "Gria1", and "Ntrk2"</span></span>
-<span>   <span class="va">flatExonsByGeneMm10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flattenExonsBy.html">flattenExonsBy</a></span><span class="op">(</span>exonsByTx<span class="op">=</span><span class="va">exonsByTxMm10</span>,</span>
-<span>      cdsByTx<span class="op">=</span><span class="va">cdsByTxMm10</span>,</span>
-<span>      by<span class="op">=</span><span class="st">"gene"</span>,</span>
-<span>      genes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gria1"</span>, <span class="st">"Ntrk2"</span><span class="op">)</span>,</span>
-<span>      tx2geneDF<span class="op">=</span><span class="va">tx2geneMm10</span>,</span>
-<span>      verbose<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>;</span>
-<span></span>
-<span>   <span class="co"># to be fancy, also flatten transcripts, to include CDS ranges   </span></span>
-<span>   <span class="va">flatExonsByTxMm10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flattenExonsBy.html">flattenExonsBy</a></span><span class="op">(</span>exonsByTx<span class="op">=</span><span class="va">exonsByTxMm10</span>,</span>
-<span>      cdsByTx<span class="op">=</span><span class="va">cdsByTxMm10</span>,</span>
-<span>      tx2geneDF<span class="op">=</span><span class="va">tx2geneMm10</span>,</span>
-<span>      by<span class="op">=</span><span class="st">"tx"</span>,</span>
-<span>      genes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gria1"</span>, <span class="st">"Ntrk2"</span><span class="op">)</span><span class="op">)</span>;</span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; Loading required package: TxDb.Mmusculus.UCSC.mm10.knownGene</span></span></code></pre></div>
-<div class="section level5">
-<h5 id="plot-gene-exon-models-using-gene2gg">Plot gene-exon models using gene2gg()<a class="anchor" aria-label="anchor" href="#plot-gene-exon-models-using-gene2gg"></a>
-</h5>
-<p>Once the gene-transcript-exon data is prepared, the exon structure
-can be plotted using the function <code><a href="../reference/gene2gg.html">splicejam::gene2gg()</a></code>:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>   <span class="co"># Pull out Gria1</span></span>
-<span>   <span class="va">grlGria1</span> <span class="op">&lt;-</span> <span class="va">flatExonsByGeneMm10</span><span class="op">[[</span><span class="st">"Gria1"</span><span class="op">]</span><span class="op">]</span>;</span>
-<span></span>
-<span>   <span class="co">## Plot a basic gene-exon structure</span></span>
-<span>   <span class="va">ggGria1exons</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gene2gg.html">gene2gg</a></span><span class="op">(</span>gene<span class="op">=</span><span class="st">"Gria1"</span>,</span>
-<span>      flatExonsByGene<span class="op">=</span><span class="va">flatExonsByGeneMm10</span>,</span>
-<span>      exonLabelSize<span class="op">=</span><span class="fl">6</span><span class="op">)</span>;</span>
-<span>   <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ggGria1exons</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Gria1 exons"</span><span class="op">)</span><span class="op">)</span>;</span>
-<span></span>
-<span>   <span class="co">## Compare to the gene structure without compressing introns</span></span>
-<span>   <span class="va">gg1full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gene2gg.html">gene2gg</a></span><span class="op">(</span>gene<span class="op">=</span><span class="st">"Gria1"</span>,</span>
-<span>      flatExonsByGene<span class="op">=</span><span class="va">flatExonsByGeneMm10</span>,</span>
-<span>      compressGaps<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
-<span>   <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">gg1full</span><span class="op">)</span>;</span>
-<span>   </span>
-<span>   <span class="co">## Plot a slightly more detailed gene-transcript-exon structure</span></span>
-<span>   <span class="va">ggGria1exonsTx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gene2gg.html">gene2gg</a></span><span class="op">(</span>gene<span class="op">=</span><span class="st">"Gria1"</span>,</span>
-<span>      flatExonsByGene<span class="op">=</span><span class="va">flatExonsByGeneMm10</span>,</span>
-<span>      flatExonsByTx<span class="op">=</span><span class="va">flatExonsByTxMm10</span>,</span>
-<span>      tx2geneDF<span class="op">=</span><span class="va">tx2geneMm10</span><span class="op">)</span>;</span>
-<span>   <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ggGria1exonsTx</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Gria1 (compressed introns)"</span><span class="op">)</span><span class="op">)</span>;</span>
-<span>   </span>
-<span>   <span class="co">## Notice how difficult it is to see exon15 and exon16 are</span></span>
-<span>   <span class="co">## mutually exclusive exons</span></span>
-<span>   <span class="va">gg2full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gene2gg.html">gene2gg</a></span><span class="op">(</span>gene<span class="op">=</span><span class="st">"Gria1"</span>,</span>
-<span>      flatExonsByGene<span class="op">=</span><span class="va">flatExonsByGeneMm10</span>,</span>
-<span>      flatExonsByTx<span class="op">=</span><span class="va">flatExonsByTxMm10</span>,</span>
-<span>      tx2geneDF<span class="op">=</span><span class="va">tx2geneMm10</span>,</span>
-<span>      compressGaps<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>;</span>
-<span>   <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">gg2full</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Gria1 (uncompressed introns)"</span><span class="op">)</span><span class="op">)</span>;</span>
-<span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; Loading required package: TxDb.Mmusculus.UCSC.mm10.knownGene</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="txdb-input">TxDb input<a class="anchor" aria-label="anchor" href="#txdb-input"></a>
+</h3>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sjenv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span><span class="op">)</span>;</span>
+<span><span class="va">sjenv</span> <span class="op">&lt;-</span> <span class="fu">splicejamDataFromTxdb</span><span class="op">(</span></span>
+<span>   txdb<span class="op">=</span><span class="fu">TxDb.Mmusculus.UCSC.mm10.knownGene</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/TxDb.Mmusculus.UCSC.mm10.knownGene/man/package.html" class="external-link">TxDb.Mmusculus.UCSC.mm10.knownGene</a></span>,</span>
+<span>   ann_lib<span class="op">=</span><span class="st">"org.Mm.eg.db"</span>,</span>
+<span>   filesDF<span class="op">=</span><span class="va">filesDF</span><span class="op">)</span>;</span></code></pre></div>
+<ul>
+<li>The <code>TxDb</code> package must already be installed, in this
+case <code>'TxDb.Mmusculus.UCSC.mm10.knownGene'</code>.</li>
+<li>If <code>ann_lib</code> is not provided, it will be determined by
+the ‘Organism’ found in the <code>TxDb</code> metadata.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="review-sjenv">Review sjenv<a class="anchor" aria-label="anchor" href="#review-sjenv"></a>
+</h3>
+<p>You can use <code><a href="https://jmw86069.github.io/jamba/reference/sdim.html" class="external-link">jamba::sdim()</a></code> to describe the data. In this
+case, use <code>sjenvtest</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://jmw86069.github.io/jamba/reference/sdim.html" class="external-link">sdim</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Loading required namespace: GenomicRanges</span></span></code></pre>
+<table class="table table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Summary of objects in ‘sjenv’, with length or dimensions as relevant to
+each object.
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+rows
+</th>
+<th style="text-align:left;">
+cols
+</th>
+<th style="text-align:left;">
+class
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+color_sub
+</td>
+<td style="text-align:right;border-left:1px solid #DDDDDD;white-space: nowrap;">
+16
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+character
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+default_gene
+</td>
+<td style="text-align:right;border-left:1px solid #DDDDDD;white-space: nowrap;">
+1
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+character
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+filesDF
+</td>
+<td style="text-align:right;border-left:1px solid #DDDDDD;white-space: nowrap;">
+12
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+6
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+data.frame
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+flatExonsByGene
+</td>
+<td style="text-align:right;border-left:1px solid #DDDDDD;white-space: nowrap;">
+2
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+CompressedGRangesList
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+flatExonsByTx
+</td>
+<td style="text-align:right;border-left:1px solid #DDDDDD;white-space: nowrap;">
+10
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+CompressedGRangesList
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+tx2geneDF
+</td>
+<td style="text-align:right;border-left:1px solid #DDDDDD;white-space: nowrap;">
+10
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+7
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+data.frame
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="section level2">
-<h2 id="coverage-and-junctions-data">Coverage and Junctions data<a class="anchor" aria-label="anchor" href="#coverage-and-junctions-data"></a>
+<h2 id="create-the-splicejam-figure">Create the Splicejam figure<a class="anchor" aria-label="anchor" href="#create-the-splicejam-figure"></a>
 </h2>
-<p>All coverage data, and junction data, should be described in a
-<code>data.frame</code> <code>'filesDF'</code>. It should have the
-following columns:</p>
-<ol style="list-style-type: decimal">
-<li><p>‘sample_id’: Sample identifier, and in reality it should
-represent sample groups even when multiple replicates are available for
-each group. All files associated with each ‘sample_id’ are combined in
-strand-specific manner.</p></li>
-<li><p>‘url’: A web URL https link, or path to a local file, or the
-<code>character</code> name of column <code><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">values()</a></code> when
-supplying coverage as <code>GRanges</code> object
-<code>'covGR'</code>.</p></li>
-<li>
-<p>‘type’: <code>character</code> string, one of:</p>
-<ul>
-<li>‘bw’: bigwig coverage file</li>
-<li>‘junction’: BED12, bigBed (using bed12), or
-<code>'SJ.out.tab'</code> file produced by STAR.</li>
-<li>‘coverage_gr’: coverage provided as <code>GRanges</code> as
-<code>'covGR'</code>. The names in <code><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">values()</a></code> must match the
-character string in ‘url’ for this row.</li>
-</ul>
-</li>
-<li><p>‘scale_factor’: optional <code>numeric</code> scalar used to
-adjust the magnitude of signal, applied by multiplying the scale factor
-by the score. The scale factor is intended to provide a method to
-normalize data without creating a new coverage or junction
-file.</p></li>
-</ol>
 <div class="section level3">
-<h3 id="coverage-data">Coverage data<a class="anchor" aria-label="anchor" href="#coverage-data"></a>
+<h3 id="splicejamfigure">splicejamFigure<a class="anchor" aria-label="anchor" href="#splicejamfigure"></a>
 </h3>
-<p>The recommended input for coverage data is via bigWig
-<code>'.bw'</code> or <code>'.bigwig'</code> files. BigWig data are
-imported using the amazing package
-<code><a href="https://rnabioco.github.io/cpp11bigwig/reference/read_bigwig.html" class="external-link">cpp11bigwig::read_bigwig()</a></code>.</p>
-<p>The bigwig files can be stored on the local file system, or remote
-via https web URL. Local access is faster, but remote access is fairly
-close due to ‘cpp11bigwig’, and using memoise cache removes the
-distinction after each gene is loaded at least once.</p>
-<p>It is possible to provide coverage as <code>GRanges</code> data with
-columns storing the coverage as <code>NumericList</code>, or other
-object coercible to <code>list</code>. The <code>GRanges</code> entries
-must exactly match the <code><a href="https://rdrr.io/r/base/names.html" class="external-link">names()</a></code> of the corresponding
-<code>flatExonsByGene</code>, for example <code>'Gria1_exon1'</code>,
-<code>'Gria1_exon2a'</code>, <code>'Gria1_exon2b'</code>, etc. The
-colnames of <code><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">values()</a></code> should exactly match the
-<code>'sample_id'</code> column values in the <code>filesDF</code>
-<code>data.frame</code>.</p>
-<p>Note that coverage in either case should only represent one strand,
-therefore samples are expected to have “+” and “-” strand coverage
+<p>The core function <code><a href="../reference/splicejamFigure.html">splicejamFigure()</a></code> prepares the
+multi-panel plot for a given gene.</p>
+<p>Optionally, enable a progress bar with
+<code>progressr::handlers(global=TRUE)</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># optionally enable progress bar</span></span>
+<span><span class="co"># progressr::handlers(global=TRUE)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
+<span><span class="va">sjfig</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splicejamFigure.html">splicejamFigure</a></span><span class="op">(</span>sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
+<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/splicejamFigure-1-1.png" class="r-plt" alt="" width="1344"></p>
+<p><strong>We recommend using memoise to cache data</strong>, with
+argument <code>use_memoise=TRUE</code> shown below.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
+<span><span class="co"># Enable memoise</span></span>
+<span><span class="va">sjfig</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splicejamFigure.html">splicejamFigure</a></span><span class="op">(</span>sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
+<span>   use_memoise<span class="op">=</span><span class="cn">TRUE</span>,</span>
+<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/splicejamFigure.html">splicejamFigure()</a></code> does the work of calling:</p>
+<ul>
+<li>
+<code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code> - coverage and junction data</li>
+<li>
+<code><a href="../reference/plotSashimi.html">plotSashimi()</a></code> - ggplot2 object</li>
+<li>
+<code><a href="../reference/gene2gg.html">gene2gg()</a></code> - gene-transcript-exon model</li>
+<li>
+<code>patchwork</code> - multipanel figure</li>
+</ul>
+<p>Various customizations can be passed to these functions using ‘…’.
+See <code><a href="../reference/plotSashimi.html">plotSashimi()</a></code>.</p>
+</div>
+<div class="section level3">
+<h3 id="zoom-by-exon-names">Zoom by exon names<a class="anchor" aria-label="anchor" href="#zoom-by-exon-names"></a>
+</h3>
+<p>The <code><a href="../reference/splicejamFigure.html">splicejamFigure()</a></code> arguments include two methods to
+zoom to specific exons.</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>'exon_range'</code>: <code>character</code> vector with two
+exons, for example:
+<code>use_exon_range=c('Gria1_exon13', 'Gria1_exon16')</code>
+</li>
+<li>
+<code>'display_coords'</code>: <code>integer</code> vector with
+start and end positions. Note the coordinates must be valid for the gene
+being displayed.</li>
+</ol>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
+<span><span class="va">sjfig_zoom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splicejamFigure.html">splicejamFigure</a></span><span class="op">(</span>sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
+<span>   use_exon_range<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Gria1_exon13'</span>, <span class="st">'Gria1_exon16'</span><span class="op">)</span>,</span>
+<span>   use_memoise<span class="op">=</span><span class="cn">TRUE</span>,</span>
+<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/splicejamFigure-3-1.png" class="r-plt" alt="" width="1344"></p>
+</div>
+<div class="section level3">
+<h3 id="adjust-column-layout">Adjust column layout<a class="anchor" aria-label="anchor" href="#adjust-column-layout"></a>
+</h3>
+<p>You can adjust the layout, for example to impose two columns use
+<code>layout_ncol=2</code>.</p>
+<p>Supply <code>sample_id</code> in a specific order to control the
+order each panel is displayed.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
+<span><span class="va">sjfig_zoom_2col</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splicejamFigure.html">splicejamFigure</a></span><span class="op">(</span>sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
+<span>   use_exon_range<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Gria1_exon13'</span>, <span class="st">'Gria1_exon16'</span><span class="op">)</span>,</span>
+<span>   layout_ncol<span class="op">=</span><span class="fl">2</span>,</span>
+<span>   use_memoise<span class="op">=</span><span class="cn">TRUE</span>,</span>
+<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/splicejamFigure-4-1.png" class="r-plt" alt="" width="1152"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="create-filesdf">Create filesDF<a class="anchor" aria-label="anchor" href="#create-filesdf"></a>
+</h2>
+<p>Create <code>'filesDF'</code> to provide coverage and junctions
 data.</p>
+<p>An example of the <code>data.frame</code> format is shown below:</p>
+<table class="table table" style="margin-left: auto; margin-right: auto;">
+<caption>
+A data.frame is shown as an example of the format required by ‘filesDF’.
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+sample_id
+</th>
+<th style="text-align:left;">
+url
+</th>
+<th style="text-align:left;">
+type
+</th>
+<th style="text-align:left;">
+scale_factor
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: slateblue !important;">Sample
+A</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: indianred !important;">./Sample_A_pos.bw</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: gold !important;">bw</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: slateblue !important;">Sample
+A</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: skyblue !important;">./Sample_A_neg.bw</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: gold !important;">bw</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: slateblue !important;">Sample
+A</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: lavender !important;">./Sample_A_SJ.out.tab</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: orange !important;">junction</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(127, 255, 212, 255) !important;">Sample
+B</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: indianred !important;">./Sample_B_pos.bw</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: gold !important;">bw</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(127, 255, 212, 255) !important;">Sample
+B</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: skyblue !important;">./Sample_B_neg.bw</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: gold !important;">bw</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(127, 255, 212, 255) !important;">Sample
+B</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: lavender !important;">./Sample_B_SJ.out.tab</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: orange !important;">junction</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: transparent !important;">…</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: transparent !important;">…</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: transparent !important;">…</span>
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+…
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section level3">
+<h3 id="coverage-files">Coverage files<a class="anchor" aria-label="anchor" href="#coverage-files"></a>
+</h3>
+<p>Provide files or web URLs to BigWig <code>.bw</code> or
+<code>.bigWig</code> files.</p>
+<ul>
+<li>BigWig data are imported using the amazing
+<code><a href="https://rnabioco.github.io/cpp11bigwig/reference/read_bigwig.html" class="external-link">cpp11bigwig::read_bigwig()</a></code>, which works great on Linux,
+MacOS, and Windows.</li>
+<li>Coverage can only represent one strand at a time. Files with
+<code>'neg'</code> or <code>'-'</code> or <code>'minus'</code> in the
+filename are assumed to be negative strand.</li>
+</ul>
+<p>There is a provision to use <code>GRanges</code> data, beyond the
+scope of this vignette.</p>
+</div>
+<div class="section level3">
+<h3 id="junction-files">Junction files<a class="anchor" aria-label="anchor" href="#junction-files"></a>
+</h3>
+<p>Provide files or web URLs to files in one of these formats:</p>
+<ol style="list-style-type: decimal">
+<li>BED or BED12 file, in text format. BED12 format should use two
+1-base “overhang” on each side, with junction defined by the gap.</li>
+<li>SJ.out.tab format as produced by STAR alignment.</li>
+<li>Bigbed <code>.bb</code> or <code>.bigBed</code> indexed file, best
+for remote files.</li>
+</ol>
+<p>Options 1 and 2 may use any compressed format such as
+<code>.gz</code> which is readable by
+<code><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">data.table::fread()</a></code>.</p>
+<p>The ‘name’ column is used when names are entirely numeric, otherwise
+the ‘score’ column is used. The reason is that ‘score’ is limited to
+<code>1000</code> in bigBed <code>.bb</code> files.</p>
+</div>
+<div class="section level3">
+<h3 id="scale-factor">Scale Factor<a class="anchor" aria-label="anchor" href="#scale-factor"></a>
+</h3>
+<p>The optional column <code>'scale_factor'</code> permits
+<code>numeric</code> values used as scalar, to be multiplied by the
+score for the corresponding file.</p>
+<p>The scale factor is intended to help normalize signal without needing
+to modify the coverage or junction file.</p>
+<p>By default, all values are <code>1</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="example-filesdf">Example filesDF<a class="anchor" aria-label="anchor" href="#example-filesdf"></a>
+</h3>
 <p>Use the ‘farrisdata’ package, Github
 <code>'jmw86069/farrisdata'</code>, for an example of filesDF:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">filesDF</span> <span class="op">&lt;-</span> <span class="fu">farrisdata</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/farrisdata/man/farris_sashimi_files_df.html" class="external-link">farris_sashimi_files_df</a></span>;</span>
-<span><span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://jmw86069.github.io/jamba/reference/kable_coloring.html" class="external-link">kable_coloring</a></span><span class="op">(</span><span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://jmw86069.github.io/jamba/reference/mixedSortDF.html" class="external-link">mixedSortDF</a></span><span class="op">(</span><span class="va">filesDF</span>, byCols<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>   row.names<span class="op">=</span><span class="cn">FALSE</span>,</span>
-<span>   row_color_by<span class="op">=</span><span class="st">"sample_id"</span>,</span>
-<span>   colorSub<span class="op">=</span><span class="fu">farrisdata</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/farrisdata/man/colorSub.html" class="external-link">colorSub</a></span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">farrisdata</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/farrisdata/man/farris_sashimi_files_df.html" class="external-link">farris_sashimi_files_df</a></span>;</span></code></pre></div>
 <table class="table table" style="margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:left;">
@@ -504,12 +538,6 @@ type
 <th style="text-align:right;">
 scale_factor
 </th>
-<th style="text-align:left;">
-CellType
-</th>
-<th style="text-align:left;">
-Compartment
-</th>
 </tr></thead>
 <tbody>
 <tr>
@@ -517,7 +545,7 @@ Compartment
 <span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 165, 0, 255) !important;">CA1_CB</span>
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA1_CB.union.neg.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA1_CB.union.neg.bw</a>
+./CA1_CB.union.neg.bw
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -525,19 +553,13 @@ bw
 <td style="text-align:right;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.9891766
 </td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: orange !important;">CA1</span>
-</td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 165, 0, 255) !important;">CA1_CB</span>
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA1_CB.union.pos.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA1_CB.union.pos.bw</a>
+./CA1_CB.union.pos.bw
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -545,19 +567,13 @@ bw
 <td style="text-align:right;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.9891766
 </td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: orange !important;">CA1</span>
-</td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 165, 0, 255) !important;">CA1_CB</span>
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA1_CB.STAR_mm10.combinedJunctions.bed.gz" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA1_CB.STAR_mm10.combinedJunctions.bed.gz</a>
+./CA1_CB.STAR_mm10.combinedJunctions.bed.gz
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 junction
@@ -565,19 +581,13 @@ junction
 <td style="text-align:right;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.8796491
 </td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: orange !important;">CA1</span>
-</td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(255, 165, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(238, 118, 0, 255) !important;">CA1_DE</span>
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA1_DE.union.neg.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA1_DE.union.neg.bw</a>
+./CA1_DE.union.neg.bw
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -585,19 +595,13 @@ bw
 <td style="text-align:right;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.2362753
 </td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: orange !important;">CA1</span>
-</td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(238, 118, 0, 255) !important;">CA1_DE</span>
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA1_DE.union.pos.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA1_DE.union.pos.bw</a>
+./CA1_DE.union.pos.bw
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -605,19 +609,13 @@ bw
 <td style="text-align:right;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.2362753
 </td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: orange !important;">CA1</span>
-</td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(238, 118, 0, 255) !important;">CA1_DE</span>
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA1_DE.STAR_mm10.combinedJunctions.bed.gz" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA1_DE.STAR_mm10.combinedJunctions.bed.gz</a>
+./CA1_DE.STAR_mm10.combinedJunctions.bed.gz
 </td>
 <td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 junction
@@ -625,19 +623,13 @@ junction
 <td style="text-align:right;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.1064974
 </td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: orange !important;">CA1</span>
-</td>
-<td style="text-align:left;color: rgba(0, 0, 0, 255) !important;background-color: rgba(238, 118, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 69, 0, 255) !important;">CA2_CB</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA2_CB.union.neg.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA2_CB.union.neg.bw</a>
+./CA2_CB.union.neg.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -645,19 +637,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.9817312
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 55, 0, 255) !important;">CA2</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 69, 0, 255) !important;">CA2_CB</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA2_CB.union.pos.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA2_CB.union.pos.bw</a>
+./CA2_CB.union.pos.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -665,19 +651,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.9817312
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 55, 0, 255) !important;">CA2</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 69, 0, 255) !important;">CA2_CB</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA2_CB.STAR_mm10.combinedJunctions.bed.gz" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA2_CB.STAR_mm10.combinedJunctions.bed.gz</a>
+./CA2_CB.STAR_mm10.combinedJunctions.bed.gz
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 junction
@@ -685,19 +665,13 @@ junction
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.8461586
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 55, 0, 255) !important;">CA2</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(255, 69, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 55, 0, 255) !important;">CA2_DE</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA2_DE.union.neg.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA2_DE.union.neg.bw</a>
+./CA2_DE.union.neg.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -705,19 +679,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.0678433
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 55, 0, 255) !important;">CA2</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 55, 0, 255) !important;">CA2_DE</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA2_DE.union.pos.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA2_DE.union.pos.bw</a>
+./CA2_DE.union.pos.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -725,19 +693,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.0678433
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 55, 0, 255) !important;">CA2</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 55, 0, 255) !important;">CA2_DE</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA2_DE.STAR_mm10.combinedJunctions.bed.gz" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA2_DE.STAR_mm10.combinedJunctions.bed.gz</a>
+./CA2_DE.STAR_mm10.combinedJunctions.bed.gz
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 junction
@@ -745,19 +707,13 @@ junction
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.6993700
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 55, 0, 255) !important;">CA2</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(205, 55, 0, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(30, 144, 255, 255) !important;">CA3_CB</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA3_CB.union.neg.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA3_CB.union.neg.bw</a>
+./CA3_CB.union.neg.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -765,19 +721,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.0058324
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: dodgerblue !important;">CA3</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(30, 144, 255, 255) !important;">CA3_CB</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA3_CB.union.pos.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA3_CB.union.pos.bw</a>
+./CA3_CB.union.pos.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -785,19 +735,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.0058324
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: dodgerblue !important;">CA3</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(30, 144, 255, 255) !important;">CA3_CB</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA3_CB.STAR_mm10.combinedJunctions.bed.gz" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA3_CB.STAR_mm10.combinedJunctions.bed.gz</a>
+./CA3_CB.STAR_mm10.combinedJunctions.bed.gz
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 junction
@@ -805,19 +749,13 @@ junction
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.8615462
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: dodgerblue !important;">CA3</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(30, 144, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(24, 116, 205, 255) !important;">CA3_DE</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA3_DE.union.neg.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA3_DE.union.neg.bw</a>
+./CA3_DE.union.neg.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -825,19 +763,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.4419289
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: dodgerblue !important;">CA3</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(24, 116, 205, 255) !important;">CA3_DE</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA3_DE.union.pos.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/CA3_DE.union.pos.bw</a>
+./CA3_DE.union.pos.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -845,19 +777,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.4419289
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: dodgerblue !important;">CA3</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(24, 116, 205, 255) !important;">CA3_DE</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA3_DE.STAR_mm10.combinedJunctions.bed.gz" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/CA3_DE.STAR_mm10.combinedJunctions.bed.gz</a>
+./CA3_DE.STAR_mm10.combinedJunctions.bed.gz
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 junction
@@ -865,19 +791,13 @@ junction
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.1941632
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: dodgerblue !important;">CA3</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(24, 116, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 62, 255, 255) !important;">DG_CB</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/DG_CB.union.neg.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/DG_CB.union.neg.bw</a>
+./DG_CB.union.neg.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -885,19 +805,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.8449864
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: purple !important;">DG</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 62, 255, 255) !important;">DG_CB</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/DG_CB.union.pos.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/DG_CB.union.pos.bw</a>
+./DG_CB.union.pos.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -905,19 +819,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.8449864
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: purple !important;">DG</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 62, 255, 255) !important;">DG_CB</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/DG_CB.STAR_mm10.combinedJunctions.bed.gz" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/DG_CB.STAR_mm10.combinedJunctions.bed.gz</a>
+./DG_CB.STAR_mm10.combinedJunctions.bed.gz
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 junction
@@ -925,19 +833,13 @@ junction
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.7705711
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: purple !important;">DG</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(191, 62, 255, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(0, 0, 0, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 191, 191, 255) !important;">CB</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(154, 50, 205, 255) !important;">DG_DE</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/DG_DE.union.neg.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/DG_DE.union.neg.bw</a>
+./DG_DE.union.neg.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -945,19 +847,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.8218802
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: purple !important;">DG</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(154, 50, 205, 255) !important;">DG_DE</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/DG_DE.union.pos.bw" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/union_bigwig/DG_DE.union.pos.bw</a>
+./DG_DE.union.pos.bw
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 bw
@@ -965,19 +861,13 @@ bw
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 0.8218802
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: purple !important;">DG</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 <span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(154, 50, 205, 255) !important;">DG_DE</span>
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<a href="https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/DG_DE.STAR_mm10.combinedJunctions.bed.gz" class="external-link uri">https://snpinfo.niehs.nih.gov/ucscview/farrisHub/mm10/DG_DE.STAR_mm10.combinedJunctions.bed.gz</a>
+./DG_DE.STAR_mm10.combinedJunctions.bed.gz
 </td>
 <td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 junction
@@ -985,197 +875,178 @@ junction
 <td style="text-align:right;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
 1.2941457
 </td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: purple !important;">DG</span>
-</td>
-<td style="text-align:left;color: rgba(255, 255, 255, 255) !important;background-color: rgba(154, 50, 205, 255) !important;border-left:1px solid #DDDDDD;white-space: nowrap;">
-<span style="     color: rgba(255, 255, 255, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(77, 77, 77, 255) !important;">DE</span>
-</td>
 </tr>
 </tbody>
 </table>
-<div class="section level4">
-<h4 id="coverage-in-granges-format">Coverage in GRanges format<a class="anchor" aria-label="anchor" href="#coverage-in-granges-format"></a>
-</h4>
-<p>The <code>GRanges</code> object below uses an example set of exons,
-<code>test_exon_wide_gr</code>, and corresponding coverage
-<code>GRanges</code> is <code>test_exon_wide_gr</code>. Note that both
-share the same names and genomic coordinates.</p>
-<p>There is no coverage defined for introns.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">test_exon_wide_gr</span><span class="op">)</span>;</span>
-<span><span class="va">test_exon_wide_gr</span>;</span>
-<span><span class="co">#&gt; Loading required namespace: GenomicRanges</span></span>
-<span><span class="co">#&gt; GRanges object with 4 ranges and 1 metadata column:</span></span>
-<span><span class="co">#&gt;         seqnames      ranges strand |   gene_name</span></span>
-<span><span class="co">#&gt;            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;</span></span>
-<span><span class="co">#&gt;   wide1     chr1     100-200      + |   TestGene1</span></span>
-<span><span class="co">#&gt;   wide2     chr1 10300-10400      + |   TestGene1</span></span>
-<span><span class="co">#&gt;   wide3     chr1 20500-20750      + |   TestGene1</span></span>
-<span><span class="co">#&gt;   wide4     chr1 39900-40000      + |   TestGene1</span></span>
-<span><span class="co">#&gt;   -------</span></span>
-<span><span class="co">#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">test_cov_wide_gr</span><span class="op">)</span>;</span>
-<span><span class="va">test_cov_wide_gr</span>;</span>
-<span><span class="co">#&gt; GRanges object with 4 ranges and 1 metadata column:</span></span>
-<span><span class="co">#&gt;         seqnames      ranges strand |        sample_A</span></span>
-<span><span class="co">#&gt;            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; |   &lt;NumericList&gt;</span></span>
-<span><span class="co">#&gt;   wide1     chr1     100-200      + | 246,248,261,...</span></span>
-<span><span class="co">#&gt;   wide2     chr1 10300-10400      + | 195,202,198,...</span></span>
-<span><span class="co">#&gt;   wide3     chr1 20500-20750      + | 195,189,178,...</span></span>
-<span><span class="co">#&gt;   wide4     chr1 39900-40000      + | 260,257,253,...</span></span>
-<span><span class="co">#&gt;   -------</span></span>
-<span><span class="co">#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level3">
-<h3 id="junctions-data">Junctions data<a class="anchor" aria-label="anchor" href="#junctions-data"></a>
-</h3>
-<p>Splice junction data are provided as a link to local file, or remote
-web https URL. Entries can be in BED6 format, BED12 format, or
-‘SJ.out.tab’ format produced by STAR.</p>
-<p>For BED formats, data is accepted as BED or bigBed, although the
-bigBed format is substantially faster.</p>
-<p>Splice junction data can be provided in two forms:</p>
-<ul>
-<li>Files in <code>BED6</code> or <code>BED12</code> format, accessible
-either as a file or web URL. The <code>BED6</code> format uses the score
-column to count reads, and uses the genomic coordinates to indicate the
-splice junction span.</li>
-<li>The <code>BED12</code> format is inverted, so there is one base on
-each side, and the junction is in the middle. In this case, the one base
-is trimmed from each side, and the internal region is used to indicate
-the junction. This approach works best when the overhang is fixed at 1
-base on each side.</li>
-</ul>
-<p>For more insight into creating a Sashimi plot manually, see the help
-for data <code><a href="../reference/test_junc_wide_gr.html">splicejam::test_junc_wide_gr</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="splicejam-data-environment">Splicejam Data Environment<a class="anchor" aria-label="anchor" href="#splicejam-data-environment"></a>
+<h2 id="more-about-gene-exon-structure">More about gene-exon structure<a class="anchor" aria-label="anchor" href="#more-about-gene-exon-structure"></a>
 </h2>
-<p>With the necessary data available, you create a Splicejam
-<code>environment</code> to contain the data.</p>
-<p><code>sjenv &lt;- sashimiDataConstants(...)</code></p>
-<p>By default, if you provide no supporting data, the default argument
-<code>empty_uses_farrisdata=TRUE</code> means it will prepare supporting
-data for the Farris et al 2019 publication.</p>
-<p>However, a small subset of data are available with the test data
-<code>sjenvtest</code>.</p>
-<p>The two most common types of input are:</p>
+<p>There are two main sources of gene-exon structures.</p>
+<p>Some guidance on which path to follow:</p>
 <ol style="list-style-type: decimal">
-<li>GTF file.</li>
-<li>TxDb file, and tx2geneDF <code>data.frame</code>.</li>
+<li>
+<strong>GTF Path</strong>: If you used a GTF file for data
+processing and need to use the ‘gene_name’ values exactly as defined in
+that GTF file, choose the GTF path below.</li>
+<li>
+<strong>TxDb Path</strong>: In all other cases, choose a suitable
+<code>TxDb</code> from Bioconductor, or provide your own custom
+<code>TxDb</code> file.</li>
 </ol>
-<p>For example, the typical pattern:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sjenv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span><span class="op">)</span>;</span>
-<span><span class="va">sjenv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sashimiDataConstants.html">sashimiDataConstants</a></span><span class="op">(</span>envir<span class="op">=</span><span class="va">sjenv</span>,</span>
-<span>   empty_uses_farrisdata<span class="op">=</span><span class="cn">FALSE</span>,</span>
-<span>   filesDF<span class="op">=</span><span class="va">filesDF</span>,</span>
-<span>   gtf<span class="op">=</span><span class="va">gtf</span><span class="op">)</span>;</span></code></pre></div>
-<p>You can use <code><a href="https://jmw86069.github.io/jamba/reference/sdim.html" class="external-link">jamba::sdim()</a></code> to describe the data. In this
-case, we will use <code>sjenvtest</code> as the
-<code>environment</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
-<span><span class="fu">jamba</span><span class="fu">::</span><span class="fu"><a href="https://jmw86069.github.io/jamba/reference/sdim.html" class="external-link">sdim</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                 rows cols                 class</span></span>
-<span><span class="co">#&gt; color_sub         16                  character</span></span>
-<span><span class="co">#&gt; default_gene       1                  character</span></span>
-<span><span class="co">#&gt; filesDF           12    6            data.frame</span></span>
-<span><span class="co">#&gt; flatExonsByGene    2      CompressedGRangesList</span></span>
-<span><span class="co">#&gt; flatExonsByTx     10      CompressedGRangesList</span></span>
-<span><span class="co">#&gt; tx2geneDF         10    7            data.frame</span></span></code></pre></div>
+<p><strong>TxDb is the “easiest” path to use Splicejam.</strong></p>
+<p>In both cases, the input provides a <code>TxDb</code> transcript
+database.</p>
+<ul>
+<li>
+<strong>GTF path</strong> defines ‘gene_name’ from the GTF
+file.</li>
+<li>
+<strong>TxDb path</strong> uses Bioconductor ‘SYMBOL’, or you can
+provide <code>tx2geneDF</code> yourself</li>
+</ul>
+<blockquote>
+<p>In future, <code>EnsDb</code> data format will also be supported.
+File an issue on Github to request this change.</p>
+</blockquote>
 <div class="section level3">
-<h3 id="splicejam-figure">Splicejam Figure<a class="anchor" aria-label="anchor" href="#splicejam-figure"></a>
+<h3 id="gtf-file">GTF File<a class="anchor" aria-label="anchor" href="#gtf-file"></a>
 </h3>
-<p>The core function <code><a href="../reference/splicejamFigure.html">splicejamFigure()</a></code> prepares the
-multi-panel plot for a given gene.</p>
-<p>To see progress, enable it with
-<code>progressr::handlers(global=TRUE)</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># optionally enable progress bar</span></span>
-<span><span class="co"># progressr::handlers(global=TRUE)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
-<span><span class="va">sjfig</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splicejamFigure.html">splicejamFigure</a></span><span class="op">(</span>sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
-<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="create-a-sashimi-plot_files/figure-html/splicejamFigure-1-1.png" class="r-plt" alt="" width="1344"></p>
-<p>It <strong>does not enable memoise</strong> by default, however it is
-strongly recommended.</p>
+<p>The GTF file should provide column 9 annotations: The standard GTF
+input is based on the Gencode GTF format (<a href="https://www.gencodegenes.com" class="external-link uri">https://www.gencodegenes.com</a>).</p>
+<ul>
+<li>‘gene_name’: <code>character</code> gene symbol, used as the primary
+gene identifier in Splicejam.</li>
+<li>‘gene_id’: <code>character</code> identifier, used in
+<code>TxDb</code> data but not used in Splicejam otherwise.</li>
+<li>‘transcript_id’: <code>character</code> transcript identifier used
+to associate transcript to gene.</li>
+</ul>
+<p>It should provide features: ‘gene’, ‘transcript’, ‘exon’. ‘CDS’ is
+used if available.</p>
+</div>
+<div class="section level3">
+<h3 id="txdb">TxDb<a class="anchor" aria-label="anchor" href="#txdb"></a>
+</h3>
+<p>A <code>TxDb</code> transcript database may be obtained from
+Bioconductor, such as <code>'TxDb.Hsapiens.UCSC.hg38.knownGene'</code>,
+or can be provided as a file.</p>
+<p>For more information about creating a TxDb, see
+<code>txdbmaker::makeTxDb()</code> which supports using a GTF or GFF3
+file; BioMart; UCSC; EnsEMBL; or <code>GRanges</code> data.</p>
+<p>The <code>TxDb</code> is used to create <code>'tx2geneDF'</code> as a
+<code>data.frame</code>, using Bioconductor annotation data, which
+associates <code>'transcript_id'</code> to <code>'gene_name'</code>. You
+may also supply a custom <code>'tx2geneDF'</code>.</p>
+<p>The default uses <code>TxDb</code> ‘Organism’ to determine a suitable
+annotation library, or use argument <code>'ann_lib'</code>. Common
+examples:</p>
+<ul>
+<li>
+<code>'org.Hs.eg.db'</code> for <em>Homo sapiens</em> (Human)</li>
+<li>
+<code>'org.Mm.eg.db'</code> for <em>Mus musculus</em> (Mouse)</li>
+</ul>
+<p>For other methods to produce <code>'tx2geneDF'</code>, see
+<code><a href="https://rdrr.io/pkg/tximport/man/tximport.html" class="external-link">tximport::tximport()</a></code>.</p>
+</div>
+<div class="section level3">
+<h3 id="detected-genes-or-detected-transcripts">Detected genes or detected transcripts<a class="anchor" aria-label="anchor" href="#detected-genes-or-detected-transcripts"></a>
+</h3>
+<p>You can supply <code>'detectedTx'</code> with specific
+<code>'transcript_id'</code> entries, which will subset the transcripts
+used to define flattened gene-exon models. It is possible to apply
+<code>'detectedTx'</code> either before or after the initial processing
+step.</p>
+<p>When providing <code>'detectedTx'</code> upfront, the flattened
+gene-exon model will only contain exons from those transcripts. The
+exons are numbered at this stage, and may differ depending which
+transcripts are used.</p>
+<p>If you use all transcripts upfront, then <code>'detectedTx'</code>
+later, the gene-exon model will be numbered using all transcripts, while
+the figure will only display transcripts defined in
+<code>'detectedTx'</code>.</p>
+<div class="section level4">
+<h4 id="heuristics-for-detected-transcripts">Heuristics for detected transcripts<a class="anchor" aria-label="anchor" href="#heuristics-for-detected-transcripts"></a>
+</h4>
+<p>See <code><a href="../reference/defineDetectedTx.html">defineDetectedTx()</a></code> to help define detected
+transcripts, intended to work with data produced by
+<code><a href="https://rdrr.io/pkg/tximport/man/tximport.html" class="external-link">tximport::tximport()</a></code>. It often reduces the total
+transcripts to 60% the original size.</p>
+<p>The heuristics:</p>
+<ul>
+<li>
+<strong>Minimum count</strong>: require a minimum plausible
+supporting data. For example, at least 8 read counts.</li>
+<li>
+<strong>Minimum TPM abundance</strong>: require minimum transcript
+abundance in TPM units For example, at least 0.1 TPM.</li>
+<li>
+<strong>Percent max per gene</strong>: using TPM or read count. TPM
+is recommended as a per-molecule metric. For example, the least abundant
+isoform must be at least 10% of the most abundant isoform. This step
+helps remove extremely low abundance isoforms which often appears as
+noise in transcript quantitation results. See genes like “GAPDH” and
+“ACTB”.</li>
+</ul>
+<p>For additional information about transcript quantitation, see:</p>
+<p>Salmon (Patro et al 2017, <a href="https://combine-lab.github.io/salmon/" class="external-link uri">https://combine-lab.github.io/salmon/</a>)</p>
+<p>Kallisto (Bray et al 2016, <a href="https://pachterlab.github.io/kallisto/about" class="external-link uri">https://pachterlab.github.io/kallisto/about</a>)</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="bonus-plot-gene-exon-models">Bonus: Plot gene-exon models<a class="anchor" aria-label="anchor" href="#bonus-plot-gene-exon-models"></a>
+</h3>
+<p>Once the Splicejam <code>environment</code> <code>sjenv</code> is
+prepared, you can plot the gene model and review the exon numbering
+using <code><a href="../reference/gene2gg.html">splicejam::gene2gg()</a></code>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
-<span><span class="co"># Enable memoise</span></span>
-<span><span class="va">sjfig</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splicejamFigure.html">splicejamFigure</a></span><span class="op">(</span>sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
-<span>   use_memoise<span class="op">=</span><span class="cn">TRUE</span>,</span>
-<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span></span></code></pre></div>
-<p>Note that <code><a href="../reference/splicejamFigure.html">splicejamFigure()</a></code> does the work of calling
-<code><a href="../reference/prepareSashimi.html">prepareSashimi()</a></code>, <code><a href="../reference/plotSashimi.html">plotSashimi()</a></code>,
-<code><a href="../reference/gene2gg.html">gene2gg()</a></code>, then assembles the panels using
-<code>patchwork</code> by default. Various customizations can be passed
-via ‘…’ especially with <code><a href="../reference/plotSashimi.html">plotSashimi()</a></code> arguments.</p>
-<div class="section level4">
-<h4 id="zoom-into-specific-exons">Zoom into specific exons<a class="anchor" aria-label="anchor" href="#zoom-into-specific-exons"></a>
-</h4>
-<p>The <code><a href="../reference/splicejamFigure.html">splicejamFigure()</a></code> arguments include two methods to
-zoom to specific exons.</p>
-<ol style="list-style-type: decimal">
-<li>‘exon_range’: <code>character</code> vector with two exons, for
-example:
-<code>use_exon_range=c('Gria1_exon13', 'Gria1_exon16')</code>
-</li>
-<li>‘display_coords’: <code>integer</code> vector with start and end
-positions. Note the coordinates must be valid for the gene being
-displayed.</li>
-</ol>
+<span><span class="va">ggGria1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gene2gg.html">gene2gg</a></span><span class="op">(</span></span>
+<span>   sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
+<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span>;</span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ggGria1</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Gria1 (compressed introns)"</span><span class="op">)</span><span class="op">)</span>;</span></code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/gene-plot-1.png" class="r-plt" alt="" width="960"></p>
+<p>The default above will compress the introns to a fixed width, to help
+see each exon in detail.</p>
+<p>You can show introns at full size using
+<code>compressGaps=FALSE</code>:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
-<span><span class="va">sjfig_zoom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splicejamFigure.html">splicejamFigure</a></span><span class="op">(</span>sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
-<span>   use_exon_range<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Gria1_exon13'</span>, <span class="st">'Gria1_exon16'</span><span class="op">)</span>,</span>
-<span>   use_memoise<span class="op">=</span><span class="cn">TRUE</span>,</span>
-<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="create-a-sashimi-plot_files/figure-html/splicejamFigure-3-1.png" class="r-plt" alt="" width="1344"></p>
+<code class="sourceCode R"><span><span class="va">ggGria1_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gene2gg.html">gene2gg</a></span><span class="op">(</span></span>
+<span>   sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
+<span>   compressGaps<span class="op">=</span><span class="cn">FALSE</span>,</span>
+<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span>;</span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ggGria1_wide</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Gria1 (full introns)"</span><span class="op">)</span><span class="op">)</span>;</span></code></pre></div>
+<p><img src="create-a-sashimi-plot_files/figure-html/gene-plot-wide-1.png" class="r-plt" alt="" width="960"></p>
 </div>
-<div class="section level4">
-<h4 id="adjust-layout">Adjust layout<a class="anchor" aria-label="anchor" href="#adjust-layout"></a>
-</h4>
-<p>You can adjust the layout, for example to impose two columns use
-<code>layout_ncol=2</code></p>
+</div>
+<div class="section level2">
+<h2 id="splicejam-shiny-app">Splicejam Shiny app<a class="anchor" aria-label="anchor" href="#splicejam-shiny-app"></a>
+</h2>
+<p>Using the <code>sjenv</code> data <code>environment</code>, you can
+run the Splicejam shiny app with
+<code>launchSashimiApp(envir=sjenv)</code>. It will open within RStudio
+or Positron, or will open the configured web browser from an R
+console.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
-<span><span class="va">sjfig_zoom_2col</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splicejamFigure.html">splicejamFigure</a></span><span class="op">(</span>sjenv<span class="op">=</span><span class="va">sjenvtest</span>,</span>
-<span>   use_exon_range<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Gria1_exon13'</span>, <span class="st">'Gria1_exon16'</span><span class="op">)</span>,</span>
-<span>   layout_ncol<span class="op">=</span><span class="fl">2</span>,</span>
-<span>   use_memoise<span class="op">=</span><span class="cn">TRUE</span>,</span>
-<span>   gene<span class="op">=</span><span class="st">"Gria1"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="create-a-sashimi-plot_files/figure-html/splicejamFigure-4-1.png" class="r-plt" alt="" width="1152"></p>
-</div>
-</div>
-<div class="section level3">
-<h3 id="splicejam-shiny-app">Splicejam Shiny App<a class="anchor" aria-label="anchor" href="#splicejam-shiny-app"></a>
-</h3>
-<p>When the <code>sjenv</code> data <code>environment</code> is
-prepared, you can run the Splicejam shiny app:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/launchSashimiApp.html">launchSashimiApp</a></span><span class="op">(</span>envir<span class="op">=</span><span class="va">sjenvtest</span><span class="op">)</span></span></code></pre></div>
-<div class="section level4">
-<h4 id="start-the-shiny-app-on-a-different-port">Start the Shiny app on a different port<a class="anchor" aria-label="anchor" href="#start-the-shiny-app-on-a-different-port"></a>
-</h4>
-<p>Two common options to customize are ‘host’ and ‘port’. By using
-host=‘0.0.0.0’ it makes the Sashimi app accessible to other computers,
-provided they can see your computer IP address.</p>
-<p>Note that in general, the only computers that are able to see your
-computer IP address are those on the same network as your computer. That
-goes for company or school intranet, or within your home network.</p>
-<p>A custom ‘port’ makes it easier to use a consistent port number,
-otherwise it is more or less random. On most computers, it requires some
-administrative permission to use a port lower than 8000, so a common
-recommendation is <code>port='8080'</code> or something easy to
-remember.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="section level3">
+<h3 id="change-the-host-and-port">Change the host and port<a class="anchor" aria-label="anchor" href="#change-the-host-and-port"></a>
+</h3>
+<ul>
+<li>Use <code>host='0.0.0.0'</code> to make the Sashimi app accessible
+to other computers on your network.</li>
+<li>Use <code>host='localhost'</code> or <code>host='127.0.0.1'</code>
+to limit access to your computer.</li>
+<li>If <code>'port'</code> is not defined, it chooses at random.</li>
+<li>If <code>'port'</code> is defined, choose 8000 or higher.</li>
+</ul>
+<p>To make the app available outside your network, consider <a href="https://connect.posit.cloud/" class="external-link uri">https://connect.posit.cloud/</a>. Do not make your computer
+accessible to the internet.</p>
+<p>An example:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/launchSashimiApp.html">launchSashimiApp</a></span><span class="op">(</span></span>
 <span>   empty_uses_farrisdata<span class="op">=</span><span class="cn">FALSE</span>,</span>
 <span>   envir<span class="op">=</span><span class="va">sjenv</span>,</span>
@@ -1183,68 +1054,165 @@ remember.</p>
 <span>      port<span class="op">=</span><span class="fl">8080</span>,</span>
 <span>      host<span class="op">=</span><span class="st">"0.0.0.0"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="custom-options">Custom options<a class="anchor" aria-label="anchor" href="#custom-options"></a>
-</h4>
-<p>Several elements in the Splicejam app can be set as defaults.</p>
-<ul>
-<li>
-<strong>default_gene</strong>: <code>character</code> gene symbol
-for the initial figure.</li>
-<li>
-<strong>layout_ncol</strong>: default number of columns for the
-panel layout.</li>
-<li>
-<strong>panel_height</strong>: height for each panel in pixels,
-default 200.</li>
-<li>
-<strong>gene_panel_height</strong>: height for the gene panel,
-default is 400.</li>
-<li>
-<strong>min_junction_reads</strong>: <code>numeric</code> minimum
-junction reads.</li>
-<li>
-<strong>share_y_axis</strong>: <code>logical</code> whether to use
-shared (fixed) y-axis range across all panels, default FALSE.</li>
-<li>
-<strong>use_exon_range</strong>: <code>character</code> vector with
-first and last exon to include by default.</li>
-<li>
-<strong>gene_coords_default</strong>: initial <code>integer</code>
-coordinate range, default NULL shows the whole gene.</li>
-<li>
-<strong>label_junctions</strong>: <code>logical</code> whether to
-display junction counts, default TRUE.</li>
-<li>
-<strong>show_gene_model</strong>: <code>logical</code> whether to
-show the gene-exon model, default TRUE.</li>
-<li>
-<strong>font_sizing</strong>: <code>character</code> label matching
-one of the options shown, default is “Default”. Other options range from
-“-4 smaller” to “+4 larger”.</li>
-<li>
-<strong>exon_font_sizing</strong>: <code>character</code> label
-matching one of the options shown, default is “Default”. See comment for
-<strong>font_sizing</strong>.</li>
-<li>
-<strong>junction_alpha</strong>: <code>numeric</code> default alpha
-transparency, default 0.7 is 70% opaque.</li>
-<li>
-<strong>junction_arc_factor</strong>: <code>character</code> string
-matching one of the options shown, default is “Default”. Options range
-from “-2 flat” to “+3 higher”.</li>
-<li>
-<strong>junction_arc_minimum</strong>: <code>numeric</code> minimum
-arc height per junction, default 500 ensures the arc is at least 500
-y-axis units high.</li>
-<li>
-<strong>aboutExtra</strong>: <code>character</code> or
-<code>htmlwidgets</code> formatted tags suitable to display as HTML,
-shown in the “About” tab to describe the data being displayed. It is
-normally defined inside <code><a href="../reference/sashimiAppConstants.html">sashimiAppConstants()</a></code>.</li>
-</ul>
+<div class="section level3">
+<h3 id="other-custom-options">Other custom options<a class="anchor" aria-label="anchor" href="#other-custom-options"></a>
+</h3>
+<p>The custom options must be added to the <code>sjenv</code> in the
+<code>environment</code>. For example, you can set two-column layout by
+default with:</p>
+<p><code>sjenv$layout_ncol=2</code></p>
+<p>These options can be customized by the user, and only change the
+initial default condition.</p>
+<p>Other options:</p>
+<table class="table table" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+Parameter
+</th>
+<th style="text-align:left;">
+Description
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+default_gene
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+character: gene symbol for the initial figure.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+layout_ncol
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+integer: number of columns for the panel layout.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+panel_height
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+integer: pixel height for each panel, default 200.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+gene_panel_height
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+integer: pixel height for the gene panel, default 400.<br> Usually about
+2x the panel_height.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+min_junction_reads
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+numeric: minimum junction reads, all others are hidden.<br> Default 10.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+share_y_axis
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+logical: whether to share the y-axis across all panels.<br> Default
+FALSE.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+use_exon_range
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+character: vector with first and last exons, default NULL.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+gene_coords_default
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+integer: coordinate range, default NULL.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+label_junctions
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+logical: whether to display junction counts, default TRUE.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+show_gene_model
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+logical: whether to show the gene-exon model, default TRUE.<br> Not yet
+re-implemented.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+font_sizing
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+character: label matching one of the options shown.<br> Default
+‘Default’. Range from ‘-4 smaller’ to ‘+4 larger’.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+exon_font_sizing
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+character: label matching one of the options shown.<br> Default
+‘Default’. See font_sizing.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+junction_alpha
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+numeric: default alpha transparency, default 0.7.<br> (70% opaque)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+junction_arc_factor
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+character: string matching one of the options shown.<br> Default
+‘Default’. Range from ‘-2 flat’ to ‘+3 higher’.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+junction_arc_minimum
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+numeric: minimum arc height per junction, default 500.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;font-weight: bold;">
+aboutExtra
+</td>
+<td style="text-align:left;border-left:1px solid #DDDDDD;white-space: nowrap;">
+character or htmlwidgets: text suitable to display as HTML.<br> Shown in
+the ‘About’ tab to describe experimental data.
+</td>
+</tr>
+</tbody>
+</table>
 <p>For example:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sjenvtest</span><span class="op">)</span></span>
 <span><span class="co"># or prepare your own environment</span></span>
 <span><span class="co"># sjenv &lt;- sashimiDataConstants()</span></span>
@@ -1255,7 +1223,6 @@ normally defined inside <code><a href="../reference/sashimiAppConstants.html">sa
 <span><span class="va">sjenvtest</span><span class="op">$</span><span class="va">use_exon_range</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ntrk3_exon1"</span>, <span class="st">"Ntrk3_exon23a"</span><span class="op">)</span>;</span>
 <span></span>
 <span><span class="fu"><a href="../reference/launchSashimiApp.html">launchSashimiApp</a></span><span class="op">(</span>envir<span class="op">=</span><span class="va">sjenvtest</span><span class="op">)</span></span></code></pre></div>
-</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

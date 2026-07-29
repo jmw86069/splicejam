@@ -1,3 +1,27 @@
+# splicejam 0.0.92.900
+
+## Changes
+
+* Support for Bioconductor TxDb input!
+Instead of providing a huge GTF file, or several
+`GRangesList` objects and a tx2geneDF `data.frame`,
+just use Bioconductor data!
+Examples:
+
+   * 'TxDb.Hsapiens.hg38.knownGene'
+   * 'TxDb.Hsapiens.mm39.knownGene'
+   * 'TxDb.Hsapiens.mm10.knownGene'
+   * 'TxDb.Hsapiens.mm10.ensGene'
+
+* Updated the 'Create a Sashimi Plot' with new workflows.
+
+## New functions
+
+* `splicejamDatafromTxdb()` - new entrypoint for `TxDb` data.
+* `makeTx2geneFromTxdb()` - new method to create 'tx2geneDF'
+using `TxDb` and Bioconductor annotation data.
+
+
 # splicejam 0.0.91.950
 
 ## Hotfix

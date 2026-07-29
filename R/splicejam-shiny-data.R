@@ -682,6 +682,290 @@ sashimiDataConstants <- function
    return(envir)
 }
 
+# splicejamDataFromTxDb
+
+#' Prepare splicejam data environment from a TxDb annotation package
+#'
+#' Prepare splicejam data environment from a TxDb annotation package
+#'
+#' This function is an alternative to `sashimiDataConstants()` for users who
+#' prefer to supply a Bioconductor `TxDb` annotation package such as
+#' `'TxDb.Mmusculus.UCSC.mm10.knownGene'`, rather than a GTF file.
+#'
+#' It calls `makeTx2geneFromTxdb()` to build the transcript-to-gene
+#' `data.frame` 'tx2geneDF',
+#' then derives `exonsByTx`, `cdsByTx`, `flatExonsByTx`, and `flatExonsByGene`
+#' from the `TxDb` using the same `flattenExonsBy()` machinery as the
+#' GTF-based workflow.
+#'
+#' @section Subsetting logic:
+#' When `detectedTx` and/or `detectedGenes` are provided, they are used to
+#' subset the full annotation:
+#'
+#' * `detectedTx` is intersected with `tx2geneDF$transcript_id`.
+#'    Providing `detectedTx` also limits the available genes via `tx2geneDF`.
+#' * `detectedGenes` is intersected with `tx2geneDF$gene_name`.
+#'    Providing `detectedGenes` also limits the available transcripts via
+#'    `tx2geneDF`.
+#' * Both filters are applied simultaneously; the resulting `tx2geneDF` is the
+#'    source of truth from which `detectedTx` and `detectedGenes` are
+#'    re-derived.
+#' * When neither is provided, all transcripts and genes in the `TxDb` are
+#'    used.
+#'
+#' @param txdb `TxDb` object, typically loaded from a Bioconductor annotation
+#'    package such as `TxDb.Mmusculus.UCSC.mm10.knownGene`.
+#' @param ann_lib `character` string naming an installed Bioconductor organism
+#'    annotation package (e.g. `"org.Mm.eg.db"`). Must correspond to the same
+#'    organism as `txdb`. No cross-validation is performed.
+#' 
+#'    * When NULL as default, it will try to generate a suitable annotation name
+#'    using the txdb metadata 'Organism', using the first letter of the first
+#'    two words in the organism name. This process works for most common species,
+#'    but will fail for things like E. coli K12.
+#' @param tx2geneDF `data.frame`, default NULL.
+#'    * When NULL, `ann_lib` is used to derive `tx2geneDF`.
+#'    * When provided, it is used and `ann_lib` is ignored.
+#'       * The 'gene_id' values must exactly match:
+#'       `names(GenomicFeatures::genes(txdb, single.strand.genes.only=FALSE))`.
+#'       * The 'gene_name' column will be used to name gene data.
+#'       * The 'transcript_id' values must exactly match values 'tx_name' from:
+#'       `GenomicFeatures::transcripts(txdb)`.
+#' @param detectedTx `character` vector of `transcript_id` values representing
+#'    detected (expressed) transcripts. When `NULL` (default), all transcripts
+#'    in the `TxDb` are used. Values not found in `tx2geneDF$transcript_id`
+#'    are silently dropped.
+#' @param detectedGenes `character` vector of `gene_name` (SYMBOL) values
+#'    representing genes of interest. When `NULL` (default), genes are derived
+#'    from `detectedTx` via `tx2geneDF`. Values not found in
+#'    `tx2geneDF$gene_name` are silently dropped.
+#' @param filesDF optional `data.frame` with at minimum colnames `"sample_id"`,
+#'    `"url"`, `"type"`. Stored in the returned environment unchanged.
+#' @param color_sub optional named `character` vector of R colors, whose names
+#'    should match `filesDF$sample_id`. When `filesDF` is provided but
+#'    `color_sub` is `NULL`, colors are derived automatically using
+#'    `colorjam::group2colors()`.
+#' @param verbose `logical` whether to print verbose output.
+#' @param ... additional arguments are ignored.
+#'
+#' @returns `environment` containing:
+#' * `flatExonsByGene` — `GRangesList` with non-overlapping exons per gene,
+#'    named by `gene_name`.
+#' * `flatExonsByTx` — `GRangesList` with non-overlapping exons per
+#'    transcript, named by `transcript_id`.
+#' * `tx2geneDF` — `data.frame` with colnames `"transcript_id"`, `"gene_id"`,
+#'    `"gene_name"`, subset to detected transcripts and genes.
+#' * `detectedTx` — `character` vector of retained transcript IDs.
+#' * `detectedGenes` — `character` vector of retained gene names.
+#' * `filesDF` — included when provided (otherwise absent).
+#' * `color_sub` — included when provided or derived from `filesDF`.
+#'
+#' @family Splicejam core functions
+#' @seealso `sashimiDataConstants()` for the GTF-based equivalent,
+#'    `makeTx2geneFromTxdb()` for the helper that builds `tx2geneDF`.
+#' @examples
+#' \dontrun{
+#' # Prepare TxDb for mouse mm10 genome
+#' system.time({
+#'    sjenv_txdb <- splicejamDataFromTxDb(
+#'       txdb=TxDb.Mmusculus.UCSC.mm10.knownGene::TxDb.Mmusculus.UCSC.mm10.knownGene,
+#'       detectedGenes=unique(sjenvtest$tx2geneDF$gene_name),
+#'       filesDF=sjenvtest$filesDF,
+#'       ann_lib="org.Mm.eg.db")
+#' })
+#' # 8 to 12 seconds to prep the environment
+#' 
+#' # optionally display progress bar
+#' progressr::handlers(global=TRUE)
+#' system.time({
+#'    splicejamFigure(sjenv_txdb,
+#'       gene="Gria1",
+#'       geneAxisSize=8,
+#'       use_memoise=TRUE)
+#' })
+#'
+#' # Use subset of transcript_id which happen
+#' # to be compatible with sjenvtest on mm10.
+#' # Note the flat gene exons still used all
+#' # transcripts. Rebuild from TxDb to resolve.
+#' use_detectedTx <- subset(sjenvtest$tx2geneDF,
+#'    gene_name %in% 'Gria1')$transcript_id
+#' system.time({
+#'    splicejamFigure(sjenv_txdb,
+#'       gene="Gria1",
+#'       geneAxisSize=8,
+#'       minJunctionScore=100,
+#'       detectedTx=use_detectedTx,
+#'       use_exon_range=c("exon17", "exon20"),
+#'       use_memoise=TRUE)
+#' })
+#' }
+#' @export
+splicejamDataFromTxDb <- function
+(txdb,
+ ann_lib=NULL,
+ tx2geneDF=NULL,
+ detectedTx=NULL,
+ detectedGenes=NULL,
+ filesDF=NULL,
+ color_sub=NULL,
+ verbose=FALSE,
+ ...)
+{
+   ## When ann_lib is NULL, try to define suitable default
+   if (length(ann_lib) == 0) {
+      txdb_metadata <- S4Vectors::metadata(txdb)
+      txdb_organism <- subset(txdb_metadata, name %in% "Organism")$value;
+      txdb_sc <- gsub("^([.]).* ([.]).*", "\\1\\2", txdb_organism)
+      ann_lib <- paste0("org.", txdb_sc, ".eg.db");
+      if (verbose) {
+         jamba::printDebug("splicejamDataFromTxDb(): ",
+            "Defined default ann_lib using organism:",
+            ann_lib);
+      }
+   }
+  
+   ## Step 1: build tx2geneDF from the TxDb + org.*.eg.db
+   if (inherits(tx2geneDF, "data.frame") && nrow(tx2geneDF) > 0) {
+      # use tx2geneDF as provided
+      if (verbose) {
+         jamba::printDebug("splicejamDataFromTxDb(): ",
+            "Using tx2geneDF as provided.");
+      }
+      if (!all(c("gene_name", "gene_id", "transcript_id") %in%
+         colnames(tx2geneDF))) {
+         stop(paste0(
+            "tx2geneDF must contain colnames: ",
+            "'transcript_id', 'gene_id', 'gene_name'."
+         ))
+      }
+   } else {
+      if (verbose) {
+         jamba::printDebug("splicejamDataFromTxDb(): ",
+            "Building tx2geneDF via makeTx2geneFromTxdb().");
+      }
+      
+      tx2geneDF <- makeTx2geneFromTxdb(txdb=txdb,
+         ann_lib=ann_lib,
+         verbose=verbose)
+   }
+
+   ## Step 2: extract exon and CDS ranges from TxDb
+   if (verbose) {
+      jamba::printDebug("splicejamDataFromTxDb(): ",
+         "Extracting exonsByTx and cdsByTx from TxDb.");
+   }
+   exonsByTx <- GenomicFeatures::exonsBy(txdb, by="tx", use.names=TRUE)
+   cdsByTx   <- GenomicFeatures::cdsBy(txdb,   by="tx", use.names=TRUE)
+
+   ## Step 3: resolve detectedTx
+   ## Default to all transcripts; otherwise intersect with tx2geneDF
+   if (length(detectedTx) == 0) {
+      detectedTx <- tx2geneDF$transcript_id
+   } else {
+      detectedTx_orig <- detectedTx
+      detectedTx <- intersect(detectedTx, tx2geneDF$transcript_id)
+      if (verbose && length(detectedTx) < length(detectedTx_orig)) {
+         jamba::printDebug("splicejamDataFromTxDb(): ",
+            jamba::formatInt(length(detectedTx_orig) - length(detectedTx)),
+            " detectedTx entries were not found in tx2geneDF and were dropped.");
+      }
+   }
+
+   ## Step 4: resolve detectedGenes
+   ## Default to all genes in the (already filtered) tx2geneDF;
+   ## otherwise intersect with tx2geneDF$gene_name
+   if (length(detectedGenes) == 0) {
+      detectedGenes <- unique(
+         tx2geneDF$gene_name[tx2geneDF$transcript_id %in% detectedTx])
+   } else {
+      detectedGenes_orig <- detectedGenes
+      detectedGenes <- intersect(detectedGenes, tx2geneDF$gene_name)
+      if (verbose && length(detectedGenes) < length(detectedGenes_orig)) {
+         jamba::printDebug("splicejamDataFromTxDb(): ",
+            jamba::formatInt(length(detectedGenes_orig) - length(detectedGenes)),
+            " detectedGenes entries were not found in tx2geneDF and were dropped.");
+      }
+   }
+
+   ## Step 5: subset tx2geneDF by both detectedTx and detectedGenes
+   tx2geneDF <- subset(tx2geneDF,
+      tx2geneDF$transcript_id %in% detectedTx &
+      tx2geneDF$gene_name     %in% detectedGenes)
+
+   ## Step 6: re-synchronise detectedTx and detectedGenes from subset tx2geneDF
+   detectedTx    <- intersect(detectedTx,    tx2geneDF$transcript_id)
+   detectedGenes <- intersect(detectedGenes, tx2geneDF$gene_name)
+   if (verbose) {
+      jamba::printDebug("splicejamDataFromTxDb(): ",
+         "Retained ",
+         jamba::formatInt(length(detectedTx)),
+         " transcripts across ",
+         jamba::formatInt(length(detectedGenes)),
+         " genes.");
+   }
+
+   ## Step 7: subset exonsByTx and cdsByTx to detected transcripts
+   exonsByTx <- exonsByTx[names(exonsByTx) %in% detectedTx]
+   cdsByTx   <- cdsByTx[  names(cdsByTx)   %in% detectedTx]
+
+   ## Step 8: derive flatExonsByGene
+   if (verbose) {
+      jamba::printDebug("splicejamDataFromTxDb(): ",
+         "Deriving flatExonsByGene via flattenExonsBy(by='gene').");
+   }
+   flatExonsByGene <- flattenExonsBy(
+      exonsByTx=exonsByTx,
+      cdsByTx=cdsByTx,
+      detectedTx=detectedTx,
+      by="gene",
+      tx2geneDF=tx2geneDF,
+      verbose=FALSE)
+
+   ## Step 9: derive flatExonsByTx
+   if (verbose) {
+      jamba::printDebug("splicejamDataFromTxDb(): ",
+         "Deriving flatExonsByTx via flattenExonsBy(by='tx').");
+   }
+   flatExonsByTx <- flattenExonsBy(
+      exonsByTx=exonsByTx,
+      cdsByTx=cdsByTx,
+      detectedTx=detectedTx,
+      by="tx",
+      tx2geneDF=tx2geneDF,
+      verbose=FALSE)
+
+   ## Step 10: handle filesDF and color_sub
+   if (length(filesDF) > 0 && length(color_sub) == 0) {
+      if (verbose) {
+         jamba::printDebug("splicejamDataFromTxDb(): ",
+            "Deriving color_sub from filesDF$sample_id via colorjam.");
+      }
+      color_sub <- colorjam::group2colors(unique(filesDF$sample_id))
+   }
+
+   ## Step 11: pack results into a new environment
+   envir <- new.env(parent=emptyenv())
+   envir$flatExonsByGene <- flatExonsByGene
+   envir$flatExonsByTx   <- flatExonsByTx
+   envir$tx2geneDF       <- tx2geneDF
+   envir$detectedTx      <- detectedTx
+   envir$detectedGenes   <- detectedGenes
+   if (length(filesDF) > 0) {
+      envir$filesDF <- filesDF
+   }
+   if (length(color_sub) > 0) {
+      envir$color_sub <- color_sub
+   }
+
+   if (verbose) {
+      jamba::printDebug("splicejamDataFromTxDb(): ",
+         "Complete.")
+   }
+   return(envir)
+   }
+
+
 #' Get value from function arguments or specific environment
 #'
 #' Get value from function ellipses, parent function, or

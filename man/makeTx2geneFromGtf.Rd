@@ -93,6 +93,7 @@ results into R for downstream processing.
 Other GTF functions:
 \code{\link[=describeGtfAttrNames]{describeGtfAttrNames()}},
 \code{\link[=getGtfAttrs]{getGtfAttrs()}},
+\code{\link[=makeTx2geneFromTxdb]{makeTx2geneFromTxdb()}},
 \code{\link[=readGtf]{readGtf()}}
 }
 \concept{GTF functions}

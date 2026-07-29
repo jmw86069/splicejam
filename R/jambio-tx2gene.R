@@ -1,3 +1,4 @@
+# makeTx2geneFromTxdb()
 # makeTx2geneFromGtf()
 
 
@@ -239,4 +240,144 @@ makeTx2geneFromGtf <- function
    }
 
    return(txM);
+}
+
+
+# makeTx2geneFromTxdb
+
+#' Make tx2gene data.frame from a TxDb object
+#'
+#' Make tx2gene data.frame from a TxDb object and an org.*.eg.db annotation
+#' package.
+#'
+#' This function converts a Bioconductor `TxDb` annotation package (e.g.
+#' `TxDb.Mmusculus.UCSC.mm10.knownGene`) into the three-column `data.frame`
+#' expected by splicejam: `transcript_id`, `gene_id`, `gene_name`.
+#'
+#' Gene IDs in UCSC-style `TxDb` objects are NCBI Entrez IDs (ENTREZID).
+#' These are mapped to gene symbols (SYMBOL) using
+#' `genejam::freshenGenes()` with the supplied `ann_lib`. When an ENTREZID
+#' cannot be resolved to a SYMBOL, the original ENTREZID is retained as the
+#' `gene_name` (controlled by `empty_rule="original"` in `freshenGenes()`).
+#' 
+#' **Exception:** Some `TxDb` packages with suffix 'ensDb' use EnsEMBL
+#' gene identifier, in the form 'ENSG00000001' or 'ENSMUSG00000001'.
+#' In this case, `genejam::freshenGenes()` will be used to query by
+#' the 'ENSEMBL2EG' annotation data, and will fallback to use the
+#' EnsEMBL gene_id when not found.
+#'
+#' @param txdb `TxDb` object, such as those provided by Bioconductor packages
+#'    like `TxDb.Mmusculus.UCSC.mm10.knownGene` or
+#'    `TxDb.Hsapiens.UCSC.hg38.knownGene`.
+#' @param ann_lib `character` string naming an installed Bioconductor organism
+#'    annotation package (e.g. `"org.Mm.eg.db"` for mouse or
+#'    `"org.Hs.eg.db"` for human). Must match the organism used in `txdb`.
+#'    No validation of organism concordance is performed.
+#' @param verbose `logical` whether to print verbose output during processing.
+#' @param ... additional arguments are ignored.
+#'
+#' @returns `data.frame` with colnames `"transcript_id"`, `"gene_id"`,
+#'    `"gene_name"`. `gene_id` contains the ENTREZID values from the `TxDb`,
+#'    and `gene_name` contains the resolved gene SYMBOL.
+#'
+#' @family GTF functions
+#'
+#' @seealso `makeTx2geneFromGtf()` for the GTF-based equivalent,
+#'    `splicejamDataFromTxDb()` for the higher-level workflow that calls this
+#'    function.
+#'
+#' @export
+makeTx2geneFromTxdb <- function
+(txdb,
+ ann_lib,
+ verbose=FALSE,
+ ...)
+{
+   ## Purpose: convert a TxDb + org.*.eg.db package name into the
+   ## three-column data.frame (transcript_id, gene_id, gene_name) used
+   ## throughout splicejam.
+
+   ## Step 1: get transcripts grouped by gene_id (ENTREZID)
+   ## Note: use.names=TRUE is not supported when by="gene", so we use the
+   ## default call and extract names manually.
+   if (verbose) {
+      jamba::printDebug("makeTx2geneFromTxdb(): ",
+         "Calling GenomicFeatures::transcriptsBy(by='gene')");
+   }
+   txByGene <- GenomicFeatures::transcriptsBy(txdb, by="gene")
+
+   ## Step 2: flatten into a two-column data.frame
+   tx_unlisted   <- unlist(txByGene)
+   gene_ids      <- names(tx_unlisted)          # ENTREZID, repeated per tx
+   tx_ids        <- tx_unlisted$tx_name         # transcript ID
+
+   tx2gene_raw <- data.frame(
+      transcript_id = tx_ids,
+      gene_id       = gene_ids,
+      stringsAsFactors = FALSE)
+   if (verbose) {
+      jamba::printDebug("makeTx2geneFromTxdb(): ",
+         "tx2gene_raw nrow: ",
+         jamba::formatInt(nrow(tx2gene_raw)));
+   }
+
+   ## Step 3: convert ENTREZID → SYMBOL using genejam
+   unique_gene_ids <- unique(tx2gene_raw$gene_id)
+   if (verbose) {
+      jamba::printDebug("makeTx2geneFromTxdb(): ",
+         "Calling genejam::freshenGenes() for ",
+         jamba::formatInt(length(unique_gene_ids)),
+         " unique gene_id values.");
+   }
+   #
+   # Todo: Consider AnnotationDbi::metadata(txdb)
+   # name='Type of Gene ID' and value is
+   # value == 'Entrez Gene ID' or
+   # value == 'Ensembl gene ID'
+   #
+   if (any(grepl("^ENS", unique_gene_ids))) {
+      if (verbose) {
+         jamba::printDebug("makeTx2geneFromTxdb(): ",
+            "Querying by ENSEMBL");
+      }
+      # use EnsEMBL gene_id approach
+      use_df  <- data.frame(ENSEMBL=unique_gene_ids,
+         stringsAsFactors=FALSE)
+      gene_df <- genejam::freshenGenes(use_df,
+         ann_lib=ann_lib,
+         try_list=c("ENSEMBL2EG",
+            "ACCNUM2EG",
+            "SYMBOL2EG"),
+         empty_rule="original")
+      # gene_df has columns ENSEMBL + SYMBOL
+      symbol_map <- setNames(gene_df$SYMBOL, gene_df$ENSEMBL)
+   } else {
+      if (verbose) {
+         jamba::printDebug("makeTx2geneFromTxdb(): ",
+            "Querying by ENTREZID");
+      }
+      # Use ENTREZID approach
+      use_df  <- data.frame(ENTREZID=unique_gene_ids,
+         stringsAsFactors=FALSE)
+      gene_df <- genejam::freshenGenes(use_df,
+         ann_lib=ann_lib,
+         empty_rule="original")
+      # gene_df has columns ENTREZID + SYMBOL
+      symbol_map <- setNames(gene_df$SYMBOL, gene_df$ENTREZID)
+   }
+
+   ## Step 4: attach gene_name; fall back to gene_id when SYMBOL is absent
+   tx2gene_raw$gene_name <- symbol_map[tx2gene_raw$gene_id]
+   na_idx <- is.na(tx2gene_raw$gene_name)
+   if (any(na_idx)) {
+      if (verbose) {
+         jamba::printDebug("makeTx2geneFromTxdb(): ",
+            jamba::formatInt(sum(na_idx)),
+            " transcripts had no SYMBOL; retaining gene_id as gene_name.");
+      }
+      tx2gene_raw$gene_name[na_idx] <- tx2gene_raw$gene_id[na_idx]
+   }
+
+   ## Return canonical column order
+   tx2gene_raw[, c("transcript_id", "gene_id", "gene_name"), drop=FALSE]
 }

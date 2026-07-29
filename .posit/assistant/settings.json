@@ -1,0 +1,7 @@
+{
+  "permission": {
+    "external_directory": {
+      "c:/Users/james.ward/.positron/extensions/posit.assistant-0.9.0-universal/dist/skills/quarto-authoring/references/*": "allow"
+    }
+  }
+}

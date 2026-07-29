@@ -237,6 +237,7 @@ sjfig3 <- splicejamFigure(sjenv=sjenv, gene="Gria1", sample_id=c("CA2_CB", "CA2_
 \seealso{
 Other Splicejam core functions:
 \code{\link[=launchSashimiApp]{launchSashimiApp()}},
-\code{\link[=sashimiDataConstants]{sashimiDataConstants()}}
+\code{\link[=sashimiDataConstants]{sashimiDataConstants()}},
+\code{\link[=splicejamDataFromTxDb]{splicejamDataFromTxDb()}}
 }
 \concept{Splicejam core functions}

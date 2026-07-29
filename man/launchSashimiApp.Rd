@@ -203,6 +203,7 @@ the data is retrieved from the file or remote server.
 \seealso{
 Other Splicejam core functions:
 \code{\link[=sashimiDataConstants]{sashimiDataConstants()}},
+\code{\link[=splicejamDataFromTxDb]{splicejamDataFromTxDb()}},
 \code{\link[=splicejamFigure]{splicejamFigure()}}
 }
 \concept{Splicejam core functions}

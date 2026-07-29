@@ -104,15 +104,15 @@ as 'gene_id' in the 'tx2geneDF' `data.frame` later.
    with colnames 'transcript_id', 'gene_id', 'gene_name'.
    * This step should probably be performed in a stand-alone
    `function` that takes 'txdb', 'ann_lib' as input, and
-   returns `data.frame` 'filesDF' as output.
+   returns `data.frame` 'tx2geneDF' as output.
    Name it `makeTx2geneFromTxdb()`
 
-* After 'filesDF' is available, it should be subset by
+* After 'tx2geneDF' is available, it should be subset by
 using 'detectedTx' in the 'transcript_id' column, and by
 using 'detectedGenes' in the 'gene_name' column.
-Afterward, 'detectedTx' should only contain entries in 'filesDF'
+Afterward, 'detectedTx' should only contain entries in 'tx2geneDF'
 column 'transcript_id', and 'detectedGenes' should only
-contain entries in the 'filesDF' column 'gene_name'.
+contain entries in the 'tx2geneDF' column 'gene_name'.
 * Next, 'exonsByTx' and 'cdsByTx' should be subset using
 'detectedTx' to match `names(exonsByTx)` and `names(cdsByTx)`.
 * Then 'flatExonsByTx' should be derived.
@@ -141,3 +141,9 @@ contain entries in the 'filesDF' column 'gene_name'.
 * Note that the Github packages 'colorjam' and 'genejam' are already
 installed. Also installed: 'TxDb.Mmusculus.UCSC.knownGene' and
 'org.Mm.eg.db'.
+
+## Testing
+
+* Using 'mm10' mouse genome as described above, you can re-use
+the same 'filesDF' in the test data 'sjenvtest' since it also uses
+the 'mm10' mouse genome. You can use 'Gria1' as the test gene.
