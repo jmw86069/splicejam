@@ -1,3 +1,14 @@
+# splicejam 0.0.93.900
+
+## Updates
+
+* Shiny app gets Download button, to save the RData
+for a figure. Todo: Change so it includes the full
+`list` from `splicejamFigure()`.
+* The interactive plotly figure now has proper tooltips
+for coverage chunks, junction arcs, and gene-exon model.
+
+
 # splicejam 0.0.92.900
 
 ## Changes

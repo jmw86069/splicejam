@@ -873,21 +873,34 @@ gene2gg <- function
       return(grl1a1df);
    }
 
+   ## Add text to the data
+   group_start <- sapply(split(grl1a1df$x, grl1a1df$gr_name), min);
+   group_end <- sapply(split(grl1a1df$x, grl1a1df$gr_name), max);
+   # grl1a1df$text <- paste0(
+   #    "<b>", grl1a1df$gr_name, "\n",
+   #    "Subclass: ", grl1a1df$subclass, "\n",
+   #    "Ref: ", grl1a1df$seqnames, "\n",
+   #    "Start: ",
+   #    scales::comma(range(grl1a1df$x)[1], accuracy=1), "\n",
+   #    "End: ",
+   #    scales::comma(range(grl1a1df$x)[2], accuracy=1)
+   # );
    ## Put it together
    grl1a1gg <- ggplot2::ggplot(grl1a1df,
          ggplot2::aes(x=x,
             y=y,
             fill=color_by,
             color=color_by,
-            text=paste0(sub("_", "<br>", gr_name),
-               "<br>",subclass,
-               "<br>",
-               seqnames,
-               ":",
-               paste(scales::comma(range(x), accuracy=1),
-                  collapse="-")
+            text=paste0(
+               "<b>", gr_name, "</b>\n",
+               "Subclass: ", subclass, "\n",
+               "Ref: ", seqnames, "\n",
+               "Start: ",
+               scales::comma(group_start[gr_name], accuracy=1), "\n",
+               "End: ",
+               scales::comma(group_end[gr_name], accuracy=1), "\n"
             ),
-            group=id)) +
+         group=id)) +
       ggforce::geom_shape(show.legend=FALSE) +
       colorjam::theme_jam() +
       ggplot2::ylab("") +
@@ -1812,73 +1825,6 @@ to_basic.GeomShape <- function
    plotly:::prefix_class(data, "GeomPolygon");
 }
 
-#' Internal function to convert multi-plot ggplot to plotly panels
-#' @keywords internal
-#' @noRd
-jam_ggplotly <- function(p, ...)
-{
-   # check p$data for list columns 'x', 'y'
-   if (is.list(p$data$x)) {
-      # jamba::printDebug("jam_ggplotly(): ",
-      #    "head(p$data):");
-      # print(head(p$data, 10));# debug
-      # jamba::printDebug("jam_ggplotly(): ",
-      #    "sclass(p$data):");
-      # print(jamba::sclass(p$data));# debug
-      # jamba::printDebug("jam_ggplotly(): ",
-      #    "jamba::tcount(p$data$name):");
-      # print(head(jamba::tcount(p$data$name), 20));# debug
-      name_ct <- lengths(p$data$x);
-
-      # insert 0 at beginning and end
-      multixs <- which(name_ct > 1);
-      for (multix in multixs) {
-         p$data$x[[multix]] <- c(head(p$data$x[[multix]], 1),
-            p$data$x[[multix]],
-            tail(p$data$x[[multix]], 1));
-         p$data$y[[multix]] <- c(0,
-            p$data$y[[multix]],
-            0);
-      }
-      name_ct <- lengths(p$data$x);
-
-      use_rows <- rep(seq_along(name_ct), name_ct);
-      new_data <- p$data[use_rows, , drop=FALSE];
-      new_data$x <- unname(unlist(p$data$x))
-      new_data$y <- unname(unlist(p$data$y))
-     
-      ## Insert 'text' column for plotly label
-      # junction_label: (none)
-      # junction: feature, score
-      # coverage: x, y, feature
-      use_text <- ifelse(new_data$type %in% "coverage",
-         paste0("Coverage<br>\n",
-            new_data$feature, "<br>\n",
-            jamba::formatInt(round(new_data$x)), "<br>\n",
-            jamba::formatInt(round(new_data$y)), "<br>\n"),
-         ifelse(new_data$type %in% "junction",
-            paste0("Junction<br>\n",
-               new_data$feature, "<br>\n",
-               jamba::formatInt(round(new_data$score)), "<br>\n"),
-            ""))
-      new_data$text <- use_text;
-      
-      # new_data <- plotly::highlight_key(new_data,
-      #    key=~feature);
-      p$data <- new_data;
-   }
-   cp <- plotly::layout(
-      plotly::ggplotly(p,
-         tooltip=c("text")),
-         # tooltip="text"),
-      showlegend=FALSE)
-   cp <- plotly::highlight(cp,
-      "plotly_hover",
-      opacityDim=0.8,
-      selected=plotly::attrs_selected(
-         line=list(color="#444444")));
-   cp;
-}
 
 #' Stat for unpacking list-column polygon coordinates
 #'

@@ -735,11 +735,11 @@ splicejamFigure <- function
             plotly::layout(
                margin=list(t=60, b=50, l=80, r=30));
          ## Todo: Handle plotly crosstalk to highlight points
-         # cp <- plotly::highlight(cp,
-         #    "plotly_hover",
-         #    opacityDim=0.8,
-         #    selected=plotly::attrs_selected(
-         #       line=list(color="#444444")));
+         cp <- plotly::highlight(cp,
+            "plotly_hover",
+            opacityDim=0.8,
+            selected=plotly::attrs_selected(
+               line=list(color="#444444")));
       }
    })
    timings_df <- rbind(timings_df,
@@ -755,7 +755,11 @@ splicejamFigure <- function
    if (isTRUE(do_plot)) {
       st26 <- system.time(gcFirst=FALSE, {
          suppressWarnings({
-            plot(cp);
+            if (inherits(cp, "plotly")) {
+               print(cp);
+            } else {
+               plot(cp);
+            }
          })
       })
       timings_df <- rbind(timings_df,

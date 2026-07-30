@@ -1603,10 +1603,6 @@ getFirstStrandedFromGRL <- function
             "performing direct logic");
       }
       grl2 <- IRanges::heads(grl, 1);
-      # jamba::printDebug("GenomicRanges::strand(range(grl)):");print(GenomicRanges::strand(range(grl)));# debug
-      jamba::printDebug("GenomicRanges::strand(grl2@unlistData):");print(GenomicRanges::strand(grl2@unlistData));# debug
-      jamba::printDebug("lengths(grl):");print(lengths(grl));# debug
-      jamba::printDebug("lengths(grl2):");print(lengths(grl2));# debug
       is_minus <- as.vector(unlist(GenomicRanges::strand(grl2@unlistData))) %in% "-";
       if (any(is_minus)) {
          grl2[is_minus] <- IRanges::tails(grl[is_minus], 1);

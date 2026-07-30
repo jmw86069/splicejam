@@ -73,7 +73,7 @@ if (suppressPackageStartupMessages(require(GenomicRanges))) {
 
 
 <figure>
-<img src="man/figures/mouse_hippocampus.png" width="25%" height="25%" align="right" style="padding-left:10px;background-color:white;" />
+<img src="man/figures/mouse_hippocampus.png" width="25%" height="25%" align="right" style="padding-left:10px;background-color:white;" alt="A depiction of the CA1 and CA2 regions of mouse hippocampus." />
 <figcaption>
 A depiction of the CA1 and CA2 regions of mouse hippocampus
 is shown in Fig 4a from 

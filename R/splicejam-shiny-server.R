@@ -288,6 +288,7 @@ sashimiAppServer <- function
       gene_coords <- input$gene_coords;
       if (!"blank" %in% gene) {
          shinyjs::enable("calc_gene_params");
+         shinyjs::disable("download_sjfig_cp");
       }
    });
 
@@ -326,6 +327,7 @@ sashimiAppServer <- function
       if (length(gene) > 0 && nchar(gene) > 0) {
          if (!"blank" %in% gene) {
             shinyjs::enable("calc_gene_params");
+            shinyjs::disable("download_sjfig_cp");
             shinyjs::enable("exon_range");
             shinyjs::enable("gene_coords");
             ## Handle "All Genes" where it is not present in flatExonsByGene
@@ -679,7 +681,25 @@ sashimiAppServer <- function
       attr(sjfig$cp, "plot_height") <- use_plot_height;
    
       return(sjfig$cp)
-      })
+   })
+
+   # Download handler for saving the current sjfig_cp to an RData file.
+   # Calls get_sashimi_plot() to retrieve the already-cached reactive result,
+   # so splicejamFigure() is not re-run.
+   output$download_sjfig_cp <- shiny::downloadHandler(
+      filename = function() {
+         gene <- tryCatch(shiny::isolate(input$gene), error = function(e) "unknown")
+         paste0("sashimi_", gene, "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".RData")
+      },
+      content = function(file) {
+         sjfig_cp <- get_sashimi_plot()
+         if (length(sjfig_cp) == 0) {
+            save(list = character(0), file = file)
+            return(invisible(NULL))
+         }
+         save(sjfig_cp, file = file)
+      }
+   )
 
    # the main function to prepare sashimi data for display
    # when gene is empty, "" or "blank" it returns NULL
@@ -859,6 +879,7 @@ sashimiAppServer <- function
          jamba::printDebug("sashimiAppServer(): ",
             "Rendering blank panel for ",
             "sashimiplot_output");
+         shinyjs::disable("download_sjfig_cp");
          return(htmltools::tagList(shiny::renderPlot(
             height=300,
             ggplot2::ggplot() + ggplot2::theme_void()
@@ -878,6 +899,8 @@ sashimiAppServer <- function
          if (length(sjfig_cp) == 0) {
             return(render_blank_plot())
          }
+         # Plot is valid and displayed — activate the download button
+         shinyjs::enable("download_sjfig_cp");
 
          ## Check plotly output
          if (inherits(sjfig_cp, "plotly")) {
@@ -1470,6 +1493,7 @@ sashimiAppServer <- function
       DT::selectRows(proxy, seq_along(selected_rows))
       # enable the Calculate button so the sashimi plot can be updated
       shinyjs::enable("calc_gene_params");
+      shinyjs::disable("download_sjfig_cp");
    })
    ## Capture edits to the ylim column
    shiny::observeEvent(input$samplesdf_cell_edit, {

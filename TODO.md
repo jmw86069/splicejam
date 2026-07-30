@@ -1,5 +1,55 @@
 # TODO for splicejam
 
+## 29jul2026
+
+Overall
+
+R-shiny app ideas:
+
+* `filesDF` optional column 'selected' with 1,0 or TRUE,FALSE.
+* Option to select transcript-exon models to display for a gene,
+could probably have checkbox beside each, including the gene.
+* "Fix" plotly exon and junction labels. Looks like
+
+   * `ggrepel::geom_text_repel()` does not provide `to_basic()`.
+
+* Consider method to "convert" Splicejam figure to `data.frame`.
+
+   * junctions: score, sample_id, junction exonFrom-exonTo
+   * coverage: exon/gap name, sample_id, area, mean, median, max
+
+* Multi-experiment R-shiny?
+
+   * General idea is to allow one scientist to switch
+   between projects.
+   * Case 1: Multiple `filesDF`, same `sjenv`.
+   Could be accomplished by combining filesDF.
+   Using one filesDF only works if they share gene models.
+   * Multiple `filesDF`, multiple `sjenv`.
+   Supports multiple species, genome builds, gene models.
+
+* Allow `filesDF` to use a URL?
+
+   * Enables changes upon startup. Does that work per-user
+   or require server startup?
+
+* In the Samples tab, add the ability to filter/sort by column.
+It should still always keep "selected" items at the top,
+then sort by columns as defined by user.
+Each time they click a column, it adds to the column sort
+order such that the most recently clicked column is sorted last.
+Also, if the user clicks a row in the table, which causes the
+row to become highlighted, or to become un-highlighted,
+that naturally causes the table order to change, and therefore
+the column sort order should be reset to have no column
+sort.
+* Add the ability to save the RData used for the current figure,
+which would save the same data returned by `get_sashimi_plot()`,
+also stored as `sjfig_cp` in the section 'output$sashimiplot_output'.
+It should allow the user to choose where to save the RData
+file. The default filename should use the gene, something like
+this: '{gene}_splicejam.RData'
+
 ## 28jul2026
 
 * Consider ability to use custom transcript labels,

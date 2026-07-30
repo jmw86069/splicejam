@@ -357,7 +357,12 @@ sashimiAppUI <- function
                ),
                shiny::actionButton(
                   inputId="calc_gene_params",
-                  label="Update Sashimi Plots")
+                  label="Update Sashimi Plots"),
+               shinyjs::disabled(
+                  shiny::downloadButton(
+                     outputId="download_sjfig_cp",
+                     label="Save Figure as .RData")
+               )
             )
          )
       ),
