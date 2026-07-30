@@ -664,6 +664,7 @@ sashimiDataConstants <- function
    if (length(envir$default_gene) == 0 || nchar(envir$default_gene) == 0) {
       envir$default_gene <- head(
          jamba::provigrep(c("Gria1",
+            "Myom1",
             "Ntrk2",
             "Actb",
             "Gapd",

@@ -81,6 +81,7 @@ sashimiAppServer <- function
       }
       default_gene <- head(
          jamba::provigrep(c("Gria1",
+            "Myom1",
             "Ntrk2",
             "Actb",
             "Gapd",
