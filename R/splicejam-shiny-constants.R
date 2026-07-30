@@ -378,12 +378,12 @@ sashimiAppConstants <- function
             shinydashboard::tabBox(
                width=12,
                shiny::tabPanel(
-                  title="About Sashimi Plots",
-                  shiny::uiOutput("sashimiplot_guide")
-               ),
-               shiny::tabPanel(
                   title="Creating a Sashimi Plot",
                   shiny::uiOutput("sashimiplotviz_guide")
+               ),
+               shiny::tabPanel(
+                  title="About Sashimi Plots",
+                  shiny::uiOutput("sashimiplot_guide")
                )
             )
          ),
@@ -487,7 +487,7 @@ sashimiAppConstants <- function
          width=12,
          status="primary",
          style="background-color:aliceblue",
-         aboutExtra,
+         envir$aboutExtra,
          htmltools::tags$h3("The Sashimi Plot Tab"),
          htmltools::tags$p(
             "The Sashimi Plot tab",
@@ -556,9 +556,7 @@ sashimiAppConstants <- function
          width=12,
          status="primary",
          style="background-color:aliceblue",
-         htmltools::tags$p("The typical workflow for viewing a Sashimi plot is described
-            below:"),
-         htmltools::tags$h3("Select the Sashimi Plot tab"),
+         htmltools::tags$h3("Select 'Sashimi Plot' tab"),
          htmltools::tags$ul(
             htmltools::tags$li(
                htmltools::strong("Select a gene", style="color:navy"),
@@ -585,7 +583,10 @@ sashimiAppConstants <- function
                      reads."
                   )
                )
-            ),
+            )
+         ),
+         htmltools::tags$h3("Update Sashimi Plots"),
+         htmltools::tags$ul(
             htmltools::tags$li(
                htmltools::strong("Click 'Update Sashimi Plots'", style="color:navy"),
                htmltools::tags$ul(
@@ -596,54 +597,90 @@ sashimiAppConstants <- function
                      become more responsive over time."
                   )
                )
-            ),
+            )
+         ),
+         htmltools::tags$h3(
+            "Custom Options",
+            shiny::icon("gear")),
+         htmltools::tags$ul(
             htmltools::tags$li(
-               htmltools::strong("Click the icon '",
+               htmltools::strong("Click the gear '",
                   style="color:navy"),
-               shiny::icon("info"),
-               htmltools::strong("' for more visual options", style="color:navy"),
-               htmltools::tags$ul(
+               shiny::icon("gear"),
+               htmltools::strong("' for custom options", style="color:navy"),
+               # htmltools::tags$ul(
                   htmltools::tags$li(
-                     htmltools::strong("Height per panel"),
-                     " - define the pixel height of each Sashimi plot panel,
-                     with one panel per biological sample."
-                  ),
-                  htmltools::tags$li(
-                     htmltools::strong("Font sizing"),
-                     " - optionally scale up or down the overall font size"
-                  ),
-                  htmltools::tags$li(
-                     htmltools::strong("Interactive plot"),
-                     " - when checked, render using plotly with interactive
-                     features. This feature is under active development to
-                     enable as many useful features as possible. Uncheck
-                     to view a static plot as created using ggplot."
-                  ),
-                  htmltools::tags$li(
-                     htmltools::strong("Show gene-exon model"),
-                     " - when checked, the flattened gene-exon model is
-                     displayed below the Sashimi panels. When using
-                     interactive plotting, and one column of panels, the
-                     x-axis range can be zoomed by clicking and dragging."
-                  ),
-                  htmltools::tags$li(
-                     htmltools::strong("Show transcript-exon model"),
-                     " - when checked, the transcript-exon model is
-                     displayed below the Sashimi panels, including all
-                     transcripts, or a subset of 'detected' transcripts.
-                     Viewing the transcript models can be helpful when
-                     interpreting which transcript isoform may be
-                     differentially regulated across biological samples."
-                  ),
-                  htmltools::tags$li(
-                     htmltools::strong("Shared y-axis range"),
+                     htmltools::strong("Shared y-axis range",
+                        style="color:navy"),
                      " - when checked, all Sashimi panels share the same
-                     y-axis range, which helps visualize differences in
-                     absolute gene expression levels. When unchecked, each
-                     panel is independently scaled, which helps interpret
+                     y-axis range. When un-checked each panel will use its
+                     own respective range, which helps interpret
                      changes in transcript isoforms across samples."
+                  ),
+                  htmltools::tags$li(
+                     htmltools::strong("Label junction counts?",
+                        style="color:navy"),
+                     " - when checked, junctions are labeled by the score,
+                     which is intended to represent the number of reads
+                     which support that junction."
+                  ),
+                  htmltools::tags$li(
+                     htmltools::strong("Interactive plot",
+                        style="color:navy"),
+                     " - when checked, the figure is rendered using plotly,
+                     which allows interactive controls. You can click and drag
+                     to zoom the figure, and double-click to reset.
+                     Each feature of the plot has a tooltip with details."
+                  ),
+                  htmltools::tags$li(
+                     htmltools::strong("Height per panel",
+                        style="color:navy"),
+                     " - pixel height of each plot panel,
+                     with one panel per biological sample_id."
+                  ),
+                  htmltools::tags$li(
+                     htmltools::strong("Font sizing",
+                        style="color:navy"),
+                     " - adjust the overall font size  up or down
+                     relative to the panel height."
+                  ),
+                  htmltools::tags$li(
+                     htmltools::strong("Junction transparency",
+                        style="color:navy"),
+                     " - adjust the junction ribbon transparency, which
+                     is useful to allow any overlapping features to
+                     be visible."
+                  ),
+                  htmltools::tags$li(
+                     htmltools::strong("Junction arc factor",
+                        style="color:navy"),
+                     " - adjust the height of the junction arcs, relative
+                     to the default, which already uses the overall coverage
+                     for the gene displayed."
+                  ),
+                  htmltools::tags$li(
+                     htmltools::strong("Show gene-exon model",
+                        style="color:navy"),
+                     " - Currently the gene and transcript exons models
+                     are always displayed. In future, you may de-select
+                     one or more exon models to hide them from view."
+                  ),
+                  htmltools::tags$li(
+                     htmltools::strong("Height of gene panel",
+                        style="color:navy"),
+                     " - Height of the panel with the transcript-exon model.
+                     It tends to work well to use about twice 2x the
+                     'Height per panel'."
+                  ),
+                  htmltools::tags$li(
+                     htmltools::strong("Exon font sizing",
+                        style="color:navy"),
+                     " - Adjust the exon label size, relative to the overall
+                     font size controlled by 'Font sizing'. The exon labels
+                     are displayed vertically beneath each exon, and
+                     only in non-interactive plots."
                   )
-               )
+               # )
             )
          )
       )

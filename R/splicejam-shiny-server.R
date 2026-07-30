@@ -11,7 +11,6 @@
 #' `onStart`, and `options`. This function fulfills the
 #' argument `server`.
 #'
-#'
 #' @param input provided by shiny
 #' @param output provided by shiny
 #' @param session provided by shiny

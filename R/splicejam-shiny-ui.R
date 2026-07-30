@@ -355,13 +355,35 @@ sashimiAppUI <- function
                      round=TRUE
                   )
                ),
-               shiny::actionButton(
-                  inputId="calc_gene_params",
-                  label="Update Sashimi Plots"),
-               shinyjs::disabled(
-                  shiny::downloadButton(
-                     outputId="download_sjfig_cp",
-                     label="Save Figure as .RData")
+               shiny::fluidRow(
+                  shiny::column(
+                     width=1,
+                     style="padding:0px"
+                  ),
+                  shiny::column(
+                     width=5,
+                     style="padding:0px",
+                     shiny::actionButton(
+                        inputId="calc_gene_params",
+                        label="Update Sashimi Plots")
+                  ),
+                  shiny::column(
+                     width=1,
+                     style="padding:0px"
+                  ),
+                  shiny::column(
+                     width=4,
+                     style="padding:0px",
+                     shinyjs::disabled(
+                        shiny::downloadButton(
+                           outputId="download_sjfig_cp",
+                           label="Save Figure as .RData")
+                     )
+                  ),
+                  shiny::column(
+                     width=1,
+                     style="padding:0px"
+                  )
                )
             )
          )

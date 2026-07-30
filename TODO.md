@@ -6,6 +6,7 @@ Overall
 
 R-shiny app ideas:
 
+* Consider option not to draw a gene on startup.
 * `filesDF` optional column 'selected' with 1,0 or TRUE,FALSE.
 * Option to select transcript-exon models to display for a gene,
 could probably have checkbox beside each, including the gene.
