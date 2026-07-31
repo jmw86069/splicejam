@@ -9,6 +9,7 @@ for a figure. Todo: Change so it includes the full
 for coverage chunks, junction arcs, and gene-exon model.
 * Fixed display of 'aboutExtra' in the R-shiny app.
 * Adjusted R-shiny 'Guides' tab order and content.
+* Removed minor UI config elements in the R-shiny app.
 
 # splicejam 0.0.92.900
 

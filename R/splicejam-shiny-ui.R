@@ -445,7 +445,8 @@ sashimiAppUI <- function
                         status="primary",
                         label="Interactive plot"),
                      shiny::conditionalPanel(
-                        condition="input.do_plotly == true",
+                        # condition="input.do_plotly == true",
+                        condition="1 == 2",
                         nbsp3,
                         nbsp3,
                         shinyWidgets::prettyCheckbox(

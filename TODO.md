@@ -6,6 +6,8 @@ Overall
 
 R-shiny app ideas:
 
+* DONE. Hide "Display filter legend" and "Enable highlight" in UI.
+* It should probably show the genome `'mm39'` if defined.
 * Consider option not to draw a gene on startup.
 * `filesDF` optional column 'selected' with 1,0 or TRUE,FALSE.
 * Option to select transcript-exon models to display for a gene,
@@ -14,7 +16,7 @@ could probably have checkbox beside each, including the gene.
 
    * `ggrepel::geom_text_repel()` does not provide `to_basic()`.
 
-* Consider method to "convert" Splicejam figure to `data.frame`.
+* Consider exporting a Splicejam figure summary to `data.frame`.
 
    * junctions: score, sample_id, junction exonFrom-exonTo
    * coverage: exon/gap name, sample_id, area, mean, median, max
@@ -34,7 +36,7 @@ could probably have checkbox beside each, including the gene.
    * Enables changes upon startup. Does that work per-user
    or require server startup?
 
-* In the Samples tab, add the ability to filter/sort by column.
+* DEFER. In the Samples tab, add the ability to filter/sort by column.
 It should still always keep "selected" items at the top,
 then sort by columns as defined by user.
 Each time they click a column, it adds to the column sort
@@ -44,18 +46,19 @@ row to become highlighted, or to become un-highlighted,
 that naturally causes the table order to change, and therefore
 the column sort order should be reset to have no column
 sort.
-* Add the ability to save the RData used for the current figure,
+* DONE. Add the ability to save the RData used for the current figure,
 which would save the same data returned by `get_sashimi_plot()`,
 also stored as `sjfig_cp` in the section 'output$sashimiplot_output'.
 It should allow the user to choose where to save the RData
 file. The default filename should use the gene, something like
 this: '{gene}_splicejam.RData'
 
+
 ## 28jul2026
 
 * Consider ability to use custom transcript labels,
 for example "Gria1 flip" and "Gria1 flop".
-* Consider ability to provide `detectedTx` to an
+* DEFER. Consider ability to provide `detectedTx` to an
 existing splicejam environment. It would rebuild
 `flatExonsByGene` using the new subset of transcripts.
 
@@ -73,7 +76,9 @@ existing splicejam environment. It would rebuild
    feasible to determine "detected transcripts",
    outside of using Salmon transcript quant output
    for example.
-   * Port `defineDetectedTx()` to kallisto input.
+   * Port `defineDetectedTx()` to use kallisto input,
+   or confirm it works as-is.
+
 
 ## 27jul2026
 
