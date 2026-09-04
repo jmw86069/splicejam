@@ -148,9 +148,11 @@ makeTx2geneFromGtf <- function
       "range"=c(1, 4, 5, 7))
 
    # gene attributes
-   names(geneAttrNames) <- ifelse(geneAttrNames %in% names(coordAttrNames),
-      paste0("gene_", geneAttrNames),
-      geneAttrNames);
+   if (length(geneAttrNames) > 0) {
+      names(geneAttrNames) <- ifelse(geneAttrNames %in% names(coordAttrNames),
+         paste0("gene_", geneAttrNames),
+         geneAttrNames);
+   }
    geneM <- NULL;
    if (sum(geneRows) > 0 && length(geneAttrNames) > 0) {
       geneM <- unique(getGtfAttrs(gtfDF,
@@ -166,16 +168,14 @@ makeTx2geneFromGtf <- function
                names(geneAttrNames))),
             colnames(geneM)), 1);
          dupe_geneid <- duplicated(geneM[[geneid_colname]]);
-         if (any(dupe_geneid)) {
-            if (TRUE %in% verbose) {
-               dupe_geneids <- unique(geneM[[geneid_colname]][dupe_geneid]);
-               jamba::printDebug("makeTx2geneFromGtf(): ",
-                  "Warning: ",
-                  jamba::formatInt(length(dupe_geneids)),
-                  " duplicated gene IDs in column ",
-                  geneid_colname, ", for example: ",
-                  jamba::middle(dupe_geneids, 5));
-            }
+         if (any(dupe_geneid) && isTRUE(verbose)) {
+            dupe_geneids <- unique(geneM[[geneid_colname]][dupe_geneid]);
+            jamba::printDebug("makeTx2geneFromGtf(): ",
+               "Warning: ",
+               jamba::formatInt(length(dupe_geneids)),
+               " duplicated gene IDs in column ",
+               geneid_colname, ", for example: ",
+               jamba::middle(dupe_geneids, 5));
          }
          rownames(geneM) <- jamba::makeNames(geneM[[geneid_colname]]);
       }
@@ -240,7 +240,7 @@ makeTx2geneFromGtf <- function
    }
 
    return(txM);
-}
+   }
 
 
 # makeTx2geneFromTxdb
@@ -335,7 +335,7 @@ makeTx2geneFromTxdb <- function
    # value == 'Entrez Gene ID' or
    # value == 'Ensembl gene ID'
    #
-   if (any(grepl("^ENS", unique_gene_ids))) {
+   if (any(startsWith(unique_gene_ids, "ENS"))) {
       if (verbose) {
          jamba::printDebug("makeTx2geneFromTxdb(): ",
             "Querying by ENSEMBL");

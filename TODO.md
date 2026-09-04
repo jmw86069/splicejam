@@ -6,35 +6,36 @@ Overall
 
 R-shiny app ideas:
 
+* Review modern table sort/selection options.
+Current approach is cumbersome and confusing.
 * DONE. Hide "Display filter legend" and "Enable highlight" in UI.
 * It should probably show the genome `'mm39'` if defined.
-* Consider option not to draw a gene on startup.
+* Consider option not to render the plot on startup.
 * `filesDF` optional column 'selected' with 1,0 or TRUE,FALSE.
-* Option to select transcript-exon models to display for a gene,
-could probably have checkbox beside each, including the gene.
-* "Fix" plotly exon and junction labels. Looks like
+* Option to select transcript-exon models per gene
+   * Add checkbox selection in separate table,
+   including the flattened gene itself?
+   * Could use same mechanism as with sample selection.
 
+* "Fix" plotly exon and junction labels. Looks like:
    * `ggrepel::geom_text_repel()` does not provide `to_basic()`.
 
 * Consider exporting a Splicejam figure summary to `data.frame`.
-
    * junctions: score, sample_id, junction exonFrom-exonTo
    * coverage: exon/gap name, sample_id, area, mean, median, max
 
 * Multi-experiment R-shiny?
-
-   * General idea is to allow one scientist to switch
-   between projects.
+   * General idea: allow switching between projects; each
+   project is presented as its own "collection".
    * Case 1: Multiple `filesDF`, same `sjenv`.
-   Could be accomplished by combining filesDF.
-   Using one filesDF only works if they share gene models.
+   Counterpoint: It could be accomplished in one `filesDF`,
+   if they share the same gene-tx models.
    * Multiple `filesDF`, multiple `sjenv`.
    Supports multiple species, genome builds, gene models.
 
-* Allow `filesDF` to use a URL?
-
-   * Enables changes upon startup. Does that work per-user
-   or require server startup?
+* DEFER. Allow `filesDF` source to be a URL?
+   * Enables changes upon startup.
+   * Does it reload for each user, or at server start?
 
 * DEFER. In the Samples tab, add the ability to filter/sort by column.
 It should still always keep "selected" items at the top,
@@ -79,6 +80,15 @@ existing splicejam environment. It would rebuild
    * Port `defineDetectedTx()` to use kallisto input,
    or confirm it works as-is.
 
+* Future: Investigate Salmon `--writeBam`
+
+   * Can it be used for isoform-specific coverage/junctions?
+   Answer: Probably not. Reads are aligned to transcripts,
+   not at all representing the EM estimated abundances.
+   * E.g. some type of plot that displays the total
+   coverage/junctions for the gene, then panels or
+   layers (ridge plot like maybe) one per isoform using
+   the BAM mappings.
 
 ## 27jul2026
 

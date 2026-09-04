@@ -1,3 +1,10 @@
+# splicejam 0.0.94.900
+
+## Updates
+
+* Fixed error in `makeTx2geneFromGtf()` when 'geneAttrNames'
+is empty.
+
 # splicejam 0.0.93.900
 
 ## Updates
